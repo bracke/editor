@@ -81,7 +81,7 @@ package body Editor.Clipboard.Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (M);
       else
@@ -687,7 +687,7 @@ package body Editor.Clipboard.Tests is
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
-      Before_Find_Q := S.Active_Find_Query;
+      Before_Find_Q := S.Search.Active_Find_Query;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
       Before_Undo := Undo_Count;
@@ -703,9 +703,9 @@ package body Editor.Clipboard.Tests is
               "copy must not dirty a clean buffer");
       Assert (Undo_Count = Before_Undo and then Redo_Count = Before_Redo,
               "copy must preserve undo and redo stacks");
-      Assert (S.Active_Find_Query = Before_Find_Q
-              and then not S.Active_Find_Stale
-              and then Natural (S.Active_Find_Matches.Length) = 1,
+      Assert (S.Search.Active_Find_Query = Before_Find_Q
+              and then not S.Search.Active_Find_Stale
+              and then Natural (S.Search.Active_Find_Matches.Length) = 1,
               "copy must preserve current Find/Replace state");
       Assert_No_Navigation_History_Change (S, Before_Back, Before_Fwd,
                                            "copy workflow");
@@ -821,7 +821,7 @@ package body Editor.Clipboard.Tests is
               "cut must create one undo entry and clear redo only after mutation");
       Assert (Editor.State.Is_Dirty (S),
               "cut must update dirty state through the canonical edit path");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "cut must invalidate Find/Replace through the canonical text-edit hook");
       Assert_No_Navigation_History_Change (S, Before_Back, Before_Fwd,
                                            "cut workflow");
@@ -905,7 +905,7 @@ package body Editor.Clipboard.Tests is
       Before_Clip := Editor.Clipboard.Get_Text;
       Before_Undo := Undo_Count;
       Before_Redo := Redo_Count;
-      Before_Stale := S.Active_Find_Stale;
+      Before_Stale := S.Search.Active_Find_Stale;
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
       A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Copy);
@@ -928,7 +928,7 @@ package body Editor.Clipboard.Tests is
               "render and availability checks must not extract or mutate clipboard text");
       Assert (Undo_Count = Before_Undo and then Redo_Count = Before_Redo,
               "render and availability checks must not mutate edit history");
-      Assert (S.Active_Find_Stale = Before_Stale,
+      Assert (S.Search.Active_Find_Stale = Before_Stale,
               "render and availability checks must not mutate Find/Replace state");
       Assert (Snapshot.Find_Visible and then Snapshot.Find_Match_Count = 1,
               "render snapshot must expose current Find ranges only when not stale");
@@ -1315,11 +1315,11 @@ package body Editor.Clipboard.Tests is
          Why           : String)
       is
       begin
-         Assert (Editor.Messages.Count (S.Messages) = 1,
+         Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
                  Why & " must emit exactly one primary message");
          Assert (Active_Message_Text (S) = Expected_Text,
                  Why & " primary message text mismatch");
-         Editor.Messages.Clear (S.Messages);
+         Editor.Messages.Clear (S.Panel.Messages);
       end Assert_Message_Count;
    begin
       Reset_Transient_State;
@@ -1398,10 +1398,10 @@ package body Editor.Clipboard.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Delta");
-      Assert (not S.Active_Find_Stale
-              and then S.Active_Find_Matches.Is_Empty
-              and then S.Active_Replace_Prompt
-              and then To_String (S.Active_Replace_Text) = "Delta",
+      Assert (not S.Search.Active_Find_Stale
+              and then S.Search.Active_Find_Matches.Is_Empty
+              and then S.Search.Active_Replace_Prompt
+              and then To_String (S.Search.Active_Replace_Text) = "Delta",
               "setup must have current Find state and populated Replace state");
 
       Editor.Clipboard.Set_Text (To_Unbounded_String ("Beta"));
@@ -1410,26 +1410,26 @@ package body Editor.Clipboard.Tests is
 
       Assert (Editor.State.Current_Text (S) = "Alpha Beta Gamma",
               "paste must insert text before Find/Replace invalidation assertions");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "paste must invalidate or clear stale Find matches through the canonical text-edit hook");
-      Assert (S.Active_Replace_Prompt
-              and then To_String (S.Active_Replace_Text) = "Delta"
-              and then Length (S.Active_Replace_Error_Message) = 0,
+      Assert (S.Search.Active_Replace_Prompt
+              and then To_String (S.Search.Active_Replace_Text) = "Delta"
+              and then Length (S.Search.Active_Replace_Error_Message) = 0,
               "paste invalidation must preserve Replace prompt text without corruption");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
-      Assert (not S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (not S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "undo after paste must recompute restored Find state without stale ranges");
-      Assert (S.Active_Replace_Prompt
-              and then To_String (S.Active_Replace_Text) = "Delta",
+      Assert (S.Search.Active_Replace_Prompt
+              and then To_String (S.Search.Active_Replace_Text) = "Delta",
               "undo after paste must not corrupt Replace text");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
-      Assert (not S.Active_Find_Stale
-              and then Natural (S.Active_Find_Matches.Length) = 1,
+      Assert (not S.Search.Active_Find_Stale
+              and then Natural (S.Search.Active_Find_Matches.Length) = 1,
               "redo after paste must recompute Find state for restored pasted text");
-      Assert (S.Active_Replace_Prompt
-              and then To_String (S.Active_Replace_Text) = "Delta",
+      Assert (S.Search.Active_Replace_Prompt
+              and then To_String (S.Search.Active_Replace_Text) = "Delta",
               "redo after paste must not corrupt Replace text");
    end Test_Paste_Invalidates_Find_And_Preserves_Replace_State;
 

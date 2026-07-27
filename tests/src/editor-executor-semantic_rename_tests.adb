@@ -68,9 +68,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
               "semantic rename fixture refreshes Outline");
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Ignored := LM.Add_Symbol
         (Analysis, "Run", LM.Symbol_Procedure,
@@ -105,22 +105,22 @@ package body Editor.Executor.Semantic_Rename_Tests is
                 (S.Semantic.Language_Service).Status =
               Editor.Ada_Language_Service.Semantic_Request_Completed,
               "semantic rename preview execution records a completed request");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 3,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 3,
               "semantic rename preview projects edit and conflict rows");
-      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Panel.Feature_Search_Results) =
               "rename: Run -> Run_Renamed",
               "semantic rename preview labels the Search Results query");
       Assert (Editor.Feature_Search_Results.Item_Has_Target
-                (S.Feature_Search_Results, 1),
+                (S.Panel.Feature_Search_Results, 1),
               "open-buffer semantic rename row is navigable");
       Assert (Editor.Feature_Search_Results.Item_Target_Buffer
-                (S.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
+                (S.Panel.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "semantic rename row targets the live buffer token");
       Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
               and then Editor.Panels.Active_Bottom_Content (S.Panels) =
                 Editor.Panels.Search_Results_Content,
               "semantic rename preview shows the Search Results panel");
-      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 1,
+      Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 1,
               "semantic rename preview selects the first projected row");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -150,9 +150,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
               "semantic rename-apply fixture refreshes Outline");
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Ignored := LM.Add_Symbol
         (Analysis, "Run", LM.Symbol_Procedure,
@@ -220,9 +220,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
               "open-buffer rename fixture refreshes Outline");
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Other_State := Editor.Buffers.Global_Buffer (Other_Id);
       Ignored := LM.Add_Symbol
@@ -305,9 +305,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
               "disk rename fixture refreshes Outline");
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Ignored := LM.Add_Symbol
         (Active_Analysis, "Run", LM.Symbol_Procedure,
@@ -380,9 +380,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       S.Carets.Replace_Element
         (S.Carets.First_Index,
          Editor.Cursors.Caret_State'
@@ -403,7 +403,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
         (Editor.Command_Ids.Command_Rename_Symbol_Preview);
       Cmd.Text := To_Unbounded_String ("Run_Custom");
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Panel.Feature_Search_Results) =
               "rename: Run -> Run_Custom",
               "semantic rename preview must use the prompted target name");
 
@@ -444,9 +444,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       S.Carets.Replace_Element
         (S.Carets.First_Index,
          Editor.Cursors.Caret_State'
@@ -470,7 +470,7 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Assert (Latest_Message_Text (S) =
               "Rename preview unavailable for Run: unavailable.",
               "semantic rename preview rejects reserved prompted target names");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 0,
               "reserved prompted rename preview projects no stale rows");
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -559,9 +559,9 @@ package body Editor.Executor.Semantic_Rename_Tests is
               "semantic rename conflict fixture refreshes Outline");
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Ignored := LM.Add_Symbol
         (Analysis, "Run", LM.Symbol_Procedure,

@@ -48,7 +48,7 @@ package body Editor.Executor.Quick_Open_Context_Commands is
       Query      : constant String := Quick_Open_Reveal_Query_For_Path (Path);
       Selected   : Boolean := False;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -63,7 +63,7 @@ package body Editor.Executor.Quick_Open_Context_Commands is
       end if;
 
       if not Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
       then
          Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       end if;
@@ -90,7 +90,7 @@ package body Editor.Executor.Quick_Open_Context_Commands is
       Path       : constant String := Editor.Executor.Active_Buffer_Known_Project_File (S, Found_Path);
       Scope      : constant String := Editor.Quick_Open.Directory_Scope_Of_Path (Path);
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;

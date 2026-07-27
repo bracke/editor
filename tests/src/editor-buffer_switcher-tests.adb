@@ -229,9 +229,9 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffer_Switcher.Recompute_Rows
         (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Buffer_Switcher_Overlay,
-         S.Panel_Focus);
+         S.Panel.Panel_Focus);
    end Setup_Global_Switcher_State;
 
 
@@ -4290,7 +4290,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
       Editor.Project.Apply_Open_Result
-        (S.Project,
+        (S.Project_Runtime.Project,
          (Status       => Editor.Project.Project_Open_Ok,
           Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/scenario/project"),
           Display_Name => To_Unbounded_String ("project"),
@@ -4303,7 +4303,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Set_Active_Buffer (Inside);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project, Config);
+        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project_Runtime.Project, Config);
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Inside, Found);
       Assert (Found and then Row.Is_Project_Owned
@@ -4345,7 +4345,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
       Editor.Project.Apply_Open_Result
-        (S.Project,
+        (S.Project_Runtime.Project,
          (Status       => Editor.Project.Project_Open_Ok,
           Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/scenario/labels/project"),
           Display_Name => To_Unbounded_String ("project"),
@@ -4359,7 +4359,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Set_Active_Buffer (Inside);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project, Config);
+        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project_Runtime.Project, Config);
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Inside, Found);
       Assert (Found and then To_String (Row.Display_Label) = "src/main.adb",
@@ -4500,7 +4500,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
       Editor.Project.Apply_Open_Result
-        (S.Project,
+        (S.Project_Runtime.Project,
          (Status       => Editor.Project.Project_Open_Ok,
           Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/scenario/duplicate_project"),
           Display_Name => To_Unbounded_String ("duplicate_project"),
@@ -4513,7 +4513,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Set_Active_Buffer (Main_A);
       Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project, Config);
+        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project_Runtime.Project, Config);
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Main_A, Found);
       Assert (Found and then To_String (Row.Display_Label) = "src/main.adb",
@@ -4559,7 +4559,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
       Editor.Project.Apply_Open_Result
-        (S.Project,
+        (S.Project_Runtime.Project,
          (Status       => Editor.Project.Project_Open_Ok,
           Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/scenario/labels/project"),
           Display_Name => To_Unbounded_String ("project"),
@@ -4584,7 +4584,7 @@ package body Editor.Buffer_Switcher.Tests is
         (S.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers,
-         S.Project,
+         S.Project_Runtime.Project,
          Config);
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer
@@ -4632,7 +4632,7 @@ package body Editor.Buffer_Switcher.Tests is
         (S.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers,
-         S.Project,
+         S.Project_Runtime.Project,
          Config);
       Row := Editor.Buffer_Switcher.Row_For_Buffer
         (S.Buffer_Switcher, Project_Main, Found);
@@ -4650,7 +4650,7 @@ package body Editor.Buffer_Switcher.Tests is
         (S.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers,
-         S.Project,
+         S.Project_Runtime.Project,
          Config);
       Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 3
                 and then Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = Project_Main
@@ -5845,7 +5845,7 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
       Editor.Project.Apply_Open_Result
-        (S.Project,
+        (S.Project_Runtime.Project,
          (Status       => Editor.Project.Project_Open_Ok,
           Root_Path    => To_Unbounded_String (Editor.Test_Temp.Base & "/scenario/canonical/project"),
           Display_Name => To_Unbounded_String ("project"),
@@ -5869,11 +5869,11 @@ package body Editor.Buffer_Switcher.Tests is
         (S.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers,
-         S.Project,
+         S.Project_Runtime.Project,
          Config);
 
       Metadata := Editor.Buffers.Metadata_For
-        (Editor.Buffers.Global_Registry_For_UI, S.Project, Inside);
+        (Editor.Buffers.Global_Registry_For_UI, S.Project_Runtime.Project, Inside);
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Inside, Found);
       Assert (Found
                 and then Metadata.Ownership = Editor.Buffers.Buffer_Project_Owned
@@ -5884,7 +5884,7 @@ package body Editor.Buffer_Switcher.Tests is
               "Buffer List project rows derive path/ownership/display from Buffer_Metadata_Snapshot");
 
       Metadata := Editor.Buffers.Metadata_For
-        (Editor.Buffers.Global_Registry_For_UI, S.Project, Outside);
+        (Editor.Buffers.Global_Registry_For_UI, S.Project_Runtime.Project, Outside);
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Outside, Found);
       Assert (Found
                 and then Metadata.Ownership = Editor.Buffers.Buffer_Outside_Project
@@ -5894,7 +5894,7 @@ package body Editor.Buffer_Switcher.Tests is
               "Buffer List outside-project rows use normalized metadata classification rather than raw path prefixes");
 
       Metadata := Editor.Buffers.Metadata_For
-        (Editor.Buffers.Global_Registry_For_UI, S.Project, Scratch);
+        (Editor.Buffers.Global_Registry_For_UI, S.Project_Runtime.Project, Scratch);
       Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Scratch, Found);
       Assert (Found
                 and then Metadata.Ownership = Editor.Buffers.Buffer_Scratch_Unbacked

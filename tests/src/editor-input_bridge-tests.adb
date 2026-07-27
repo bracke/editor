@@ -242,7 +242,7 @@ package body Editor.Input_Bridge.Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "fixture project must open before file tree activation");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.View.Set_Viewport (Width => 800, Height => 480);
       A_Dir := Editor.File_Tree.Find_By_Path (S.File_Tree, "a_dir", Found);
@@ -291,7 +291,7 @@ package body Editor.Input_Bridge.Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "fixture project must open before file tree activation");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.View.Set_Viewport (Width => 800, Height => 480);
       File_Id := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
@@ -480,7 +480,7 @@ package body Editor.Input_Bridge.Tests is
 
       Assert (not Editor.Pending_Transitions.Has_Pending (After.Pending_Transitions),
               "clicking pending bar Cancel must route through cancel command");
-      Message := Editor.Messages.Active_Message (After.Messages, Found_Message);
+      Message := Editor.Messages.Active_Message (After.Panel.Messages, Found_Message);
       Assert (Found_Message
               and then Editor.Messages.Text (Message) =
                 "Clear workspace cancelled",
@@ -493,7 +493,7 @@ package body Editor.Input_Bridge.Tests is
 
       Assert (not Editor.Pending_Transitions.Has_Pending (After.Pending_Transitions),
               "clicking pending bar Retry must clear stale pending transition");
-      Message := Editor.Messages.Active_Message (After.Messages, Found_Message);
+      Message := Editor.Messages.Active_Message (After.Panel.Messages, Found_Message);
       Assert (Found_Message
               and then Editor.Messages.Text (Message) =
                 Editor.Dirty_Guards.Pending_Transition_No_Longer_Valid_Message,
@@ -735,7 +735,7 @@ package body Editor.Input_Bridge.Tests is
         (After.Carets (After.Carets.First_Index).Pos = 5,
          "clicking a Problems row must jump through diagnostic navigation");
       Assert
-        (After.Active_Diagnostic.Has_Active and then After.Active_Diagnostic.Index = 1,
+        (After.Panel.Active_Diagnostic.Has_Active and then After.Panel.Active_Diagnostic.Index = 1,
          "Problems row click must set the active diagnostic");
 
       Editor.Panels.Initialize_Defaults (S.Panels);
@@ -792,7 +792,7 @@ package body Editor.Input_Bridge.Tests is
             Show_Severity           => True,
             Show_Row_Column         => True,
             Maximum_Message_Columns => 120),
-         Snapshot    => Editor.Problems.Build_Snapshot (S.Diagnostics),
+         Snapshot    => Editor.Problems.Build_Snapshot (S.Panel.Diagnostics),
          Cell_Height => Editor.Layout.Cell_H,
          X           => Panel.X + Integer (Editor.Layout.Cell_W),
          Y           => Integer (Y));
@@ -803,7 +803,7 @@ package body Editor.Input_Bridge.Tests is
         (Pointer_Click (Natural (Panel.X) + Editor.Layout.Cell_W, Y));
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
-        (After.Problems_View.Severity_Filter =
+        (After.Panel.Problems_View.Severity_Filter =
          Editor.Problems.Problems_Show_Errors,
          "left Problems header click must toggle the errors filter");
 
@@ -812,7 +812,7 @@ package body Editor.Input_Bridge.Tests is
         (Pointer_Click (Natural (Panel.X) + Panel.Width / 2, Y));
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
-        (After.Problems_View.Sort_Mode =
+        (After.Panel.Problems_View.Sort_Mode =
          Editor.Problems.Problems_Sort_By_Severity,
          "middle Problems header click must cycle sort mode");
 
@@ -822,7 +822,7 @@ package body Editor.Input_Bridge.Tests is
            (Natural (Panel.X) + Panel.Width - Editor.Layout.Cell_W, Y));
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
-        (After.Problems_View.Group_Mode =
+        (After.Panel.Problems_View.Group_Mode =
          Editor.Problems.Problems_Group_By_Source,
          "right Problems header click must cycle grouping");
 
@@ -849,27 +849,27 @@ package body Editor.Input_Bridge.Tests is
       Editor.Build_UI_Actions.Show_Build_UI (S);
       for I in 1 .. 2 loop
          Editor.Feature_Diagnostics.Add_Diagnostic
-           (S.Feature_Diagnostics,
+           (S.Panel.Feature_Diagnostics,
             Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
             Message      => "suppressed pointer" & Natural'Image (I),
             Source_Label => "src/main.adb",
             Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source);
       end loop;
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Assert
         (Editor.Feature_Diagnostics.Suppress_Selected_Diagnostic
-           (S.Feature_Diagnostics, S.Feature_Panel),
+           (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel),
          "fixture can suppress first pointer diagnostic");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Assert
         (Editor.Feature_Diagnostics.Suppress_Selected_Diagnostic
-           (S.Feature_Diagnostics, S.Feature_Panel),
+           (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel),
          "fixture can suppress second pointer diagnostic");
       Assert
         (Editor.Feature_Diagnostics.Selected_Suppressed_Diagnostic
-           (S.Feature_Diagnostics) = 2,
+           (S.Panel.Feature_Diagnostics) = 2,
          "latest suppressed diagnostic starts selected");
 
       Editor.View.Set_Viewport (Width => Width, Height => Height);
@@ -897,7 +897,7 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (Editor.Feature_Diagnostics.Selected_Suppressed_Diagnostic
-           (After.Feature_Diagnostics) = 1,
+           (After.Panel.Feature_Diagnostics) = 1,
          "Build UI suppressed row click selects the suppressed diagnostic");
    end Test_Build_UI_Suppressed_Row_Click_Selects_Suppressed_Diagnostic;
 
@@ -989,7 +989,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Build_UI_Actions.Focus_Build_UI (S);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "missing semicolon",
          Source_Label  => "semantic",
@@ -1007,14 +1007,14 @@ package body Editor.Input_Bridge.Tests is
          Quick_Fix_Label   => "Insert semicolon",
          Quick_Fix_Detail  => "Append statement delimiter");
       Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Command
-        (S.Feature_Diagnostics, 1,
+        (S.Panel.Feature_Diagnostics, 1,
          Label  => "Explain missing semicolon",
          Detail => "Open diagnostic explanation",
          Primary_Action_Kind =>
            Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Explain_Diagnostic);
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
       Quick_Fix_Row := Editor.Build_UI.Find_Action_Row
@@ -1141,7 +1141,7 @@ package body Editor.Input_Bridge.Tests is
         (After.Carets (After.Carets.First_Index).Pos = Before_Pos,
          "focused Search Results Down key must not move the editor caret");
       Assert
-        (Editor.Panel_Focus.Bottom_Content (After.Panel_Focus) =
+        (Editor.Panel_Focus.Bottom_Content (After.Panel.Panel_Focus) =
            Editor.Panel_Focus.Search_Results_Focus,
          "focused Search Results Down key should keep Search Results focus");
       Assert
@@ -1181,7 +1181,7 @@ package body Editor.Input_Bridge.Tests is
         (S.Panels, Editor.Panels.Problems_Content);
       Editor.Panels.Set_Visible (S.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Panel_Focus.Focus_Bottom_Panel
-        (S.Panel_Focus, Editor.Panel_Focus.Problems_Focus);
+        (S.Panel.Panel_Focus, Editor.Panel_Focus.Problems_Focus);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Editor.Input_Bridge.Handle_Key_Chord
@@ -1190,12 +1190,12 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (Editor.Panel_Focus.Bottom_Panel_Has_Focus (After.Panel_Focus)
-         and then Editor.Panel_Focus.Bottom_Content (After.Panel_Focus) =
+        (Editor.Panel_Focus.Bottom_Panel_Has_Focus (After.Panel.Panel_Focus)
+         and then Editor.Panel_Focus.Bottom_Content (After.Panel.Panel_Focus) =
            Editor.Panel_Focus.Problems_Focus,
          "focused Problems Down key must stay local before global bindings");
       Assert
-        (Editor.Problems.Selected_Row_Index (After.Problems_View) > 0,
+        (Editor.Problems.Selected_Row_Index (After.Panel.Problems_View) > 0,
          "focused Problems Down key must select within Problems");
 
       Editor.Keybindings.Reset_To_Defaults;
@@ -1268,7 +1268,7 @@ package body Editor.Input_Bridge.Tests is
 
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
       Before := Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
@@ -1278,7 +1278,7 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (Editor.Panel_Focus.File_Tree_Has_Focus (After.Panel_Focus),
+        (Editor.Panel_Focus.File_Tree_Has_Focus (After.Panel.Panel_Focus),
          "focused File Tree Down key must stay local before global bindings");
       Assert
         (Editor.File_Tree_View.Selected_Row_Index (After.File_Tree_View) > Before,
@@ -1306,11 +1306,11 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "recent focus");
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Editor.Test_Temp.Base & "/recent-a", "recent-a", 1);
+        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/recent-a", "recent-a", 1);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Editor.Test_Temp.Base & "/recent-b", "recent-b", 2);
-      S.Recent_Projects_Focused := True;
-      S.Recent_Project_Selected_Index := 1;
+        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/recent-b", "recent-b", 2);
+      S.Project_Runtime.Recent_Projects_Focused := True;
+      S.Project_Runtime.Recent_Project_Selected_Index := 1;
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Editor.Input_Bridge.Handle_Key_Chord
@@ -1319,10 +1319,10 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (After.Recent_Projects_Focused,
+        (After.Project_Runtime.Recent_Projects_Focused,
          "focused Recent Projects Down key must stay local before global bindings");
       Assert
-        (After.Recent_Project_Selected_Index = 2,
+        (After.Project_Runtime.Recent_Project_Selected_Index = 2,
          "focused Recent Projects Down key must select the next recent project");
 
       Editor.Keybindings.Reset_To_Defaults;
@@ -1388,7 +1388,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc");
       Editor.Feature_Search_Results.Activate_Search_Query_Input
-        (S.Feature_Search_Results);
+        (S.Panel.Feature_Search_Results);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
@@ -1403,7 +1403,7 @@ package body Editor.Input_Bridge.Tests is
          "active Search query input must prevent accidental buffer edits");
       Assert
         (Editor.Feature_Search_Results.Search_Input_Text
-           (After.Feature_Search_Results) = "x",
+           (After.Panel.Feature_Search_Results) = "x",
          "typed text must be routed to the active Search query input");
       Editor.Buffers.Reset_Global_For_Test;
    end Test_Search_Query_Input_Consumes_Text_Before_Buffer;
@@ -1465,13 +1465,13 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta");
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results, "alpha", "buffer", True, S.Buffer_Lifecycle.Active_Buffer_Token, 1, 1);
+        (S.Panel.Feature_Search_Results, "alpha", "buffer", True, S.Buffer_Lifecycle.Active_Buffer_Token, 1, 1);
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results, "beta", "buffer", True, S.Buffer_Lifecycle.Active_Buffer_Token, 2, 1);
+        (S.Panel.Feature_Search_Results, "beta", "buffer", True, S.Buffer_Lifecycle.Active_Buffer_Token, 2, 1);
       Editor.Feature_Search_Results.Project_Rows
-        (S.Feature_Search_Results, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 0);
+        (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 0);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (Width => 800, Height => 480);
 
@@ -1485,11 +1485,11 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (Editor.Feature_Panel.Active_Feature (After.Feature_Panel) =
+        (Editor.Feature_Panel.Active_Feature (After.Panel.Feature_Panel) =
          Editor.Feature_Panel.Search_Results_Feature,
          "search-result mouse click must keep Search Results as the active feature");
       Assert
-        (Editor.Feature_Panel.Selected_Row (After.Feature_Panel) = 2,
+        (Editor.Feature_Panel.Selected_Row (After.Panel.Feature_Panel) = 2,
          "search-result mouse click must select the clicked feature row");
       Assert
         (After.Carets (After.Carets.First_Index).Pos =
@@ -1513,10 +1513,10 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta");
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results, "beta", "buffer", True, S.Buffer_Lifecycle.Active_Buffer_Token, 2, 2);
+        (S.Panel.Feature_Search_Results, "beta", "buffer", True, S.Buffer_Lifecycle.Active_Buffer_Token, 2, 2);
       Editor.Feature_Search_Results.Project_Rows
-        (S.Feature_Search_Results, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+        (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (Width => 800, Height => 480);
 
@@ -1533,7 +1533,7 @@ package body Editor.Input_Bridge.Tests is
         (After.Carets (After.Carets.First_Index).Pos = 7,
          "double-clicking a Search Results feature row must activate through the search-result target path");
       Assert
-        (Editor.Feature_Panel.Selected_Row (After.Feature_Panel) = 1,
+        (Editor.Feature_Panel.Selected_Row (After.Panel.Feature_Panel) = 1,
          "Search Results activation must select the activated feature row");
       Editor.Buffers.Reset_Global_For_Test;
    end Test_Feature_Panel_Search_Double_Click_Activates_Row;
@@ -1553,16 +1553,16 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta");
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Warning,
+        (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Warning,
          "first", "buffer", Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          True, S.Buffer_Lifecycle.Registry_Token, 1, 1);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error,
+        (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error,
          "second", "buffer", Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          True, S.Buffer_Lifecycle.Registry_Token, 2, 1);
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (Width => 800, Height => 480);
 
@@ -1576,11 +1576,11 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (Editor.Feature_Panel.Active_Feature (After.Feature_Panel) =
+        (Editor.Feature_Panel.Active_Feature (After.Panel.Feature_Panel) =
          Editor.Feature_Panel.Diagnostics_Feature,
          "diagnostics mouse click must keep Diagnostics as the active feature");
       Assert
-        (Editor.Feature_Panel.Selected_Row (After.Feature_Panel) = 2,
+        (Editor.Feature_Panel.Selected_Row (After.Panel.Feature_Panel) = 2,
          "diagnostics mouse click must select the clicked feature row");
       Assert
         (After.Carets (After.Carets.First_Index).Pos =
@@ -1665,7 +1665,7 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (Editor.Problems.Top_Row (After.Problems_View) > 1,
+        (Editor.Problems.Top_Row (After.Panel.Problems_View) > 1,
          "wheel over Problems panel must scroll Problems rows");
       Assert
         (Editor.View.Scroll_Y = 0,
@@ -1761,19 +1761,19 @@ package body Editor.Input_Bridge.Tests is
       Editor.Build_UI_Actions.Show_Build_UI (S);
       for I in 1 .. 8 loop
          Editor.Feature_Diagnostics.Add_Diagnostic
-           (S.Feature_Diagnostics,
+           (S.Panel.Feature_Diagnostics,
             Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
             Message      => "suppressed wheel" & Natural'Image (I),
             Source_Label => "src/main.adb",
             Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source);
       end loop;
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
       for I in 1 .. 8 loop
-         Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+         Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
          Assert
            (Editor.Feature_Diagnostics.Suppress_Selected_Diagnostic
-              (S.Feature_Diagnostics, S.Feature_Panel),
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel),
             "fixture can suppress diagnostics for wheel scrolling");
       end loop;
 
@@ -1781,7 +1781,7 @@ package body Editor.Input_Bridge.Tests is
       Action_Count := Natural (Snapshot.Actions.Length);
       Suppressed_Count :=
         Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-          (S.Feature_Diagnostics);
+          (S.Panel.Feature_Diagnostics);
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport
         (Width => Editor.Layout.Cell_W * 96,
@@ -1817,7 +1817,7 @@ package body Editor.Input_Bridge.Tests is
 
       Assert
         (Editor.Feature_Diagnostics.Suppressed_Top_Row
-           (After.Feature_Diagnostics, Displayed_Suppressed_Count) > 1,
+           (After.Panel.Feature_Diagnostics, Displayed_Suppressed_Count) > 1,
          "wheel over Build UI suppressed rows must scroll suppressed diagnostics");
       Assert
         (Editor.View.Scroll_Y = 0,
@@ -2023,9 +2023,9 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha Beta");
       Editor.State.Set_Dirty (S, False);
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Replace_Text := To_Unbounded_String ("Gamma");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Gamma");
+      S.Search.Active_Find_Stale := False;
       Set_Primary_Caret (S, 5, 5);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
@@ -2070,9 +2070,9 @@ package body Editor.Input_Bridge.Tests is
          "route preview must not mutate caret or selection");
       Assert (not Editor.State.Is_Dirty (After),
               "route preview must not dirty active buffers");
-      Assert (After.Active_Find_Query = To_Unbounded_String ("Beta")
-              and then After.Active_Replace_Text = To_Unbounded_String ("Gamma")
-              and then not After.Active_Find_Stale,
+      Assert (After.Search.Active_Find_Query = To_Unbounded_String ("Beta")
+              and then After.Search.Active_Replace_Text = To_Unbounded_String ("Gamma")
+              and then not After.Search.Active_Find_Stale,
               "route preview must not mutate Find/Replace state");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
               "route preview must not mutate Clipboard text");
@@ -2222,7 +2222,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc");
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Assert
@@ -2274,8 +2274,8 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc def");
       Editor.State.Set_Dirty (S, False);
-      S.Active_Find_Query := To_Unbounded_String ("def");
-      S.Active_Replace_Text := To_Unbounded_String ("ghi");
+      S.Search.Active_Find_Query := To_Unbounded_String ("def");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("ghi");
       Set_Primary_Caret (S, 3, 3);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
@@ -2343,8 +2343,8 @@ package body Editor.Input_Bridge.Tests is
               "route previews must not mutate Undo/Redo stacks");
       Assert (not Editor.State.Is_Dirty (After),
               "route previews must not dirty active buffers");
-      Assert (After.Active_Find_Query = To_Unbounded_String ("def")
-              and then After.Active_Replace_Text = To_Unbounded_String ("ghi"),
+      Assert (After.Search.Active_Find_Query = To_Unbounded_String ("def")
+              and then After.Search.Active_Replace_Text = To_Unbounded_String ("ghi"),
               "route previews must not mutate Find/Replace state");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
               "route previews must not mutate Clipboard state");
@@ -2370,7 +2370,7 @@ package body Editor.Input_Bridge.Tests is
          "overlay previous-character delete");
 
       Editor.Executor.Quick_Open_Commands.Execute_Close_Quick_Open (After);
-      Editor.Panel_Focus.Focus_File_Tree (After.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (After.Panel.Panel_Focus);
       Editor.Input_Bridge.Set_State_For_Test (After);
       Assert
         (Editor.Input_Bridge.Resolve_Text_Entry_Focus_Target =
@@ -2400,8 +2400,8 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc def");
       Editor.State.Set_Dirty (S, False);
-      S.Active_Find_Query := To_Unbounded_String ("def");
-      S.Active_Replace_Text := To_Unbounded_String ("ghi");
+      S.Search.Active_Find_Query := To_Unbounded_String ("def");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("ghi");
       Set_Primary_Caret (S, 4, 7);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Before_Nav_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
@@ -2422,7 +2422,7 @@ package body Editor.Input_Bridge.Tests is
               "Text Insert replacement creates exactly one canonical undo entry");
       Assert (Editor.State.Is_Dirty (S),
               "dirty state is updated by the canonical Text Insert owner");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "Find/Replace invalidation is driven by the canonical Text Insert owner");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
               "Text Insert replacement must not mutate Clipboard");
@@ -2633,8 +2633,8 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "persist");
       Set_Primary_Caret (S, 7, 7);
-      S.Active_Find_Query := To_Unbounded_String ("persist");
-      S.Active_Replace_Text := To_Unbounded_String ("state");
+      S.Search.Active_Find_Query := To_Unbounded_String ("persist");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("state");
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle (Text_Command ("overlay"));
@@ -2952,7 +2952,7 @@ package body Editor.Input_Bridge.Tests is
 
       Assert (not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
               "create-file must not open a prompt with no project");
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (Msg) = "No project open.",
               "unavailable create-file must report no project before prompt start");
    end Test_File_Tree_Mutation_Prompts_Check_Availability_Before_Start;
@@ -3004,9 +3004,9 @@ package body Editor.Input_Bridge.Tests is
       Editor.C_API.Editor_Open_Project_Path (Path);
       S := Editor.Input_Bridge.Get_State_For_Test;
 
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "runtime C API project path must open a project");
-      Assert (Editor.Project.Root_Path (S.Project) = Root,
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Root,
               "runtime C API project path must become the active project root");
 
       Interfaces.C.Strings.Free (Path);
@@ -3121,9 +3121,9 @@ package body Editor.Input_Bridge.Tests is
           Modifiers => (others => False)));
       S := Editor.Input_Bridge.Get_State_For_Test;
 
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "Enter opens the picker-selected project directory");
-      Assert (Editor.Project.Root_Path (S.Project) =
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) =
                 Ada.Directories.Full_Name (A_Dir),
               "picker-selected directory becomes the active project root");
 
@@ -3185,9 +3185,9 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Handle (Enter);
       S := Editor.Input_Bridge.Get_State_For_Test;
 
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "second runtime Enter opens the current selected directory");
-      Assert (Editor.Project.Root_Path (S.Project) =
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) =
                 Ada.Directories.Full_Name (A_Dir),
               "runtime Enter opens the browsed directory as project root");
 
@@ -3218,7 +3218,7 @@ package body Editor.Input_Bridge.Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "rename prefill setup project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
       Node := Editor.File_Tree.Find_By_Path (S.File_Tree, File_Path, Found);
@@ -3266,7 +3266,7 @@ package body Editor.Input_Bridge.Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "delete prompt setup project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, File_Path);
 
@@ -3332,7 +3332,7 @@ package body Editor.Input_Bridge.Tests is
 
          Assert (not Editor.Guided_Prompts.Is_Active (S.Guided_Prompt),
                  "cancel must clear the transient prompt");
-         Msg := Editor.Messages.Active_Message (S.Messages, Found);
+         Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
          Assert (Found and then Editor.Messages.Text (Msg) = Expected,
                  "File Tree cancel should report " & Expected);
       end Assert_Cancel_Message;
@@ -3342,7 +3342,7 @@ package body Editor.Input_Bridge.Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "cancel-message setup project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
       Assert_Cancel_Message

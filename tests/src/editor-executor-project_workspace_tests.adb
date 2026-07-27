@@ -91,7 +91,7 @@ package body Editor.Executor.Project_Workspace_Tests is
          null;
       end;
 
-      Assert (not Editor.Project.Has_Project (S.Project),
+      Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "project close must clear the project state");
       Ignored_Id := Editor.Buffers.Global_Find_By_Path (Project_F, Found);
       Assert (not Found,
@@ -145,7 +145,7 @@ package body Editor.Executor.Project_Workspace_Tests is
          null;
       end;
 
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "blocked project close must preserve project state");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Before_Rows,
               "blocked project close must preserve File Tree state");
@@ -201,7 +201,7 @@ package body Editor.Executor.Project_Workspace_Tests is
          null;
       end;
 
-      Assert (not Editor.Project.Has_Project (S.Project),
+      Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "unrelated dirty buffers must not block project close");
       Ignored_Id := Editor.Buffers.Global_Find_By_Path (Project_F, Found);
       Assert (not Found,
@@ -256,9 +256,9 @@ package body Editor.Executor.Project_Workspace_Tests is
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "switch must leave an active project");
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_B),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_B),
               "switch must install the validated target project");
       Ignored_Id := Editor.Buffers.Global_Find_By_Path (Project_A, Found);
       Assert (not Found,
@@ -314,7 +314,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_A),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "blocked switch must preserve active project");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Before_Rows,
               "blocked switch must preserve File Tree state");
@@ -325,7 +325,7 @@ package body Editor.Executor.Project_Workspace_Tests is
               "blocked switch must capture a pending transition");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_A),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "cancelled switch must still preserve active project");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "cancelled switch must clear only the transient payload");
@@ -364,11 +364,11 @@ package body Editor.Executor.Project_Workspace_Tests is
       Cmd.Path := To_Unbounded_String (Missing);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_A),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "failed switch must preserve previous active project");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Rows,
               "failed switch must preserve previous project surfaces");
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "failed switch must not promote the missing target");
       Assert (Latest_Message_Text (S) = "Target project unavailable",
               "failed switch must report target unavailability");
@@ -399,11 +399,11 @@ package body Editor.Executor.Project_Workspace_Tests is
       Cmd.Path := To_Unbounded_String (Root);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (not Editor.Project.Has_Project (S.Project),
+      Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "switch without source project must not open target as project.open");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = 0,
               "switch without source project must not initialize File Tree");
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 0,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0,
               "switch without source project must not promote Recent Projects");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "switch without source project must not create pending state");
@@ -441,21 +441,21 @@ package body Editor.Executor.Project_Workspace_Tests is
       Id := Editor.Buffers.Global_Find_By_Path (Project_A, Found);
       Assert (Found and then Id /= Editor.Buffers.No_Buffer,
               "same-project switch setup must have an open project buffer");
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "same-project switch setup must have one recent project");
 
       Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Root);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root),
               "same-project switch must preserve active project");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Rows,
               "same-project switch must not clear File Tree rows");
       Id := Editor.Buffers.Global_Find_By_Path (Project_A, Found);
       Assert (Found and then Id /= Editor.Buffers.No_Buffer,
               "same-project switch must not close clean project buffers");
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "same-project switch must not promote a duplicate recent entry");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "same-project switch must not create a pending transition");
@@ -502,14 +502,14 @@ package body Editor.Executor.Project_Workspace_Tests is
       Cmd.Path := To_Unbounded_String (Root);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Project.Root_Path (S.Project) = To_String (Root_Full),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = To_String (Root_Full),
               "same-project switch must preserve project even when root vanished");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Rows,
               "same-project missing-root switch must not clear File Tree rows");
       Id := Editor.Buffers.Global_Find_By_Path (Project_A, Found);
       Assert (Found and then Id /= Editor.Buffers.No_Buffer,
               "same-project missing-root switch must not close buffers");
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "same-project missing-root switch must not repromote Recent Projects");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "same-project missing-root switch must not create pending state");
@@ -562,7 +562,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Cmd.Path := To_Unbounded_String (Root_C);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_A),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "different switch target while pending must preserve source project");
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "different switch target while pending must preserve pending payload");
@@ -622,14 +622,14 @@ package body Editor.Executor.Project_Workspace_Tests is
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_A),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "switch while close pending must preserve source project");
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "switch while close pending must preserve pending close payload");
       Target := Editor.Pending_Transitions.Target (S.Pending_Transitions);
       Assert (Target.Kind = Editor.Pending_Transitions.Pending_Close_Project,
               "switch while close pending must not replace pending close");
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "switch while close pending must not promote target recent project");
       Assert (Latest_Message_Text (S) = "Command unavailable while confirmation is pending.",
               "switch while close pending must report command unavailability");
@@ -669,7 +669,7 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
 
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root),
               "blocked close must preserve active project");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Before_Rows,
               "blocked close must preserve File Tree state");
@@ -680,7 +680,7 @@ package body Editor.Executor.Project_Workspace_Tests is
               "blocked close must capture a pending confirmation");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root),
               "cancelled close must still preserve active project");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "cancelled close must clear only the transient payload");
@@ -739,9 +739,9 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
 
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "switch retry must leave an active project");
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_B),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_B),
               "switch retry must proceed after project dirty is resolved");
       Outside_Id := Editor.Buffers.Global_Find_By_Path (Outside_F, Found);
       Assert (Found and then Editor.Buffers.Global_Summary_For (Outside_Id).Is_Dirty,
@@ -800,7 +800,7 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Retry_Pending_Transition);
 
-      Assert (not Editor.Project.Has_Project (S.Project),
+      Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "close retry must proceed after project dirty is resolved");
       Outside_Id := Editor.Buffers.Global_Find_By_Path (Outside_F, Found);
       Assert (Found and then Editor.Buffers.Global_Summary_For (Outside_Id).Is_Dirty,
@@ -833,18 +833,18 @@ package body Editor.Executor.Project_Workspace_Tests is
       Build_Fixture (Root);
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "setup must promote opened project to Recent Projects");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) > 0,
               "setup must have project File Tree rows");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
 
-      Assert (not Editor.Project.Has_Project (S.Project),
+      Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "clean close must clear active project");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = 0,
               "clean close must clear File Tree rows");
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "clean close must retain Recent Projects entries");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "clean close must leave no pending transition");
@@ -888,7 +888,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_B),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_B),
               "undo switch setup must switch projects");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Undo_Before,
               "switch must preserve retained outside-buffer undo history");
@@ -932,7 +932,7 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
 
-      Assert (not Editor.Project.Has_Project (S.Project),
+      Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "undo close setup must close the project");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Undo_Before,
               "close must preserve retained outside-buffer undo history");
@@ -983,7 +983,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_B),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_B),
               "recent switch setup must switch projects");
       Assert (Editor.Buffers.Global_Contains (Outside_Id),
               "switch must retain outside buffer");
@@ -1032,7 +1032,7 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
 
-      Assert (not Editor.Project.Has_Project (S.Project),
+      Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "recent close setup must close project");
       Assert (Editor.Buffers.Global_Contains (Outside_Id),
               "close must retain outside buffer");
@@ -1091,7 +1091,7 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       declare
          Sets : constant Editor.Buffers.Buffer_Project_Lifecycle_Sets :=
-           Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project);
+           Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project_Runtime.Project);
       begin
          Assert (Natural (Sets.Project_Close_Affected.Length) = 1,
                  "switch setup should expose exactly one affected project buffer");
@@ -1108,9 +1108,9 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Discard_Pending_Transition);
 
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "switch discard should complete the project switch");
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_B),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_B),
               "switch discard should install the target project");
       Ignored_Id := Editor.Buffers.Global_Find_By_Path (Project_A, Found);
       Assert (not Found,
@@ -1175,8 +1175,8 @@ package body Editor.Executor.Project_Workspace_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
-      Before_Dirty := Editor.Buffers.Global_Categorized_Dirty_Buffer_Summary (S.Project);
-      Before_Sets  := Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project);
+      Before_Dirty := Editor.Buffers.Global_Categorized_Dirty_Buffer_Summary (S.Project_Runtime.Project);
+      Before_Sets  := Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project_Runtime.Project);
       Boundary := Editor.Configuration_Audit.Buffer_Boundary_Audit_For
         (S,
          "workspace-format-version=1" & ASCII.LF
@@ -1212,8 +1212,8 @@ package body Editor.Executor.Project_Workspace_Tests is
       Assert (Editor.Buffers.Global_Contains (Outside_Id),
               "preservation smoke: cancel keeps outside-project buffer open");
 
-      After_Dirty := Editor.Buffers.Global_Categorized_Dirty_Buffer_Summary (S.Project);
-      After_Sets  := Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project);
+      After_Dirty := Editor.Buffers.Global_Categorized_Dirty_Buffer_Summary (S.Project_Runtime.Project);
+      After_Sets  := Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project_Runtime.Project);
       Assert (After_Dirty.Dirty_Count = Before_Dirty.Dirty_Count
                 and then After_Dirty.File_Backed_Count = Before_Dirty.File_Backed_Count,
               "preservation smoke: audit/routing changes do not disturb dirty guard state");

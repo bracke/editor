@@ -58,7 +58,7 @@ package body Editor.Outline.Ada_Extraction_Tests is
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (Msg);
       end if;
@@ -181,7 +181,7 @@ package body Editor.Outline.Ada_Extraction_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "first refresh executes through executor");
       Outline_First := Fingerprint (S.Outline);
-      Panel_First := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Panel_First := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
 
       Editor.State.Load_Text
         (S, "@outline procedure Totally_Different" & ASCII.LF &
@@ -192,7 +192,7 @@ package body Editor.Outline.Ada_Extraction_Tests is
               "second refresh executes through executor");
       Assert (Fingerprint (S.Outline) /= Outline_First,
               "buffer extractor refresh inspects explicit active-buffer snapshot");
-      Assert (Editor.Feature_Panel.Fingerprint (S.Feature_Panel).Row_Labels_Hash /=
+      Assert (Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel).Row_Labels_Hash /=
                 Panel_First.Row_Labels_Hash,
               "buffer extractor projection labels follow markers");
       Assert (Active_Message_Text (S) = Editor.Outline.Message_Outline_Refreshed,
@@ -411,8 +411,8 @@ package body Editor.Outline.Ada_Extraction_Tests is
       Assert (Item_Count (S.Outline) = 2,
               "Ada command refresh extracts package and procedure rows");
 
-      Editor.Feature_Panel.Select_First (S.Feature_Panel);
-      Editor.Feature_Panel.Select_Next (S.Feature_Panel);
+      Editor.Feature_Panel.Select_First (S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Next (S.Panel.Feature_Panel);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -1935,10 +1935,10 @@ package body Editor.Outline.Ada_Extraction_Tests is
               "subtype row has a compact Ada symbol label");
       Assert (Item_Kind (S.Outline, 2) = Outline_Type,
               "subtype reuses the existing type outline kind");
-      Assert (Editor.Feature_Panel.Row_Label (S.Feature_Panel, 2) = "subtype Count",
+      Assert (Editor.Feature_Panel.Row_Label (S.Panel.Feature_Panel, 2) = "subtype Count",
               "Feature Panel projection displays the subtype row");
 
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 2);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 2);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,

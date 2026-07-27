@@ -83,13 +83,13 @@ package body Editor.Executor.UI_Tests is
            Editor.Panels.Problems_Content,
          "focus Problems should select Problems bottom content");
       Assert
-        (Editor.Panel_Focus.Target (S.Panel_Focus) =
+        (Editor.Panel_Focus.Target (S.Panel.Panel_Focus) =
            Editor.Panel_Focus.Bottom_Panel_Focus
-         and then Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) =
+         and then Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) =
            Editor.Panel_Focus.Problems_Focus,
          "focus Problems should move keyboard ownership to Problems");
       Assert
-        (Editor.Problems.Selected_Row_Index (S.Problems_View) = 1,
+        (Editor.Problems.Selected_Row_Index (S.Panel.Problems_View) = 1,
          "focus Problems should select the first diagnostic row");
    end Test_Focus_Problems_Shows_And_Focuses;
 
@@ -118,13 +118,13 @@ package body Editor.Executor.UI_Tests is
       Editor.Executor.Diagnostics_Problems_Commands.Execute_Problems_Move_Down (S);
 
       Assert
-        (Editor.Problems.Selected_Row_Index (S.Problems_View) = 2,
+        (Editor.Problems.Selected_Row_Index (S.Panel.Problems_View) = 2,
          "focused Down should move Problems selection only");
       Assert
         (S.Carets (S.Carets.First_Index).Pos = Before_Pos,
          "focused Down must not move the editor caret");
       Assert
-        (Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) =
+        (Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) =
            Editor.Panel_Focus.Problems_Focus,
          "focused movement should keep Problems focus");
    end Test_Problems_Move_Is_Selection_Only;
@@ -149,14 +149,14 @@ package body Editor.Executor.UI_Tests is
       Editor.Executor.Diagnostics_Problems_Commands.Execute_Problems_Open_Selected (S);
 
       Assert
-        (S.Active_Diagnostic.Has_Active
-         and then S.Active_Diagnostic.Index = 2,
+        (S.Panel.Active_Diagnostic.Has_Active
+         and then S.Panel.Active_Diagnostic.Index = 2,
          "Enter should open the selected diagnostic");
       Assert
         (S.Carets (S.Carets.First_Index).Pos = 4,
          "selected diagnostic open should move caret to diagnostic target");
       Assert
-        (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel_Focus),
+        (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus),
          "Enter should return focus to editor text after opening a problem");
       Assert
         (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
@@ -173,16 +173,16 @@ package body Editor.Executor.UI_Tests is
    begin
       Init_Executor_Test_State (S);
       Editor.Executor.Panel_Focus_Commands.Execute_Focus_Problems (S);
-      Editor.Problems.Set_Selected_Row_Index (S.Problems_View, 0);
+      Editor.Problems.Set_Selected_Row_Index (S.Panel.Problems_View, 0);
 
       Editor.Executor.Diagnostics_Problems_Commands.Execute_Problems_Open_Selected (S);
 
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert
         (Found and then To_String (Msg.Text) = "No diagnostic selected",
          "opening with no selected problem should report a deterministic failure");
       Assert
-        (Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) =
+        (Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) =
            Editor.Panel_Focus.Problems_Focus,
          "opening with no selected problem should preserve Problems focus");
    end Test_Problems_Open_No_Selection_Reports;
@@ -199,7 +199,7 @@ package body Editor.Executor.UI_Tests is
       Editor.Executor.Diagnostics_Problems_Commands.Execute_Problems_Focus_Editor (S);
 
       Assert
-        (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel_Focus),
+        (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus),
          "Escape should return focus to editor text");
       Assert
         (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
@@ -221,7 +221,7 @@ package body Editor.Executor.UI_Tests is
         (Editor.Command_Palette.Is_Open,
          "command palette command should open palette surface");
       Assert
-        (Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus) =
+        (Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus) =
            Editor.Overlay_Focus.Command_Palette_Overlay,
          "command palette command should activate command-palette overlay");
 
@@ -233,7 +233,7 @@ package body Editor.Executor.UI_Tests is
         (Editor.Quick_Open.Is_Open (S.Quick_Open),
          "quick open command should open quick-open surface");
       Assert
-        (Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus) =
+        (Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus) =
            Editor.Overlay_Focus.Quick_Open_Overlay,
          "quick open command should activate quick-open overlay");
 
@@ -245,7 +245,7 @@ package body Editor.Executor.UI_Tests is
         (Editor.Project_Search_Bar.Is_Open (S.Project_Search_Bar),
          "project search command should open project-search bar");
       Assert
-        (Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus) =
+        (Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus) =
            Editor.Overlay_Focus.Project_Search_Bar_Overlay,
          "project search command should activate project-search overlay");
    end Test_Open_Overlays_Activate_Through_Executor;
@@ -260,28 +260,28 @@ package body Editor.Executor.UI_Tests is
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Assert
-        (S.Active_Find_Prompt,
+        (S.Search.Active_Find_Prompt,
          "find command should open the active Find prompt");
       Assert
         (Editor.Overlay_Focus.Is_Active
-           (S.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay),
+           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay),
          "find command should activate the find overlay");
 
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
 
       Assert
-        (S.Active_Find_Prompt,
+        (S.Search.Active_Find_Prompt,
          "opening quick open should leave active Find prompt visible");
       Assert
         (Editor.Quick_Open.Is_Open (S.Quick_Open),
          "opening quick open should open quick-open surface");
       Assert
         (Editor.Overlay_Focus.Is_Active
-           (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay),
+           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay),
          "quick open should own overlay focus after replacing find input focus");
       Assert
         (not Editor.Overlay_Focus.Is_Active
-           (S.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay),
+           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay),
          "visible active Find prompt must be inactive while quick open owns input");
    end Test_Active_Find_Prompt_Remains_Visible_But_Inactive_Under_Quick_Open;
 
@@ -298,13 +298,13 @@ package body Editor.Executor.UI_Tests is
         (S, Editor.Overlay_Focus.Dismiss_Outside_Click);
 
       Assert
-        (not Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus),
+        (not Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus),
          "focus-only deactivation should clear active overlay");
       Assert
-        (S.Active_Find_Prompt,
+        (S.Search.Active_Find_Prompt,
          "focus-only deactivation should keep active Find prompt visible");
       Assert
-        (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel_Focus),
+        (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus),
          "deactivation should restore the previous editor-text focus");
    end Test_Deactivate_Active_Find_Prompt_Leaves_Surface_Open;
 
@@ -325,7 +325,7 @@ package body Editor.Executor.UI_Tests is
       Editor.Executor.Quick_Open_Commands.Execute_Close_Quick_Open (S);
 
       Assert
-        (Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus),
+        (Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel.Panel_Focus),
          "dismiss should restore valid file-tree focus");
       Cleanup_Fixture (Root);
    exception
@@ -354,7 +354,7 @@ package body Editor.Executor.UI_Tests is
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (Msg);
       else
@@ -380,7 +380,7 @@ package body Editor.Executor.UI_Tests is
               "save without active buffer must be unavailable");
       Assert (Text_Buffer.Length (S.Buffer) = Before,
               "unavailable command must not mutate the buffer");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
               "unavailable command emits one primary message");
       Assert (Latest_Message_Text (S) = "No active buffer.",
               "unavailable feedback must use the canonical user-facing reason");
@@ -400,7 +400,7 @@ package body Editor.Executor.UI_Tests is
 
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "public build test seam route remains unavailable");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
               "unavailable build route emits one primary message");
       Assert (Latest_Message_Text (S) = "Build: structured command context required",
               "build route feedback must remain deterministic");
@@ -421,9 +421,9 @@ package body Editor.Executor.UI_Tests is
    begin
       Init_Executor_Test_State (S);
       Editor.Feature_Messages.Add_Message
-        (S.Feature_Messages, Editor.Feature_Messages.Error_Message,
+        (S.Panel.Feature_Messages, Editor.Feature_Messages.Error_Message,
          "Save failed", "old.adb", True, S.Buffer_Lifecycle.Registry_Token + 10, 1, 1);
-      Editor.Feature_Messages.Project_Rows (S.Feature_Messages, S.Feature_Panel);
+      Editor.Feature_Messages.Project_Rows (S.Panel.Feature_Messages, S.Panel.Feature_Panel);
 
       Result :=
         Editor.Executor.Message_Commands.Execute_Message_Row_Activation (S, 2);
@@ -446,16 +446,16 @@ package body Editor.Executor.UI_Tests is
    begin
       Init_Executor_Test_State (S);
       Editor.Command_Palette.Close;
-      Before := Editor.Messages.Count (S.Messages);
+      Before := Editor.Messages.Count (S.Panel.Messages);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Cancel);
 
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "cancel with nothing cancellable is an intentional no-op");
-      Assert (Editor.Messages.Count (S.Messages) = Before,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before,
               "quiet cancel no-op must not create feedback");
-      Assert (not Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus),
+      Assert (not Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus),
               "cancel no-op must not activate overlays");
    end Test_Cancel_No_Cancellable_Is_Quiet_No_Op;
 
@@ -476,11 +476,11 @@ package body Editor.Executor.UI_Tests is
 
       Assert (Result.Status = Editor.Executor.Command_Cancelled,
               "Escape/cancel against an active palette is cancellation");
-      Assert (not Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus),
+      Assert (not Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus),
               "cancel must dismiss the active overlay");
       Assert (not Editor.Command_Palette.Is_Open,
               "cancel must close the command palette surface");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
               "palette cancellation remains quiet");
    end Test_Cancel_Command_Palette_Is_Cancelled;
 
@@ -499,12 +499,12 @@ package body Editor.Executor.UI_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "initial show feature panel succeeds");
 
-      Before := Editor.Messages.Count (S.Messages);
+      Before := Editor.Messages.Count (S.Panel.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Show_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "showing an already visible feature panel is unavailable");
-      Assert (Editor.Messages.Count (S.Messages) >= Before,
+      Assert (Editor.Messages.Count (S.Panel.Messages) >= Before,
               "already-visible show reports through availability");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -512,12 +512,12 @@ package body Editor.Executor.UI_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "initial focus feature panel succeeds");
 
-      Before := Editor.Messages.Count (S.Messages);
+      Before := Editor.Messages.Count (S.Panel.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Focus_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "focusing an already focused feature panel is unavailable");
-      Assert (Editor.Messages.Count (S.Messages) >= Before,
+      Assert (Editor.Messages.Count (S.Panel.Messages) >= Before,
               "already-focused focus reports through availability");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -525,12 +525,12 @@ package body Editor.Executor.UI_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "initial hide feature panel succeeds");
 
-      Before := Editor.Messages.Count (S.Messages);
+      Before := Editor.Messages.Count (S.Panel.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Hide_Feature_Panel);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "hiding an already hidden feature panel is unavailable");
-      Assert (Editor.Messages.Count (S.Messages) >= Before,
+      Assert (Editor.Messages.Count (S.Panel.Messages) >= Before,
               "already-hidden hide reports through availability");
    end Test_Feature_Panel_Already_State_No_Ops;
 
@@ -543,27 +543,27 @@ package body Editor.Executor.UI_Tests is
       Before : Natural;
    begin
       Init_Executor_Test_State (S);
-      Before := Editor.Messages.Count (S.Messages);
+      Before := Editor.Messages.Count (S.Panel.Messages);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Clear_Messages);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "clearing empty Messages is a no-op");
-      Assert (Editor.Messages.Count (S.Messages) = Before,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before,
               "empty Messages clear remains quiet");
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Diagnostics_Clear);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "clearing empty Diagnostics is a no-op");
-      Assert (Editor.Messages.Count (S.Messages) = Before,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before,
               "empty Diagnostics clear remains quiet");
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Clear_Search_Results_Feature);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "clearing empty Search Results is a no-op");
-      Assert (Editor.Messages.Count (S.Messages) = Before,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before,
               "empty Search Results clear remains quiet");
    end Test_Empty_Clear_Commands_Are_Quiet_No_Ops;
 
@@ -695,7 +695,7 @@ package body Editor.Executor.UI_Tests is
               "unavailable command must not mutate buffer text");
       Assert (Latest_Message_Text (S) = To_String (Reason),
               "execution feedback must match availability preflight reason");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
               "unavailable command emits one primary message");
    end Test_Availability_Feedback_Matches_Preflight;
 
@@ -713,8 +713,8 @@ package body Editor.Executor.UI_Tests is
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "one" & Character'Val (10) & "two");
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
-      Before_Messages := Editor.Messages.Count (S.Messages);
-      Before_Feature_Rows := Editor.Feature_Panel.Row_Count (S.Feature_Panel);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
+      Before_Feature_Rows := Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel);
       Before_File_Tree_Rows := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
 
       A := Editor.Executor.Command_Availability
@@ -736,9 +736,9 @@ package body Editor.Executor.UI_Tests is
 
       Assert (Editor.State.Current_Text (S) = To_String (Before_Text),
               "availability must not mutate active buffer text");
-      Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Messages,
               "availability must not post Messages");
-      Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = Before_Feature_Rows,
+      Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = Before_Feature_Rows,
               "availability must not mutate Feature Panel rows");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Before_File_Tree_Rows,
               "availability must not mutate File Tree rows");

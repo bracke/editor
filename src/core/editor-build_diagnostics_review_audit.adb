@@ -9,11 +9,11 @@ package body Editor.Build_Diagnostics_Review_Audit is
       return Build_Diagnostics_Review_Audit_Result
    is
       Before_Row_Count : constant Natural :=
-        Editor.Feature_Diagnostics.Row_Count (State.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Row_Count (State.Panel.Feature_Diagnostics);
       Before_Visible_Count : constant Natural :=
-        Editor.Feature_Diagnostics.Visible_Row_Count (State.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Visible_Row_Count (State.Panel.Feature_Diagnostics);
       Before_Selected_Row : constant Natural :=
-        Editor.Feature_Panel.Selected_Row (State.Feature_Panel);
+        Editor.Feature_Panel.Selected_Row (State.Panel.Feature_Panel);
       Result : Build_Diagnostics_Review_Audit_Result;
    begin
       Result.Review :=
@@ -28,9 +28,9 @@ package body Editor.Build_Diagnostics_Review_Audit is
         Editor.Build_Diagnostics_Review.Assert_Public_Build_Diagnostics_Navigation_Workflow_Coherent
           (State);
       Result.Audit_Side_Effect_Free :=
-        Editor.Feature_Diagnostics.Row_Count (State.Feature_Diagnostics) = Before_Row_Count
-        and then Editor.Feature_Diagnostics.Visible_Row_Count (State.Feature_Diagnostics) = Before_Visible_Count
-        and then Editor.Feature_Panel.Selected_Row (State.Feature_Panel) = Before_Selected_Row;
+        Editor.Feature_Diagnostics.Row_Count (State.Panel.Feature_Diagnostics) = Before_Row_Count
+        and then Editor.Feature_Diagnostics.Visible_Row_Count (State.Panel.Feature_Diagnostics) = Before_Visible_Count
+        and then Editor.Feature_Panel.Selected_Row (State.Panel.Feature_Panel) = Before_Selected_Row;
       Result.Coherent := Result.Review.Coherent
         and then Result.Source_Labels_Practical
         and then Result.Command_Frontdoors_Carry_No_Payload

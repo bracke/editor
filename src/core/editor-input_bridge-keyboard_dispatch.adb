@@ -98,7 +98,7 @@ package body Editor.Input_Bridge.Keyboard_Dispatch is
          Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Chord.Modifiers.Shift);
 
          if Editor.Overlay_Focus.Is_Active
-           (Instance.State.Overlay_Focus,
+           (Instance.State.Panel.Overlay_Focus,
             Editor.Overlay_Focus.Command_Palette_Overlay)
          then
             if Handle_Command_Palette (Cmd) then
@@ -138,7 +138,7 @@ package body Editor.Input_Bridge.Keyboard_Dispatch is
          then
             null;
          elsif Editor.Overlay_Focus.Is_Active
-           (Instance.State.Overlay_Focus,
+           (Instance.State.Panel.Overlay_Focus,
             Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
            and then (Id = Editor.Command_Ids.Command_Active_Find_Next
                      or else Id = Editor.Command_Ids.Command_Active_Find_Previous
@@ -162,9 +162,9 @@ package body Editor.Input_Bridge.Keyboard_Dispatch is
             Execute_Command_Id (Id, Chord.Modifiers.Shift);
             Editor.Cursor.Notify_Input
               (Float (Editor.View.Current_Time_Seconds));
-         elsif Instance.State.Active_Find_Prompt
+         elsif Instance.State.Search.Active_Find_Prompt
            and then Editor.Overlay_Focus.Is_Active
-             (Instance.State.Overlay_Focus,
+             (Instance.State.Panel.Overlay_Focus,
               Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
          then
             case Chord.Key is

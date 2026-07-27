@@ -68,7 +68,7 @@ package body Editor.Build_UI.Surface_Rendering is
       Row_Count : constant Natural := Natural (Snapshot.Actions.Length);
       Suppressed_Count : constant Natural :=
         Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-          (State.Feature_Diagnostics);
+          (State.Panel.Feature_Diagnostics);
       Displayed_Suppressed_Count : constant Natural :=
         Editor.Build_UI_Panel_Layout.Displayed_Suppressed_Row_Count
           (Text_Viewport_Height => Editor.Layout.Text_Viewport_Height (Layout_Config, Viewport_Height),
@@ -77,10 +77,10 @@ package body Editor.Build_UI.Surface_Rendering is
            Suppressed_Count     => Suppressed_Count);
       Suppressed_Top_Row : constant Natural :=
         Editor.Feature_Diagnostics.Suppressed_Top_Row
-          (State.Feature_Diagnostics, Displayed_Suppressed_Count);
+          (State.Panel.Feature_Diagnostics, Displayed_Suppressed_Count);
       Selected_Suppressed : constant Natural :=
         Editor.Feature_Diagnostics.Selected_Suppressed_Diagnostic
-          (State.Feature_Diagnostics);
+          (State.Panel.Feature_Diagnostics);
       Geometry : constant Editor.Build_UI_Panel_Layout.Build_UI_Panel_Geometry :=
         Editor.Build_UI_Panel_Layout.Layout
           (Viewport_Width       => Viewport_Width,
@@ -277,7 +277,7 @@ package body Editor.Build_UI.Surface_Rendering is
                   Selected : constant Boolean := Row = Selected_Suppressed;
                   Row_Text : constant String :=
                     Editor.Feature_Diagnostics.Suppressed_Diagnostic_Text
-                      (State.Feature_Diagnostics, Positive (Row));
+                      (State.Panel.Feature_Diagnostics, Positive (Row));
                begin
                   Rows.Append
                     (Guikit.List_Panel.List_Panel_Row'

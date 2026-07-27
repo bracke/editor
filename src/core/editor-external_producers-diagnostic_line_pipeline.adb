@@ -1047,7 +1047,7 @@ package body Editor.External_Producers.Diagnostic_Line_Pipeline is
       Normalized := Editor.External_Producers.Diagnostic_Normalization.
         Normalize_Compiler_Diagnostic_Batch
           (S, Source, Parsed.Records);
-      Before_Feature := Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
+      Before_Feature := Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel);
       Simulated_Result.Parse_Input_Count := Parsed.Input_Count;
       Simulated_Result.Parse_Accepted_Count := Parsed.Accepted_Count;
       Simulated_Result.Parse_Ignored_Blank_Count := Parsed.Ignored_Blank_Count;
@@ -1059,7 +1059,7 @@ package body Editor.External_Producers.Diagnostic_Line_Pipeline is
       Simulated_Result.Parsed_Warning_Count := Parsed.Warning_Count;
       Simulated_Result.Ingestion_Result.Accepted_Count :=
         Normalized.Normalized_Count;
-      After_Feature := Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
+      After_Feature := Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel);
 
       return Assert_Diagnostic_Line_Batch_Consistent (Parsed)
         and then Editor.External_Producers.Diagnostic_Normalization.
@@ -1073,7 +1073,7 @@ package body Editor.External_Producers.Diagnostic_Line_Pipeline is
         and then Simulated_Result.Parse_Accepted_Count = 1
         and then Simulated_Result.Normalized_Count = 1
         and then Simulated_Result.Ingestion_Result.Accepted_Count = 1
-        and then Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0
+        and then Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0
         and then Before_Feature = After_Feature;
    end Diagnostic_Line_Layering_Audit_Passes;
 

@@ -112,7 +112,7 @@ package body Editor.Input_Bridge.Command_Palette_Handlers is
       end if;
 
       if not Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Command_Palette_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Command_Palette_Overlay)
       then
          return False;
       end if;

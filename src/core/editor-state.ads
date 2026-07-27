@@ -3,45 +3,27 @@ with Text_Buffer;
 with Editor.Cursors;
 with Ada.Strings.Unbounded;
 with Ada.Calendar;
-with Editor.Search;
 with Editor.Diagnostics;
 with Editor.Folding;
 with Editor.Gutter_Markers;
-with Editor.Messages;
-with Editor.Project;
 with Editor.File_Tree;
 with Editor.File_Tree_View;
 with Editor.Panels;
 with Editor.Dirty_Lines;
-with Editor.Input_Field;
 with Editor.Quick_Open;
 with Editor.Buffer_Switcher;
 with Editor.Go_To_Line;
 with Editor.Project_Search;
 with Editor.Project_Search_Bar;
-with Editor.Search_Results;
-with Editor.Problems;
-with Editor.Panel_Focus;
-with Editor.Overlay_Focus;
 with Editor.Workspace_Persistence;
-with Editor.Recent_Projects;
 with Editor.Pending_Transitions;
 with Editor.Settings;
-with Editor.Feature_Panel;
-with Editor.Feature_Messages;
-with Editor.Feature_Search_Results;
 with Editor.Feature_Diagnostics;
 with Editor.Producer_Contracts;
 with Editor.Outline;
 with Editor.Navigation_History;
 with Editor.Recent_Buffers;
 with Editor.Bookmarks;
-with Editor.Build_UI;
-with Editor.Terminal_Tasks;
-with Editor.Build_Runner_Policy;
-with Editor.Build_Process_Control;
-with Editor.Build_Result_Summary;
-with Editor.Build_Output_Details;
 with Editor.Guided_Prompts;
 with Editor.Syntax_Cache;
 with Editor.Syntax_Semantics;
@@ -150,42 +132,14 @@ package Editor.State is
       Rect_Select_Active : Boolean := False;
       Rect_Anchor_Row    : Natural := 0;
       Rect_Anchor_Col    : Natural := 0;
-      --  active-buffer Find state.  Active Find is transient,
-      --  in-memory, and never persisted.
-      Active_Find_Query   : Ada.Strings.Unbounded.Unbounded_String;
-      Active_Find_Matches : Editor.Search.Search_Match_Vectors.Vector;
-      Active_Find_Match   : Editor.Search.Search_Match := Editor.Search.No_Match;
-      Active_Find_Stale   : Boolean := False;
-      Active_Find_Wrapped : Boolean := False;
-      Active_Find_Case_Sensitive : Boolean := False;
-      Active_Find_Whole_Word : Boolean := False;
-      Active_Find_Source_Buffer_Token : Natural := 0;
-      --  active-buffer Replace state. Replace is a transient
-      --  extension of canonical Find and is never persisted.
-      Active_Replace_Text : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      Active_Replace_Error_Message : Ada.Strings.Unbounded.Unbounded_String :=
-        Ada.Strings.Unbounded.Null_Unbounded_String;
-      Active_Replace_Prompt : Boolean := False;
-      Diagnostics       : Editor.Diagnostics.Diagnostic_Vectors.Vector;
-      Active_Diagnostic : Active_Diagnostic_State;
+      Search           : Editor.State_Search.Search_Runtime_State;
+      Panel            : Editor.State_Panel.Panel_Runtime_State;
       Gutter_Markers    : Editor.Gutter_Markers.Gutter_Marker_State;
       Dirty_Lines       : Editor.Dirty_Lines.Dirty_Line_State;
-      Project           : Editor.Project.Project_State;
-      Recent_Projects   : Editor.Recent_Projects.Recent_Project_List;
-      --  transient Recent Projects list selection.  This is never
-      --  written to Recent Projects or workspace persistence.
-      Recent_Project_Selected_Index : Natural := 0;
-      --  transient Recent Projects focus marker.  This is UI-only
-      --  focus state, not part of recent-project or workspace persistence.
-      Recent_Projects_Focused : Boolean := False;
+      Project_Runtime   : Editor.State_Project.Project_Runtime_State;
       Settings          : Editor.Settings.Settings_Model;
       Pending_Transitions : Editor.Pending_Transitions.Pending_Transition_State;
-      Feature_Panel    : Editor.Feature_Panel.Feature_Panel_State;
       Outline          : Editor.Outline.Outline_State;
-      Feature_Messages : Editor.Feature_Messages.Message_Feature_State;
-      Feature_Search_Results : Editor.Feature_Search_Results.Search_Results_Feature_State;
-      Feature_Diagnostics : Editor.Feature_Diagnostics.Diagnostics_Feature_State;
       --  Passive outline cursor synchronization cache.  Cursor movement may
       --  update the current-symbol marker from the latest accepted outline,
       --  but it must not trigger extraction, selection changes, or navigation.
@@ -196,9 +150,6 @@ package Editor.State is
       File_Tree         : Editor.File_Tree.File_Tree_State;
       File_Tree_View    : Editor.File_Tree_View.File_Tree_View_State;
       Panels            : Editor.Panels.Panel_Set;
-      Messages          : Editor.Messages.Message_State;
-      Active_Find_Input  : Editor.Input_Field.Input_Field_State;
-      Active_Find_Prompt : Boolean := False;
       Quick_Open        : Editor.Quick_Open.Quick_Open_State;
       Buffer_Switcher   : Editor.Buffer_Switcher.Buffer_Switcher_State;
       Go_To_Line       : Editor.Go_To_Line.Go_To_Line_State;
@@ -207,10 +158,6 @@ package Editor.State is
       Project_Search    : Editor.Project_Search.Project_Search_State;
       Bookmarks         : Editor.Bookmarks.Bookmark_State;
       Project_Search_Bar : Editor.Project_Search_Bar.Project_Search_Bar_State;
-      Search_Results_View : Editor.Search_Results.Search_Results_View_State;
-      Problems_View      : Editor.Problems.Problems_View_State;
-      Panel_Focus      : Editor.Panel_Focus.Panel_Focus_State;
-      Overlay_Focus    : Editor.Overlay_Focus.Overlay_Focus_State;
       Gutter_Marker_Hover : Editor.Gutter_Markers.Gutter_Marker_Hover_State;
       Semantic         : Editor.State_Semantic.Semantic_Runtime_State;
       Folding           : Editor.Folding.Folding_State;
@@ -228,12 +175,6 @@ package Editor.State is
       --  lookup.  This is stamped with the same buffer/revision as
       --  Syntax_Symbols and is never persisted.
       Syntax_Analysis   : Editor.Ada_Language_Model.Analysis_Result;
-      --  Transient UI-only marker: the latest visible restore feedback may
-      --  be projected as current command feedback only until the next
-      --  ordinary interaction replaces restore context with normal state.
-      Post_Restore_Feedback_Current : Boolean := False;
-      Last_Restore_Summary_Available : Boolean := False;
-      Last_Restore_Summary : Editor.Workspace_Persistence.Workspace_Restore_Summary;
       Build            : Editor.State_Build.Build_Runtime_State;
       --  transient guided workflow prompt state. This state owns
       --  modal/scoped prompt input, validation, captured chords, and pending

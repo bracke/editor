@@ -97,12 +97,12 @@ package body Editor.State.Tests is
       Ada.Directories.Create_Path (Config_Dir);
       Editor.Recent_Projects.Set_Config_Directory_For_Tests (Config_Dir);
       Editor.State.Init (S);
-      Editor.Project.Apply_Open_Result (S.Project, Open_Result);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Result);
       Editor.Project_Search.Set_Query (S.Project_Search, "needle");
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Summary);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 10);
+        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 10);
       Lines.Append
         (To_Unbounded_String
            ("src/stale_project.adb:3:2: error: stale project diagnostic"));
@@ -137,7 +137,7 @@ package body Editor.State.Tests is
               and then Editor.Ada_Language_Service.Compiler_Diagnostic_Count
                 (S.Semantic.Language_Service) = 0,
               "project-scoped reset must clear retained compiler-backed language diagnostics");
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "project-scoped reset must preserve global recent projects");
 
       Editor.Recent_Projects.Clear_Config_Directory_Override;

@@ -280,9 +280,9 @@ package body Editor.Build_UI_Actions is
    is
       Selected_Diagnostic_Index : constant Natural :=
         Editor.Feature_Diagnostics.Map_Diagnostic_Row_To_Item
-          (S.Feature_Diagnostics, S.Feature_Panel,
-           Editor.Feature_Panel.Selected_Row (S.Feature_Panel),
-           Editor.Feature_Panel.Projection_Generation (S.Feature_Panel));
+          (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel,
+           Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel),
+           Editor.Feature_Panel.Projection_Generation (S.Panel.Feature_Panel));
       Effective_Diagnostic_Index : constant Natural :=
         (if Diagnostic_Index > 0 then Diagnostic_Index else Selected_Diagnostic_Index);
    begin
@@ -374,23 +374,23 @@ package body Editor.Build_UI_Actions is
              (S, Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix);
          Selected_Source : constant Natural :=
            Editor.Feature_Diagnostics.Map_Diagnostic_Row_To_Item
-             (S.Feature_Diagnostics, S.Feature_Panel,
-              Editor.Feature_Panel.Selected_Row (S.Feature_Panel),
-              Editor.Feature_Panel.Projection_Generation (S.Feature_Panel));
+             (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel,
+              Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel),
+              Editor.Feature_Panel.Projection_Generation (S.Panel.Feature_Panel));
          Selected_Has_Quick_Fix : constant Boolean :=
            Selected_Source /= 0
            and then Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Count
-             (S.Feature_Diagnostics, Positive (Selected_Source)) > 0;
+             (S.Panel.Feature_Diagnostics, Positive (Selected_Source)) > 0;
          Suppressed_Count : constant Natural :=
            Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-             (S.Feature_Diagnostics);
+             (S.Panel.Feature_Diagnostics);
          Selected_Suppressed : constant Natural :=
            Editor.Feature_Diagnostics.Selected_Suppressed_Diagnostic
-             (S.Feature_Diagnostics);
+             (S.Panel.Feature_Diagnostics);
          Selected_Suppressed_Text : constant String :=
            (if Selected_Suppressed = 0 then ""
             else Editor.Feature_Diagnostics.Suppressed_Diagnostic_Text
-              (S.Feature_Diagnostics, Positive (Selected_Suppressed)));
+              (S.Panel.Feature_Diagnostics, Positive (Selected_Suppressed)));
 
          function Quick_Fix_Action_Available
            (Action_Index : Natural) return Boolean
@@ -465,11 +465,11 @@ package body Editor.Build_UI_Actions is
             Snapshot.Diagnostics_View.Quick_Fix_Label :=
               To_Unbounded_String
                 (Editor.Feature_Diagnostics.Item_Quick_Fix_Label_For_Display
-                   (S.Feature_Diagnostics, Positive (Selected_Source)));
+                   (S.Panel.Feature_Diagnostics, Positive (Selected_Source)));
             Snapshot.Diagnostics_View.Quick_Fix_Detail :=
               To_Unbounded_String
                 (Editor.Feature_Diagnostics.Item_Quick_Fix_Detail_For_Display
-                   (S.Feature_Diagnostics, Positive (Selected_Source)));
+                   (S.Panel.Feature_Diagnostics, Positive (Selected_Source)));
          else
             Snapshot.Diagnostics_View.Quick_Fix_Label :=
               To_Unbounded_String ("Apply quick fix");
@@ -541,15 +541,15 @@ package body Editor.Build_UI_Actions is
             Editor.Commands.Availability_Metadata.Unavailable_Reason (Clear_Suppressed_Availability));
          if Selected_Source > 0
            and then Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Count
-             (S.Feature_Diagnostics, Positive (Selected_Source)) > 1
+             (S.Panel.Feature_Diagnostics, Positive (Selected_Source)) > 1
          then
             for Action_Index in 1 ..
               Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Count
-                (S.Feature_Diagnostics, Positive (Selected_Source))
+                (S.Panel.Feature_Diagnostics, Positive (Selected_Source))
             loop
                Append_Action_Row
                  (Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Label_For_Display
-                    (S.Feature_Diagnostics, Positive (Selected_Source), Action_Index),
+                    (S.Panel.Feature_Diagnostics, Positive (Selected_Source), Action_Index),
                   Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix,
                   Quick_Fix_Action_Available (Action_Index),
                   Diagnostic_Index => Selected_Source,

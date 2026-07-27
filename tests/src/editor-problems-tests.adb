@@ -108,7 +108,7 @@ package body Editor.Problems.Tests is
         (S, Start_Index => 5, End_Index => 6,
          Severity => Editor.Diagnostics.Information);
 
-      Snapshot := Editor.Problems.Build_Snapshot (S.Diagnostics);
+      Snapshot := Editor.Problems.Build_Snapshot (S.Panel.Diagnostics);
       Assert (Editor.Problems.Row_Count (Snapshot) = 1,
               "state diagnostics should project into one Problems row");
       Row := Editor.Problems.Row (Snapshot, 1);
@@ -313,18 +313,18 @@ package body Editor.Problems.Tests is
    begin
       Editor.State.Init (S);
       Editor.Diagnostics.Add
-        (S.Diagnostics, Start_Index => 0, End_Index => 1,
+        (S.Panel.Diagnostics, Start_Index => 0, End_Index => 1,
          Severity => Editor.Diagnostics.Warning,
          Message => "unused");
       Editor.Diagnostics.Add
-        (S.Diagnostics, Start_Index => 2, End_Index => 3,
+        (S.Panel.Diagnostics, Start_Index => 2, End_Index => 3,
          Severity => Editor.Diagnostics.Error,
          Message => "missing ;");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Problems_Filter_Errors);
       Assert
-        (Editor.Problems.Severity_Filter (S.Problems_View) =
+        (Editor.Problems.Severity_Filter (S.Panel.Problems_View) =
          Editor.Problems.Problems_Show_Errors,
          "Problems filter command should select error filter");
       Assert
@@ -335,7 +335,7 @@ package body Editor.Problems.Tests is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Problems_Filter_All);
       Assert
-        (Editor.Problems.Severity_Filter (S.Problems_View) =
+        (Editor.Problems.Severity_Filter (S.Panel.Problems_View) =
          Editor.Problems.Problems_Show_All,
          "Problems clear filter command should show all severities");
    end Test_Severity_Filter_Commands_Update_View;
@@ -348,12 +348,12 @@ package body Editor.Problems.Tests is
    begin
       Editor.State.Init (S);
       Editor.Diagnostics.Add
-        (S.Diagnostics, Start_Index => 0, End_Index => 1,
+        (S.Panel.Diagnostics, Start_Index => 0, End_Index => 1,
          Start_Row => 20, Start_Column => 0,
          Severity => Editor.Diagnostics.Warning,
          Message => "unused");
       Editor.Diagnostics.Add
-        (S.Diagnostics, Start_Index => 2, End_Index => 3,
+        (S.Panel.Diagnostics, Start_Index => 2, End_Index => 3,
          Start_Row => 5, Start_Column => 0,
          Severity => Editor.Diagnostics.Error,
          Message => "missing ;");
@@ -361,7 +361,7 @@ package body Editor.Problems.Tests is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Problems_Sort_By_Severity);
       Assert
-        (S.Problems_View.Sort_Mode =
+        (S.Panel.Problems_View.Sort_Mode =
          Editor.Problems.Problems_Sort_By_Severity,
          "Problems sort command should select severity sort");
       Assert
@@ -372,28 +372,28 @@ package body Editor.Problems.Tests is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Problems_Sort_By_Source);
       Assert
-        (S.Problems_View.Sort_Mode =
+        (S.Panel.Problems_View.Sort_Mode =
          Editor.Problems.Problems_Sort_By_Source,
          "Problems sort command should select source sort");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Problems_Group_By_Source);
       Assert
-        (S.Problems_View.Group_Mode =
+        (S.Panel.Problems_View.Group_Mode =
          Editor.Problems.Problems_Group_By_Source,
          "Problems group command should select source grouping");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Problems_Group_By_Severity);
       Assert
-        (S.Problems_View.Group_Mode =
+        (S.Panel.Problems_View.Group_Mode =
          Editor.Problems.Problems_Group_By_Severity,
          "Problems group command should select severity grouping");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Problems_Sort_By_Location);
       Assert
-        (S.Problems_View.Sort_Mode =
+        (S.Panel.Problems_View.Sort_Mode =
          Editor.Problems.Problems_Sort_By_Location,
          "Problems sort command should restore location sort");
    end Test_Problems_Review_Mode_Commands_Update_View;
@@ -408,11 +408,11 @@ package body Editor.Problems.Tests is
    begin
       Editor.State.Init (S);
       Editor.Diagnostics.Add
-        (S.Diagnostics, Start_Index => 0, End_Index => 1,
+        (S.Panel.Diagnostics, Start_Index => 0, End_Index => 1,
          Severity => Editor.Diagnostics.Warning,
          Message => "smoke warning");
       Editor.Diagnostics.Add
-        (S.Diagnostics, Start_Index => 2, End_Index => 3,
+        (S.Panel.Diagnostics, Start_Index => 2, End_Index => 3,
          Severity => Editor.Diagnostics.Error,
          Message => "smoke error");
 
@@ -421,13 +421,13 @@ package body Editor.Problems.Tests is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Problems_Move_Down);
 
-      Snapshot := Editor.Problems.Build_Snapshot (S.Diagnostics);
-      Filtered := Editor.Problems.Filtered_Snapshot (Snapshot, S.Problems_View);
+      Snapshot := Editor.Problems.Build_Snapshot (S.Panel.Diagnostics);
+      Filtered := Editor.Problems.Filtered_Snapshot (Snapshot, S.Panel.Problems_View);
       Assert
         (Editor.Problems.Row_Count (Filtered) = 1,
          "Problems movement should operate on the filtered snapshot");
       Assert
-        (Editor.Problems.Selected_Row_Index (S.Problems_View) = 1,
+        (Editor.Problems.Selected_Row_Index (S.Panel.Problems_View) = 1,
          "Problems movement should not select an unfiltered row");
       Assert
         (Editor.Problems.Row (Filtered, 1).Severity =
@@ -446,10 +446,10 @@ package body Editor.Problems.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
       Editor.Diagnostics.Add
-        (S.Diagnostics, Start_Index => 0, End_Index => 1,
+        (S.Panel.Diagnostics, Start_Index => 0, End_Index => 1,
          Severity => Editor.Diagnostics.Error,
          Message => "message-only error");
-      Snapshot := Editor.Problems.Build_Snapshot (S.Diagnostics);
+      Snapshot := Editor.Problems.Build_Snapshot (S.Panel.Diagnostics);
       Row := Editor.Problems.Row (Snapshot, 1);
       Assert (not Editor.Problems.Row_Has_Target (Row),
               "message-only diagnostic should not expose a Problems target");
@@ -463,12 +463,12 @@ package body Editor.Problems.Tests is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Problems_Open_Selected);
       Assert
-        (not S.Active_Diagnostic.Has_Active,
+        (not S.Panel.Active_Diagnostic.Has_Active,
          "Problems open-selected must not activate a diagnostic without target");
 
-      Editor.Diagnostics.Clear (S.Diagnostics);
+      Editor.Diagnostics.Clear (S.Panel.Diagnostics);
       Editor.Diagnostics.Add
-        (S.Diagnostics, Start_Index => 5, End_Index => 6,
+        (S.Panel.Diagnostics, Start_Index => 5, End_Index => 6,
          Start_Row => 1, Start_Column => 1,
          Severity => Editor.Diagnostics.Error,
          Message => "located error");
@@ -477,7 +477,7 @@ package body Editor.Problems.Tests is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Problems_Open_Selected);
       Assert
-        (S.Active_Diagnostic.Has_Active and then S.Active_Diagnostic.Index = 1,
+        (S.Panel.Active_Diagnostic.Has_Active and then S.Panel.Active_Diagnostic.Index = 1,
          "Problems open-selected should activate the filtered located diagnostic");
    end Test_Problems_Open_Selected_Uses_Target_Parity;
 

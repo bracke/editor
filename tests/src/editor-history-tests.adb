@@ -100,7 +100,7 @@ package body Editor.History.Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (M);
       else
@@ -447,7 +447,7 @@ package body Editor.History.Tests is
         "clear edit history clears undo stack");
       Assert (Editor.History.Redo_Stack.Is_Empty,
         "clear edit history clears redo stack");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Undo history cleared",
         "clear edit history publishes one canonical message");
    end Test_Command_Surface_And_Clear_History;
@@ -1036,7 +1036,7 @@ package body Editor.History.Tests is
       Assert_Text (S, "Execute Execute", "redo restores replaced text before render assertion");
       Assert (Snap.Find_Match_Count = 0,
               "redo does not render stale pre-undo ranges");
-      Assert (To_String (S.Active_Replace_Text) = "Execute",
+      Assert (To_String (S.Search.Active_Replace_Text) = "Execute",
               "undo/redo preserves transient replacement text policy");
    end Test_Find_Replace_Render_Invalidated_After_Undo_Redo;
 

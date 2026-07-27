@@ -59,7 +59,7 @@ package body Editor.Outline.Filter_Tests is
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (Msg);
       end if;
@@ -909,10 +909,10 @@ package body Editor.Outline.Filter_Tests is
               "refresh setup executes");
 
       Apply_Filter (S.Outline, "clear");
-      Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 1,
+      Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 1,
               "fixture has one filtered visible row");
-      Assert (Map_Panel_Row_To_Outline_Row (S.Outline, S.Feature_Panel, 1) = 2,
+      Assert (Map_Panel_Row_To_Outline_Row (S.Outline, S.Panel.Feature_Panel, 1) = 2,
               "filtered visible row maps to second outline row");
 
       Result :=
@@ -921,7 +921,7 @@ package body Editor.Outline.Filter_Tests is
               "mouse activation uses visible row through shared open handler");
       Assert (Selected_Index (S.Outline) = 2,
               "mouse activation stores the mapped outline row as selection");
-      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 1,
+      Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 1,
               "mouse activation keeps the visible panel row selected");
       Editor.State.Row_Col_For_Index (S, S.Carets (0).Pos, Row, Col);
       Assert (Row = 2 and then Col = 0,
@@ -1029,24 +1029,24 @@ package body Editor.Outline.Filter_Tests is
             "end Demo;");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Apply_Filter (S.Outline, "Beta");
-      Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 1,
+      Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 1,
               "filter reduces outline projection to one visible row");
-      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 1,
+      Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 1,
               "filtered outline selects the only visible row");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Next_Outline_Item);
-      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 1,
+      Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 1,
               "select-next clamps at filtered end");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Previous_Outline_Item);
-      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 1,
+      Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 1,
               "select-previous clamps at filtered beginning");
 
       Clear_Filter (S.Outline);
-      Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) >= 4,
+      Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) >= 4,
               "clear filter restores full outline projection");
-      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) /= 0,
+      Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) /= 0,
               "clear filter leaves a deterministic selection");
    end Test_Filtered_Selection_Clamps_At_Visible_Bounds;
 

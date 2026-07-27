@@ -13,7 +13,7 @@ package body Editor.Input_Bridge.Search_Query_Handlers is
    procedure Project_Search_Rows (S : in out Editor.State.State_Type) is
    begin
       Editor.Feature_Search_Results.Project_Rows
-        (S.Feature_Search_Results, S.Feature_Panel);
+        (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
       Editor.Render_Cache.Invalidate_All;
    end Project_Search_Rows;
 
@@ -25,7 +25,7 @@ package body Editor.Input_Bridge.Search_Query_Handlers is
       for Ch of Text loop
          if Ch /= ASCII.LF and then Ch /= ASCII.CR then
             Editor.Feature_Search_Results.Insert_Search_Input_Character
-              (S.Feature_Search_Results, Ch);
+              (S.Panel.Feature_Search_Results, Ch);
          end if;
       end loop;
    end Insert_Search_Text;
@@ -38,7 +38,7 @@ package body Editor.Input_Bridge.Search_Query_Handlers is
    is
    begin
       if not Editor.Feature_Search_Results.Search_Input_Is_Active
-        (S.Feature_Search_Results)
+        (S.Panel.Feature_Search_Results)
       then
          return False;
       end if;
@@ -52,7 +52,7 @@ package body Editor.Input_Bridge.Search_Query_Handlers is
                Project_Search_Rows (S);
             elsif Cmd.Ch /= ASCII.NUL and then Cmd.Ch /= ASCII.HT then
                Editor.Feature_Search_Results.Insert_Search_Input_Character
-                 (S.Feature_Search_Results, Cmd.Ch);
+                 (S.Panel.Feature_Search_Results, Cmd.Ch);
                Project_Search_Rows (S);
             end if;
             return True;
@@ -60,14 +60,14 @@ package body Editor.Input_Bridge.Search_Query_Handlers is
          when Editor.Command_Kinds.Delete_Char
             | Editor.Command_Kinds.Delete_Previous_Character =>
             Editor.Feature_Search_Results.Delete_Search_Input_Character_Backward
-              (S.Feature_Search_Results);
+              (S.Panel.Feature_Search_Results);
             Project_Search_Rows (S);
             return True;
 
          when Editor.Command_Kinds.Forward_Delete_Char
             | Editor.Command_Kinds.Delete_Next_Character =>
             Editor.Feature_Search_Results.Delete_Search_Input_Character_Forward
-              (S.Feature_Search_Results);
+              (S.Panel.Feature_Search_Results);
             Project_Search_Rows (S);
             return True;
 
@@ -92,7 +92,7 @@ package body Editor.Input_Bridge.Search_Query_Handlers is
 
          when Editor.Command_Kinds.Clear_Extra_Carets | Editor.Command_Kinds.Palette_Cancel =>
             Editor.Feature_Search_Results.Deactivate_Search_Query_Input
-              (S.Feature_Search_Results);
+              (S.Panel.Feature_Search_Results);
             Project_Search_Rows (S);
             return True;
 

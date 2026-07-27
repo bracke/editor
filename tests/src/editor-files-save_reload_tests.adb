@@ -506,7 +506,7 @@ package body Editor.Files.Save_Reload_Tests is
         "stale reload confirmation must not reload after save resolved dirty text");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "stale reload confirmation must be cleared after retry rejection");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then M.Severity = Editor.Messages.Warning_Message
         and then To_String (M.Text) = "Reload confirmation is no longer valid",
@@ -547,7 +547,7 @@ package body Editor.Files.Save_Reload_Tests is
         "stale revert confirmation must not discard text after save resolved dirty text");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
         "stale revert confirmation must be cleared after retry rejection");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then M.Severity = Editor.Messages.Warning_Message
         and then To_String (M.Text) = "Revert confirmation is no longer valid",
@@ -586,7 +586,7 @@ package body Editor.Files.Save_Reload_Tests is
         "reload cancel clears only the transient confirmation");
       Assert (Buffer_Text (S) = "disk baseline dirty" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "reload cancel preserves dirty buffer text and dirty state");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Reload cancelled.",
         "reload cancel must name the file lifecycle operation");
 
@@ -599,7 +599,7 @@ package body Editor.Files.Save_Reload_Tests is
         "revert cancel clears only the transient confirmation");
       Assert (Buffer_Text (S) = "disk baseline dirty" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "revert cancel preserves dirty buffer text and dirty state");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Revert cancelled.",
         "revert cancel must name the file lifecycle operation");
 
@@ -663,7 +663,7 @@ package body Editor.Files.Save_Reload_Tests is
         "rejected Save Current must leave reload confirmation pending");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "rejected Save Current must preserve dirty text/state");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then M.Severity = Editor.Messages.Warning_Message
         and then To_String (M.Text) = "Command unavailable while confirmation is pending.",
@@ -675,7 +675,7 @@ package body Editor.Files.Save_Reload_Tests is
         "rejected Save As must leave reload confirmation pending");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "rejected Save As must preserve dirty text/state");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then M.Severity = Editor.Messages.Warning_Message
         and then To_String (M.Text) = "Command unavailable while confirmation is pending.",
@@ -687,7 +687,7 @@ package body Editor.Files.Save_Reload_Tests is
         "rejected Save All must leave reload confirmation pending");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "rejected Save All must preserve dirty text/state");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then M.Severity = Editor.Messages.Warning_Message
         and then To_String (M.Text) = "Command unavailable while confirmation is pending.",
@@ -833,7 +833,7 @@ package body Editor.Files.Save_Reload_Tests is
         "rejected text mutation must leave reload confirmation pending");
       Assert (Buffer_Text (S) = "disk baseline dirty" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "rejected text mutation must preserve dirty text/state");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then M.Severity = Editor.Messages.Warning_Message
         and then To_String (M.Text) = "Command unavailable while confirmation is pending.",
@@ -1118,10 +1118,10 @@ package body Editor.Files.Save_Reload_Tests is
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("save_all_dir_target");
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_All);
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Warning_Message,
         "save-all mixed recovery failures should report one warning outcome");
       Assert (Ada.Strings.Fixed.Index (To_String (M.Text), "2 files failed") > 0,
@@ -1360,7 +1360,7 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "Execute_Save should clear dirty state after successful write");
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found, "Execute_Save should publish a success message");
       Assert (M.Severity = Editor.Messages.Success_Message,
         "Execute_Save success should use success severity");
@@ -1391,7 +1391,7 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (Buffer_Text (S) = "untitled text",
         "Execute_Save failure should preserve buffer contents");
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found, "Execute_Save untitled failure should publish a message");
       Assert (M.Severity = Editor.Messages.Info_Message,
         "Execute_Save untitled failure should use informational severity");
@@ -1427,7 +1427,7 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (Buffer_Text (S) = "preserve on failed save",
         "Execute_Save failure should preserve buffer contents");
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found, "Execute_Save failure should publish a message");
       Assert (M.Severity = Editor.Messages.Error_Message,
         "Execute_Save failure should use error severity");
@@ -1464,7 +1464,7 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "Execute_Save_As should clear dirty state after successful write");
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found, "Execute_Save_As should publish a success message");
       Assert (M.Severity = Editor.Messages.Success_Message,
         "Execute_Save_As success should use success severity");
@@ -1506,7 +1506,7 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "Failed Save As should preserve dirty state");
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found, "Failed Save As should publish a message");
       Assert (M.Severity = Editor.Messages.Error_Message,
         "Failed Save As should use error severity");
@@ -1543,7 +1543,7 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "Directory Save As failure should preserve dirty state");
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found, "Directory Save As failure should publish a message");
       Assert (M.Severity = Editor.Messages.Error_Message,
         "Directory Save As failure should use error severity");
@@ -1591,9 +1591,9 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (Editor.View.Scroll_X = Before_Scroll_X
         and then Editor.View.Scroll_Y = Before_Scroll_Y,
         "Save As should not reset scroll position");
-      Assert (S.Active_Find_Matches.Length > 0,
+      Assert (S.Search.Active_Find_Matches.Length > 0,
         "Save As should not clear active Find matches");
-      Assert (S.Diagnostics.Length > 0,
+      Assert (S.Panel.Diagnostics.Length > 0,
         "Save As should not clear diagnostics");
       Assert (Editor.Gutter_Markers.Has_Marker
         (S.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker),
@@ -1682,10 +1682,10 @@ package body Editor.Files.Save_Reload_Tests is
         and then S.Carets (0).Pos = Before_Caret.Pos
         and then S.Carets (0).Anchor = Before_Caret.Anchor,
         "Failed save should preserve cursor and selection");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
         "Failed save should emit one primary visible message");
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message,
         "Failed save should publish an error message");
       Assert (To_String (M.Text) = "Could not save file.",
@@ -1713,9 +1713,9 @@ package body Editor.Files.Save_Reload_Tests is
         "Failed Save As should preserve dirty state");
       Assert (Buffer_Text (S) = "save as explicit path required",
         "Failed Save As should preserve buffer content");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
         "Failed Save As should emit one primary visible message");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message,
         "Failed Save As should use error severity");
       Assert (To_String (M.Text) = "No target path for Save As",
@@ -1753,7 +1753,7 @@ package body Editor.Files.Save_Reload_Tests is
         "Successful recreate save should keep a valid baseline");
       Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
         "Successful recreate save should update saved generation");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Success_Message,
         "Recreate save should publish a success message");
       Assert (To_String (M.Text) = "Saved file",
@@ -1814,7 +1814,7 @@ package body Editor.Files.Save_Reload_Tests is
       Assert (not Ada.Directories.Exists
         (Ada.Directories.Compose (Dir_Path, "directory_target.adb")),
         "Directory-target failed save must not create an implicit child file");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message,
         "Directory-target failed save should publish an error");
       Assert (To_String (M.Text) = "Could not save file.",

@@ -57,13 +57,13 @@ package body Editor.Executor.Command_Surface_Commands is
 
       function Has_Project return Boolean is
       begin
-         return Editor.Project.Has_Project (S.Project);
+         return Editor.Project.Has_Project (S.Project_Runtime.Project);
       end Has_Project;
 
       function Active_Overlay_Is
         (Overlay : Editor.Overlay_Focus.Overlay_Target) return Boolean is
       begin
-         return Editor.Overlay_Focus.Is_Active (S.Overlay_Focus, Overlay);
+         return Editor.Overlay_Focus.Is_Active (S.Panel.Overlay_Focus, Overlay);
       end Active_Overlay_Is;
 
    begin
@@ -186,7 +186,7 @@ package body Editor.Executor.Command_Surface_Commands is
    is
    begin
       if Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Command_Palette_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Command_Palette_Overlay)
       then
          Editor.Executor.Dismiss_Active_Overlay (S, Editor.Overlay_Focus.Dismiss_Command);
       else
@@ -267,16 +267,16 @@ package body Editor.Executor.Command_Surface_Commands is
                Editor.Executor.Shared_Services.Report_Info (S, "Prompt cancelled.");
                Editor.Render_Cache.Invalidate_All;
                return Editor.Command_Execution.Cancelled (Id);
-            elsif Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus) then
+            elsif Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus) then
                Editor.Executor.Dismiss_Active_Overlay
                  (S, Editor.Overlay_Focus.Dismiss_Escape);
                return Editor.Command_Execution.Cancelled (Id);
-            elsif Editor.Feature_Panel.Is_Focused (S.Feature_Panel) then
+            elsif Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel) then
                Editor.Focus_Management.Restore_Focus_To_Editor (S);
                Editor.Render_Cache.Invalidate_All;
                return Editor.Command_Execution.Cancelled (Id);
-            elsif Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus)
-              or else Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus)
+            elsif Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel.Panel_Focus)
+              or else Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus)
             then
                Editor.Focus_Management.Restore_Focus_To_Editor (S);
                Editor.Render_Cache.Invalidate_All;

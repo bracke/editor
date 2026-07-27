@@ -642,24 +642,24 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       R : Editor.External_Producers.Public_Build_Types.Public_Build_Command_Readiness_Audit_Result;
    begin
       Editor.State.Init (S);
-      Before_Messages := Editor.Messages.Count (S.Messages);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
       Before_Has_Buffer := Editor.State.Has_Active_Buffer (S);
-      Before_Overlay := Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus);
-      Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
-      Before_Bottom := Editor.Panel_Focus.Bottom_Content (S.Panel_Focus);
+      Before_Overlay := Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus);
+      Before_Focus := Editor.Panel_Focus.Target (S.Panel.Panel_Focus);
+      Before_Bottom := Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus);
 
       R := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Assert (R.Public_Command_Can_Be_Promoted,
               "side-effect-free readiness audit should still return the ready result");
-      Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Messages,
               "readiness audit must not post messages");
       Assert (Editor.State.Has_Active_Buffer (S) = Before_Has_Buffer,
               "readiness audit must not create or switch buffers");
-      Assert (Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus) = Before_Overlay,
+      Assert (Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus) = Before_Overlay,
               "readiness audit must not change overlay focus");
-      Assert (Editor.Panel_Focus.Target (S.Panel_Focus) = Before_Focus,
+      Assert (Editor.Panel_Focus.Target (S.Panel.Panel_Focus) = Before_Focus,
               "readiness audit must not change panel focus");
-      Assert (Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) = Before_Bottom,
+      Assert (Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) = Before_Bottom,
               "readiness audit must not change bottom-panel content");
    end Test_Public_Build_Readiness_Audit_Is_Side_Effect_Free;
 
@@ -938,7 +938,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       Status : Public_Build_Command_Surface_Status;
    begin
       Editor.State.Init (S);
-      Before_Messages := Editor.Messages.Count (S.Messages);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
       Before_Has_Buffer := Editor.State.Has_Active_Buffer (S);
       Status := Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Surface_Entry
         ((Stable_Id => To_Unbounded_String ("build.run"),
@@ -951,7 +951,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
           others => <>));
       Assert (Status = Public_Build_Command_Surface_Valid,
               "valid surface entry metadata must validate");
-      Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Messages,
               "surface entry validation must not post messages");
       Assert (Editor.State.Has_Active_Buffer (S) = Before_Has_Buffer,
               "surface entry validation must not create buffers");
@@ -1328,7 +1328,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
       pragma Unreferenced (Status);
    begin
       Editor.State.Init (S);
-      Before_Messages := Editor.Messages.Count (S.Messages);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
       Before_Has_Buffer := Editor.State.Has_Active_Buffer (S);
       R1 := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Status := Editor.External_Producers.Public_Build.Validate_Public_Build_Command_Promotion (P, R1);
@@ -1348,7 +1348,7 @@ package body Editor.Command_Surface.Public_Build_Surface_Tests is
               "repeated readiness audits must return stable promotion status");
       Assert (R1.Public_Command_Can_Be_Promoted = R2.Public_Command_Can_Be_Promoted,
               "repeated readiness audits must return stable promotion boolean");
-      Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Messages,
               "readiness and promotion audits must not post messages");
       Assert (Editor.State.Has_Active_Buffer (S) = Before_Has_Buffer,
               "readiness and promotion audits must not create buffers");

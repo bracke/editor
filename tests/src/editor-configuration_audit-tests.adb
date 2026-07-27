@@ -153,7 +153,7 @@ package body Editor.Configuration_Audit.Tests is
          Display_Name => To_Unbounded_String (Name),
          Error_Text   => Null_Unbounded_String);
    begin
-      Editor.Project.Apply_Open_Result (S.Project, Result);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Result);
    end Install_Project;
 
    procedure Save_Custom_Settings
@@ -299,9 +299,9 @@ package body Editor.Configuration_Audit.Tests is
       Editor.State.Apply_Settings (S, Model);
       Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
       S.Buffer_Lifecycle.File_Info.Dirty := True;
-      Editor.Recent_Projects.Clear (S.Recent_Projects);
+      Editor.Recent_Projects.Clear (S.Project_Runtime.Recent_Projects);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 108);
+        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 108);
 
       Summary := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
 
@@ -424,7 +424,7 @@ package body Editor.Configuration_Audit.Tests is
         (Editor.Configuration_Audit.Status (Result) =
            Editor.Configuration_Audit.Configuration_Audit_Ok,
          Editor.Configuration_Audit.Summary (Result));
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
               "invalid keybinding reload must emit one domain-specific message");
       Assert_Routes
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
@@ -465,7 +465,7 @@ package body Editor.Configuration_Audit.Tests is
         (Chord (Editor.Keybindings.Key_S, Ctrl => True, Alt => True),
          Editor.Command_Ids.Command_Save_File,
          "routing after invalid settings reload");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
               "invalid settings reload must emit one domain-specific message");
       Delete_If_Exists (Settings_Path);
       Delete_If_Exists (Keybindings_Path);
@@ -1104,21 +1104,21 @@ package body Editor.Configuration_Audit.Tests is
               "file conflict prompt runtime state must stay inside the transient boundary");
       Assert (Summary.File_Conflict_Prompt_Transient,
               "file conflict prompt must be classified as transient only");
-      Assert (Summary.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Id_Not_Persisted,
+      Assert (Summary.File_Conflict_Prompt_Buffer_Id_Not_Persisted,
               "file conflict prompt buffer id must not cross persistence boundary");
-      Assert (Summary.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Id_Not_Command_Payload,
+      Assert (Summary.File_Conflict_Prompt_Buffer_Id_Not_Command_Payload,
               "file conflict prompt buffer id must not become a command payload");
-      Assert (Summary.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Id_Not_Keybinding_Payload,
+      Assert (Summary.File_Conflict_Prompt_Buffer_Id_Not_Keybinding_Payload,
               "file conflict prompt buffer id must not become a keybinding payload");
-      Assert (Summary.Buffer_Lifecycle.File_Conflict_Prompt_Buffer_Id_Not_Render_Payload,
+      Assert (Summary.File_Conflict_Prompt_Buffer_Id_Not_Render_Payload,
               "file conflict prompt buffer id must not be rendered as a structured payload");
       Assert (Summary.File_Conflict_Prompt_Token_Not_Persisted,
               "file conflict prompt token must not cross persistence boundary");
       Assert (Summary.File_Conflict_Prompt_Token_Not_Rendered,
               "file conflict prompt token must not be rendered as an opaque token");
-      Assert (Summary.Buffer_Lifecycle.File_Conflict_Prompt_Display_Hides_Runtime_Buffer_Id,
+      Assert (Summary.File_Conflict_Prompt_Display_Hides_Runtime_Buffer_Id,
               "file conflict prompt display must hide runtime buffer id markers");
-      Assert (Summary.Buffer_Lifecycle.File_Conflict_Prompt_Display_Hides_File_Token,
+      Assert (Summary.File_Conflict_Prompt_Display_Hides_File_Token,
               "file conflict prompt display must hide file token labels");
       Assert (Summary.File_Conflict_Prompt_Revalidated_Before_Mutation,
               "file conflict prompt must carry enough transient state for confirmation-time revalidation");
@@ -1182,10 +1182,10 @@ package body Editor.Configuration_Audit.Tests is
       Editor.Keybindings.Reset_To_Defaults;
       Editor.State.Init (S);
 
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
-      Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Feature_Panel);
-      Editor.Feature_Panel.Select_First (S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_First (S.Panel.Feature_Panel);
       Editor.Project_Search.Set_Query (S.Project_Search, "preserve");
       Editor.Project_Search.Set_Status
         (S.Project_Search, Editor.Project_Search.Project_Search_Ok);
@@ -1244,9 +1244,9 @@ package body Editor.Configuration_Audit.Tests is
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/editor-/preserved.adb");
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("preserved.adb");
       S.Buffer_Lifecycle.File_Info.Dirty := True;
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Feature_Panel);
-      Editor.Feature_Panel.Select_First (S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_First (S.Panel.Feature_Panel);
       Editor.Project_Search.Set_Query (S.Project_Search, "not persisted");
       S.Buffer_Lifecycle.Dirty_Close_Prompt_Active := True;
       S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer := 1234;

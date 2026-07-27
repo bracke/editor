@@ -25,7 +25,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
    begin
       Editor.Executor.Clear_Restore_Feedback_Current (S);
 
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          Editor.Focus_Management.Restore_Focus_To_Editor (S);
          Editor.Render_Cache.Invalidate_All;
@@ -87,7 +87,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       Node  : constant Editor.File_Tree.File_Tree_Node_Id := Editor.Executor.Selected_File_Tree_Node (S, Found);
       Summary : Editor.File_Tree.File_Tree_Node_Summary;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif not Found then
@@ -103,7 +103,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
          --  masquerade as file opens.
          Editor.Executor.Shared_Services.Report_Warning (S, "Selected row is not a file");
       elsif not Editor.Project.Is_Under_Project
-        (S.Project, To_String (Summary.Absolute_Path))
+        (S.Project_Runtime.Project, To_String (Summary.Absolute_Path))
       then
          --  completeness: File Tree nodes normally originate from
          --  the bounded project scan, but command execution must still defend
@@ -156,9 +156,9 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
                --  it still mutates File Tree view state. Recheck the active
                --  project boundary before toggling so stale transient rows
                --  cannot expand/collapse an outside-root node.
-               if Editor.Project.Has_Project (S.Project)
+               if Editor.Project.Has_Project (S.Project_Runtime.Project)
                  and then not Editor.Project.Is_Under_Project
-                   (S.Project, To_String (Summary.Absolute_Path))
+                   (S.Project_Runtime.Project, To_String (Summary.Absolute_Path))
                then
                   Editor.Executor.Shared_Services.Report_Error
                     (S, "Target path is outside the project");
@@ -173,9 +173,9 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
                --  Command_Open_File. That path first focuses an already-open
                --  buffer without rereading disk, and otherwise owns missing,
                --  unreadable, and successful-open feedback.
-               if Editor.Project.Has_Project (S.Project)
+               if Editor.Project.Has_Project (S.Project_Runtime.Project)
                  and then not Editor.Project.Is_Under_Project
-                   (S.Project, To_String (Summary.Absolute_Path))
+                   (S.Project_Runtime.Project, To_String (Summary.Absolute_Path))
                then
                   Editor.Executor.Shared_Services.Report_Error
                     (S, "Target path is outside the project");
@@ -199,7 +199,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
          --  Row activation must not mutate transient File Tree selection
          --  before the same project-context and boundary checks used by the
          --  actual row action.
-         if not Editor.Project.Has_Project (S.Project) then
+         if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
             return;
          elsif not Editor.File_Tree.Contains (S.File_Tree, Hit.Node_Id) then
@@ -210,7 +210,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
                  Editor.File_Tree.Node (S.File_Tree, Hit.Node_Id);
             begin
                if not Editor.Project.Is_Under_Project
-                 (S.Project, To_String (Summary.Absolute_Path))
+                 (S.Project_Runtime.Project, To_String (Summary.Absolute_Path))
                then
                   Editor.Executor.Shared_Services.Report_Error
                     (S, "Target path is outside the project");
@@ -235,7 +235,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       Node  : constant Editor.File_Tree.File_Tree_Node_Id := Editor.Executor.Selected_File_Tree_Node (S, Found);
       Summary : Editor.File_Tree.File_Tree_Node_Summary;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif not Found then
@@ -245,7 +245,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
 
       Summary := Editor.File_Tree.Node (S.File_Tree, Node);
       if not Editor.Project.Is_Under_Project
-        (S.Project, To_String (Summary.Absolute_Path))
+        (S.Project_Runtime.Project, To_String (Summary.Absolute_Path))
       then
          Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
          return;
@@ -273,7 +273,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       Node  : constant Editor.File_Tree.File_Tree_Node_Id := Editor.Executor.Selected_File_Tree_Node (S, Found);
       Summary : Editor.File_Tree.File_Tree_Node_Summary;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif not Found then
@@ -283,7 +283,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
 
       Summary := Editor.File_Tree.Node (S.File_Tree, Node);
       if not Editor.Project.Is_Under_Project
-        (S.Project, To_String (Summary.Absolute_Path))
+        (S.Project_Runtime.Project, To_String (Summary.Absolute_Path))
       then
          Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
          return;
@@ -309,7 +309,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       Node  : constant Editor.File_Tree.File_Tree_Node_Id := Editor.Executor.Selected_File_Tree_Node (S, Found);
       Summary : Editor.File_Tree.File_Tree_Node_Summary;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif not Found then
@@ -319,7 +319,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
 
       Summary := Editor.File_Tree.Node (S.File_Tree, Node);
       if not Editor.Project.Is_Under_Project
-        (S.Project, To_String (Summary.Absolute_Path))
+        (S.Project_Runtime.Project, To_String (Summary.Absolute_Path))
       then
          Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
          return;
@@ -345,7 +345,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif Editor.File_Tree.Is_Empty (S.File_Tree) then

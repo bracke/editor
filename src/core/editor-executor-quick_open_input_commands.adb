@@ -21,8 +21,8 @@ package body Editor.Executor.Quick_Open_Input_Commands is
    begin
       if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0 then
          return Editor.File_Tree.File_Node_Count (S.File_Tree);
-      elsif Editor.Project.Has_Project (S.Project) then
-         return Editor.Project.Known_File_Count (S.Project);
+      elsif Editor.Project.Has_Project (S.Project_Runtime.Project) then
+         return Editor.Project.Known_File_Count (S.Project_Runtime.Project);
       else
          return 0;
       end if;
@@ -53,7 +53,7 @@ package body Editor.Executor.Quick_Open_Input_Commands is
          Editor.Quick_Open.Set_Query_Text (S.Quick_Open, Text);
          Recompute_Quick_Open (S);
          if Editor.Quick_Open.Result_Count (S.Quick_Open) = 0 then
-            if not Editor.Project.Has_Project (S.Project) then
+            if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
                Report_Info (S, "No project open");
             elsif Quick_Open_File_Count (S) = 0 then
                Report_Info (S, "No project files");
@@ -86,7 +86,7 @@ package body Editor.Executor.Quick_Open_Input_Commands is
    is
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
-         if not Editor.Project.Has_Project (S.Project) then
+         if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
@@ -105,7 +105,7 @@ package body Editor.Executor.Quick_Open_Input_Commands is
    is
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
-         if not Editor.Project.Has_Project (S.Project) then
+         if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
@@ -124,7 +124,7 @@ package body Editor.Executor.Quick_Open_Input_Commands is
    is
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
-         if not Editor.Project.Has_Project (S.Project) then
+         if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
@@ -144,12 +144,12 @@ package body Editor.Executor.Quick_Open_Input_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Info (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
         or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
       then
          Report_Info (S, "Quick Open is not visible");
@@ -173,12 +173,12 @@ package body Editor.Executor.Quick_Open_Input_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Info (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
         or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
       then
          Report_Info (S, "Quick Open is not visible");

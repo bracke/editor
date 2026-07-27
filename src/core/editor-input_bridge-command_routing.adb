@@ -103,11 +103,11 @@ package body Editor.Input_Bridge.Command_Routing is
    is
       Handled : Boolean := False;
    begin
-      if not Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus) then
+      if not Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus) then
          return False;
       end if;
 
-      case Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus) is
+      case Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus) is
          when Editor.Overlay_Focus.Command_Palette_Overlay =>
             Handled := Handle_Command_Palette (Cmd);
          when Editor.Overlay_Focus.Quick_Open_Overlay =>
@@ -144,7 +144,7 @@ package body Editor.Input_Bridge.Command_Routing is
       Handled : Boolean := False;
    begin
       if Editor.Feature_Search_Results.Search_Input_Is_Active
-        (S.Feature_Search_Results)
+        (S.Panel.Feature_Search_Results)
       then
          Handled := Handle_Search_Query_Input (Cmd);
          if Handled then

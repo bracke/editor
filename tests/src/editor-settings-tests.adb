@@ -659,25 +659,25 @@ package body Editor.Settings.Tests is
 
       Editor.Minimap.Set_Enabled (True);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Minimap);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found, "Toggle Minimap must emit one canonical outcome message");
       Assert (To_String (M.Text) = "Minimap hidden",
               "Toggle Minimap off message must be canonical");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Minimap);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (To_String (M.Text) = "Minimap shown",
               "Toggle Minimap on message must be canonical");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Toggle_Line_Number_Mode);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (To_String (M.Text) = "Line number mode changed",
               "Line-number mode toggle message must be canonical");
 
       Editor.Settings.Set_Cursor_Blink_Enabled (True);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Cursor_Blink);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (To_String (M.Text) = "Cursor blink disabled",
               "Cursor blink off message must be canonical");
    end Test_Settings_Toggle_Commands_Emit_Canonical_Messages;
@@ -730,7 +730,7 @@ package body Editor.Settings.Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Set_Theme_Light);
       Assert (Editor.Theme.Active_Theme_Id = "light",
               "Set Theme Light must mutate the live theme preference");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Theme changed",
               "Set Theme Light must emit the canonical theme message");
 
@@ -911,7 +911,7 @@ package body Editor.Settings.Tests is
 
       Assert (Editor.Settings.Minimap_Visible (S.Settings),
               "failed Save Settings must not replace in-memory state settings snapshot");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Settings file could not be written.",
               "failed Save Settings must emit deterministic failure outcome");
       Editor.Minimap.Set_Enabled (True);
@@ -941,7 +941,7 @@ package body Editor.Settings.Tests is
 
       Assert (not Editor.Settings.Minimap_Visible (S.Settings),
               "malformed settings reload must not partially replace state settings");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Settings file is invalid.",
               "malformed settings reload must emit deterministic failure outcome");
       Editor.Minimap.Set_Enabled (True);
@@ -960,7 +960,7 @@ package body Editor.Settings.Tests is
          Display_Name => To_Unbounded_String (Name),
          Error_Text   => Null_Unbounded_String);
    begin
-      Editor.Project.Apply_Open_Result (S.Project, Result);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Result);
    end Install_Project_For_Settings;
 
    procedure Test_Empty_Settings_File_Is_Hard_Invalid
@@ -1079,7 +1079,7 @@ package body Editor.Settings.Tests is
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Dirty);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 104);
+        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 104);
 
       Before := Editor.Lifecycle_Audit.State_Summary (S);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_Settings);
@@ -1093,7 +1093,7 @@ package body Editor.Settings.Tests is
               "Save Settings must not save or rewrite dirty file contents");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "Save Settings must not clear dirty buffer state");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
               "Save Settings must emit exactly one outcome message");
 
       Before := Editor.Lifecycle_Audit.State_Summary (S);

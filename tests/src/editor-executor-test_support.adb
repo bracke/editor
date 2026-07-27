@@ -124,7 +124,7 @@ package body Editor.Executor.Test_Support is
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (Msg);
       else
@@ -166,11 +166,11 @@ package body Editor.Executor.Test_Support is
       Message : String)
    is
    begin
-      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) loop
-         if Editor.Feature_Diagnostics.Item_Message (S.Feature_Diagnostics, I) =
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) loop
+         if Editor.Feature_Diagnostics.Item_Message (S.Panel.Feature_Diagnostics, I) =
            Message
          then
-            Editor.Feature_Panel.Select_Row (S.Feature_Panel, I);
+            Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, I);
             return;
          end if;
       end loop;

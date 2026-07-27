@@ -298,7 +298,7 @@ begin
      (Failure_Result.Build_Result,
       Has_Output => True,
       Context    => "failing real gprbuild run");
-   Check (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) >= 1,
+   Check (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) >= 1,
           "real gprbuild runner output was not ingested into Diagnostics");
 
    Check_Timeout_If_Available;

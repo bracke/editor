@@ -102,7 +102,7 @@ package body Editor.Line_Edit.Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (M);
       else
@@ -505,12 +505,12 @@ package body Editor.Line_Edit.Tests is
       Editor.State.Set_Dirty (S, False);
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
-      S.Active_Find_Query := To_Unbounded_String ("two");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("two");
+      S.Search.Active_Find_Stale := False;
       Set_Caret (S, 0);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "successful line edit must mark active Find state stale when a query exists");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
@@ -584,9 +584,9 @@ package body Editor.Line_Edit.Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-      S.Active_Find_Query := To_Unbounded_String ("beta");
-      S.Active_Find_Stale := False;
-      S.Active_Replace_Text := To_Unbounded_String ("BETA");
+      S.Search.Active_Find_Query := To_Unbounded_String ("beta");
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Replace_Text := To_Unbounded_String ("BETA");
       Set_Primary_Selection (S, 0, 5);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Duplicate);
@@ -599,11 +599,11 @@ package body Editor.Line_Edit.Tests is
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
               "line command must not mutate clipboard text");
-      Assert (To_String (S.Active_Find_Query) = "beta",
+      Assert (To_String (S.Search.Active_Find_Query) = "beta",
               "line command must not mutate Find query");
-      Assert (To_String (S.Active_Replace_Text) = "BETA",
+      Assert (To_String (S.Search.Active_Replace_Text) = "BETA",
               "line command must not mutate Replace text");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "text-changing line command must invalidate active Find state");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
@@ -684,15 +684,15 @@ package body Editor.Line_Edit.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
       Editor.State.Set_Dirty (S, False);
-      S.Active_Find_Query := To_Unbounded_String ("two");
-      S.Active_Replace_Text := To_Unbounded_String ("TWO");
+      S.Search.Active_Find_Query := To_Unbounded_String ("two");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("TWO");
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
       Set_Primary_Selection (S, 0, 3);
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
-      Before_Find := S.Active_Find_Query;
-      Before_Replace := S.Active_Replace_Text;
+      Before_Find := S.Search.Active_Find_Query;
+      Before_Replace := S.Search.Active_Replace_Text;
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Line_Delete);
@@ -710,9 +710,9 @@ package body Editor.Line_Edit.Tests is
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
               "availability/projection must not mutate clipboard");
-      Assert (S.Active_Find_Query = Before_Find,
+      Assert (S.Search.Active_Find_Query = Before_Find,
               "availability/projection must not mutate Find query");
-      Assert (S.Active_Replace_Text = Before_Replace,
+      Assert (S.Search.Active_Replace_Text = Before_Replace,
               "availability/projection must not mutate Replace text");
       Assert (not Editor.State.Is_Dirty (S),
               "availability/projection must not dirty buffer");
@@ -828,8 +828,8 @@ package body Editor.Line_Edit.Tests is
       Editor.State.Load_Text (S, "Alpha" & ASCII.LF & "Beta");
       Editor.State.Set_Dirty (S, False);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Find_Stale := False;
       Set_Primary_Selection (S, 0, 4);
 
       Editor.Executor.Execute_Command
@@ -838,7 +838,7 @@ package body Editor.Line_Edit.Tests is
               "indent must use current in-memory text and current logical line");
       Assert (not Editor.Selection.Has_Selection (S),
               "successful indentation must collapse stale active selection");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "text-changing indentation must invalidate active Find matches");
       Assert
         (Editor.Clipboard.Has_Text
@@ -848,8 +848,8 @@ package body Editor.Line_Edit.Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Dirty_Before := Editor.State.Is_Dirty (S);
-      S.Active_Find_Query := To_Unbounded_String ("Alpha");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
+      S.Search.Active_Find_Stale := False;
       Set_Primary_Selection (S, 4, 0);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -864,7 +864,7 @@ package body Editor.Line_Edit.Tests is
               "no-op outdent after undo must preserve redo stack");
       Assert (Editor.State.Is_Dirty (S) = Dirty_Before,
               "no-op outdent after undo must preserve dirty state");
-      Assert (not S.Active_Find_Stale,
+      Assert (not S.Search.Active_Find_Stale,
               "no-op outdent must not invalidate Find/Replace");
       Assert (Editor.Selection.Has_Selection (S),
               "no-op outdent must preserve a valid selection");
@@ -876,7 +876,7 @@ package body Editor.Line_Edit.Tests is
         (S, Editor.Command_Ids.Command_Indent_Increase);
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
               "text-changing indent after undo must clear redo stack");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "text-changing indent after preserved redo must invalidate Find once");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
@@ -995,10 +995,10 @@ package body Editor.Line_Edit.Tests is
         (S, "Alpha" & ASCII.LF & "  Beta" & ASCII.LF & String'(1 => ASCII.HT) & "Gamma");
       Editor.State.Set_Dirty (S, False);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Find_Stale := False;
-      S.Active_Replace_Prompt := True;
-      S.Active_Replace_Text := To_Unbounded_String ("REPL");
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Replace_Prompt := True;
+      S.Search.Active_Replace_Text := To_Unbounded_String ("REPL");
       Set_Primary_Selection (S, 0, 5);
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
       Before_Caret := S.Carets (S.Carets.First_Index).Pos;
@@ -1033,10 +1033,10 @@ package body Editor.Line_Edit.Tests is
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
               "render/availability/workspace snapshot must not mutate clipboard");
-      Assert (To_String (S.Active_Find_Query) = "Beta"
-              and then not S.Active_Find_Stale
-              and then S.Active_Replace_Prompt
-              and then To_String (S.Active_Replace_Text) = "REPL",
+      Assert (To_String (S.Search.Active_Find_Query) = "Beta"
+              and then not S.Search.Active_Find_Stale
+              and then S.Search.Active_Replace_Prompt
+              and then To_String (S.Search.Active_Replace_Text) = "REPL",
               "render/availability/workspace snapshot must not mutate Find/Replace state");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
@@ -1155,10 +1155,10 @@ package body Editor.Line_Edit.Tests is
       Editor.State.Load_Text (S, "Alpha" & ASCII.LF & "Beta");
       Editor.State.Set_Dirty (S, False);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-      S.Active_Find_Query := To_Unbounded_String ("Alpha");
-      S.Active_Find_Stale := False;
-      S.Active_Replace_Text := To_Unbounded_String ("ALPHA");
-      S.Active_Replace_Prompt := True;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Replace_Text := To_Unbounded_String ("ALPHA");
+      S.Search.Active_Replace_Prompt := True;
       Set_Primary_Selection (S, 0, 7);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -1208,10 +1208,10 @@ package body Editor.Line_Edit.Tests is
       Assert
         (Text_Buffer.UTF8_Text (After.Buffer) = "-- Alpha" & ASCII.LF & "Beta",
          "Input_Bridge line-comment binding must route through Executor");
-      Assert (After.Active_Find_Stale,
+      Assert (After.Search.Active_Find_Stale,
               "line-comment mutation must invalidate Find/Replace through edit hook");
-      Assert (After.Active_Replace_Text = To_Unbounded_String ("ALPHA")
-              and then After.Active_Replace_Prompt,
+      Assert (After.Search.Active_Replace_Text = To_Unbounded_String ("ALPHA")
+              and then After.Search.Active_Replace_Prompt,
               "line-comment mutation must not rewrite Replace policy state");
       Assert (not Editor.Selection.Has_Selection (After),
               "successful line-comment mutation must clear/collapse selection");
@@ -1260,10 +1260,10 @@ package body Editor.Line_Edit.Tests is
       Editor.State.Load_Text (S, "  Alpha" & ASCII.LF & "Beta");
       Editor.State.Set_Dirty (S, False);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-      S.Active_Find_Query := To_Unbounded_String ("Alpha");
-      S.Active_Find_Stale := False;
-      S.Active_Replace_Text := To_Unbounded_String ("Omega");
-      S.Active_Replace_Prompt := True;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Omega");
+      S.Search.Active_Replace_Prompt := True;
       Set_Primary_Selection
         (S,
          Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 2)),
@@ -1277,23 +1277,23 @@ package body Editor.Line_Edit.Tests is
       Assert_Caret_Row_Col (S, 0, 7, "comment-line caret shift after insertion");
       Assert (not Editor.Selection.Has_Selection (S),
               "successful comment-line must clear stale active selection");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "text-changing comment-line must invalidate active Find through edit hook");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("Omega") and then S.Active_Replace_Prompt,
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("Omega") and then S.Search.Active_Replace_Prompt,
               "line-comment must not mutate Replace text or visibility");
       Assert (Editor.Clipboard.Has_Text and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
               "line-comment must not mutate clipboard");
       Assert_Navigation_Counts (S, Before_Back, Before_Fwd,
                                 "line-comment must not record navigation history");
 
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Stale := False;
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 0, 3)));
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "  Alpha" & ASCII.LF & "Beta",
               "uncomment-line must restore exact pre-comment text");
       Assert_Caret_Row_Col (S, 0, 2,
                             "uncomment-line caret inside marker must clamp to marker position");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "text-changing uncomment-line must invalidate active Find through edit hook");
       Assert (Editor.Clipboard.Has_Text and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
               "uncomment-line must preserve clipboard");
@@ -1426,22 +1426,22 @@ package body Editor.Line_Edit.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "-- Alpha");
       Editor.State.Set_Dirty (S, False);
-      S.Active_Find_Query := To_Unbounded_String ("Alpha");
-      S.Active_Find_Stale := False;
-      S.Active_Replace_Text := To_Unbounded_String ("Beta");
-      S.Active_Replace_Prompt := True;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Beta");
+      S.Search.Active_Replace_Prompt := True;
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "-- Alpha",
               "no-op comment-line must preserve text exactly");
       Assert (Message_Text (S) = "Line already commented",
               "no-op comment-line must report already-commented status");
-      Assert (not S.Active_Find_Stale,
+      Assert (not S.Search.Active_Find_Stale,
               "no-op comment-line must not invalidate Find/Replace");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("Alpha"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("Alpha"),
               "no-op comment-line must not mutate Find query");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("Beta")
-              and then S.Active_Replace_Prompt,
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("Beta")
+              and then S.Search.Active_Replace_Prompt,
               "no-op comment-line must not mutate Replace state");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
               "no-op comment-line must not create an undo entry");
@@ -1449,15 +1449,15 @@ package body Editor.Line_Edit.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha -- note");
       Editor.State.Set_Dirty (S, False);
-      S.Active_Find_Query := To_Unbounded_String ("--");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("--");
+      S.Search.Active_Find_Stale := False;
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "Alpha -- note",
               "no-op uncomment-line must not remove an internal marker");
       Assert (Message_Text (S) = "Nothing to uncomment",
               "no-op uncomment-line must report deterministic no-op");
-      Assert (not S.Active_Find_Stale,
+      Assert (not S.Search.Active_Find_Stale,
               "no-op uncomment-line must not invalidate Find/Replace");
 
       Workspace_Snap := Editor.State.Build_Workspace_Snapshot (S);
@@ -1584,14 +1584,14 @@ package body Editor.Line_Edit.Tests is
          0,
          Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 0, 5)));
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-      S.Active_Find_Query := To_Unbounded_String ("Alpha");
-      S.Active_Find_Stale := False;
-      S.Active_Replace_Text := To_Unbounded_String ("Omega");
-      S.Active_Replace_Prompt := True;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Omega");
+      S.Search.Active_Replace_Prompt := True;
 
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
-      Before_Find := S.Active_Find_Query;
-      Before_Replace := S.Active_Replace_Text;
+      Before_Find := S.Search.Active_Find_Query;
+      Before_Replace := S.Search.Active_Replace_Text;
       Before_Dirty := Editor.State.Is_Dirty (S);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -1617,11 +1617,11 @@ package body Editor.Line_Edit.Tests is
 
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
               "completeness read-only paths must not mutate buffer text");
-      Assert (S.Active_Find_Query = Before_Find
-              and then not S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Query = Before_Find
+              and then not S.Search.Active_Find_Stale,
               "completeness read-only paths must not mutate Find state");
-      Assert (S.Active_Replace_Text = Before_Replace
-              and then S.Active_Replace_Prompt,
+      Assert (S.Search.Active_Replace_Text = Before_Replace
+              and then S.Search.Active_Replace_Prompt,
               "completeness read-only paths must not mutate Replace state");
       Assert (Editor.Selection.Has_Selection (S),
               "completeness read-only paths must not normalize selection");
@@ -1642,11 +1642,11 @@ package body Editor.Line_Edit.Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "  Alpha" & ASCII.LF & "Beta -- internal",
               "completeness uncomment-line must remove only the active-line canonical marker");
-      Assert (S.Active_Find_Query = Before_Find
-              and then S.Active_Replace_Text = Before_Replace
-              and then S.Active_Replace_Prompt,
+      Assert (S.Search.Active_Find_Query = Before_Find
+              and then S.Search.Active_Replace_Text = Before_Replace
+              and then S.Search.Active_Replace_Prompt,
               "completeness text-changing comment command must not rewrite Find/Replace payloads");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "completeness text-changing comment command must invalidate Find matches");
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
@@ -1761,17 +1761,17 @@ package body Editor.Line_Edit.Tests is
       Editor.State.Load_Text (S, "Alpha" & ASCII.LF & "-- Beta" & ASCII.LF & "Gamma");
       Editor.State.Set_Dirty (S, False);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Find_Stale := False;
-      S.Active_Replace_Text := To_Unbounded_String ("BETA");
-      S.Active_Replace_Prompt := True;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Replace_Text := To_Unbounded_String ("BETA");
+      S.Search.Active_Replace_Prompt := True;
       Set_Primary_Selection
         (S,
          Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 0, 0)),
          Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 0)));
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
-      Before_Find := S.Active_Find_Query;
-      Before_Replace := S.Active_Replace_Text;
+      Before_Find := S.Search.Active_Find_Query;
+      Before_Replace := S.Search.Active_Replace_Text;
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Before_Caret := S.Carets (S.Carets.First_Index).Pos;
@@ -1792,9 +1792,9 @@ package body Editor.Line_Edit.Tests is
       Assert (Snap.Length = Text_Buffer.Length (S.Buffer),
               "render snapshot must derive from canonical buffer text");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text)
-              and then S.Active_Find_Query = Before_Find
-              and then S.Active_Replace_Text = Before_Replace
-              and then not S.Active_Find_Stale
+              and then S.Search.Active_Find_Query = Before_Find
+              and then S.Search.Active_Replace_Text = Before_Replace
+              and then not S.Search.Active_Find_Stale
               and then Editor.Selection.Has_Selection (S)
               and then Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo
@@ -2173,9 +2173,9 @@ package body Editor.Line_Edit.Tests is
          C.Pos := Cursor_Index (Text_Buffer.Length (S.Buffer) + 25);
          S.Carets.Replace_Element (S.Carets.First_Index, C);
       end;
-      S.Active_Find_Query := To_Unbounded_String ("Alpha");
-      S.Active_Replace_Text := To_Unbounded_String ("Omega");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Omega");
+      S.Search.Active_Find_Stale := False;
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
@@ -2201,9 +2201,9 @@ package body Editor.Line_Edit.Tests is
               "command palette projection returns command candidates");
       Assert_Buffer_Text (S, Before_Text,
                           "command palette projection must not split or repair text");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("Alpha")
-              and then S.Active_Replace_Text = To_Unbounded_String ("Omega")
-              and then not S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("Alpha")
+              and then S.Search.Active_Replace_Text = To_Unbounded_String ("Omega")
+              and then not S.Search.Active_Find_Stale,
               "read-only projections must not mutate Find/Replace state");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);

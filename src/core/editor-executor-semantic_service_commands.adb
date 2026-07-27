@@ -304,7 +304,7 @@ package body Editor.Executor.Semantic_Service_Commands is
             begin
                if Result.Status = Editor.Ada_Language_Service.Service_Success then
                   Editor.Feature_Search_Results.Begin_External_Result_Set
-                    (S.Feature_Search_Results,
+                    (S.Panel.Feature_Search_Results,
                      Query        => "references: " & Name,
                      Source_Label => "Ada semantic references");
 
@@ -322,7 +322,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                             (Natural'Image (Column), Ada.Strings.Both);
                      begin
                         Editor.Feature_Search_Results.Add_Search_Result
-                          (S.Feature_Search_Results,
+                          (S.Panel.Feature_Search_Results,
                            Label         => Label,
                            Source_Label  => Path,
                            Has_Target    => Target.Key.Buffer_Token /= 0,
@@ -338,13 +338,13 @@ package body Editor.Executor.Semantic_Service_Commands is
 
                   Editor.Feature_Search_Results
                     .Reconcile_Search_Results_After_Row_Change
-                      (S.Feature_Search_Results, S.Feature_Panel,
+                      (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel,
                        Select_First_When_Available => True);
                   Editor.Panels.Set_Bottom_Content
                     (S.Panels, Editor.Panels.Search_Results_Content);
                   Editor.Panels.Set_Visible
                     (S.Panels, Editor.Panels.Bottom_Panel, True);
-                  if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
+                  if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
                      Editor.Focus_Management.Set_Focus_Owner
                        (S, Editor.Focus_Management.Focus_Project_Search_Results);
                   end if;
@@ -371,7 +371,7 @@ package body Editor.Executor.Semantic_Service_Commands is
             begin
                if Result.Status = Editor.Ada_Language_Service.Service_Success then
                   Editor.Feature_Search_Results.Begin_External_Result_Set
-                    (S.Feature_Search_Results,
+                    (S.Panel.Feature_Search_Results,
                      Query        => "symbols: " & Name,
                      Source_Label => "Ada workspace symbols");
 
@@ -390,7 +390,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                             (Natural'Image (Column), Ada.Strings.Both);
                      begin
                         Editor.Feature_Search_Results.Add_Search_Result
-                          (S.Feature_Search_Results,
+                          (S.Panel.Feature_Search_Results,
                            Label         => Label,
                            Source_Label  => Path,
                            Has_Target    => Target.Key.Buffer_Token /= 0,
@@ -406,13 +406,13 @@ package body Editor.Executor.Semantic_Service_Commands is
 
                   Editor.Feature_Search_Results
                     .Reconcile_Search_Results_After_Row_Change
-                      (S.Feature_Search_Results, S.Feature_Panel,
+                      (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel,
                        Select_First_When_Available => True);
                   Editor.Panels.Set_Bottom_Content
                     (S.Panels, Editor.Panels.Search_Results_Content);
                   Editor.Panels.Set_Visible
                     (S.Panels, Editor.Panels.Bottom_Panel, True);
-                  if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
+                  if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
                      Editor.Focus_Management.Set_Focus_Owner
                        (S, Editor.Focus_Management.Focus_Project_Search_Results);
                   end if;
@@ -468,11 +468,11 @@ package body Editor.Executor.Semantic_Service_Commands is
                         Selected_Item => 0,
                         Items => (others => (others => <>)));
                      Editor.Feature_Search_Results.Begin_External_Result_Set
-                       (S.Feature_Search_Results,
+                       (S.Panel.Feature_Search_Results,
                         Query        => "hover: " & Name,
                         Source_Label => "Ada semantic hover");
                      Editor.Feature_Search_Results.Add_Search_Result
-                       (S.Feature_Search_Results,
+                       (S.Panel.Feature_Search_Results,
                         Label         => Label,
                         Source_Label  => Path,
                         Has_Target    => Result.Key.Buffer_Token /= 0,
@@ -485,7 +485,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                         Match_Length  => Name'Length);
                      Editor.Feature_Search_Results
                        .Reconcile_Search_Results_After_Row_Change
-                         (S.Feature_Search_Results, S.Feature_Panel,
+                         (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel,
                           Select_First_When_Available => True);
                   end;
                   Report_Info
@@ -538,7 +538,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                   end;
 
                   Editor.Feature_Search_Results.Begin_External_Result_Set
-                    (S.Feature_Search_Results,
+                    (S.Panel.Feature_Search_Results,
                      Query        => "completions: " & Name,
                      Source_Label => "Ada semantic completions");
 
@@ -560,7 +560,7 @@ package body Editor.Executor.Semantic_Service_Commands is
                             (Natural'Image (Column), Ada.Strings.Both);
                      begin
                         Editor.Feature_Search_Results.Add_Search_Result
-                          (S.Feature_Search_Results,
+                          (S.Panel.Feature_Search_Results,
                            Label         => Label,
                            Source_Label  => Path,
                            Has_Target    => Item.Key.Buffer_Token /= 0,
@@ -576,7 +576,7 @@ package body Editor.Executor.Semantic_Service_Commands is
 
                   Editor.Feature_Search_Results
                     .Reconcile_Search_Results_After_Row_Change
-                      (S.Feature_Search_Results, S.Feature_Panel,
+                      (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel,
                        Select_First_When_Available => True);
                   Report_Info
                     (S,

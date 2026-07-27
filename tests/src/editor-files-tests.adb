@@ -291,7 +291,7 @@ package body Editor.Files.Tests is
       Assert (Editor.View.Scroll_X = 0 and then Editor.View.Scroll_Y = 0,
         "Execute_Open_File should reset scroll to top");
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found, "Execute_Open_File should publish a success message");
       Assert (M.Severity = Editor.Messages.Success_Message,
         "Execute_Open_File success should use success severity");
@@ -328,9 +328,9 @@ package body Editor.Files.Tests is
       Editor.Folding.Add_Fold (S.Folding, 0, 2);
       Editor.Folding.Toggle_Fold_At_Row (S.Folding, 0);
 
-      Assert (S.Active_Find_Matches.Length > 0,
+      Assert (S.Search.Active_Find_Matches.Length > 0,
         "Test setup should create active Find matches before open");
-      Assert (S.Diagnostics.Length > 0,
+      Assert (S.Panel.Diagnostics.Length > 0,
         "Test setup should create diagnostics before open");
       Assert (Editor.Gutter_Markers.Has_Marker
         (S.Gutter_Markers, 1, Editor.Gutter_Markers.Bookmark_Marker),
@@ -342,13 +342,13 @@ package body Editor.Files.Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
 
-      Assert (Length (S.Active_Find_Query) = 0,
+      Assert (Length (S.Search.Active_Find_Query) = 0,
         "Successful open should clear active Find query");
-      Assert (S.Active_Find_Matches.Length = 0,
+      Assert (S.Search.Active_Find_Matches.Length = 0,
         "Successful open should clear active Find matches");
-      Assert (not Editor.Search.Has_Match (S.Active_Find_Match),
+      Assert (not Editor.Search.Has_Match (S.Search.Active_Find_Match),
         "Successful open should clear the active Find match");
-      Assert (S.Diagnostics.Length = 0,
+      Assert (S.Panel.Diagnostics.Length = 0,
         "Successful open should clear diagnostics");
       Assert (not Editor.Gutter_Markers.Has_Marker
         (S.Gutter_Markers, 1, Editor.Gutter_Markers.Bookmark_Marker),
@@ -390,7 +390,7 @@ package body Editor.Files.Tests is
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "Failed open should preserve dirty state");
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found, "Failed open should publish an error message");
       Assert (M.Severity = Editor.Messages.Error_Message,
         "Failed open should use error severity");
@@ -433,7 +433,7 @@ package body Editor.Files.Tests is
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "Dirty original buffer should preserve dirty state");
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, New_Id);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found, "Dirty-buffer open policy should publish a message");
       Assert (M.Severity = Editor.Messages.Success_Message,
         "Dirty-buffer open policy should report successful open");
@@ -721,7 +721,7 @@ package body Editor.Files.Tests is
       Assert (Buffer_Text (S) = Before_Text
         and then not S.Buffer_Lifecycle.File_Info.Has_Path
         and then not S.Buffer_Lifecycle.File_Info.Dirty
-        and then Editor.Messages.Count (S.Messages) = 0,
+        and then Editor.Messages.Count (S.Panel.Messages) = 0,
         "reference projection must not execute commands or mutate editor state");
 
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
@@ -943,7 +943,7 @@ package body Editor.Files.Tests is
       Assert (Editor.Commands.Reference_Metadata.Command_Availability_Summary
         (Editor.Command_Ids.Command_Reload_Active_Buffer) = Static_Text,
         "static reference availability must not follow Executor status");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
         "availability/reference checks must not emit command messages");
       Assert (Editor.Commands.Availability_Metadata.Unavailable_Reason (No_Active)'Length >= 0,
         "no-active availability object is observed only to keep Executor path live");
@@ -1551,7 +1551,7 @@ package body Editor.Files.Tests is
         "route/configuration audits must inspect without executing, repairing, or mutating state");
       Assert (Editor.Keybindings.Bound_Command_Count = Before_Bindings,
         "reference projection/render/audit must not mutate active keybindings");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
         "reference projection/render/audit must not emit command outcome messages");
 
       Remove_If_Exists (Path);
@@ -1730,7 +1730,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
          Target : String;
          Label  : String) is
       begin
-         Editor.Messages.Clear (S.Messages);
+         Editor.Messages.Clear (S.Panel.Messages);
          Editor.Executor.Execute_Command (S, Id);
          Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
            and then S.Buffer_Lifecycle.File_Target_Prompt_Command = Id
@@ -2103,7 +2103,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty buffer");
 
       Write_Bytes (Path, "externally replaced save-all disk content");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_All);
 
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
@@ -2112,7 +2112,7 @@ procedure Test_File_Lifecycle_Cross_Command_Sequence_Milestone_Freeze
         "save-all conflict skip should leave a visible changed-on-disk marker");
       Assert (Read_Bytes (Path) = "externally replaced save-all disk content",
         "save-all must not silently overwrite externally changed disk content");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Warning_Message,
         "save-all conflict skip should report a warning summary");
       Assert (Ada.Strings.Fixed.Index (To_String (M.Text), "conflict needs attention") > 0,

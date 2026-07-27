@@ -16,11 +16,11 @@ package body Editor.Input_Bridge.Active_Find_Key_Handlers is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return S.Active_Find_Prompt
+      return S.Search.Active_Find_Prompt
         and then
-          ((not Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus))
+          ((not Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus))
            or else Editor.Overlay_Focus.Is_Active
-             (S.Overlay_Focus,
+             (S.Panel.Overlay_Focus,
               Editor.Overlay_Focus.Active_Find_Prompt_Overlay));
    end Active_Find_Owns_Key;
 

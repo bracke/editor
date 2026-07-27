@@ -32,7 +32,7 @@ package body Editor.Executor.File_Tree_Rename_Commands is
       Parent_Path : Unbounded_String := Null_Unbounded_String;
       Active_Buffer_Was_Renamed : Boolean := False;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif not Found then
@@ -40,7 +40,7 @@ package body Editor.Executor.File_Tree_Rename_Commands is
            (S, "No File Tree node selected");
          return;
       elsif not Editor.Project.Is_Under_Project
-        (S.Project, To_String (Summary.Absolute_Path))
+        (S.Project_Runtime.Project, To_String (Summary.Absolute_Path))
       then
          Editor.Executor.Shared_Services.Report_Error
            (S, "Target path is outside the project");
@@ -104,7 +104,7 @@ package body Editor.Executor.File_Tree_Rename_Commands is
           .Same_Or_Descendant_File_Tree_Path
             (To_String (S.Buffer_Lifecycle.File_Info.Path), To_String (Summary.Absolute_Path));
 
-      if not Editor.Project.Is_Under_Project (S.Project, To_String (Target)) then
+      if not Editor.Project.Is_Under_Project (S.Project_Runtime.Project, To_String (Target)) then
          Editor.Executor.Shared_Services.Report_Error
            (S, "Target path is outside the project");
          return;

@@ -170,8 +170,8 @@ package body Editor.Project_Navigation is
    is
    begin
       return File_Tree_Coherent (State.File_Tree)
-        and then Quick_Open_Coherent (State.Quick_Open, State.Project)
-        and then Project_Search_Coherent (State.Project_Search, State.Project);
+        and then Quick_Open_Coherent (State.Quick_Open, State.Project_Runtime.Project)
+        and then Project_Search_Coherent (State.Project_Search, State.Project_Runtime.Project);
    end Assert_Project_Navigation_Workflows_Coherent;
 
 end Editor.Project_Navigation;

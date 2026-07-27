@@ -20,16 +20,16 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
    is
       Snapshot : constant Editor.Problems.Problems_Snapshot :=
         Editor.Problems.Filtered_Snapshot
-          (Editor.Problems.Build_Snapshot (S.Diagnostics), S.Problems_View);
+          (Editor.Problems.Build_Snapshot (S.Panel.Diagnostics), S.Panel.Problems_View);
    begin
       if Editor.Problems.Row_Count (Snapshot) = 0 then
-         Editor.Problems.Ensure_Valid_Selection (S.Problems_View, Snapshot);
+         Editor.Problems.Ensure_Valid_Selection (S.Panel.Problems_View, Snapshot);
          Editor.Executor.Shared_Services.Report_Info (S, "No problems");
       else
          Editor.Problems.Move_Selection
-           (S.Problems_View, Snapshot, Editor.Problems.Previous_Row, True);
+           (S.Panel.Problems_View, Snapshot, Editor.Problems.Previous_Row, True);
          Editor.Problems.Ensure_Selected_Row_Visible
-           (S.Problems_View, Snapshot, Editor.Executor.Problems_Visible_Row_Count);
+           (S.Panel.Problems_View, Snapshot, Editor.Executor.Problems_Visible_Row_Count);
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_Diagnostics);
       end if;
@@ -41,16 +41,16 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
    is
       Snapshot : constant Editor.Problems.Problems_Snapshot :=
         Editor.Problems.Filtered_Snapshot
-          (Editor.Problems.Build_Snapshot (S.Diagnostics), S.Problems_View);
+          (Editor.Problems.Build_Snapshot (S.Panel.Diagnostics), S.Panel.Problems_View);
    begin
       if Editor.Problems.Row_Count (Snapshot) = 0 then
-         Editor.Problems.Ensure_Valid_Selection (S.Problems_View, Snapshot);
+         Editor.Problems.Ensure_Valid_Selection (S.Panel.Problems_View, Snapshot);
          Editor.Executor.Shared_Services.Report_Info (S, "No problems");
       else
          Editor.Problems.Move_Selection
-           (S.Problems_View, Snapshot, Editor.Problems.Next_Row, True);
+           (S.Panel.Problems_View, Snapshot, Editor.Problems.Next_Row, True);
          Editor.Problems.Ensure_Selected_Row_Visible
-           (S.Problems_View, Snapshot, Editor.Executor.Problems_Visible_Row_Count);
+           (S.Panel.Problems_View, Snapshot, Editor.Executor.Problems_Visible_Row_Count);
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_Diagnostics);
       end if;
@@ -82,11 +82,11 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
    is
       Snapshot : constant Editor.Problems.Problems_Snapshot :=
         Editor.Problems.Filtered_Snapshot
-          (Editor.Problems.Build_Snapshot (S.Diagnostics), S.Problems_View);
+          (Editor.Problems.Build_Snapshot (S.Panel.Diagnostics), S.Panel.Problems_View);
       Found : Boolean := False;
       Diagnostic_Index : constant Editor.Diagnostics.Diagnostic_Index :=
         Editor.Problems.Diagnostic_For_Row
-          (Snapshot, Editor.Problems.Selected_Row_Index (S.Problems_View), Found);
+          (Snapshot, Editor.Problems.Selected_Row_Index (S.Panel.Problems_View), Found);
       Problem_Row : Editor.Problems.Problem_Row;
    begin
       if not Found or else Diagnostic_Index = Editor.Diagnostics.No_Diagnostic then
@@ -96,7 +96,7 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
       end if;
 
       Problem_Row := Editor.Problems.Row
-        (Snapshot, Positive (Editor.Problems.Selected_Row_Index (S.Problems_View)));
+        (Snapshot, Positive (Editor.Problems.Selected_Row_Index (S.Panel.Problems_View)));
       if not Editor.Problems.Row_Has_Target (Problem_Row) then
          Editor.Executor.Shared_Services.Report_Info
            (S, Editor.Problems.Row_Target_Unavailable_Label (Problem_Row));
@@ -115,15 +115,15 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
       Filter : Editor.Problems.Problems_Severity_Filter)
    is
       Full_Snapshot : constant Editor.Problems.Problems_Snapshot :=
-        Editor.Problems.Build_Snapshot (S.Diagnostics);
+        Editor.Problems.Build_Snapshot (S.Panel.Diagnostics);
       Visible : Editor.Problems.Problems_Snapshot;
    begin
-      Editor.Problems.Set_Severity_Filter (S.Problems_View, Filter);
+      Editor.Problems.Set_Severity_Filter (S.Panel.Problems_View, Filter);
       Visible := Editor.Problems.Filtered_Snapshot
-        (Full_Snapshot, S.Problems_View);
-      Editor.Problems.Ensure_Valid_Selection (S.Problems_View, Visible);
+        (Full_Snapshot, S.Panel.Problems_View);
+      Editor.Problems.Ensure_Valid_Selection (S.Panel.Problems_View, Visible);
       Editor.Problems.Ensure_Selected_Row_Visible
-        (S.Problems_View, Visible, Editor.Executor.Problems_Visible_Row_Count);
+        (S.Panel.Problems_View, Visible, Editor.Executor.Problems_Visible_Row_Count);
       Editor.Panels.Set_Bottom_Content
         (S.Panels, Editor.Panels.Problems_Content);
       Editor.Panels.Set_Visible
@@ -142,15 +142,15 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
       Sort : Editor.Problems.Problems_Sort_Mode)
    is
       Full_Snapshot : constant Editor.Problems.Problems_Snapshot :=
-        Editor.Problems.Build_Snapshot (S.Diagnostics);
+        Editor.Problems.Build_Snapshot (S.Panel.Diagnostics);
       Visible : Editor.Problems.Problems_Snapshot;
    begin
-      S.Problems_View.Sort_Mode := Sort;
+      S.Panel.Problems_View.Sort_Mode := Sort;
       Visible := Editor.Problems.Review_Snapshot
-        (Full_Snapshot, S.Problems_View);
-      Editor.Problems.Ensure_Valid_Selection (S.Problems_View, Visible);
+        (Full_Snapshot, S.Panel.Problems_View);
+      Editor.Problems.Ensure_Valid_Selection (S.Panel.Problems_View, Visible);
       Editor.Problems.Ensure_Selected_Row_Visible
-        (S.Problems_View, Visible, Editor.Executor.Problems_Visible_Row_Count);
+        (S.Panel.Problems_View, Visible, Editor.Executor.Problems_Visible_Row_Count);
       Editor.Panels.Set_Bottom_Content
         (S.Panels, Editor.Panels.Problems_Content);
       Editor.Panels.Set_Visible
@@ -174,15 +174,15 @@ package body Editor.Executor.Diagnostics_Problems_Commands is
       Group : Editor.Problems.Problems_Group_Mode)
    is
       Full_Snapshot : constant Editor.Problems.Problems_Snapshot :=
-        Editor.Problems.Build_Snapshot (S.Diagnostics);
+        Editor.Problems.Build_Snapshot (S.Panel.Diagnostics);
       Visible : Editor.Problems.Problems_Snapshot;
    begin
-      S.Problems_View.Group_Mode := Group;
+      S.Panel.Problems_View.Group_Mode := Group;
       Visible := Editor.Problems.Review_Snapshot
-        (Full_Snapshot, S.Problems_View);
-      Editor.Problems.Ensure_Valid_Selection (S.Problems_View, Visible);
+        (Full_Snapshot, S.Panel.Problems_View);
+      Editor.Problems.Ensure_Valid_Selection (S.Panel.Problems_View, Visible);
       Editor.Problems.Ensure_Selected_Row_Visible
-        (S.Problems_View, Visible, Editor.Executor.Problems_Visible_Row_Count);
+        (S.Panel.Problems_View, Visible, Editor.Executor.Problems_Visible_Row_Count);
       Editor.Panels.Set_Bottom_Content
         (S.Panels, Editor.Panels.Problems_Content);
       Editor.Panels.Set_Visible

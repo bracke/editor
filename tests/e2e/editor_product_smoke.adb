@@ -262,15 +262,15 @@ procedure Editor_Product_Smoke is
          Mapped : Natural := 0;
       begin
          Editor.Feature_Diagnostics.Project_Rows
-           (S.Feature_Diagnostics, S.Feature_Panel);
-         for Row in 1 .. Editor.Feature_Panel.Row_Count (S.Feature_Panel) loop
+           (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+         for Row in 1 .. Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) loop
             Mapped := Editor.Feature_Diagnostics.Map_Diagnostic_Row_To_Item
-              (S.Feature_Diagnostics,
-               S.Feature_Panel,
+              (S.Panel.Feature_Diagnostics,
+               S.Panel.Feature_Panel,
                Row,
-               Editor.Feature_Panel.Projection_Generation (S.Feature_Panel));
+               Editor.Feature_Panel.Projection_Generation (S.Panel.Feature_Panel));
             if Mapped = Natural (Item_Index) then
-               Editor.Feature_Panel.Select_Row (S.Feature_Panel, Row);
+               Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Row);
                return;
             end if;
          end loop;
@@ -281,7 +281,7 @@ procedure Editor_Product_Smoke is
       function Latest_Message return String is
          Found : Boolean := False;
          Message : constant Editor.Messages.Editor_Message :=
-           Editor.Messages.Active_Message (S.Messages, Found);
+           Editor.Messages.Active_Message (S.Panel.Messages, Found);
       begin
          if Found then
             return Editor.Messages.Text (Message);
@@ -349,7 +349,7 @@ procedure Editor_Product_Smoke is
          "   null" & ASCII.LF &
          "end Smoke_Direct;" & ASCII.LF);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "missing semicolon",
          Source_Label  => "build ui direct quick fix",
@@ -367,7 +367,7 @@ procedure Editor_Product_Smoke is
          Quick_Fix_Label   => "Insert semicolon",
          Quick_Fix_Detail  => "Append statement delimiter");
       Direct_Diagnostic_Index :=
-        Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Select_Diagnostic_Item (Positive (Direct_Diagnostic_Index));
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
       Check
@@ -390,7 +390,7 @@ procedure Editor_Product_Smoke is
          "   null" & ASCII.LF &
          "end Smoke_Keyboard;" & ASCII.LF);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "missing semicolon via keyboard",
          Source_Label  => "build ui keyboard quick fix",
@@ -408,7 +408,7 @@ procedure Editor_Product_Smoke is
          Quick_Fix_Label   => "Insert semicolon with keyboard",
          Quick_Fix_Detail  => "Append statement delimiter");
       Keyboard_Diagnostic_Index :=
-        Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Select_Diagnostic_Item (Positive (Keyboard_Diagnostic_Index));
       Editor.Build_UI_Actions.Focus_Build_UI (S);
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
@@ -440,7 +440,7 @@ procedure Editor_Product_Smoke is
          "   null" & ASCII.LF &
          "end Smoke_Disabled;" & ASCII.LF);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "disabled quick fix via keyboard",
          Source_Label  => "build ui disabled keyboard quick fix",
@@ -458,9 +458,9 @@ procedure Editor_Product_Smoke is
          Quick_Fix_Label   => "Insert semicolon with keyboard",
          Quick_Fix_Detail  => "Append statement delimiter");
       Disabled_Diagnostic_Index :=
-        Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Unavailable
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Positive (Disabled_Diagnostic_Index),
          Label  => "Unavailable quick fix",
          Detail => "No edit or command");
@@ -558,7 +558,7 @@ procedure Editor_Product_Smoke is
 
       Execute_First_Query ("diagnostics", Editor.Command_Ids.Command_Diagnostics_Show);
       Check
-        (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+        (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
          Editor.Feature_Panel.Diagnostics_Feature,
          "command palette diagnostics candidate did not execute");
       Editor.Command_Palette.Reset;
@@ -616,8 +616,8 @@ procedure Editor_Product_Smoke is
       Check (Ada.Directories.Exists (Session_Path),
              "save workspace state did not create the session file");
       Editor.Executor.Workspace_Commands.Execute_Restore_Workspace_State (S);
-      Check (S.Post_Restore_Feedback_Current
-             and then S.Last_Restore_Summary_Available,
+      Check (S.Project_Runtime.Post_Restore_Feedback_Current
+             and then S.Project_Runtime.Last_Restore_Summary_Available,
              "restore workspace state did not expose current restore details");
       Confirm_Clear_Workspace_State;
    end Save_Restore_Clear_Workspace_State;
@@ -732,7 +732,7 @@ procedure Editor_Product_Smoke is
 
       Editor.Project_Search.Set_Query (S.Project_Search, "E2E_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.File_Tree, S.Project, (others => <>));
+        (S.Project_Search, S.File_Tree, S.Project_Runtime.Project, (others => <>));
       Check (Editor.Project_Search.Status (S.Project_Search) =
                Editor.Project_Search.Project_Search_Ok
              and then Editor.Project_Search.Result_Count (S.Project_Search) >= 1,
@@ -742,7 +742,7 @@ procedure Editor_Product_Smoke is
       Check (Found, "daily editing search did not select a result");
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Warning,
          Message       => "daily editing diagnostic",
          Source_Label  => "src/smoke_unit.adb",
@@ -752,13 +752,13 @@ procedure Editor_Product_Smoke is
          Target_Line   => 4,
          Target_Column => 7);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Show);
-      Editor.Feature_Diagnostics.Project_Rows (S.Feature_Diagnostics, S.Feature_Panel);
-      Check (Editor.Feature_Panel.Row_Count (S.Feature_Panel) >= 1,
+      Editor.Feature_Diagnostics.Project_Rows (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Check (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) >= 1,
              "daily editing diagnostic did not project into Diagnostics");
       Target_Row_Selected := False;
-      for I in 1 .. Editor.Feature_Panel.Row_Count (S.Feature_Panel) loop
-         if Editor.Feature_Panel.Row_Has_Target (S.Feature_Panel, Positive (I)) then
-            Editor.Feature_Panel.Select_Row (S.Feature_Panel, I);
+      for I in 1 .. Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) loop
+         if Editor.Feature_Panel.Row_Has_Target (S.Panel.Feature_Panel, Positive (I)) then
+            Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, I);
             Target_Row_Selected := True;
             Editor.Executor.Execute_Command
               (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
@@ -773,7 +773,7 @@ procedure Editor_Product_Smoke is
              & (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "<none>")
              & "; reason="
              & Editor.Feature_Diagnostics.Selected_Diagnostic_Open_Unavailable_Reason
-                 (S.Feature_Diagnostics, S.Feature_Panel));
+                 (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel));
 
       Assert_Workspace_Persistence_Roundtrip
         (Cursor_Row => Search_Result.Row,
@@ -885,13 +885,13 @@ begin
    Editor.State.Init (S);
 
    Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-   Check (Editor.Project.Has_Project (S.Project),
+   Check (Editor.Project.Has_Project (S.Project_Runtime.Project),
           "project open did not retain a project root");
 
-   Editor.Project.Refresh_Known_Files (S.Project, Refresh);
+   Editor.Project.Refresh_Known_Files (S.Project_Runtime.Project, Refresh);
    Check (Refresh.Status = Editor.Project.Project_File_Refresh_Ok,
           "project file refresh failed");
-   Check (Editor.Project.Has_Known_File (S.Project, "src/smoke_unit.adb"),
+   Check (Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/smoke_unit.adb"),
           "project file index does not include smoke_unit.adb");
 
    if Focused ("workspace_session") then
@@ -1017,7 +1017,7 @@ begin
 
    Editor.Project_Search.Set_Query (S.Project_Search, "E2E_Token");
    Editor.Project_Search.Search_Known_Project_Files
-     (S.Project_Search, S.File_Tree, S.Project, (others => <>));
+     (S.Project_Search, S.File_Tree, S.Project_Runtime.Project, (others => <>));
    Check (Editor.Project_Search.Status (S.Project_Search) =
             Editor.Project_Search.Project_Search_Ok
           and then Editor.Project_Search.Result_Count (S.Project_Search) >= 1,
@@ -1043,10 +1043,10 @@ begin
    Check (Build_Result.Build_Result.Status =
             Editor.External_Producers.Build_Types.Build_Run_Failed,
           "build command did not publish the supplied failure result");
-   Check (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) >= 1,
+   Check (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) >= 1,
           "build diagnostic output was not ingested into Diagnostics");
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "smoke diagnostic target",
          Source_Label  => "src/smoke_unit.adb",
@@ -1064,8 +1064,8 @@ begin
          Quick_Fix_Label   => "Annotate null statement",
          Quick_Fix_Detail  => "Insert quick-fix smoke marker");
       Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Command
-        (S.Feature_Diagnostics,
-         Positive (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics)),
+        (S.Panel.Feature_Diagnostics,
+         Positive (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics)),
          Label  => "Explain quick-fix smoke diagnostic",
          Detail => "Open diagnostic explanation",
          Primary_Action_Kind =>
@@ -1074,26 +1074,26 @@ begin
    Check (Editor.Focus_Management.Effective_Focus_Owner (S) =
             Editor.Focus_Management.Focus_Diagnostics,
           "Diagnostics show did not focus the Diagnostics panel");
-   Editor.Feature_Diagnostics.Project_Rows (S.Feature_Diagnostics, S.Feature_Panel);
-   for I in 1 .. Editor.Feature_Panel.Row_Count (S.Feature_Panel) loop
-      if Editor.Feature_Panel.Row_Has_Target (S.Feature_Panel, Positive (I)) then
-         Editor.Feature_Panel.Select_Row (S.Feature_Panel, I);
+   Editor.Feature_Diagnostics.Project_Rows (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+   for I in 1 .. Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) loop
+      if Editor.Feature_Panel.Row_Has_Target (S.Panel.Feature_Panel, Positive (I)) then
+         Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, I);
          Target_Row_Selected := True;
       end if;
    end loop;
    Check (Target_Row_Selected
           and then Editor.Feature_Diagnostics.Has_Selected_Diagnostic
-            (S.Feature_Diagnostics, S.Feature_Panel),
+            (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel),
           "Diagnostics projection did not include a selectable target row");
    Check
      (Editor.Feature_Diagnostics.Item_Quick_Fix_Label
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Positive
-           (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics))) =
+           (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics))) =
       "Annotate null statement",
       "Diagnostics quick-fix label did not survive projection");
    Editor.Feature_Panel.Select_Row
-     (S.Feature_Panel, Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics));
+     (S.Panel.Feature_Panel, Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics));
    Editor.Executor.Execute_Command
      (S, Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix);
    if Ada.Strings.Fixed.Index
@@ -1118,30 +1118,30 @@ begin
       return;
    end if;
    Editor.Diagnostics.Add
-     (S.Diagnostics, Start_Index => 0, End_Index => 1,
+     (S.Panel.Diagnostics, Start_Index => 0, End_Index => 1,
       Start_Row => 0, Start_Column => 0,
       Severity => Editor.Diagnostics.Warning,
       Message => "smoke warning");
    Editor.Diagnostics.Add
-     (S.Diagnostics, Start_Index => 2, End_Index => 3,
+     (S.Panel.Diagnostics, Start_Index => 2, End_Index => 3,
       Start_Row => 1, Start_Column => 0,
       Severity => Editor.Diagnostics.Error,
       Message => "smoke error");
    Editor.Executor.Execute_Command
      (S, Editor.Command_Ids.Command_Problems_Filter_Errors);
    Check
-     (Editor.Problems.Severity_Filter (S.Problems_View) =
+     (Editor.Problems.Severity_Filter (S.Panel.Problems_View) =
       Editor.Problems.Problems_Show_Errors,
       "Problems filter command did not select errors");
    Editor.Executor.Execute_Command
      (S, Editor.Command_Ids.Command_Problems_Open_Selected);
    Check
-     (S.Active_Diagnostic.Has_Active and then S.Active_Diagnostic.Index = 2,
+     (S.Panel.Active_Diagnostic.Has_Active and then S.Panel.Active_Diagnostic.Index = 2,
       "Problems open-selected did not open the filtered error row");
    Editor.Executor.Execute_Command
      (S, Editor.Command_Ids.Command_Problems_Filter_All);
    Check
-     (Editor.Problems.Severity_Filter (S.Problems_View) =
+     (Editor.Problems.Severity_Filter (S.Panel.Problems_View) =
       Editor.Problems.Problems_Show_All,
       "Problems filter command did not clear the severity filter");
    declare
@@ -1181,7 +1181,7 @@ begin
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Problems_Filter_Errors);
       Check
-        (Editor.Problems.Severity_Filter (S.Problems_View) =
+        (Editor.Problems.Severity_Filter (S.Panel.Problems_View) =
          Editor.Problems.Problems_Show_Errors,
          "Problems header filter zone did not toggle errors");
 
@@ -1194,7 +1194,7 @@ begin
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Problems_Sort_By_Severity);
       Check
-        (S.Problems_View.Sort_Mode =
+        (S.Panel.Problems_View.Sort_Mode =
          Editor.Problems.Problems_Sort_By_Severity,
          "Problems header sort zone did not cycle sort mode");
 
@@ -1207,7 +1207,7 @@ begin
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Problems_Group_By_Source);
       Check
-        (S.Problems_View.Group_Mode =
+        (S.Panel.Problems_View.Group_Mode =
          Editor.Problems.Problems_Group_By_Source,
          "Problems header group zone did not cycle grouping");
    end;
@@ -1234,7 +1234,7 @@ begin
           & (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "<none>")
           & "; reason="
           & Editor.Feature_Diagnostics.Selected_Diagnostic_Open_Unavailable_Reason
-              (S.Feature_Diagnostics, S.Feature_Panel));
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel));
    Check (Editor.Navigation_History.Back_Count (S.Navigation_History) > 0,
           "Diagnostics navigation did not record a back target");
    Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);

@@ -65,10 +65,10 @@ package body Editor.Producer_Contracts.Tests is
       Assert (Editor.Feature_Panel_Controller.Show_Feature
                 (S, Editor.Feature_Panel.Messages_Feature),
               "test can activate Messages");
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Result := Editor.Feature_Panel_Audit.Run_Feature_Panel_Audit;
       Assert (Result.Passed, Editor.Feature_Panel_Audit.Summary (Result));
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Before = After, "producer audit must be side-effect-free");
    end Test_Producer_Audit_Is_Side_Effect_Free;
 
@@ -87,9 +87,9 @@ package body Editor.Producer_Contracts.Tests is
               "valid targeted message is accepted with target kept");
       Assert (R.Row_Accepted and then R.Target_Kept,
               "valid targeted message result records row and target acceptance");
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 1,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 1,
               "message producer appends one row");
-      Assert (Editor.Feature_Messages.Item_Has_Target (S.Feature_Messages, 1),
+      Assert (Editor.Feature_Messages.Item_Has_Target (S.Panel.Feature_Messages, 1),
               "valid targeted message keeps target metadata");
    end Test_Messages_Producer_Post_Targeted_Validates_Target;
 
@@ -108,9 +108,9 @@ package body Editor.Producer_Contracts.Tests is
               "invalid message target is accepted as untargeted");
       Assert (R.Row_Accepted and then not R.Target_Kept,
               "invalid message target result clears target kept");
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 1,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 1,
               "invalid-target message still stores row");
-      Assert (not Editor.Feature_Messages.Item_Has_Target (S.Feature_Messages, 1),
+      Assert (not Editor.Feature_Messages.Item_Has_Target (S.Panel.Feature_Messages, 1),
               "invalid-target message clears Has_Target");
    end Test_Messages_Producer_Invalid_Target_Becomes_Untargeted;
 
@@ -128,7 +128,7 @@ package body Editor.Producer_Contracts.Tests is
       Assert (R.Status = Editor.Producer_Contracts.Producer_Rejected_Empty_Text,
               "empty message text is rejected deterministically");
       Assert (not R.Row_Accepted, "rejected empty message stores no row");
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 0,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 0,
               "empty message producer call does not append");
    end Test_Messages_Producer_Rejects_Empty_Text;
 
@@ -145,9 +145,9 @@ package body Editor.Producer_Contracts.Tests is
          "unit-test", S.Buffer_Lifecycle.Registry_Token, 2, 1);
       Assert (R.Status = Editor.Producer_Contracts.Producer_Accepted,
               "valid targeted diagnostic is accepted with target kept");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "diagnostic producer appends one row");
-      Assert (Editor.Feature_Diagnostics.Item_Has_Target (S.Feature_Diagnostics, 1),
+      Assert (Editor.Feature_Diagnostics.Item_Has_Target (S.Panel.Feature_Diagnostics, 1),
               "valid targeted diagnostic keeps target metadata");
    end Test_Diagnostics_Producer_Post_Targeted_Validates_Target;
 
@@ -165,9 +165,9 @@ package body Editor.Producer_Contracts.Tests is
       Assert (R.Status = Editor.Producer_Contracts.Producer_Accepted_Untargeted,
               "invalid diagnostic target is accepted as untargeted");
       Assert (not R.Target_Kept, "invalid diagnostic target reports target cleared");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "invalid-target diagnostic still stores row");
-      Assert (not Editor.Feature_Diagnostics.Item_Has_Target (S.Feature_Diagnostics, 1),
+      Assert (not Editor.Feature_Diagnostics.Item_Has_Target (S.Panel.Feature_Diagnostics, 1),
               "invalid-target diagnostic clears Has_Target");
    end Test_Diagnostics_Producer_Invalid_Target_Becomes_Untargeted;
 
@@ -183,7 +183,7 @@ package body Editor.Producer_Contracts.Tests is
         (S, Editor.Feature_Diagnostics.Diagnostic_Info, " ", "unit-test");
       Assert (R.Status = Editor.Producer_Contracts.Producer_Rejected_Empty_Text,
               "empty diagnostic text is rejected deterministically");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "empty diagnostic producer call does not append");
    end Test_Diagnostics_Producer_Rejects_Empty_Text;
 
@@ -202,14 +202,14 @@ package body Editor.Producer_Contracts.Tests is
         (S, Editor.Feature_Messages.Info_Message, "producer info", "unit-test",
          Editor.Feature_Messages.Editor_Source);
       Assert (R.Row_Accepted, "message producer accepts row while Outline active");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                 Editor.Feature_Panel.Outline_Feature,
               "message producer must not switch active feature");
       R := Editor.State.Post_Diagnostic_With_Result
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "producer diagnostic",
          "unit-test");
       Assert (R.Row_Accepted, "diagnostic producer accepts row while Outline active");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                 Editor.Feature_Panel.Outline_Feature,
               "diagnostic producer must not switch active feature");
    end Test_Producer_Post_While_Another_Feature_Active_Does_Not_Switch;
@@ -223,15 +223,15 @@ package body Editor.Producer_Contracts.Tests is
       R : Editor.Producer_Contracts.Producer_Result;
    begin
       Prepare_State (S);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, False);
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, False);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       R := Editor.Message_Producers.Post_Message_With_Result
         (S, Editor.Feature_Messages.Info_Message, "hidden panel", "unit-test",
          Editor.Feature_Messages.Editor_Source);
       Assert (R.Row_Accepted, "message producer accepts while panel hidden");
-      Assert (Before = Editor.Feature_Panel.Fingerprint (S.Feature_Panel),
+      Assert (Before = Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel),
               "hidden-panel post does not mutate generic projection state");
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 1,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 1,
               "hidden-panel post updates feature-owned Messages state");
    end Test_Producer_Post_While_Feature_Panel_Hidden_Is_State_Only;
 
@@ -248,15 +248,15 @@ package body Editor.Producer_Contracts.Tests is
       Editor.State.Post_Targeted_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "targeted diagnostic",
          "unit-test", S.Buffer_Lifecycle.Registry_Token, 1, 1);
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 1,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 1,
               "targeted message stored before buffer close");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "targeted diagnostic stored before buffer close");
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Buffer_Close
         (S, S.Buffer_Lifecycle.Registry_Token);
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 0,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 0,
               "buffer close removes targeted producer messages");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "buffer close removes targeted producer diagnostics");
    end Test_Producer_Target_Cleanup_On_Buffer_Close;
 
@@ -274,9 +274,9 @@ package body Editor.Producer_Contracts.Tests is
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "project diagnostic",
          "unit-test");
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Project_Close (S);
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 0,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 0,
               "project close clears producer messages");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "project close clears producer diagnostics");
 
       Editor.Message_Producers.Post_Message
@@ -286,9 +286,9 @@ package body Editor.Producer_Contracts.Tests is
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "workspace diagnostic",
          "unit-test");
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Workspace_Close (S);
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 0,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 0,
               "workspace close clears producer messages");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "workspace close clears producer diagnostics");
    end Test_Producer_Project_And_Workspace_Close_Clear_Transient_Rows;
 
@@ -303,26 +303,26 @@ package body Editor.Producer_Contracts.Tests is
    begin
       Prepare_State (S);
       Search_Rows_Before := Editor.Feature_Search_Results.Row_Count
-        (S.Feature_Search_Results);
+        (S.Panel.Feature_Search_Results);
       Diagnostics_Before := Editor.Feature_Diagnostics.Row_Count
-        (S.Feature_Diagnostics);
+        (S.Panel.Feature_Diagnostics);
       Editor.Message_Producers.Post_Message
         (S, Editor.Feature_Messages.Info_Message, "isolated message", "unit-test",
          Editor.Feature_Messages.Editor_Source);
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) =
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) =
                 Search_Rows_Before,
               "message producer does not mutate Search Results");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) =
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) =
                 Diagnostics_Before,
               "message producer does not mutate Diagnostics");
 
-      Messages_Before := Editor.Feature_Messages.Row_Count (S.Feature_Messages);
+      Messages_Before := Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages);
       Editor.State.Post_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "isolated diagnostic",
          "unit-test");
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = Messages_Before,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = Messages_Before,
               "diagnostic producer does not mutate Messages");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) =
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) =
                 Search_Rows_Before,
               "diagnostic producer does not mutate Search Results");
    end Test_Producer_Post_Does_Not_Mutate_Unrelated_Features;
@@ -338,15 +338,15 @@ package body Editor.Producer_Contracts.Tests is
       Assert (Editor.Feature_Panel_Controller.Show_Feature
                 (S, Editor.Feature_Panel.Messages_Feature),
               "test can activate Messages");
-      Token := Editor.Feature_Panel.Build_Feature_Projection_Token (S.Feature_Panel);
-      Editor.Feature_Panel.Clear_Rows (S.Feature_Panel);
+      Token := Editor.Feature_Panel.Build_Feature_Projection_Token (S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Clear_Rows (S.Panel.Feature_Panel);
       Assert (not Editor.Feature_Panel.Validate_Feature_Projection_Token
-                (S.Feature_Panel, Token),
+                (S.Panel.Feature_Panel, Token),
               "clearing rows makes token stale");
       Editor.State.Post_Diagnostic
         (S, Editor.Feature_Diagnostics.Diagnostic_Error, "diagnostic", "unit-test");
       Assert (not Editor.Feature_Panel.Validate_Feature_Projection_Token
-                (S.Feature_Panel, Token),
+                (S.Panel.Feature_Panel, Token),
               "producer post cannot revive stale projection token");
    end Test_Producer_Post_Does_Not_Revive_Stale_Projection_Token;
 

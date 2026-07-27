@@ -29,7 +29,7 @@ package body Editor.Input_Bridge.Quick_Open_Key_Handlers is
       Cmd : Editor.Commands.Payloads.Command;
    begin
       if not Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
       then
          return False;
       end if;

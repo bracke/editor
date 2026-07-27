@@ -51,8 +51,8 @@ package body Editor.Executor.Search_Results_Commands is
                  (Editor.Feature_Search_Results
                     .Message_Search_Active_Buffer_No_Active_Buffer);
             elsif Editor.Feature_Search_Results.Search_Input_Text
-              (S.Feature_Search_Results)'Length = 0
-              and then Length (S.Active_Find_Query) = 0
+              (S.Panel.Feature_Search_Results)'Length = 0
+              and then Length (S.Search.Active_Find_Query) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Search_Results
@@ -62,7 +62,7 @@ package body Editor.Executor.Search_Results_Commands is
 
          when Command_Search_Results_Repeat_Active_Buffer =>
             if not Editor.Feature_Search_Results.Has_Query
-              (S.Feature_Search_Results)
+              (S.Panel.Feature_Search_Results)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Search_Results.Message_Search_Repeat_No_Query);
@@ -151,7 +151,7 @@ package body Editor.Executor.Search_Results_Commands is
         Editor.Search_Results.Build_Snapshot (S.Project_Search, (others => <>));
    begin
       Editor.Search_Results.Ensure_Selected_Row_Visible
-        (S.Search_Results_View,
+        (S.Panel.Search_Results_View,
          Snapshot,
          Editor.Project_Search.Selected_Result_Index (S.Project_Search),
          Search_Results_Visible_Row_Count);
@@ -251,14 +251,14 @@ package body Editor.Executor.Search_Results_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      if Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
         Editor.Feature_Panel.Search_Results_Feature
-        and then Editor.Feature_Panel.Has_Selection (S.Feature_Panel)
+        and then Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel)
       then
          declare
             Result : constant Editor.Executor.Command_Execution_Result :=
               Execute_Search_Result_Row_Activation
-                (S, Editor.Feature_Panel.Selected_Row (S.Feature_Panel));
+                (S, Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel));
          begin
             if Result.Status = Editor.Executor.Command_Executed then
                Editor.Focus_Management.Restore_Focus_To_Editor (S);
@@ -293,11 +293,11 @@ package body Editor.Executor.Search_Results_Commands is
             declare
                Input_Query     : constant String :=
                  Editor.Feature_Search_Results.Search_Input_Text
-                   (S.Feature_Search_Results);
+                   (S.Panel.Feature_Search_Results);
                Effective_Query : constant String :=
                  (if Input_Query'Length > 0
                   then Input_Query
-                  else To_String (S.Active_Find_Query));
+                  else To_String (S.Search.Active_Find_Query));
                Previous_Index  : Natural := 0;
                Previous_Buffer : Natural := Editor.Feature_Search_Results.No_Buffer;
                Previous_Line   : Natural := 0;
@@ -325,70 +325,70 @@ package body Editor.Executor.Search_Results_Commands is
 
                Preserve :=
                  Editor.Feature_Search_Results.Has_Query
-                   (S.Feature_Search_Results)
+                   (S.Panel.Feature_Search_Results)
                  and then Editor.Feature_Search_Results.Query_Text
-                   (S.Feature_Search_Results) = Effective_Query
+                   (S.Panel.Feature_Search_Results) = Effective_Query
                  and then Editor.Feature_Search_Results.Searched_Buffer
-                   (S.Feature_Search_Results) = Active_Feature_Buffer_Token (S);
+                   (S.Panel.Feature_Search_Results) = Active_Feature_Buffer_Token (S);
 
                if Preserve then
                   Previous_Index :=
                     Editor.Feature_Search_Results.Map_Search_Result_Row_To_Item
-                      (S.Feature_Search_Results, S.Feature_Panel,
-                       Editor.Feature_Panel.Selected_Row (S.Feature_Panel));
+                      (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel,
+                       Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel));
                   if Previous_Index > 0 then
                      Previous_Buffer :=
                        Editor.Feature_Search_Results.Item_Target_Buffer
-                         (S.Feature_Search_Results, Positive (Previous_Index));
+                         (S.Panel.Feature_Search_Results, Positive (Previous_Index));
                      Previous_Line :=
                        Editor.Feature_Search_Results.Item_Match_Line
-                         (S.Feature_Search_Results, Positive (Previous_Index));
+                         (S.Panel.Feature_Search_Results, Positive (Previous_Index));
                      Previous_Column :=
                        Editor.Feature_Search_Results.Item_Match_Column
-                         (S.Feature_Search_Results, Positive (Previous_Index));
+                         (S.Panel.Feature_Search_Results, Positive (Previous_Index));
                      Previous_Length :=
                        Editor.Feature_Search_Results.Item_Match_Length
-                         (S.Feature_Search_Results, Positive (Previous_Index));
+                         (S.Panel.Feature_Search_Results, Positive (Previous_Index));
                      Previous_Text := To_Unbounded_String
                        (Editor.Feature_Search_Results.Item_Line_Text
-                          (S.Feature_Search_Results,
+                          (S.Panel.Feature_Search_Results,
                            Positive (Previous_Index)));
                   end if;
                end if;
 
                Editor.Feature_Search_Results.Run_Active_Buffer_Search
-                 (Results          => S.Feature_Search_Results,
+                 (Results          => S.Panel.Feature_Search_Results,
                   Query            => Effective_Query,
                   Snapshot_Text    => Editor.State.Current_Text (S),
                   Source_Label     => To_String (S.Buffer_Lifecycle.File_Info.Display_Name),
                   Target_Buffer    => Active_Feature_Buffer_Token (S),
                   Snapshot_Version => Editor.State.Current_Buffer_Revision (S));
                Editor.Feature_Search_Results.Commit_Search_Query_To_History
-                 (S.Feature_Search_Results, Effective_Query);
+                 (S.Panel.Feature_Search_Results, Effective_Query);
                Editor.Feature_Search_Results.Deactivate_Search_Query_Input
-                 (S.Feature_Search_Results);
+                 (S.Panel.Feature_Search_Results);
 
                if Preserve then
                   New_Index := Editor.Feature_Search_Results.Best_Rerun_Selection
-                    (S.Feature_Search_Results, Previous_Buffer, Previous_Line,
+                    (S.Panel.Feature_Search_Results, Previous_Buffer, Previous_Line,
                      Previous_Column, Previous_Length, To_String (Previous_Text));
                elsif Editor.Feature_Search_Results.Row_Count
-                 (S.Feature_Search_Results) > 0
+                 (S.Panel.Feature_Search_Results) > 0
                then
                   New_Index := 1;
                end if;
 
                Editor.Feature_Panel.Forget_Feature_View_State
-                 (S.Feature_Panel, Editor.Feature_Panel.Search_Results_Feature);
+                 (S.Panel.Feature_Panel, Editor.Feature_Panel.Search_Results_Feature);
                Editor.Feature_Search_Results.Project_Rows
-                 (S.Feature_Search_Results, S.Feature_Panel);
-               Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-               Editor.Feature_Panel.Select_Row (S.Feature_Panel, New_Index);
+                 (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
+               Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+               Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, New_Index);
                Report_Info
                  (S,
                   Editor.Feature_Search_Results
                     .Message_Search_Active_Buffer_Completed
-                      (S.Feature_Search_Results));
+                      (S.Panel.Feature_Search_Results));
                Editor.Render_Cache.Invalidate_All;
                return Executed (Id);
             end;
@@ -396,11 +396,11 @@ package body Editor.Executor.Search_Results_Commands is
          when Editor.Command_Ids.Command_Search_Results_Focus_Query =>
             Editor.Focus_Management.Clear_Transient_Focus_Owners (S);
             Editor.Feature_Search_Results.Activate_Search_Query_Input
-              (S.Feature_Search_Results);
+              (S.Panel.Feature_Search_Results);
             Editor.Feature_Search_Results.Project_Rows
-              (S.Feature_Search_Results, S.Feature_Panel);
-            Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-            Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
+              (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
+            Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+            Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, True);
             Report_Info
               (S, Editor.Feature_Search_Results
                     .Message_Search_Query_Input_Focused);
@@ -418,7 +418,7 @@ package body Editor.Executor.Search_Results_Commands is
                New_Index       : Natural := 0;
             begin
                if not Editor.Feature_Search_Results.Has_Query
-                 (S.Feature_Search_Results)
+                 (S.Panel.Feature_Search_Results)
                then
                   Report_Info
                     (S, Editor.Feature_Search_Results
@@ -436,47 +436,47 @@ package body Editor.Executor.Search_Results_Commands is
 
                Previous_Index :=
                  Editor.Feature_Search_Results.Map_Search_Result_Row_To_Item
-                   (S.Feature_Search_Results, S.Feature_Panel,
-                    Editor.Feature_Panel.Selected_Row (S.Feature_Panel));
+                   (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel,
+                    Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel));
                if Previous_Index > 0 then
                   Previous_Buffer :=
                     Editor.Feature_Search_Results.Item_Target_Buffer
-                      (S.Feature_Search_Results, Positive (Previous_Index));
+                      (S.Panel.Feature_Search_Results, Positive (Previous_Index));
                   Previous_Line :=
                     Editor.Feature_Search_Results.Item_Match_Line
-                      (S.Feature_Search_Results, Positive (Previous_Index));
+                      (S.Panel.Feature_Search_Results, Positive (Previous_Index));
                   Previous_Column :=
                     Editor.Feature_Search_Results.Item_Match_Column
-                      (S.Feature_Search_Results, Positive (Previous_Index));
+                      (S.Panel.Feature_Search_Results, Positive (Previous_Index));
                   Previous_Length :=
                     Editor.Feature_Search_Results.Item_Match_Length
-                      (S.Feature_Search_Results, Positive (Previous_Index));
+                      (S.Panel.Feature_Search_Results, Positive (Previous_Index));
                   Previous_Text := To_Unbounded_String
                     (Editor.Feature_Search_Results.Item_Line_Text
-                       (S.Feature_Search_Results, Positive (Previous_Index)));
+                       (S.Panel.Feature_Search_Results, Positive (Previous_Index)));
                end if;
 
                Editor.Feature_Search_Results.Run_Active_Buffer_Search
-                 (Results          => S.Feature_Search_Results,
+                 (Results          => S.Panel.Feature_Search_Results,
                   Query            => Editor.Feature_Search_Results.Query_Text
-                    (S.Feature_Search_Results),
+                    (S.Panel.Feature_Search_Results),
                   Snapshot_Text    => Editor.State.Current_Text (S),
                   Source_Label     => To_String (S.Buffer_Lifecycle.File_Info.Display_Name),
                   Target_Buffer    => Active_Feature_Buffer_Token (S),
                   Snapshot_Version => Editor.State.Current_Buffer_Revision (S));
                Editor.Feature_Search_Results.Commit_Search_Query_To_History
-                 (S.Feature_Search_Results,
+                 (S.Panel.Feature_Search_Results,
                   Editor.Feature_Search_Results.Query_Text
-                    (S.Feature_Search_Results));
+                    (S.Panel.Feature_Search_Results));
                New_Index := Editor.Feature_Search_Results.Best_Rerun_Selection
-                 (S.Feature_Search_Results, Previous_Buffer, Previous_Line,
+                 (S.Panel.Feature_Search_Results, Previous_Buffer, Previous_Line,
                   Previous_Column, Previous_Length, To_String (Previous_Text));
                Editor.Feature_Panel.Forget_Feature_View_State
-                 (S.Feature_Panel, Editor.Feature_Panel.Search_Results_Feature);
+                 (S.Panel.Feature_Panel, Editor.Feature_Panel.Search_Results_Feature);
                Editor.Feature_Search_Results.Project_Rows
-                 (S.Feature_Search_Results, S.Feature_Panel);
-               Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-               Editor.Feature_Panel.Select_Row (S.Feature_Panel, New_Index);
+                 (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
+               Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+               Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, New_Index);
                Report_Info
                  (S, Editor.Feature_Search_Results.Message_Search_Repeated);
                Editor.Render_Cache.Invalidate_All;
@@ -485,25 +485,25 @@ package body Editor.Executor.Search_Results_Commands is
 
          when Editor.Command_Ids.Command_Search_Results_Query_History_Previous =>
             Editor.Feature_Search_Results.Select_Previous_Search_Query
-              (S.Feature_Search_Results);
+              (S.Panel.Feature_Search_Results);
             Editor.Feature_Search_Results.Project_Rows
-              (S.Feature_Search_Results, S.Feature_Panel);
+              (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
          when Editor.Command_Ids.Command_Search_Results_Query_History_Next =>
             Editor.Feature_Search_Results.Select_Next_Search_Query
-              (S.Feature_Search_Results);
+              (S.Panel.Feature_Search_Results);
             Editor.Feature_Search_Results.Project_Rows
-              (S.Feature_Search_Results, S.Feature_Panel);
+              (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
          when Editor.Command_Ids.Command_Search_Results_Toggle_Case_Sensitive =>
             Editor.Feature_Search_Results.Toggle_Case_Sensitive
-              (S.Feature_Search_Results);
+              (S.Panel.Feature_Search_Results);
             Editor.Feature_Search_Results.Project_Rows
-              (S.Feature_Search_Results, S.Feature_Panel);
+              (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
             Editor.Render_Cache.Invalidate_All;
             return Executed (Id);
 
@@ -522,15 +522,15 @@ package body Editor.Executor.Search_Results_Commands is
 
          when Editor.Command_Ids.Command_Clear_Search_Results_Feature =>
             if Editor.Feature_Search_Results.Row_Count
-                 (S.Feature_Search_Results) = 0
+                 (S.Panel.Feature_Search_Results) = 0
               and then not Editor.Feature_Search_Results.Has_Query
-                (S.Feature_Search_Results)
+                (S.Panel.Feature_Search_Results)
             then
                return No_Op (Id);
             end if;
-            Editor.Feature_Search_Results.Clear (S.Feature_Search_Results);
+            Editor.Feature_Search_Results.Clear (S.Panel.Feature_Search_Results);
             Editor.Feature_Search_Results.Reconcile_Search_Results_After_Row_Change
-              (S.Feature_Search_Results, S.Feature_Panel);
+              (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
             Report_Info
               (S, Editor.Feature_Search_Results
                     .Message_Search_Results_Cleared);
@@ -550,7 +550,7 @@ package body Editor.Executor.Search_Results_Commands is
    is
       Mapped : constant Natural :=
         Editor.Feature_Search_Results.Map_Search_Result_Row_To_Item
-          (S.Feature_Search_Results, S.Feature_Panel, Row,
+          (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel, Row,
            Expected_Panel_Generation);
       Target_Buffer : Natural := 0;
       Target_Line   : Natural := 0;
@@ -560,7 +560,7 @@ package body Editor.Executor.Search_Results_Commands is
    begin
       if Editor.State.Has_Pending_Quick_Fix_Workflow (S)
         and then Editor.Feature_Search_Results.External_Kind
-          (S.Feature_Search_Results) =
+          (S.Panel.Feature_Search_Results) =
             Editor.Feature_Search_Results.Diagnostic_Quick_Fix_Action_List
       then
          declare
@@ -568,7 +568,7 @@ package body Editor.Executor.Search_Results_Commands is
               .External_Result_Payload :=
                 (if Mapped > 0
                  then Editor.Feature_Search_Results.Item_External_Payload
-                   (S.Feature_Search_Results, Positive (Mapped))
+                   (S.Panel.Feature_Search_Results, Positive (Mapped))
                  else Editor.Feature_Search_Results.No_External_Payload);
             Payload_Action_Index : constant Natural :=
               (case Payload.Kind is
@@ -583,12 +583,12 @@ package body Editor.Executor.Search_Results_Commands is
                      else Mapped)
                elsif Row >= 1
                  and then Row <= Editor.Feature_Search_Results.Row_Count
-                   (S.Feature_Search_Results)
+                   (S.Panel.Feature_Search_Results)
                then Row
                else 0);
          begin
             if Action_Index > 0 then
-               Editor.Feature_Panel.Select_Row (S.Feature_Panel, Row);
+               Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Row);
                Editor.State.Start_Quick_Fix_Workflow
                  (S,
                   Editor.State.Pending_Quick_Fix_Diagnostic_Index (S),
@@ -602,14 +602,14 @@ package body Editor.Executor.Search_Results_Commands is
       if Row = 0
         or else Mapped = 0
         or else not Editor.Feature_Panel.Row_Is_Activatable
-          (S.Feature_Panel, Positive (Row))
+          (S.Panel.Feature_Panel, Positive (Row))
       then
          Report_Target_Unavailable (S);
          Editor.Render_Cache.Invalidate_All;
          return No_Op (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       end if;
 
-      if Editor.Feature_Search_Results.Results_Stale (S.Feature_Search_Results)
+      if Editor.Feature_Search_Results.Results_Stale (S.Panel.Feature_Search_Results)
       then
          Report_Info (S, Editor.Feature_Search_Results.Message_Stale_Result);
          Editor.Render_Cache.Invalidate_All;
@@ -617,15 +617,15 @@ package body Editor.Executor.Search_Results_Commands is
       end if;
 
       Target_Buffer := Editor.Feature_Search_Results.Item_Target_Buffer
-        (S.Feature_Search_Results, Positive (Mapped));
+        (S.Panel.Feature_Search_Results, Positive (Mapped));
       Target_Line := Editor.Feature_Search_Results.Item_Target_Line
-        (S.Feature_Search_Results, Positive (Mapped));
+        (S.Panel.Feature_Search_Results, Positive (Mapped));
       Target_Column_One_Based :=
         Editor.Feature_Search_Results.Item_Target_Column
-          (S.Feature_Search_Results, Positive (Mapped));
+          (S.Panel.Feature_Search_Results, Positive (Mapped));
 
       if not Editor.Feature_Search_Results.Validate_Search_Result_Target
-          (S.Feature_Search_Results, Positive (Mapped), Target_Buffer)
+          (S.Panel.Feature_Search_Results, Positive (Mapped), Target_Buffer)
         or else not Feature_Target_Position_Is_Valid
           (S, Target_Buffer, Target_Line, Target_Column_One_Based)
       then
@@ -643,7 +643,7 @@ package body Editor.Executor.Search_Results_Commands is
       Target_Row := Natural'Min
         (Target_Line - 1, Natural'Max (Editor.State.Line_Count (S), 1) - 1);
       Target_Column := Target_Column_One_Based - 1;
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, Row);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Row);
       Apply_Feature_Target_Handoff (S, Target_Row, Target_Column);
       Editor.Render_Cache.Invalidate_All;
       return Executed (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);

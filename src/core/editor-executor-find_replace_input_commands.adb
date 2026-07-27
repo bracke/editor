@@ -159,36 +159,36 @@ package body Editor.Executor.Find_Replace_Input_Commands is
      (S : in out Editor.State.State_Type)
    is
       Options : constant Editor.Search.Search_Options :=
-        (Case_Sensitive => S.Active_Find_Case_Sensitive, Wrap => True);
-      Query   : constant String := To_String (S.Active_Find_Query);
+        (Case_Sensitive => S.Search.Active_Find_Case_Sensitive, Wrap => True);
+      Query   : constant String := To_String (S.Search.Active_Find_Query);
       Candidates : Editor.Search.Search_Match_Vectors.Vector;
    begin
       if not Editor.Buffers.Global_Registry_Current_For (S) then
          Editor.Buffers.Ensure_Global_Registry (S);
       end if;
 
-      S.Active_Find_Matches.Clear;
-      S.Active_Find_Match := Editor.Search.No_Match;
-      S.Active_Find_Stale := False;
-      S.Active_Find_Wrapped := False;
-      S.Active_Find_Source_Buffer_Token := 0;
+      S.Search.Active_Find_Matches.Clear;
+      S.Search.Active_Find_Match := Editor.Search.No_Match;
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Find_Wrapped := False;
+      S.Search.Active_Find_Source_Buffer_Token := 0;
 
       if Query'Length = 0 or else Has_Find_Context_Line_Terminator (Query) then
          return;
       elsif not Has_Find_Target_Buffer (S) then
-         S.Active_Find_Stale := True;
+         S.Search.Active_Find_Stale := True;
          return;
       end if;
 
-      S.Active_Find_Source_Buffer_Token := Editor.Executor.Active_Feature_Buffer_Token (S);
+      S.Search.Active_Find_Source_Buffer_Token := Editor.Executor.Active_Feature_Buffer_Token (S);
       Editor.Search.Find_All (S.Buffer, Query, Options, Candidates);
 
-      if not S.Active_Find_Whole_Word then
-         S.Active_Find_Matches := Candidates;
+      if not S.Search.Active_Find_Whole_Word then
+         S.Search.Active_Find_Matches := Candidates;
       else
          for Match of Candidates loop
             if Is_Whole_Word_Find_Match (S, Match) then
-               Append_Active_Find_Match (S.Active_Find_Matches, Match);
+               Append_Active_Find_Match (S.Search.Active_Find_Matches, Match);
             end if;
          end loop;
       end if;
@@ -200,37 +200,37 @@ package body Editor.Executor.Find_Replace_Input_Commands is
    is
       Zero : Natural := 0;
    begin
-      if Ordinal = 0 or else S.Active_Find_Matches.Is_Empty then
+      if Ordinal = 0 or else S.Search.Active_Find_Matches.Is_Empty then
          return Editor.Search.No_Match;
       end if;
-      Zero := S.Active_Find_Matches.First_Index + Ordinal - 1;
-      if Zero > S.Active_Find_Matches.Last_Index then
+      Zero := S.Search.Active_Find_Matches.First_Index + Ordinal - 1;
+      if Zero > S.Search.Active_Find_Matches.Last_Index then
          return Editor.Search.No_Match;
       end if;
-      return S.Active_Find_Matches (Zero);
+      return S.Search.Active_Find_Matches (Zero);
    end Find_Match_By_Ordinal;
 
    function Selected_Find_Ordinal
      (S : Editor.State.State_Type) return Natural
    is
    begin
-      if S.Active_Find_Match.Index = Editor.Search.No_Search_Match then
+      if S.Search.Active_Find_Match.Index = Editor.Search.No_Search_Match then
          return 0;
       end if;
-      return Natural (S.Active_Find_Match.Index);
+      return Natural (S.Search.Active_Find_Match.Index);
    end Selected_Find_Ordinal;
 
    function Active_Find_Match_Is_Selected
      (S : Editor.State.State_Type) return Boolean
    is
       Start_Index : constant Natural :=
-        Natural (S.Active_Find_Match.Start_Index);
+        Natural (S.Search.Active_Find_Match.Start_Index);
       End_Index   : constant Natural :=
-        Natural (S.Active_Find_Match.End_Index);
+        Natural (S.Search.Active_Find_Match.End_Index);
       Pos         : Natural := 0;
       Anchor      : Natural := 0;
    begin
-      if S.Active_Find_Match.Index = Editor.Search.No_Search_Match
+      if S.Search.Active_Find_Match.Index = Editor.Search.No_Search_Match
         or else S.Carets.Length = 0
       then
          return False;
@@ -255,8 +255,8 @@ package body Editor.Executor.Find_Replace_Input_Commands is
 
       Match := Find_Match_By_Ordinal (S, Ordinal);
       return Editor.Search.Has_Match (Match)
-        and then Match.Start_Index = S.Active_Find_Match.Start_Index
-        and then Match.End_Index = S.Active_Find_Match.End_Index;
+        and then Match.Start_Index = S.Search.Active_Find_Match.Start_Index
+        and then Match.End_Index = S.Search.Active_Find_Match.End_Index;
    end Active_Find_Match_Is_Current;
 
    function First_Find_Ordinal_At_Or_After_Caret
@@ -264,7 +264,7 @@ package body Editor.Executor.Find_Replace_Input_Commands is
    is
       Origin : Natural := 0;
    begin
-      if S.Active_Find_Matches.Is_Empty then
+      if S.Search.Active_Find_Matches.Is_Empty then
          return 0;
       end if;
 
@@ -272,13 +272,13 @@ package body Editor.Executor.Find_Replace_Input_Commands is
          Origin := Natural (Editor.Executor.Safe_Caret (S));
       end if;
 
-      for M of S.Active_Find_Matches loop
+      for M of S.Search.Active_Find_Matches loop
          if Natural (M.Start_Index) >= Origin then
             return Natural (M.Index);
          end if;
       end loop;
 
-      return Natural (S.Active_Find_Matches (S.Active_Find_Matches.First_Index).Index);
+      return Natural (S.Search.Active_Find_Matches (S.Search.Active_Find_Matches.First_Index).Index);
    end First_Find_Ordinal_At_Or_After_Caret;
 
    function First_Find_Ordinal_Before_Caret
@@ -286,7 +286,7 @@ package body Editor.Executor.Find_Replace_Input_Commands is
    is
       Origin : Natural := 0;
    begin
-      if S.Active_Find_Matches.Is_Empty then
+      if S.Search.Active_Find_Matches.Is_Empty then
          return 0;
       end if;
 
@@ -294,9 +294,9 @@ package body Editor.Executor.Find_Replace_Input_Commands is
          Origin := Natural (Editor.Executor.Safe_Caret (S));
       end if;
 
-      for I in reverse S.Active_Find_Matches.First_Index .. S.Active_Find_Matches.Last_Index loop
+      for I in reverse S.Search.Active_Find_Matches.First_Index .. S.Search.Active_Find_Matches.Last_Index loop
          declare
-            M : constant Editor.Search.Search_Match := S.Active_Find_Matches (I);
+            M : constant Editor.Search.Search_Match := S.Search.Active_Find_Matches (I);
          begin
             if Natural (M.Start_Index) < Origin then
                return Natural (M.Index);
@@ -304,7 +304,7 @@ package body Editor.Executor.Find_Replace_Input_Commands is
          end;
       end loop;
 
-      return Natural (S.Active_Find_Matches (S.Active_Find_Matches.Last_Index).Index);
+      return Natural (S.Search.Active_Find_Matches (S.Search.Active_Find_Matches.Last_Index).Index);
    end First_Find_Ordinal_Before_Caret;
 
    procedure Select_Active_Find_Nearest_Caret
@@ -312,7 +312,7 @@ package body Editor.Executor.Find_Replace_Input_Commands is
    is
       Ordinal : constant Natural := First_Find_Ordinal_At_Or_After_Caret (S);
    begin
-      S.Active_Find_Match := Find_Match_By_Ordinal (S, Ordinal);
+      S.Search.Active_Find_Match := Find_Match_By_Ordinal (S, Ordinal);
    end Select_Active_Find_Nearest_Caret;
 
    procedure Select_Active_Find_Containing_Caret_Or_Nearest
@@ -320,8 +320,8 @@ package body Editor.Executor.Find_Replace_Input_Commands is
    is
       Origin : Natural := 0;
    begin
-      if S.Active_Find_Matches.Is_Empty then
-         S.Active_Find_Match := Editor.Search.No_Match;
+      if S.Search.Active_Find_Matches.Is_Empty then
+         S.Search.Active_Find_Match := Editor.Search.No_Match;
          return;
       end if;
 
@@ -329,11 +329,11 @@ package body Editor.Executor.Find_Replace_Input_Commands is
          Origin := Natural (Editor.Executor.Safe_Caret (S));
       end if;
 
-      for Match of S.Active_Find_Matches loop
+      for Match of S.Search.Active_Find_Matches loop
          if Origin >= Natural (Match.Start_Index)
            and then Origin < Natural (Match.End_Index)
          then
-            S.Active_Find_Match := Match;
+            S.Search.Active_Find_Match := Match;
             return;
          end if;
       end loop;
@@ -448,14 +448,14 @@ package body Editor.Executor.Find_Replace_Input_Commands is
       Query : String)
    is
    begin
-      if not S.Active_Find_Prompt then
+      if not S.Search.Active_Find_Prompt then
          Editor.Executor.Activate_Overlay
            (S, Editor.Overlay_Focus.Active_Find_Prompt_Overlay);
          Editor.Input_Field.Set_Text
-           (S.Active_Find_Input, To_String (S.Active_Find_Query));
+           (S.Search.Active_Find_Input, To_String (S.Search.Active_Find_Query));
       end if;
 
-      S.Active_Find_Prompt := True;
+      S.Search.Active_Find_Prompt := True;
       Set_Active_Find_Query_And_Report (S, Query);
       Select_Active_Find_Containing_Caret_Or_Nearest (S);
       Editor.Render_Cache.Invalidate_All;
@@ -495,35 +495,35 @@ package body Editor.Executor.Find_Replace_Input_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Input_Field.Set_Text (S.Active_Find_Input, "");
-      S.Active_Find_Query := To_Unbounded_String ("");
-      S.Active_Find_Matches.Clear;
-      S.Active_Find_Match := Editor.Search.No_Match;
-      S.Active_Find_Stale := False;
-      S.Active_Find_Wrapped := False;
-      S.Active_Find_Source_Buffer_Token := 0;
+      Editor.Input_Field.Set_Text (S.Search.Active_Find_Input, "");
+      S.Search.Active_Find_Query := To_Unbounded_String ("");
+      S.Search.Active_Find_Matches.Clear;
+      S.Search.Active_Find_Match := Editor.Search.No_Match;
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Find_Wrapped := False;
+      S.Search.Active_Find_Source_Buffer_Token := 0;
    end Reset_Active_Find_Query_State;
 
    procedure Execute_Find_Show
      (S : in out Editor.State.State_Type)
    is
       Was_Visible : constant Boolean :=
-        S.Active_Find_Prompt;
+        S.Search.Active_Find_Prompt;
       Status : Find_Context_Query_Status := Find_Context_Query_Ready;
       Query  : Unbounded_String := Null_Unbounded_String;
    begin
       Editor.Executor.Activate_Overlay
         (S, Editor.Overlay_Focus.Active_Find_Prompt_Overlay);
-      S.Active_Find_Prompt := True;
-      Editor.Input_Field.Set_Text (S.Active_Find_Input, To_String (S.Active_Find_Query));
+      S.Search.Active_Find_Prompt := True;
+      Editor.Input_Field.Set_Text (S.Search.Active_Find_Input, To_String (S.Search.Active_Find_Query));
 
       if Was_Visible then
          Editor.Input_Field.Set_Text
-           (S.Active_Find_Input, To_String (S.Active_Find_Query));
+           (S.Search.Active_Find_Input, To_String (S.Search.Active_Find_Query));
          Report_Info (S, "Find shown");
       else
-         S.Active_Find_Case_Sensitive := False;
-         S.Active_Find_Whole_Word := False;
+         S.Search.Active_Find_Case_Sensitive := False;
+         S.Search.Active_Find_Whole_Word := False;
          Query := To_Unbounded_String (Find_Query_From_Selection (S, Status));
          if Status = Find_Context_Query_Ready then
             Set_Active_Find_Query_And_Report (S, To_String (Query));
@@ -541,26 +541,26 @@ package body Editor.Executor.Find_Replace_Input_Commands is
    is
    begin
       if Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
       then
          Editor.Executor.Dismiss_Active_Overlay
            (S, Editor.Overlay_Focus.Dismiss_Command);
       else
-         Editor.Input_Field.Clear (S.Active_Find_Input);
+         Editor.Input_Field.Clear (S.Search.Active_Find_Input);
       end if;
-      Editor.Input_Field.Set_Text (S.Active_Find_Input, "");
-      S.Active_Find_Query := To_Unbounded_String ("");
-      S.Active_Find_Matches.Clear;
-      S.Active_Find_Match := Editor.Search.No_Match;
-      S.Active_Find_Stale := False;
-      S.Active_Find_Wrapped := False;
-      S.Active_Find_Case_Sensitive := False;
-      S.Active_Find_Whole_Word := False;
-      S.Active_Find_Source_Buffer_Token := 0;
-      S.Active_Find_Prompt := False;
-      S.Active_Replace_Prompt := False;
-      S.Active_Replace_Text := Null_Unbounded_String;
-      S.Active_Replace_Error_Message := Null_Unbounded_String;
+      Editor.Input_Field.Set_Text (S.Search.Active_Find_Input, "");
+      S.Search.Active_Find_Query := To_Unbounded_String ("");
+      S.Search.Active_Find_Matches.Clear;
+      S.Search.Active_Find_Match := Editor.Search.No_Match;
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Find_Wrapped := False;
+      S.Search.Active_Find_Case_Sensitive := False;
+      S.Search.Active_Find_Whole_Word := False;
+      S.Search.Active_Find_Source_Buffer_Token := 0;
+      S.Search.Active_Find_Prompt := False;
+      S.Search.Active_Replace_Prompt := False;
+      S.Search.Active_Replace_Text := Null_Unbounded_String;
+      S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
       Report_Info (S, "Find hidden");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Find_Hide;
@@ -569,9 +569,9 @@ package body Editor.Executor.Find_Replace_Input_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if S.Active_Find_Prompt
+      if S.Search.Active_Find_Prompt
         and then Editor.Overlay_Focus.Is_Active
-          (S.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
+          (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
       then
          Execute_Find_Hide (S);
       else
@@ -584,12 +584,12 @@ package body Editor.Executor.Find_Replace_Input_Commands is
       Text : String)
    is
    begin
-      if not S.Active_Find_Prompt then
+      if not S.Search.Active_Find_Prompt then
          Editor.Executor.Activate_Overlay
            (S, Editor.Overlay_Focus.Active_Find_Prompt_Overlay);
-         Editor.Input_Field.Set_Text (S.Active_Find_Input, To_String (S.Active_Find_Query));
+         Editor.Input_Field.Set_Text (S.Search.Active_Find_Input, To_String (S.Search.Active_Find_Query));
       end if;
-      S.Active_Find_Prompt := True;
+      S.Search.Active_Find_Prompt := True;
       Set_Active_Find_Query_And_Report (S, Text);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Find_Set_Query;
@@ -598,12 +598,12 @@ package body Editor.Executor.Find_Replace_Input_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Input_Field.Set_Text (S.Active_Find_Input, "");
-      S.Active_Find_Query := To_Unbounded_String ("");
-      S.Active_Find_Matches.Clear;
-      S.Active_Find_Match := Editor.Search.No_Match;
-      S.Active_Find_Stale := False;
-      S.Active_Find_Source_Buffer_Token := 0;
+      Editor.Input_Field.Set_Text (S.Search.Active_Find_Input, "");
+      S.Search.Active_Find_Query := To_Unbounded_String ("");
+      S.Search.Active_Find_Matches.Clear;
+      S.Search.Active_Find_Match := Editor.Search.No_Match;
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Find_Source_Buffer_Token := 0;
       Report_Info (S, "Find query cleared");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Find_Clear_Query;
@@ -615,29 +615,29 @@ package body Editor.Executor.Find_Replace_Input_Commands is
       Query : constant String := Text;
       Count : Natural := 0;
    begin
-      Editor.Input_Field.Set_Text (S.Active_Find_Input, Query);
-      S.Active_Find_Query := To_Unbounded_String (Query);
+      Editor.Input_Field.Set_Text (S.Search.Active_Find_Input, Query);
+      S.Search.Active_Find_Query := To_Unbounded_String (Query);
 
       if Query'Length = 0 then
-         S.Active_Find_Matches.Clear;
-         S.Active_Find_Match := Editor.Search.No_Match;
-         S.Active_Find_Stale := False;
-         S.Active_Find_Source_Buffer_Token := 0;
+         S.Search.Active_Find_Matches.Clear;
+         S.Search.Active_Find_Match := Editor.Search.No_Match;
+         S.Search.Active_Find_Stale := False;
+         S.Search.Active_Find_Source_Buffer_Token := 0;
          Report_Info (S, "No find query");
       elsif not Editor.Executor.Find_Replace_Commands.Has_Find_Target_Buffer (S) then
          --  Preserve the transient query, but do not manufacture an empty
          --  result set for a buffer that Find cannot search.  The next
          --  explicit find navigation against a real active buffer will
          --  recompute from current in-memory text.
-         S.Active_Find_Matches.Clear;
-         S.Active_Find_Match := Editor.Search.No_Match;
-         S.Active_Find_Stale := True;
-         S.Active_Find_Source_Buffer_Token := 0;
+         S.Search.Active_Find_Matches.Clear;
+         S.Search.Active_Find_Match := Editor.Search.No_Match;
+         S.Search.Active_Find_Stale := True;
+         S.Search.Active_Find_Source_Buffer_Token := 0;
          Report_Warning (S, "No active buffer.");
       else
          Recompute_Active_Find_Matches (S);
          Select_Active_Find_Nearest_Caret (S);
-         Count := Natural (S.Active_Find_Matches.Length);
+         Count := Natural (S.Search.Active_Find_Matches.Length);
          if Count = 0 then
             Report_Info (S, "Find query set: no matches");
          else
@@ -650,46 +650,46 @@ package body Editor.Executor.Find_Replace_Input_Commands is
      (S    : in out Editor.State.State_Type;
       Text : String) is
    begin
-      if not S.Active_Find_Prompt then
+      if not S.Search.Active_Find_Prompt then
          return;
       end if;
-      Editor.Input_Field.Insert_Text (S.Active_Find_Input, Text);
+      Editor.Input_Field.Insert_Text (S.Search.Active_Find_Input, Text);
       Editor.Executor.Find_Replace_Commands.Set_Active_Find_Query_And_Report
-        (S, Editor.Input_Field.Text (S.Active_Find_Input));
+        (S, Editor.Input_Field.Text (S.Search.Active_Find_Input));
       Editor.Render_Cache.Invalidate_All;
    end Execute_Active_Find_Input_Insert_Text;
 
    procedure Execute_Active_Find_Input_Backspace
      (S : in out Editor.State.State_Type) is
    begin
-      if not S.Active_Find_Prompt then
+      if not S.Search.Active_Find_Prompt then
          return;
       end if;
-      Editor.Input_Field.Backspace (S.Active_Find_Input);
+      Editor.Input_Field.Backspace (S.Search.Active_Find_Input);
       Editor.Executor.Find_Replace_Commands.Set_Active_Find_Query_And_Report
-        (S, Editor.Input_Field.Text (S.Active_Find_Input));
+        (S, Editor.Input_Field.Text (S.Search.Active_Find_Input));
       Editor.Render_Cache.Invalidate_All;
    end Execute_Active_Find_Input_Backspace;
 
    procedure Execute_Active_Find_Input_Delete_Forward
      (S : in out Editor.State.State_Type) is
    begin
-      if not S.Active_Find_Prompt then
+      if not S.Search.Active_Find_Prompt then
          return;
       end if;
-      Editor.Input_Field.Delete_Forward (S.Active_Find_Input);
+      Editor.Input_Field.Delete_Forward (S.Search.Active_Find_Input);
       Editor.Executor.Find_Replace_Commands.Set_Active_Find_Query_And_Report
-        (S, Editor.Input_Field.Text (S.Active_Find_Input));
+        (S, Editor.Input_Field.Text (S.Search.Active_Find_Input));
       Editor.Render_Cache.Invalidate_All;
    end Execute_Active_Find_Input_Delete_Forward;
 
    procedure Execute_Active_Find_Input_Move_Cursor_Left
      (S : in out Editor.State.State_Type) is
    begin
-      if S.Active_Find_Prompt then
+      if S.Search.Active_Find_Prompt then
          Editor.Input_Field.Set_Text
-           (S.Active_Find_Input, To_String (S.Active_Find_Query));
-         Editor.Input_Field.Move_Cursor_Left (S.Active_Find_Input);
+           (S.Search.Active_Find_Input, To_String (S.Search.Active_Find_Query));
+         Editor.Input_Field.Move_Cursor_Left (S.Search.Active_Find_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Execute_Active_Find_Input_Move_Cursor_Left;
@@ -697,10 +697,10 @@ package body Editor.Executor.Find_Replace_Input_Commands is
    procedure Execute_Active_Find_Input_Move_Cursor_Right
      (S : in out Editor.State.State_Type) is
    begin
-      if S.Active_Find_Prompt then
+      if S.Search.Active_Find_Prompt then
          Editor.Input_Field.Set_Text
-           (S.Active_Find_Input, To_String (S.Active_Find_Query));
-         Editor.Input_Field.Move_Cursor_Right (S.Active_Find_Input);
+           (S.Search.Active_Find_Input, To_String (S.Search.Active_Find_Query));
+         Editor.Input_Field.Move_Cursor_Right (S.Search.Active_Find_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Execute_Active_Find_Input_Move_Cursor_Right;
@@ -708,10 +708,10 @@ package body Editor.Executor.Find_Replace_Input_Commands is
    procedure Execute_Active_Find_Input_Move_Cursor_Start
      (S : in out Editor.State.State_Type) is
    begin
-      if S.Active_Find_Prompt then
+      if S.Search.Active_Find_Prompt then
          Editor.Input_Field.Set_Text
-           (S.Active_Find_Input, To_String (S.Active_Find_Query));
-         Editor.Input_Field.Move_Cursor_Start (S.Active_Find_Input);
+           (S.Search.Active_Find_Input, To_String (S.Search.Active_Find_Query));
+         Editor.Input_Field.Move_Cursor_Start (S.Search.Active_Find_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Execute_Active_Find_Input_Move_Cursor_Start;
@@ -719,10 +719,10 @@ package body Editor.Executor.Find_Replace_Input_Commands is
    procedure Execute_Active_Find_Input_Move_Cursor_End
      (S : in out Editor.State.State_Type) is
    begin
-      if S.Active_Find_Prompt then
+      if S.Search.Active_Find_Prompt then
          Editor.Input_Field.Set_Text
-           (S.Active_Find_Input, To_String (S.Active_Find_Query));
-         Editor.Input_Field.Move_Cursor_End (S.Active_Find_Input);
+           (S.Search.Active_Find_Input, To_String (S.Search.Active_Find_Query));
+         Editor.Input_Field.Move_Cursor_End (S.Search.Active_Find_Input);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Execute_Active_Find_Input_Move_Cursor_End;

@@ -623,30 +623,30 @@ package body Editor.Executor.File_Save_Commands is
         (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "");
       Relative_Path : constant String :=
         (if Source_Path'Length > 0
-           and then Editor.Project.Has_Project (S.Project)
-           and then Editor.Project.Is_Under_Project (S.Project, Source_Path)
-         then Editor.Project.Relative_Path (S.Project, Source_Path)
+           and then Editor.Project.Has_Project (S.Project_Runtime.Project)
+           and then Editor.Project.Is_Under_Project (S.Project_Runtime.Project, Source_Path)
+         then Editor.Project.Relative_Path (S.Project_Runtime.Project, Source_Path)
          else "");
    begin
       --  File content lifecycle operations stale derived state through
       --  Executor-owned runtime state only.  They do not refresh outline,
       --  search, diagnostics, build, quick-open, render, or persistence data.
-      S.Active_Find_Stale := True;
+      S.Search.Active_Find_Stale := True;
       Editor.Outline.Clear (S.Outline);
       S.Outline_Cursor_Key_Valid := False;
       Editor.Project_Search.Mark_Stale_Unconditionally (S.Project_Search);
       Editor.Project_Search.Mark_Replace_Preview_Stale (S.Project_Search);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
-        (S.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
+        (S.Panel.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
 
       if Source_Path'Length > 0 then
          Editor.Feature_Diagnostics.Mark_Diagnostics_For_Source_Path_Stale
-           (S.Feature_Diagnostics, Source_Path, Source_Path);
+           (S.Panel.Feature_Diagnostics, Source_Path, Source_Path);
       end if;
 
       if Relative_Path'Length > 0 then
          Editor.Feature_Diagnostics.Mark_Diagnostics_For_Source_Path_Stale
-           (S.Feature_Diagnostics, Relative_Path, Relative_Path);
+           (S.Panel.Feature_Diagnostics, Relative_Path, Relative_Path);
       end if;
 
       --  file lifecycle changes make
@@ -768,9 +768,9 @@ package body Editor.Executor.File_Save_Commands is
       if not Editor.Executor.Pending_Transition_Policy.Pending_Target_Is_Valid (S, Target) then
          if Target.Kind = Editor.Pending_Transitions.Pending_Restore_Workspace
            and then Target.Has_Path
-           and then Editor.Project.Has_Project (S.Project)
+           and then Editor.Project.Has_Project (S.Project_Runtime.Project)
            and then Editor.Recent_Projects.Normalized_Root_Path
-             (Editor.Project.Root_Path (S.Project)) =
+             (Editor.Project.Root_Path (S.Project_Runtime.Project)) =
                Editor.Recent_Projects.Normalized_Root_Path (To_String (Target.Path))
            and then not Ada.Directories.Exists
              (Editor.Workspace_Persistence.Session_File_Path

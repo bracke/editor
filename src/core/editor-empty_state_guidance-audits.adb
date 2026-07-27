@@ -72,18 +72,18 @@ package body Editor.Empty_State_Guidance.Audits is
    is
    begin
       return Assert_First_Run_Guidance_Fabricates_No_Project (Before, After)
-        and then Editor.Diagnostics.Diagnostic_Count (Before.Diagnostics) =
-          Editor.Diagnostics.Diagnostic_Count (After.Diagnostics)
+        and then Editor.Diagnostics.Diagnostic_Count (Before.Panel.Diagnostics) =
+          Editor.Diagnostics.Diagnostic_Count (After.Panel.Diagnostics)
         and then Editor.File_Tree.File_Node_Count (Before.File_Tree) =
           Editor.File_Tree.File_Node_Count (After.File_Tree)
         and then Editor.Project_Search.Result_Count (Before.Project_Search) =
           Editor.Project_Search.Result_Count (After.Project_Search)
         and then Editor.Build_UI.Candidate_Count (Before.Build.Build_UI) =
           Editor.Build_UI.Candidate_Count (After.Build.Build_UI)
-        and then Editor.Feature_Diagnostics.Row_Count (Before.Feature_Diagnostics) =
-          Editor.Feature_Diagnostics.Row_Count (After.Feature_Diagnostics)
-        and then Editor.Feature_Diagnostics.Visible_Row_Count (Before.Feature_Diagnostics) =
-          Editor.Feature_Diagnostics.Visible_Row_Count (After.Feature_Diagnostics);
+        and then Editor.Feature_Diagnostics.Row_Count (Before.Panel.Feature_Diagnostics) =
+          Editor.Feature_Diagnostics.Row_Count (After.Panel.Feature_Diagnostics)
+        and then Editor.Feature_Diagnostics.Visible_Row_Count (Before.Panel.Feature_Diagnostics) =
+          Editor.Feature_Diagnostics.Visible_Row_Count (After.Panel.Feature_Diagnostics);
    end Assert_Render_Empty_State_Construction_Is_Observational;
 
    function Assert_Empty_State_Not_Persisted
@@ -92,14 +92,14 @@ package body Editor.Empty_State_Guidance.Audits is
    is
    begin
       return Assert_Render_Empty_State_Construction_Is_Observational (Before, After)
-        and then Editor.Recent_Projects.Count (Before.Recent_Projects) =
-          Editor.Recent_Projects.Count (After.Recent_Projects)
+        and then Editor.Recent_Projects.Count (Before.Project_Runtime.Recent_Projects) =
+          Editor.Recent_Projects.Count (After.Project_Runtime.Recent_Projects)
         and then Editor.Build_UI.Candidate_Count (Before.Build.Build_UI) =
           Editor.Build_UI.Candidate_Count (After.Build.Build_UI)
-        and then Editor.Feature_Diagnostics.Row_Count (Before.Feature_Diagnostics) =
-          Editor.Feature_Diagnostics.Row_Count (After.Feature_Diagnostics)
-        and then Editor.Feature_Diagnostics.Visible_Row_Count (Before.Feature_Diagnostics) =
-          Editor.Feature_Diagnostics.Visible_Row_Count (After.Feature_Diagnostics);
+        and then Editor.Feature_Diagnostics.Row_Count (Before.Panel.Feature_Diagnostics) =
+          Editor.Feature_Diagnostics.Row_Count (After.Panel.Feature_Diagnostics)
+        and then Editor.Feature_Diagnostics.Visible_Row_Count (Before.Panel.Feature_Diagnostics) =
+          Editor.Feature_Diagnostics.Visible_Row_Count (After.Panel.Feature_Diagnostics);
    end Assert_Empty_State_Not_Persisted;
 
    function Assert_Empty_State_Activation_Uses_Executor

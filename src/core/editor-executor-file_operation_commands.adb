@@ -37,9 +37,9 @@ package body Editor.Executor.File_Operation_Commands is
         (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "");
       Relative_Path : constant String :=
         (if Source_Path'Length > 0
-           and then Editor.Project.Has_Project (S.Project)
-           and then Editor.Project.Is_Under_Project (S.Project, Source_Path)
-         then Editor.Project.Relative_Path (S.Project, Source_Path)
+           and then Editor.Project.Has_Project (S.Project_Runtime.Project)
+           and then Editor.Project.Is_Under_Project (S.Project_Runtime.Project, Source_Path)
+         then Editor.Project.Relative_Path (S.Project_Runtime.Project, Source_Path)
          else "");
    begin
       --  File content lifecycle operations stale derived state through
@@ -47,22 +47,22 @@ package body Editor.Executor.File_Operation_Commands is
       --  diagnostics, build, quick-open, render, or persistence data; the
       --  project-file refresh path updates search results separately when a
       --  query is active.
-      S.Active_Find_Stale := True;
+      S.Search.Active_Find_Stale := True;
       Editor.Outline.Clear (S.Outline);
       S.Outline_Cursor_Key_Valid := False;
       Editor.Project_Search.Mark_Stale_Unconditionally (S.Project_Search);
       Editor.Project_Search.Mark_Replace_Preview_Stale (S.Project_Search);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
-        (S.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
+        (S.Panel.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
 
       if Source_Path'Length > 0 then
          Editor.Feature_Diagnostics.Mark_Diagnostics_For_Source_Path_Stale
-           (S.Feature_Diagnostics, Source_Path, Source_Path);
+           (S.Panel.Feature_Diagnostics, Source_Path, Source_Path);
       end if;
 
       if Relative_Path'Length > 0 then
          Editor.Feature_Diagnostics.Mark_Diagnostics_For_Source_Path_Stale
-           (S.Feature_Diagnostics, Relative_Path, Relative_Path);
+           (S.Panel.Feature_Diagnostics, Relative_Path, Relative_Path);
       end if;
 
       --  file lifecycle changes make
@@ -100,9 +100,9 @@ package body Editor.Executor.File_Operation_Commands is
       Path : String) return Boolean
    is
    begin
-      return Editor.Project.Has_Project (S.Project)
+      return Editor.Project.Has_Project (S.Project_Runtime.Project)
         and then Path'Length > 0
-        and then Editor.Project.Is_Under_Project (S.Project, Path);
+        and then Editor.Project.Is_Under_Project (S.Project_Runtime.Project, Path);
    end Path_Is_Under_Current_Project;
 
    procedure Refresh_Project_File_State_If_Required

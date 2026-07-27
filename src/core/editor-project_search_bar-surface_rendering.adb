@@ -154,7 +154,7 @@ package body Editor.Project_Search_Bar.Surface_Rendering is
       Status : constant String := Status_Text (State);
       Active : constant Boolean :=
         Editor.Overlay_Focus.Is_Active
-          (State.Overlay_Focus, Editor.Overlay_Focus.Project_Search_Bar_Overlay);
+          (State.Panel.Overlay_Focus, Editor.Overlay_Focus.Project_Search_Bar_Overlay);
       Active_Field : constant Editor.Project_Search_Bar.Project_Search_Bar_Field :=
         Editor.Project_Search_Bar.Active_Field (State.Project_Search_Bar);
       Q_Snap : constant Editor.Input_Field.Field_Snapshot :=

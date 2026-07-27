@@ -71,20 +71,20 @@ package body Editor.Build_Diagnostics_Review is
      (State : Editor.State.State_Type) return Boolean
    is
    begin
-      if Editor.Feature_Diagnostics.Row_Count (State.Feature_Diagnostics) >
+      if Editor.Feature_Diagnostics.Row_Count (State.Panel.Feature_Diagnostics) >
         Editor.Feature_Diagnostics.Max_Diagnostics
       then
          return False;
       end if;
 
-      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (State.Feature_Diagnostics) loop
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (State.Panel.Feature_Diagnostics) loop
          if Contains
               (Editor.Feature_Diagnostics.Item_Source_Label
-                 (State.Feature_Diagnostics, I),
+                 (State.Panel.Feature_Diagnostics, I),
                "build")
          then
             if Editor.Feature_Diagnostics.Item_Source_Kind
-                 (State.Feature_Diagnostics, I) /=
+                 (State.Panel.Feature_Diagnostics, I) /=
                Editor.Feature_Diagnostics.External_Diagnostic_Source
             then
                return False;
@@ -100,10 +100,10 @@ package body Editor.Build_Diagnostics_Review is
    is
       Panel : Editor.Feature_Panel.Feature_Panel_State;
       Visible : constant Natural :=
-        Editor.Feature_Diagnostics.Visible_Row_Count (State.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Visible_Row_Count (State.Panel.Feature_Diagnostics);
       Projected : Natural := 0;
    begin
-      Editor.Feature_Diagnostics.Project_Rows (State.Feature_Diagnostics, Panel);
+      Editor.Feature_Diagnostics.Project_Rows (State.Panel.Feature_Diagnostics, Panel);
       Projected := Editor.Feature_Panel.Row_Count (Panel);
       return Editor.Feature_Panel.Active_Feature (Panel) =
           Editor.Feature_Panel.Diagnostics_Feature
@@ -252,15 +252,15 @@ package body Editor.Build_Diagnostics_Review is
       Build_Count : Natural := 0;
       Other_Count : Natural := 0;
    begin
-      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (State.Feature_Diagnostics) loop
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (State.Panel.Feature_Diagnostics) loop
          if Contains
               (Editor.Feature_Diagnostics.Item_Source_Label
-                 (State.Feature_Diagnostics, I),
+                 (State.Panel.Feature_Diagnostics, I),
                "build")
          then
             Build_Count := Build_Count + 1;
             if Editor.Feature_Diagnostics.Item_Source_Kind
-                 (State.Feature_Diagnostics, I) /=
+                 (State.Panel.Feature_Diagnostics, I) /=
                Editor.Feature_Diagnostics.External_Diagnostic_Source
             then
                return False;
@@ -343,7 +343,7 @@ package body Editor.Build_Diagnostics_Review is
    is
       S : Editor.State.State_Type := State;
       Before_Count : constant Natural :=
-        Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Request : constant Editor.External_Producers.Build_Types.Build_Run_Request :=
         (Tool                 => Editor.External_Producers.Build_Types.GPRbuild_Tool,
          Provenance           => Editor.External_Producers.Build_Types.Build_Request_From_User_Opt_In,
@@ -363,7 +363,7 @@ package body Editor.Build_Diagnostics_Review is
          Request_Show_Diagnostics => True);
 
       return Ingestion.Ingestion.Ingestion_Result.Accepted_Count = 1
-        and then Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) =
+        and then Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) =
           Before_Count + 1
         and then Assert_Build_Diagnostics_Are_Diagnostics_Owned (S)
         and then Assert_Build_Diagnostics_No_Build_Local_Table (S)
@@ -436,12 +436,12 @@ package body Editor.Build_Diagnostics_Review is
       Review := Run_Build_Diagnostics_Review (S);
 
       return Ingestion.Ingestion.Ingestion_Result.Accepted_Count = 1
-        and then Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1
+        and then Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1
         and then Editor.Feature_Diagnostics.Item_Source_Kind
-          (S.Feature_Diagnostics, 1) =
+          (S.Panel.Feature_Diagnostics, 1) =
           Editor.Feature_Diagnostics.External_Diagnostic_Source
         and then Contains
-          (Editor.Feature_Diagnostics.Item_Source_Label (S.Feature_Diagnostics, 1),
+          (Editor.Feature_Diagnostics.Item_Source_Label (S.Panel.Feature_Diagnostics, 1),
            "Build")
         and then Review.Coherent;
    end Assert_Public_Build_Diagnostics_Review_Foundation_Coherent;
@@ -628,23 +628,23 @@ package body Editor.Build_Diagnostics_Review is
       Panel : Editor.Feature_Panel.Feature_Panel_State;
       Build_Row_Count : Natural := 0;
    begin
-      Editor.Feature_Diagnostics.Project_Rows (State.Feature_Diagnostics, Panel);
+      Editor.Feature_Diagnostics.Project_Rows (State.Panel.Feature_Diagnostics, Panel);
 
-      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (State.Feature_Diagnostics) loop
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (State.Panel.Feature_Diagnostics) loop
          if Contains
               (Editor.Feature_Diagnostics.Item_Source_Label
-                 (State.Feature_Diagnostics, I),
+                 (State.Panel.Feature_Diagnostics, I),
                "Build")
          then
             Build_Row_Count := Build_Row_Count + 1;
             if Editor.Feature_Diagnostics.Item_Source_Kind
-                 (State.Feature_Diagnostics, I) /=
+                 (State.Panel.Feature_Diagnostics, I) /=
                Editor.Feature_Diagnostics.External_Diagnostic_Source
               or else Editor.Feature_Diagnostics.Item_Message
-                 (State.Feature_Diagnostics, I)'Length = 0
+                 (State.Panel.Feature_Diagnostics, I)'Length = 0
               or else not Contains
                  (Editor.Feature_Diagnostics.Item_Display_Label
-                    (State.Feature_Diagnostics, I),
+                    (State.Panel.Feature_Diagnostics, I),
                   "Build")
             then
                return False;
@@ -656,7 +656,7 @@ package body Editor.Build_Diagnostics_Review is
         and then Editor.Feature_Panel.Active_Feature (Panel) =
           Editor.Feature_Panel.Diagnostics_Feature
         and then Editor.Feature_Panel.Row_Count (Panel) =
-          Editor.Feature_Diagnostics.Visible_Row_Count (State.Feature_Diagnostics)
+          Editor.Feature_Diagnostics.Visible_Row_Count (State.Panel.Feature_Diagnostics)
         and then Assert_Build_Diagnostics_Are_Diagnostics_Owned (State)
         and then Assert_Build_Diagnostics_No_Build_Local_Table (State);
    end Assert_Build_Diagnostics_Reviewable_In_Diagnostics_Surface;
@@ -672,19 +672,19 @@ package body Editor.Build_Diagnostics_Review is
          return False;
       end if;
 
-      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (State.Feature_Diagnostics) loop
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (State.Panel.Feature_Diagnostics) loop
          if Contains
               (Editor.Feature_Diagnostics.Item_Source_Label
-                 (State.Feature_Diagnostics, I),
+                 (State.Panel.Feature_Diagnostics, I),
                "Build")
            and then Editor.Feature_Diagnostics.Item_Has_Target
-              (State.Feature_Diagnostics, I)
+              (State.Panel.Feature_Diagnostics, I)
          then
             Saw_Build_Target := True;
             if not Editor.Feature_Diagnostics.Validate_Diagnostic_Target
-              (State.Feature_Diagnostics, I,
+              (State.Panel.Feature_Diagnostics, I,
                Editor.Feature_Diagnostics.Item_Target_Buffer
-                 (State.Feature_Diagnostics, I))
+                 (State.Panel.Feature_Diagnostics, I))
             then
                return False;
             end if;
@@ -705,10 +705,10 @@ package body Editor.Build_Diagnostics_Review is
          return False;
       end if;
 
-      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (State.Feature_Diagnostics) loop
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (State.Panel.Feature_Diagnostics) loop
          Label := To_Unbounded_String
            (Editor.Feature_Diagnostics.Item_Source_Label
-              (State.Feature_Diagnostics, I));
+              (State.Panel.Feature_Diagnostics, I));
          if Contains (To_String (Label), "Build") then
             Saw_Build_Row := True;
             if not Contains (To_String (Label), "Build")
@@ -732,10 +732,10 @@ package body Editor.Build_Diagnostics_Review is
       Build_Count : Natural := 0;
       Non_Build_Count : Natural := 0;
    begin
-      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (State.Feature_Diagnostics) loop
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (State.Panel.Feature_Diagnostics) loop
          if Contains
               (Editor.Feature_Diagnostics.Item_Source_Label
-                 (State.Feature_Diagnostics, I),
+                 (State.Panel.Feature_Diagnostics, I),
                "Build")
          then
             Build_Count := Build_Count + 1;
@@ -885,7 +885,7 @@ package body Editor.Build_Diagnostics_Review is
 
       return Assert_Public_Build_Diagnostics_Review_Canonical_Coherent (State)
         and then Command.Ingestion.Ingestion_Result.Accepted_Count = 1
-        and then Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) >= 1
+        and then Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) >= 1
         and then Review.Coherent
         and then Assert_Build_Diagnostics_Final_Owned_By_Diagnostics (S)
         and then Assert_Build_Diagnostics_Final_Ingestion_Only_Row_Creation (State)

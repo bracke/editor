@@ -15,7 +15,7 @@ package body Editor.Message_Producers is
    is
    begin
       Editor.Feature_Messages.Reconcile_Messages_After_Row_Change
-        (State.Feature_Messages, State.Feature_Panel);
+        (State.Panel.Feature_Messages, State.Panel.Feature_Panel);
    end Reproject_If_Active;
 
    function Post_Message_With_Result
@@ -35,7 +35,7 @@ package body Editor.Message_Producers is
       end if;
 
       Editor.Feature_Messages.Add_Message
-        (Messages    => State.Feature_Messages,
+        (Messages    => State.Panel.Feature_Messages,
          Severity    => Severity,
          Text        => Clean_Text,
          Source      => Clean_Source,
@@ -66,7 +66,7 @@ package body Editor.Message_Producers is
       end if;
 
       Editor.Feature_Messages.Add_Message
-        (Messages    => State.Feature_Messages,
+        (Messages    => State.Panel.Feature_Messages,
          Severity    => Severity,
          Text        => Clean_Text,
          Source      => Clean_Source,

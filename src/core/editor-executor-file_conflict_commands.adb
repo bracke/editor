@@ -97,27 +97,27 @@ package body Editor.Executor.File_Conflict_Commands is
         (if S.Buffer_Lifecycle.File_Info.Has_Path then To_String (S.Buffer_Lifecycle.File_Info.Path) else "");
       Relative_Path : constant String :=
         (if Source_Path'Length > 0
-           and then Editor.Project.Has_Project (S.Project)
-           and then Editor.Project.Is_Under_Project (S.Project, Source_Path)
-         then Editor.Project.Relative_Path (S.Project, Source_Path)
+           and then Editor.Project.Has_Project (S.Project_Runtime.Project)
+           and then Editor.Project.Is_Under_Project (S.Project_Runtime.Project, Source_Path)
+         then Editor.Project.Relative_Path (S.Project_Runtime.Project, Source_Path)
          else "");
    begin
-      S.Active_Find_Stale := True;
+      S.Search.Active_Find_Stale := True;
       Editor.Outline.Clear (S.Outline);
       S.Outline_Cursor_Key_Valid := False;
       Editor.Project_Search.Mark_Stale_Unconditionally (S.Project_Search);
       Editor.Project_Search.Mark_Replace_Preview_Stale (S.Project_Search);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
-        (S.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
+        (S.Panel.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
 
       if Source_Path'Length > 0 then
          Editor.Feature_Diagnostics.Mark_Diagnostics_For_Source_Path_Stale
-           (S.Feature_Diagnostics, Source_Path, Source_Path);
+           (S.Panel.Feature_Diagnostics, Source_Path, Source_Path);
       end if;
 
       if Relative_Path'Length > 0 then
          Editor.Feature_Diagnostics.Mark_Diagnostics_For_Source_Path_Stale
-           (S.Feature_Diagnostics, Relative_Path, Relative_Path);
+           (S.Panel.Feature_Diagnostics, Relative_Path, Relative_Path);
       end if;
 
       if Source_Path'Length > 0 then
@@ -286,7 +286,7 @@ package body Editor.Executor.File_Conflict_Commands is
             declare
                Remaining : constant Editor.Dirty_Guards.Dirty_Buffer_Summary :=
                  Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Buffer_Summary_For_All_Buffers
-                   (S.Project);
+                   (S.Project_Runtime.Project);
             begin
                if Remaining.Dirty_Count > 0 then
                   Editor.Executor.Buffer_Close_Prompt_Commands.Start_Dirty_Close_Prompt

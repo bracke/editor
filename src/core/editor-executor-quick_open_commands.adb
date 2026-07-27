@@ -70,8 +70,8 @@ package body Editor.Executor.Quick_Open_Commands is
    begin
       if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0 then
          return Editor.File_Tree.File_Node_Count (S.File_Tree);
-      elsif Editor.Project.Has_Project (S.Project) then
-         return Editor.Project.Known_File_Count (S.Project);
+      elsif Editor.Project.Has_Project (S.Project_Runtime.Project) then
+         return Editor.Project.Known_File_Count (S.Project_Runtime.Project);
       else
          return 0;
       end if;
@@ -90,14 +90,14 @@ package body Editor.Executor.Quick_Open_Commands is
         and then Result.Node_Id /= Editor.File_Tree.No_File_Tree_Node
       then
          return Editor.File_Tree.Contains (S.File_Tree, Result.Node_Id);
-      elsif not Editor.Project.Has_Project (S.Project) then
+      elsif not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          return False;
       end if;
 
-      for I in 1 .. Editor.Project.Known_File_Count (S.Project) loop
+      for I in 1 .. Editor.Project.Known_File_Count (S.Project_Runtime.Project) loop
          declare
             File_Item : constant Editor.Project.Project_File_Entry :=
-              Editor.Project.Known_File_At (S.Project, I);
+              Editor.Project.Known_File_At (S.Project_Runtime.Project, I);
          begin
             if Normalize_Path_Separators
               (To_String (File_Item.Relative_Path)) = To_String (Result.Display_Path)
@@ -123,13 +123,13 @@ package body Editor.Executor.Quick_Open_Commands is
 
       function Has_Project return Boolean is
       begin
-         return Editor.Project.Has_Project (S.Project);
+         return Editor.Project.Has_Project (S.Project_Runtime.Project);
       end Has_Project;
 
       function Active_Overlay_Is
         (Overlay : Editor.Overlay_Focus.Overlay_Target) return Boolean is
       begin
-         return Editor.Overlay_Focus.Is_Active (S.Overlay_Focus, Overlay);
+         return Editor.Overlay_Focus.Is_Active (S.Panel.Overlay_Focus, Overlay);
       end Active_Overlay_Is;
 
       function Quick_Open_Has_Selected_Result return Boolean is
@@ -208,7 +208,7 @@ package body Editor.Executor.Quick_Open_Commands is
             | Command_Quick_Open_Create_With_Parents_From_Query =>
             if not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
-            elsif Editor.Project.Root_Path (S.Project)'Length = 0 then
+            elsif Editor.Project.Root_Path (S.Project_Runtime.Project)'Length = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open.");
             elsif not Active_Overlay_Is (Editor.Overlay_Focus.Quick_Open_Overlay)
               or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
@@ -445,7 +445,7 @@ package body Editor.Executor.Quick_Open_Commands is
       Count : constant Natural := Editor.Quick_Open.Result_Count (S.Quick_Open);
    begin
       if Count = 0 then
-         if not Editor.Project.Has_Project (S.Project) then
+         if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          elsif Quick_Open_File_Count (S) = 0 then
             Editor.Executor.Shared_Services.Report_Info (S, "No project files");
@@ -471,7 +471,7 @@ package body Editor.Executor.Quick_Open_Commands is
    is
    begin
       if Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
       then
          Editor.Executor.Dismiss_Active_Overlay (S, Editor.Overlay_Focus.Dismiss_Command);
       else
@@ -486,7 +486,7 @@ package body Editor.Executor.Quick_Open_Commands is
    is
    begin
       if Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
         and then Editor.Quick_Open.Is_Open (S.Quick_Open)
       then
          Execute_Close_Quick_Open (S);
@@ -525,7 +525,7 @@ package body Editor.Executor.Quick_Open_Commands is
       --  action and should replace restore-only current feedback.
       Editor.Executor.Clear_Restore_Feedback_Current (S);
 
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -578,7 +578,7 @@ package body Editor.Executor.Quick_Open_Commands is
       end;
 
       if Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
       then
          Editor.Executor.Dismiss_Active_Overlay (S, Editor.Overlay_Focus.Dismiss_Accept);
       else
@@ -596,7 +596,7 @@ package body Editor.Executor.Quick_Open_Commands is
         Editor.Quick_Open_Markers.Build_Snapshot
           (State    => S.Quick_Open,
            Tree     => S.File_Tree,
-           Project  => S.Project,
+           Project  => S.Project_Runtime.Project,
            Registry => Editor.Buffers.Global_Registry_For_UI,
            Recent   => S.Recent_Buffers);
       Count : constant Natural := Natural (Snapshot.Candidates.Length);
@@ -643,7 +643,7 @@ package body Editor.Executor.Quick_Open_Commands is
    is
    begin
       if Editor.Quick_Open.Result_Count (S.Quick_Open) = 0 then
-         if not Editor.Project.Has_Project (S.Project) then
+         if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          elsif Quick_Open_File_Count (S) = 0 then
             Editor.Executor.Shared_Services.Report_Info (S, "No project files");
@@ -662,7 +662,7 @@ package body Editor.Executor.Quick_Open_Commands is
    is
    begin
       if Editor.Quick_Open.Result_Count (S.Quick_Open) = 0 then
-         if not Editor.Project.Has_Project (S.Project) then
+         if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          elsif Quick_Open_File_Count (S) = 0 then
             Editor.Executor.Shared_Services.Report_Info (S, "No project files");

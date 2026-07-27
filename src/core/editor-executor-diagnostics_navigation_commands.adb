@@ -28,7 +28,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
       Index : Editor.Diagnostics.Diagnostic_Index)
    is
       Target             : constant Editor.Diagnostics.Diagnostic_Target :=
-        Editor.Diagnostics.Target_For_Diagnostic (S.Diagnostics, Index);
+        Editor.Diagnostics.Target_For_Diagnostic (S.Panel.Diagnostics, Index);
       Target_Index       : Editor.Cursors.Cursor_Index := 0;
       Viewport_Rows      : Natural := 1;
       Desired            : Natural := 0;
@@ -64,7 +64,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
            Virtual_Column        => 0,
            Anchor_Virtual_Column => 0));
       S.Preferred_Column := Target.Column;
-      S.Active_Diagnostic := (Has_Active => True, Index => Index);
+      S.Panel.Active_Diagnostic := (Has_Active => True, Index => Index);
 
       Viewport_Rows := Natural'Max
         (1,
@@ -98,20 +98,20 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
       Index : Editor.Diagnostics.Diagnostic_Index :=
         Editor.Diagnostics.No_Diagnostic;
    begin
-      if Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) = 0 then
+      if Editor.Diagnostics.Diagnostic_Count (S.Panel.Diagnostics) = 0 then
          Report_Info (S, "No diagnostics");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 
-      if S.Active_Diagnostic.Has_Active
+      if S.Panel.Active_Diagnostic.Has_Active
         and then Editor.Diagnostics.Is_Valid_Diagnostic_Index
-          (S.Diagnostics, S.Active_Diagnostic.Index)
+          (S.Panel.Diagnostics, S.Panel.Active_Diagnostic.Index)
       then
          declare
             Target : constant Editor.Diagnostics.Diagnostic_Target :=
               Editor.Diagnostics.Target_For_Diagnostic
-                (S.Diagnostics, S.Active_Diagnostic.Index);
+                (S.Panel.Diagnostics, S.Panel.Active_Diagnostic.Index);
          begin
             Row := Target.Row;
             Col := Target.Column;
@@ -122,7 +122,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
       end if;
 
       Index := Editor.Diagnostics.Next_Diagnostic_After
-        (S.Diagnostics, Row, Col, True, Found);
+        (S.Panel.Diagnostics, Row, Col, True, Found);
       if Found then
          Execute_Jump_To_Diagnostic (S, Index);
       else
@@ -140,20 +140,20 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
       Index : Editor.Diagnostics.Diagnostic_Index :=
         Editor.Diagnostics.No_Diagnostic;
    begin
-      if Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) = 0 then
+      if Editor.Diagnostics.Diagnostic_Count (S.Panel.Diagnostics) = 0 then
          Report_Info (S, "No diagnostics");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 
-      if S.Active_Diagnostic.Has_Active
+      if S.Panel.Active_Diagnostic.Has_Active
         and then Editor.Diagnostics.Is_Valid_Diagnostic_Index
-          (S.Diagnostics, S.Active_Diagnostic.Index)
+          (S.Panel.Diagnostics, S.Panel.Active_Diagnostic.Index)
       then
          declare
             Target : constant Editor.Diagnostics.Diagnostic_Target :=
               Editor.Diagnostics.Target_For_Diagnostic
-                (S.Diagnostics, S.Active_Diagnostic.Index);
+                (S.Panel.Diagnostics, S.Panel.Active_Diagnostic.Index);
          begin
             Row := Target.Row;
             Col := Target.Column;
@@ -164,7 +164,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
       end if;
 
       Index := Editor.Diagnostics.Previous_Diagnostic_Before
-        (S.Diagnostics, Row, Col, True, Found);
+        (S.Panel.Diagnostics, Row, Col, True, Found);
       if Found then
          Execute_Jump_To_Diagnostic (S, Index);
       else
@@ -180,7 +180,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
       Found : Boolean := False;
       Index : constant Editor.Diagnostics.Diagnostic_Index :=
         Editor.Diagnostics.Dominant_Diagnostic_On_Row
-          (S.Diagnostics, Row, Found);
+          (S.Panel.Diagnostics, Row, Found);
    begin
       if Found then
          Execute_Jump_To_Diagnostic (S, Index);
@@ -212,23 +212,23 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
       end if;
 
       Target_Buffer := Editor.Feature_Diagnostics.Item_Target_Buffer
-        (S.Feature_Diagnostics, Positive (Mapped));
+        (S.Panel.Feature_Diagnostics, Positive (Mapped));
       Target_Line := Editor.Feature_Diagnostics.Item_Target_Line
-        (S.Feature_Diagnostics, Positive (Mapped));
+        (S.Panel.Feature_Diagnostics, Positive (Mapped));
       Target_Column_One_Based := Editor.Feature_Diagnostics.Item_Target_Column
-        (S.Feature_Diagnostics, Positive (Mapped));
+        (S.Panel.Feature_Diagnostics, Positive (Mapped));
       Effective_Target_Column_One_Based :=
         Natural'Max (1, Target_Column_One_Based);
 
       if Editor.Feature_Diagnostics.Item_Is_Stale
-          (S.Feature_Diagnostics, Positive (Mapped))
+          (S.Panel.Feature_Diagnostics, Positive (Mapped))
       then
          Report_Info (S, Editor.Commands.Workflow_Messages.Reason_Target_Stale);
          Editor.Render_Cache.Invalidate_All;
          return Editor.Command_Execution.No_Op
            (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       elsif not Editor.Feature_Diagnostics.Validate_Diagnostic_Target
-          (S.Feature_Diagnostics, Positive (Mapped), Target_Buffer)
+          (S.Panel.Feature_Diagnostics, Positive (Mapped), Target_Buffer)
         or else not Editor.Executor.Feature_Target_Position_Is_Valid
           (S, Target_Buffer, Target_Line, Effective_Target_Column_One_Based)
       then
@@ -254,7 +254,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
         (Target_Line - 1, Natural'Max (Editor.State.Line_Count (S), 1) - 1);
       Target_Column := Effective_Target_Column_One_Based - 1;
       if Select_Row and then Row /= 0 then
-         Editor.Feature_Panel.Select_Row (S.Feature_Panel, Row);
+         Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Row);
       end if;
       Editor.Executor.Apply_Feature_Target_Handoff
         (S, Target_Row, Target_Column);
@@ -271,7 +271,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
    is
       Mapped : constant Natural :=
         Editor.Feature_Diagnostics.Map_Diagnostic_Row_To_Item
-          (S.Feature_Diagnostics, S.Feature_Panel, Row,
+          (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel, Row,
            Expected_Panel_Generation);
    begin
       if Row = 0 then
@@ -285,12 +285,12 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
          return Editor.Command_Execution.No_Op
            (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       elsif not Editor.Feature_Diagnostics.Item_Has_Target
-        (S.Feature_Diagnostics, Positive (Mapped))
+        (S.Panel.Feature_Diagnostics, Positive (Mapped))
       then
          declare
             Reason : constant String :=
               Editor.Feature_Diagnostics.Item_Target_Unavailable_Label
-                (S.Feature_Diagnostics, Positive (Mapped));
+                (S.Panel.Feature_Diagnostics, Positive (Mapped));
          begin
             if Reason = "No source target" then
                Report_Info (S, Editor.Feature_Diagnostics.Message_No_Target);
@@ -313,7 +313,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
          return Editor.Command_Execution.No_Op
            (Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
       elsif not Editor.Feature_Panel.Row_Is_Activatable
-        (S.Feature_Panel, Positive (Row))
+        (S.Panel.Feature_Panel, Positive (Row))
       then
          Report_Info (S, "Navigation target unavailable.");
          Editor.Render_Cache.Invalidate_All;
@@ -332,7 +332,7 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
    is
       Mapped : constant Natural :=
         Editor.Feature_Diagnostics.Map_Diagnostic_Id_To_Item
-          (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Id (Id));
+          (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Id (Id));
    begin
       return Execute_Mapped_Diagnostic_Activation
         (S, Mapped, Row => 0, Select_Row => False);

@@ -101,7 +101,7 @@ package body Editor.Empty_State_Guidance.Tests is
          Error_Text   => Null_Unbounded_String);
       Snapshot : Empty_State_Snapshot;
    begin
-      Editor.Project.Apply_Open_Result (S.Project, Result);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Result);
       Snapshot := Build_Main_Empty_State (S);
       Assert (Snapshot.Kind = No_Active_Buffer_State,
               "project-open empty editor must suggest file navigation");
@@ -142,7 +142,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Search_State    : Empty_State_Snapshot;
       Build_State     : Empty_State_Snapshot;
    begin
-      Editor.Project.Apply_Open_Result (S.Project, Result);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Result);
       File_Tree_State := Build_File_Tree_Empty_State (S);
       Search_State := Build_Project_Search_Empty_State (S);
       Build_State := Build_Build_UI_Empty_State (S);
@@ -177,7 +177,7 @@ package body Editor.Empty_State_Guidance.Tests is
          Error_Text   => Null_Unbounded_String);
       Snapshot : Empty_State_Snapshot;
    begin
-      Editor.Project.Apply_Open_Result (S.Project, Result);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Result);
 
       Snapshot := Build_Build_UI_Empty_State (S);
       Assert (Snapshot.Kind = Not_Refreshed_State,
@@ -221,7 +221,7 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot : Empty_State_Snapshot;
       Valid : Boolean := False;
    begin
-      Editor.Project.Apply_Open_Result (S.Project, Result);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Result);
       Editor.Project_Search.Set_Query (S.Project_Search, "absent");
       Editor.Project_Search.Set_Status
         (S.Project_Search, Editor.Project_Search.Project_Search_Ok);
@@ -269,7 +269,7 @@ package body Editor.Empty_State_Guidance.Tests is
          Error_Text   => Null_Unbounded_String);
       Snapshot : Empty_State_Snapshot;
    begin
-      Editor.Project.Apply_Open_Result (S.Project, Result);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Result);
       Editor.Project_Search.Set_Query (S.Project_Search, "needle");
       Editor.Project_Search.Set_Status
         (S.Project_Search, Editor.Project_Search.Project_Search_Ok);
@@ -300,8 +300,8 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot := Build_Recent_Projects_Empty_State (After);
       Assert (Snapshot.Kind = No_Recent_Projects_State,
               "empty recent projects must be explicit and semantically distinct");
-      Assert (Editor.Recent_Projects.Count (Before.Recent_Projects) =
-              Editor.Recent_Projects.Count (After.Recent_Projects),
+      Assert (Editor.Recent_Projects.Count (Before.Project_Runtime.Recent_Projects) =
+              Editor.Recent_Projects.Count (After.Project_Runtime.Recent_Projects),
               "recent-projects empty state must not create or remove entries");
       Assert (Assert_First_Run_Guidance_Fabricates_No_Project (Before, After),
               "guidance construction must not fabricate project or buffer state");
@@ -338,12 +338,12 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot : Empty_State_Snapshot;
    begin
       Editor.Diagnostics.Add
-        (S.Diagnostics,
+        (S.Panel.Diagnostics,
          Start_Index => Editor.Cursors.Cursor_Index (1),
          End_Index   => Editor.Cursors.Cursor_Index (2),
          Severity    => Editor.Diagnostics.Warning,
          Message     => "source-less warning");
-      S.Active_Diagnostic :=
+      S.Panel.Active_Diagnostic :=
         (Has_Active => True, Index => Editor.Diagnostics.Diagnostic_Index (1));
 
       Snapshot := Build_Diagnostics_Empty_State (S);
@@ -365,15 +365,15 @@ package body Editor.Empty_State_Guidance.Tests is
    begin
       Editor.State.Init (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "missing source file",
          Source_Label  => "src/missing.adb",
          Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target    => False);
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Snapshot := Build_Diagnostics_Empty_State (S);
       Assert (Snapshot.Kind = Selected_Unavailable_State,
@@ -385,9 +385,9 @@ package body Editor.Empty_State_Guidance.Tests is
                 (Snapshot, Editor.Command_Ids.Command_Diagnostics_Clear_Selected),
               "missing Diagnostics target guidance should offer clearing the selected row");
 
-      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "missing target line",
          Source_Label  => "src/main.adb",
@@ -397,8 +397,8 @@ package body Editor.Empty_State_Guidance.Tests is
          Target_Line   => 0,
          Target_Column => 0);
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Snapshot := Build_Diagnostics_Empty_State (S);
       Assert (Snapshot.Kind = Selected_Unavailable_State,
@@ -420,12 +420,12 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot : Empty_State_Snapshot;
    begin
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Warning,
          Message      => "hidden warning",
          Source_Label => "build",
          Source_Kind  => Editor.Feature_Diagnostics.Project_Diagnostic_Source);
-      Editor.Feature_Diagnostics.Filter_Errors_Only (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Filter_Errors_Only (S.Panel.Feature_Diagnostics);
 
       Snapshot := Build_Diagnostics_Empty_State (S);
       Assert (Snapshot.Kind = Filtered_None_State,
@@ -433,9 +433,9 @@ package body Editor.Empty_State_Guidance.Tests is
       Assert (Contains_Command_Suggestion
                 (Snapshot, Editor.Command_Ids.Command_Diagnostics_Clear_Filter),
               "filtered-empty diagnostics should suggest clearing the filter");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "filtered-empty guidance must not delete diagnostic rows");
-      Assert (Editor.Feature_Diagnostics.Visible_Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Visible_Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "test fixture should remain filtered to zero visible rows");
    end Test_Diagnostics_Filtered_None_State;
 
@@ -804,7 +804,7 @@ package body Editor.Empty_State_Guidance.Tests is
       --  must not be treated as an empty-state guidance card by render-facing
       --  code.  This prevents from turning normal editor surfaces
       --  into persistent onboarding cards.
-      Editor.Project.Apply_Open_Result (S.Project, Result);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Result);
       S.Buffer_Lifecycle.Active_Buffer_Token := 1;
       Main := Build_Main_Empty_State (S);
 
@@ -1465,13 +1465,13 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot.Suggestions (1) :=
         Command_Suggestion_From_Descriptor (S, Editor.Command_Ids.Command_Refresh_Outline);
 
-      Before_Messages := Editor.Messages.Count (S.Messages);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
       Result := Execute_Suggested_Command (S, Snapshot, 1);
 
       Assert (Result.Command = Editor.Command_Ids.Command_Refresh_Outline
               and then Result.Status = Editor.Executor.Command_Unavailable,
               "unavailable guided execution must remain unavailable");
-      Assert (Editor.Messages.Count (S.Messages) > Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) > Before_Messages,
               "unavailable guided execution must report through the normal Executor message path");
    end Test_Unavailable_Execution_Reports_Normal_Reason;
 
@@ -1548,14 +1548,14 @@ package body Editor.Empty_State_Guidance.Tests is
       Result : Editor.Executor.Command_Execution_Result;
    begin
       Editor.Configuration_Recovery.Request_Reset_All_Confirmation;
-      Before_Messages := Editor.Messages.Count (S.Messages);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
       Result := Activate_Suggested_Command (S, Snapshot, 1);
       Editor.Configuration_Recovery.Clear_Reset_All_Confirmation;
 
       Assert (Result.Command = Editor.Command_Ids.Command_Open_Project
               and then Result.Status = Editor.Executor.Command_Unavailable,
               "conflicting guided activation must remain unavailable while confirmation is pending");
-      Assert (Editor.Messages.Count (S.Messages) > Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) > Before_Messages,
               "blocked guided activation must leave a clear outcome message");
    end Test_Activate_Pending_Block_Reports_Message;
 

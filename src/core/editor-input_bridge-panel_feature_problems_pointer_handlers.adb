@@ -58,7 +58,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
       Row    : Natural := 0;
       Gen    : constant Natural :=
         Editor.Feature_Panel.Projection_Generation
-          (S.Feature_Panel);
+          (S.Panel.Feature_Panel);
    begin
       if not Is_Minimap_Pointer_Command (Cmd.Kind)
         and then Cmd.Kind /= Editor.Command_Kinds.Pointer_Hover
@@ -66,7 +66,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
          return False;
       end if;
 
-      if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
+      if not Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel) then
          return False;
       end if;
 
@@ -88,14 +88,14 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
         and then Integer (Cmd.Click_Y) >= Y0 + Integer (Editor.Layout.Cell_H)
       then
          Row := Editor.Feature_Panel.Visible_Row_To_Row_Index
-           (S.Feature_Panel,
+           (S.Panel.Feature_Panel,
             Natural ((Integer (Cmd.Click_Y) - Y0) / Integer (Editor.Layout.Cell_H)));
       end if;
 
       if Cmd.Kind = Editor.Command_Kinds.Move_To_Point then
          Editor.Focus_Management.Clear_Transient_Focus_Owners (S);
-         Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
-         case Editor.Feature_Panel.Active_Feature (S.Feature_Panel) is
+         Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, True);
+         case Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) is
             when Editor.Feature_Panel.Outline_Feature =>
                declare
                   Result : constant Editor.Executor.Command_Execution_Result :=
@@ -120,12 +120,12 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
                | Editor.Feature_Panel.Diagnostics_Feature =>
                if Row /= 0
                  and then Editor.Feature_Panel.Projection_Row_Index_Is_Valid
-                   (S.Feature_Panel, Row)
+                   (S.Panel.Feature_Panel, Row)
                  and then Editor.Feature_Panel.Row_Is_Selectable
-                   (S.Feature_Panel, Positive (Row))
+                   (S.Panel.Feature_Panel, Positive (Row))
                then
                   Editor.Feature_Panel.Select_Row
-                    (S.Feature_Panel, Row);
+                    (S.Panel.Feature_Panel, Row);
                   Editor.Render_Cache.Invalidate_All;
                end if;
 
@@ -135,7 +135,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
       elsif Cmd.Kind = Editor.Command_Kinds.Select_Word_At_Point
         or else Cmd.Kind = Editor.Command_Kinds.Select_Line_At_Point
       then
-         case Editor.Feature_Panel.Active_Feature (S.Feature_Panel) is
+         case Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) is
             when Editor.Feature_Panel.Outline_Feature =>
                declare
                   Result : constant Editor.Executor.Command_Execution_Result :=
@@ -225,7 +225,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
          return False;
       end if;
 
-      Full_Snapshot := Editor.Problems.Build_Snapshot (S.Diagnostics);
+      Full_Snapshot := Editor.Problems.Build_Snapshot (S.Panel.Diagnostics);
       if Editor.Layout.Cell_H /= 0 then
          Visible_Rows := Panel.Height / Editor.Layout.Cell_H;
          if Visible_Rows > 1 then
@@ -233,7 +233,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
          end if;
       end if;
       Visible_Snapshot := Editor.Problems.Visible_Snapshot
-        (Full_Snapshot, S.Problems_View, Visible_Rows);
+        (Full_Snapshot, S.Panel.Problems_View, Visible_Rows);
 
       Hit := Editor.Problems.Hit_Test
         (Panel_Rect  => Panel,
@@ -266,7 +266,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
             begin
                if Found then
                   Editor.Problems.Set_Selected_Row_Index
-                    (S.Problems_View, Row);
+                    (S.Panel.Problems_View, Row);
                end if;
             end;
             Editor.Executor.Diagnostics_Navigation_Commands.Execute_Jump_To_Diagnostic
@@ -284,7 +284,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
                case Action is
                   when Editor.Problems.Problems_Header_Filter_Action =>
                   if Editor.Problems.Severity_Filter
-                       (S.Problems_View) =
+                       (S.Panel.Problems_View) =
                      Editor.Problems.Problems_Show_Errors
                   then
                      Execute.all (Editor.Command_Ids.Command_Problems_Filter_All);
@@ -293,7 +293,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
                   end if;
 
                   when Editor.Problems.Problems_Header_Sort_Action =>
-                  case S.Problems_View.Sort_Mode is
+                  case S.Panel.Problems_View.Sort_Mode is
                      when Editor.Problems.Problems_Sort_By_Location =>
                         Execute.all (Editor.Command_Ids.Command_Problems_Sort_By_Severity);
                      when Editor.Problems.Problems_Sort_By_Severity =>
@@ -303,7 +303,7 @@ package body Editor.Input_Bridge.Panel_Feature_Problems_Pointer_Handlers is
                   end case;
 
                   when Editor.Problems.Problems_Header_Group_Action =>
-                  case S.Problems_View.Group_Mode is
+                  case S.Panel.Problems_View.Group_Mode is
                      when Editor.Problems.Problems_Group_By_Severity =>
                         Execute.all (Editor.Command_Ids.Command_Problems_Group_By_Source);
                      when Editor.Problems.Problems_Group_By_Source =>

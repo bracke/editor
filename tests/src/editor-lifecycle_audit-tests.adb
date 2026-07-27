@@ -35,7 +35,7 @@ package body Editor.Lifecycle_Audit.Tests is
          Display_Name => To_Unbounded_String (Name),
          Error_Text   => Null_Unbounded_String);
    begin
-      Editor.Project.Apply_Open_Result (S.Project, Result);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Result);
    end Install_Project;
 
    procedure Test_Result_Collects_Deterministic_Failures
@@ -93,7 +93,7 @@ package body Editor.Lifecycle_Audit.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Editor.Recent_Projects.Clear (S.Recent_Projects);
+      Editor.Recent_Projects.Clear (S.Project_Runtime.Recent_Projects);
       Install_Project (S, Editor.Test_Temp.Base & "/editor-a", "editor-a");
       S.Buffer_Lifecycle.File_Info :=
         (Has_Path     => True,
@@ -104,7 +104,7 @@ package body Editor.Lifecycle_Audit.Tests is
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Dirty);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 100);
+        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 100);
 
       Summary := Editor.Lifecycle_Audit.State_Summary (S);
 
@@ -215,7 +215,7 @@ package body Editor.Lifecycle_Audit.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
-      Editor.Recent_Projects.Clear (S.Recent_Projects);
+      Editor.Recent_Projects.Clear (S.Project_Runtime.Recent_Projects);
       Editor.Settings.Set_Defaults (Model);
       Editor.Settings.Set_Theme_Id (Model, "dark");
       Editor.Settings.Set_Line_Number_Mode_Name (Model, "relative");
@@ -227,7 +227,7 @@ package body Editor.Lifecycle_Audit.Tests is
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Dirty);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 104);
+        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/editor-a", "editor-a", 104);
 
       Before := Editor.Lifecycle_Audit.Settings_Lifecycle_Summary_For (S);
       After := Editor.Lifecycle_Audit.Settings_Lifecycle_Summary_For (S);

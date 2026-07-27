@@ -147,15 +147,15 @@ package body Editor.Empty_State_Guidance.Surfaces is
    is
       D : Editor.Diagnostics.Diagnostic;
    begin
-      if not S.Active_Diagnostic.Has_Active
+      if not S.Panel.Active_Diagnostic.Has_Active
         or else not Editor.Diagnostics.Is_Valid_Diagnostic_Index
-          (S.Diagnostics, S.Active_Diagnostic.Index)
+          (S.Panel.Diagnostics, S.Panel.Active_Diagnostic.Index)
       then
          return False;
       end if;
 
       D := Editor.Diagnostics.Diagnostic_At
-        (S.Diagnostics, Positive (S.Active_Diagnostic.Index));
+        (S.Panel.Diagnostics, Positive (S.Panel.Active_Diagnostic.Index));
       return not D.Has_Location;
    end Selected_Diagnostic_Is_Source_Less;
 
@@ -192,9 +192,9 @@ package body Editor.Empty_State_Guidance.Surfaces is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) loop
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) loop
          if Editor.Feature_Diagnostics.Item_Is_Stale
-           (S.Feature_Diagnostics, Positive (I))
+           (S.Panel.Feature_Diagnostics, Positive (I))
          then
             return True;
          end if;
@@ -207,9 +207,9 @@ package body Editor.Empty_State_Guidance.Surfaces is
    is
    begin
       return Editor.Feature_Diagnostics.Has_Selected_Diagnostic
-          (S.Feature_Diagnostics, S.Feature_Panel)
+          (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel)
         and then Editor.Feature_Diagnostics.Selected_Diagnostic_Target_Unavailable_Label
-          (S.Feature_Diagnostics, S.Feature_Panel) = "No source target";
+          (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel) = "No source target";
    end Feature_Diagnostics_Selected_Source_Less;
 
    function Feature_Diagnostics_Selected_Unavailable_Reason
@@ -217,10 +217,10 @@ package body Editor.Empty_State_Guidance.Surfaces is
    is
       Reason : constant String :=
         Editor.Feature_Diagnostics.Selected_Diagnostic_Open_Unavailable_Reason
-          (S.Feature_Diagnostics, S.Feature_Panel);
+          (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
    begin
       if not Editor.Feature_Diagnostics.Has_Selected_Diagnostic
-        (S.Feature_Diagnostics, S.Feature_Panel)
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel)
         or else Feature_Diagnostics_Selected_Source_Less (S)
         or else Reason'Length = 0
       then
@@ -232,9 +232,9 @@ package body Editor.Empty_State_Guidance.Surfaces is
 
    function Build_Main_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
       Snapshot : Empty_State_Snapshot;
-      Has_Project : constant Boolean := Editor.Project.Has_Project (S.Project);
+      Has_Project : constant Boolean := Editor.Project.Has_Project (S.Project_Runtime.Project);
       Has_Buffer  : constant Boolean := Has_Active_Buffer (S);
-      Recent_Count : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
+      Recent_Count : constant Natural := Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects);
    begin
       if not Has_Project and then not Has_Buffer and then Recent_Count = 0 then
          Set_Text
@@ -277,7 +277,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
       Snapshot : Empty_State_Snapshot;
       Scan : constant Editor.File_Tree.File_Tree_Scan_Result := Editor.File_Tree.Scan_Status (S.File_Tree);
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Set_Text
            (Snapshot, File_Tree_Surface, No_Project_State,
             "No project open.", "Open a project before using File Tree.");
@@ -316,7 +316,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
       Snapshot : Empty_State_Snapshot;
       Quick : constant Editor.Quick_Open.Quick_Open_Snapshot := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Set_Text (Snapshot, Quick_Open_Surface, No_Project_State, "Open a project to use Quick Open.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Open_Project);
       elsif Quick.Known_Count = 0 then
@@ -346,7 +346,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
       Replace_Status : constant Editor.Project_Search.Project_Replace_Preview_Status :=
         Editor.Project_Search.Replace_Preview_Status (S.Project_Search);
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Set_Text (Snapshot, Project_Search_Surface, No_Project_State, "Open a project to search files.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Open_Project);
       elsif not Editor.Project_Search.Has_Query (S.Project_Search) then
@@ -431,7 +431,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
    begin
       if not Has_Active_Buffer (S) then
          Set_Text (Snapshot, Outline_Surface, No_Active_Buffer_State, "Open a file to use Outline.");
-         if Editor.Project.Has_Project (S.Project) then
+         if Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Open_Quick_Open);
             Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Focus_File_Tree);
          else
@@ -478,9 +478,9 @@ package body Editor.Empty_State_Guidance.Surfaces is
    function Build_Diagnostics_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
       Snapshot : Empty_State_Snapshot;
       Feature_Total : constant Natural :=
-        Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Feature_Visible : constant Natural :=
-        Editor.Feature_Diagnostics.Visible_Row_Count (S.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Visible_Row_Count (S.Panel.Feature_Diagnostics);
    begin
       if Feature_Total > 0 and then Feature_Visible = 0 then
          Set_Text
@@ -516,16 +516,16 @@ package body Editor.Empty_State_Guidance.Surfaces is
                    "Inspect Build Output for command details or run build again after changes.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Build_UI_Show);
       elsif Feature_Total = 0
-        and then Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) = 0
+        and then Editor.Diagnostics.Diagnostic_Count (S.Panel.Diagnostics) = 0
       then
          Set_Text (Snapshot, Diagnostics_Surface, No_Diagnostics_State,
                    "No diagnostics yet.",
                    "Run build or diagnostics-producing commands to populate this panel.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Diagnostics_Clear_Filter);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Build_UI_Show);
-      elsif S.Active_Diagnostic.Has_Active
+      elsif S.Panel.Active_Diagnostic.Has_Active
         and then not Editor.Diagnostics.Is_Valid_Diagnostic_Index
-          (S.Diagnostics, S.Active_Diagnostic.Index)
+          (S.Panel.Diagnostics, S.Panel.Active_Diagnostic.Index)
       then
          Set_Text (Snapshot, Diagnostics_Surface, Stale_State, "Some diagnostics may be stale.", "", Empty_Warning);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Diagnostics_Clear);
@@ -548,7 +548,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
       Validation : constant Editor.Build_UI.Public_Build_UI_Validation_Status :=
         Editor.Build_UI.Validate_Build_UI_State (S.Build.Build_UI);
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Set_Text (Snapshot, Build_Surface, No_Project_State, "Open a project to build.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Open_Project);
       elsif Candidate_Count = 0
@@ -612,17 +612,17 @@ package body Editor.Empty_State_Guidance.Surfaces is
 
    function Build_Recent_Projects_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
       Snapshot : Empty_State_Snapshot;
-      Total : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
-      Missing : constant Natural := Editor.Recent_Projects.Unavailable_Count (S.Recent_Projects);
+      Total : constant Natural := Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects);
+      Missing : constant Natural := Editor.Recent_Projects.Unavailable_Count (S.Project_Runtime.Recent_Projects);
    begin
       if Total = 0 then
          Set_Text (Snapshot, Recent_Projects_Surface, No_Recent_Projects_State, "No recent projects.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Open_Project);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Restore_Workspace_State);
-      elsif S.Recent_Project_Selected_Index in 1 .. Total
+      elsif S.Project_Runtime.Recent_Project_Selected_Index in 1 .. Total
         and then not Editor.Recent_Projects.Is_Available
           (Editor.Recent_Projects.Item
-             (S.Recent_Projects, Positive (S.Recent_Project_Selected_Index)))
+             (S.Project_Runtime.Recent_Projects, Positive (S.Project_Runtime.Recent_Project_Selected_Index)))
       then
          Set_Text (Snapshot, Recent_Projects_Surface, Selected_Unavailable_State,
                    "Recent project is unavailable.",

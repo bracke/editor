@@ -29,7 +29,7 @@ package body Editor.Input_Bridge.Goto_Line_Key_Handlers is
       Cmd : Editor.Commands.Payloads.Command;
    begin
       if not Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay)
       then
          return False;
       end if;

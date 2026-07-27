@@ -43,9 +43,9 @@ package body Editor.Input_Bridge.Async_Ticks is
       pragma Assert (Initialized,
          "Input_Bridge must be initialized before ticking messages");
 
-      Had_Messages := not Editor.Messages.Is_Empty (Instance.State.Messages);
+      Had_Messages := not Editor.Messages.Is_Empty (Instance.State.Panel.Messages);
       Editor.Messages.Tick
-        (Instance.State.Messages,
+        (Instance.State.Panel.Messages,
          (if Editor.View.Current_Time_Seconds <= 0.0 then 0
           elsif Editor.View.Current_Time_Seconds >= Duration (Natural'Last / 1000) then Natural'Last
           else Natural (Float (Editor.View.Current_Time_Seconds) * 1000.0)));

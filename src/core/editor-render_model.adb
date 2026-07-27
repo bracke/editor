@@ -125,12 +125,12 @@ package body Editor.Render_Model is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return S.Active_Find_Source_Buffer_Token /= 0
+      return S.Search.Active_Find_Source_Buffer_Token /= 0
         and then
-          (S.Active_Find_Source_Buffer_Token = Active_Find_Buffer_Token (S)
+          (S.Search.Active_Find_Source_Buffer_Token = Active_Find_Buffer_Token (S)
            or else
              (S.Buffer_Lifecycle.Active_Buffer_Token = 0
-              and then S.Active_Find_Source_Buffer_Token = S.Buffer_Lifecycle.Registry_Token));
+              and then S.Search.Active_Find_Source_Buffer_Token = S.Buffer_Lifecycle.Registry_Token));
    end Active_Find_Source_Current;
 
    function Dirty_Close_Open_Buffer_Fingerprint return Natural
@@ -586,7 +586,7 @@ package body Editor.Render_Model is
       O.Gutter_Markers := S.Gutter_Markers;
       O.Gutter_Marker_Hover := S.Gutter_Marker_Hover;
       O.Semantic_Popup := S.Semantic.Popup;
-      O.Messages := S.Messages;
+      O.Messages := S.Panel.Messages;
       declare
          Snapshot : Editor.Bookmarks.Bookmark_Snapshot;
       begin
@@ -651,10 +651,10 @@ package body Editor.Render_Model is
             end loop;
          end if;
       end;
-      O.Post_Restore_Feedback_Current := S.Post_Restore_Feedback_Current;
+      O.Post_Restore_Feedback_Current := S.Project_Runtime.Post_Restore_Feedback_Current;
 
-      if S.Diagnostics.Length > 0 then
-         for D of S.Diagnostics loop
+      if S.Panel.Diagnostics.Length > 0 then
+         for D of S.Panel.Diagnostics loop
             declare
                Row : constant Natural :=
                  Editor.State.Row_For_Index (S, D.Start_Index);
@@ -703,13 +703,13 @@ package body Editor.Render_Model is
       O.Syntax_Spans := (others => (others => <>));
       declare
          Active_Find_Renderable : constant Boolean :=
-           S.Active_Find_Prompt
-           and then Length (S.Active_Find_Query) > 0
-           and then not S.Active_Find_Stale
+           S.Search.Active_Find_Prompt
+           and then Length (S.Search.Active_Find_Query) > 0
+           and then not S.Search.Active_Find_Stale
            and then Active_Find_Source_Current (S);
       begin
          O.Active_Find_Match :=
-           (if Active_Find_Renderable then S.Active_Find_Match
+           (if Active_Find_Renderable then S.Search.Active_Find_Match
             else Editor.Search.No_Match);
       end;
       if S.Buffer_Lifecycle.File_Info.Has_Path then
@@ -736,20 +736,20 @@ package body Editor.Render_Model is
       O.Is_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
       declare
          Active_Find_Renderable : constant Boolean :=
-           S.Active_Find_Prompt
-           and then Length (S.Active_Find_Query) > 0
-           and then not S.Active_Find_Stale
+           S.Search.Active_Find_Prompt
+           and then Length (S.Search.Active_Find_Query) > 0
+           and then not S.Search.Active_Find_Stale
            and then Active_Find_Source_Current (S);
       begin
          O.Total_Find_Match_Count :=
            (if Active_Find_Renderable
-            then Natural (S.Active_Find_Matches.Length)
+            then Natural (S.Search.Active_Find_Matches.Length)
             else 0);
       end;
-      O.Total_Diagnostic_Count := Natural (S.Diagnostics.Length);
-      O.Has_Project := Editor.Project.Has_Project (S.Project);
+      O.Total_Diagnostic_Count := Natural (S.Panel.Diagnostics.Length);
+      O.Has_Project := Editor.Project.Has_Project (S.Project_Runtime.Project);
       if O.Has_Project then
-         O.Project_Label := To_Unbounded_String (Editor.Project.Display_Name (S.Project));
+         O.Project_Label := To_Unbounded_String (Editor.Project.Display_Name (S.Project_Runtime.Project));
       else
          O.Project_Label := Null_Unbounded_String;
       end if;
@@ -762,7 +762,7 @@ package body Editor.Render_Model is
          then
             declare
                Metadata : constant Editor.Buffers.Buffer_Metadata_Snapshot :=
-                 Editor.Buffers.Global_Metadata_For (S.Project, Active_Id);
+                 Editor.Buffers.Global_Metadata_For (S.Project_Runtime.Project, Active_Id);
             begin
                O.Active_Buffer_Has_Metadata := True;
                O.Active_Buffer_Ownership_Label := Metadata.Ownership_Label;
@@ -787,9 +787,9 @@ package body Editor.Render_Model is
             O.Active_Buffer_Close_Eligibility_Label := Null_Unbounded_String;
          end if;
       end;
-      O.Panel_Focus_Target := Editor.Panel_Focus.Target (S.Panel_Focus);
-      O.Bottom_Focus_Content := Editor.Panel_Focus.Bottom_Content (S.Panel_Focus);
-      O.Active_Overlay := Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus);
+      O.Panel_Focus_Target := Editor.Panel_Focus.Target (S.Panel.Panel_Focus);
+      O.Bottom_Focus_Content := Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus);
+      O.Active_Overlay := Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus);
       O.Goto_Line_Visible := Editor.Go_To_Line.Is_Open (S.Go_To_Line);
       O.Goto_Line_Query := To_Unbounded_String (Editor.Go_To_Line.Text (S.Go_To_Line));
       O.Goto_Line_Error_Message :=
@@ -797,30 +797,30 @@ package body Editor.Render_Model is
       O.Goto_Line_Field := Editor.Go_To_Line.Snapshot (S.Go_To_Line, 30);
       declare
          Active_Find_Renderable : constant Boolean :=
-           S.Active_Find_Prompt
-           and then Length (S.Active_Find_Query) > 0
-           and then not S.Active_Find_Stale
+           S.Search.Active_Find_Prompt
+           and then Length (S.Search.Active_Find_Query) > 0
+           and then not S.Search.Active_Find_Stale
            and then Active_Find_Source_Current (S);
       begin
-         O.Find_Visible := S.Active_Find_Prompt;
+         O.Find_Visible := S.Search.Active_Find_Prompt;
          O.Find_Query :=
-           (if S.Active_Find_Prompt
-            then S.Active_Find_Query
+           (if S.Search.Active_Find_Prompt
+            then S.Search.Active_Find_Query
             else Null_Unbounded_String);
-         O.Find_Case_Sensitive := S.Active_Find_Case_Sensitive;
-         O.Find_Whole_Word := S.Active_Find_Whole_Word;
-         O.Find_Matches_Stale := S.Active_Find_Stale;
-         O.Find_Wrapped := Active_Find_Renderable and then S.Active_Find_Wrapped;
+         O.Find_Case_Sensitive := S.Search.Active_Find_Case_Sensitive;
+         O.Find_Whole_Word := S.Search.Active_Find_Whole_Word;
+         O.Find_Matches_Stale := S.Search.Active_Find_Stale;
+         O.Find_Wrapped := Active_Find_Renderable and then S.Search.Active_Find_Wrapped;
          O.Find_Matches_For_Active_Buffer := Active_Find_Source_Current (S);
          O.Find_Match_Count :=
            (if Active_Find_Renderable
-            then Natural (S.Active_Find_Matches.Length)
+            then Natural (S.Search.Active_Find_Matches.Length)
             else 0);
          O.Find_Selected_Match_Index :=
            (if Active_Find_Renderable then
-               (if S.Active_Find_Match.Index = Editor.Search.No_Search_Match
+               (if S.Search.Active_Find_Match.Index = Editor.Search.No_Search_Match
                 then 0
-                else Natural (S.Active_Find_Match.Index))
+                else Natural (S.Search.Active_Find_Match.Index))
             else 0);
          O.Find_Selected_Match_Ordinal := O.Find_Selected_Match_Index;
          if not O.Find_Visible then
@@ -846,25 +846,25 @@ package body Editor.Render_Model is
          end if;
          O.Find_Error_Message :=
            (if Active_Find_Renderable
-               and then Length (S.Active_Find_Query) > 0
-               and then Natural (S.Active_Find_Matches.Length) = 0
+               and then Length (S.Search.Active_Find_Query) > 0
+               and then Natural (S.Search.Active_Find_Matches.Length) = 0
             then To_Unbounded_String ("No matches")
             else Null_Unbounded_String);
       end;
       declare
-         Canonical_Active_Find_Field : Editor.Input_Field.Input_Field_State := S.Active_Find_Input;
+         Canonical_Active_Find_Field : Editor.Input_Field.Input_Field_State := S.Search.Active_Find_Input;
       begin
-         if S.Active_Find_Prompt then
+         if S.Search.Active_Find_Prompt then
             Editor.Input_Field.Set_Text
-              (Canonical_Active_Find_Field, To_String (S.Active_Find_Query));
+              (Canonical_Active_Find_Field, To_String (S.Search.Active_Find_Query));
          end if;
          O.Active_Find_Field := Editor.Input_Field.Snapshot (Canonical_Active_Find_Field, 30);
       end;
-      O.Replace_Visible := S.Active_Replace_Prompt and then S.Active_Find_Prompt;
+      O.Replace_Visible := S.Search.Active_Replace_Prompt and then S.Search.Active_Find_Prompt;
       O.Replace_Text :=
-        (if O.Replace_Visible then S.Active_Replace_Text else Null_Unbounded_String);
+        (if O.Replace_Visible then S.Search.Active_Replace_Text else Null_Unbounded_String);
       O.Replace_Error_Message :=
-        (if O.Replace_Visible then S.Active_Replace_Error_Message else Null_Unbounded_String);
+        (if O.Replace_Visible then S.Search.Active_Replace_Error_Message else Null_Unbounded_String);
       O.File_Target_Prompt_Visible := S.Buffer_Lifecycle.File_Target_Prompt_Active;
       O.File_Target_Prompt_Label :=
         (if S.Buffer_Lifecycle.File_Target_Prompt_Active then S.Buffer_Lifecycle.File_Target_Prompt_Label else Null_Unbounded_String);
@@ -1001,16 +1001,16 @@ package body Editor.Render_Model is
       end if;
       declare
          Summary : constant Editor.Feature_Panel.Feature_Panel_Summary :=
-           Editor.Feature_Panel.Summary (S.Feature_Panel);
+           Editor.Feature_Panel.Summary (S.Panel.Feature_Panel);
       begin
          O.Feature_Panel_Visible := Summary.Visible;
          O.Feature_Panel_Focused := Summary.Focused;
          O.Search_Query_Input_Active :=
            Editor.Feature_Search_Results.Search_Input_Is_Active
-             (S.Feature_Search_Results);
+             (S.Panel.Feature_Search_Results);
          O.Outline_Filter_Input_Active :=
            Editor.Outline.Filter_Input_Is_Active (S.Outline);
-         O.Active_Feature := Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
+         O.Active_Feature := Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel);
       end;
       O.Wrap_Mode := Editor.View.Wrap_Mode;
       O.Wrap_Col := Effective_Wrap_Col (S);
@@ -1205,8 +1205,8 @@ package body Editor.Render_Model is
          Visible_End   : constant Natural := O.Text_Base_Index + O.Length;
          Count         : Natural := 0;
       begin
-         if Visible_End > Visible_Start and then S.Diagnostics.Length > 0 then
-            for D of S.Diagnostics loop
+         if Visible_End > Visible_Start and then S.Panel.Diagnostics.Length > 0 then
+            for D of S.Panel.Diagnostics loop
                exit when Count >= Max_Render_Diagnostics;
                declare
                   Start_Pos : Natural := Natural (D.Start_Index);
@@ -1265,14 +1265,14 @@ package body Editor.Render_Model is
          Count         : Natural := 0;
       begin
          if Visible_End > Visible_Start
-           and then S.Active_Find_Prompt
+           and then S.Search.Active_Find_Prompt
          then
-            if S.Active_Find_Prompt
-              and then Length (S.Active_Find_Query) > 0
-              and then not S.Active_Find_Stale
+            if S.Search.Active_Find_Prompt
+              and then Length (S.Search.Active_Find_Query) > 0
+              and then not S.Search.Active_Find_Stale
               and then Active_Find_Source_Current (S)
             then
-               for Match of S.Active_Find_Matches loop
+               for Match of S.Search.Active_Find_Matches loop
                   exit when Count >= Max_Render_Active_Find_Matches;
                   if Natural (Match.End_Index) > Visible_Start
                     and then Natural (Match.Start_Index) < Visible_End

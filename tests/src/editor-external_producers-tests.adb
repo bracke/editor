@@ -195,12 +195,12 @@ package body Editor.External_Producers.Tests is
         (S, Build_Source, Items);
       Assert (Result.Accepted_Count = 1, "one external diagnostic is accepted");
       Assert (Result.Rejected_Count = 0, "valid external diagnostic is not rejected");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "Diagnostics owns the stored external row");
-      Assert (Editor.Feature_Diagnostics.Item_Source_Kind (S.Feature_Diagnostics, 1) =
+      Assert (Editor.Feature_Diagnostics.Item_Source_Kind (S.Panel.Feature_Diagnostics, 1) =
                 Editor.Feature_Diagnostics.External_Diagnostic_Source,
               "external producer uses explicit external source kind");
-      Assert (Editor.Feature_Diagnostics.Item_Has_Target (S.Feature_Diagnostics, 1),
+      Assert (Editor.Feature_Diagnostics.Item_Has_Target (S.Panel.Feature_Diagnostics, 1),
               "valid external target is stored through Diagnostics target metadata");
    end Test_External_Producer_Ingests_Diagnostics_Through_Diagnostics_API;
 
@@ -262,37 +262,37 @@ package body Editor.External_Producers.Tests is
 
       Assert (Result.Accepted_Count = 3,
               "external edit diagnostics are accepted for review");
-      Assert (Editor.Feature_Diagnostics.Item_Has_Edit (S.Feature_Diagnostics, 1),
+      Assert (Editor.Feature_Diagnostics.Item_Has_Edit (S.Panel.Feature_Diagnostics, 1),
               "valid external edit metadata is stored through Diagnostics");
       Assert (Editor.Feature_Diagnostics.Item_Edit_Start_Line
-                (S.Feature_Diagnostics, 1) = 1,
+                (S.Panel.Feature_Diagnostics, 1) = 1,
               "external edit start line is preserved");
       Assert (Editor.Feature_Diagnostics.Item_Edit_Start_Column
-                (S.Feature_Diagnostics, 1) = 6,
+                (S.Panel.Feature_Diagnostics, 1) = 6,
               "external edit start column is preserved");
       Assert (Editor.Feature_Diagnostics.Item_Edit_End_Column
-                (S.Feature_Diagnostics, 1) = 6,
+                (S.Panel.Feature_Diagnostics, 1) = 6,
               "external edit end column is preserved");
       Assert (Editor.Feature_Diagnostics.Item_Replacement_Text
-                (S.Feature_Diagnostics, 1) = " ; ",
+                (S.Panel.Feature_Diagnostics, 1) = " ; ",
               "external edit replacement text preserves significant whitespace");
       Assert (Editor.Feature_Diagnostics.Item_Quick_Fix_Label
-                (S.Feature_Diagnostics, 1) = "Insert semicolon",
+                (S.Panel.Feature_Diagnostics, 1) = "Insert semicolon",
               "external edit quick-fix label is stored through Diagnostics");
       Assert (Editor.Feature_Diagnostics.Item_Quick_Fix_Detail
-                (S.Feature_Diagnostics, 1) = "Append a statement delimiter",
+                (S.Panel.Feature_Diagnostics, 1) = "Append a statement delimiter",
               "external edit quick-fix detail is stored through Diagnostics");
       Assert (not Editor.Feature_Diagnostics.Item_Has_Edit
-                (S.Feature_Diagnostics, 2),
+                (S.Panel.Feature_Diagnostics, 2),
               "external edit metadata is dropped for stale buffer targets");
       Assert (Editor.Feature_Diagnostics.Item_Has_Edit
-                (S.Feature_Diagnostics, 3),
+                (S.Panel.Feature_Diagnostics, 3),
               "external multi-line edit metadata is stored through Diagnostics");
       Assert (Editor.Feature_Diagnostics.Item_Edit_End_Line
-                (S.Feature_Diagnostics, 3) = 3,
+                (S.Panel.Feature_Diagnostics, 3) = 3,
               "external multi-line edit end line is preserved");
       Assert (Editor.Feature_Diagnostics.Item_Replacement_Text
-                (S.Feature_Diagnostics, 3) =
+                (S.Panel.Feature_Diagnostics, 3) =
               "begin" & ASCII.LF & "   null;",
               "external multi-line edit replacement text is preserved");
    end Test_External_Producer_Ingests_Diagnostic_Edit_Metadata;
@@ -311,11 +311,11 @@ package body Editor.External_Producers.Tests is
       Items.Append (Rec ("third", Severity => Editor.Feature_Diagnostics.Diagnostic_Info));
       Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch (S, Build_Source, Items);
       Assert (Result.Accepted_Count = 3, "all ordered records are accepted");
-      Assert (Editor.Feature_Diagnostics.Item_Message (S.Feature_Diagnostics, 1) = "first",
+      Assert (Editor.Feature_Diagnostics.Item_Message (S.Panel.Feature_Diagnostics, 1) = "first",
               "first record remains first");
-      Assert (Editor.Feature_Diagnostics.Item_Message (S.Feature_Diagnostics, 2) = "second",
+      Assert (Editor.Feature_Diagnostics.Item_Message (S.Panel.Feature_Diagnostics, 2) = "second",
               "second record remains second");
-      Assert (Editor.Feature_Diagnostics.Item_Message (S.Feature_Diagnostics, 3) = "third",
+      Assert (Editor.Feature_Diagnostics.Item_Message (S.Panel.Feature_Diagnostics, 3) = "third",
               "third record remains third");
    end Test_External_Producer_Batch_Preserves_Input_Order;
 
@@ -334,7 +334,7 @@ package body Editor.External_Producers.Tests is
       Assert (Result.Accepted_Count = 1, "invalid-target record is still accepted");
       Assert (Result.Accepted_Untargeted = 1,
               "invalid-target record is counted as untargeted");
-      Assert (not Editor.Feature_Diagnostics.Item_Has_Target (S.Feature_Diagnostics, 1),
+      Assert (not Editor.Feature_Diagnostics.Item_Has_Target (S.Panel.Feature_Diagnostics, 1),
               "invalid target is not stored as activatable metadata");
    end Test_External_Producer_Invalid_Target_Becomes_Untargeted;
 
@@ -347,18 +347,18 @@ package body Editor.External_Producers.Tests is
       Result : Editor.External_Producers.Diagnostics.Producer_Batch_Result;
    begin
       Prepare_State (S);
-      Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Feature_Diagnostics);
-      Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warning");
+      Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Panel.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Set_Filter_Text (S.Panel.Feature_Diagnostics, "warning");
       Items.Append (Rec ("hidden error", Severity => Editor.Feature_Diagnostics.Diagnostic_Error));
       Items.Append (Rec ("shown warning", Severity => Editor.Feature_Diagnostics.Diagnostic_Warning));
       Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch (S, Build_Source, Items);
       Assert (Result.Accepted_Count = 2, "filter state does not block storage");
-      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "warning",
+      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Panel.Feature_Diagnostics) = "warning",
               "external ingestion preserves diagnostic text filter");
       Assert (not Editor.Feature_Diagnostics.Severity_Is_Visible
-                (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error),
+                (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error),
               "external ingestion preserves severity visibility");
-      Assert (Editor.Feature_Diagnostics.Visible_Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Visible_Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "existing filters compose with external row changes");
    end Test_External_Producer_Preserves_Diagnostics_Filter_State;
 
@@ -378,10 +378,10 @@ package body Editor.External_Producers.Tests is
       Assert (Result.Accepted_Count = Editor.Feature_Diagnostics.Max_Diagnostics + 5,
               "all oversized batch records are accepted before deterministic retention");
       Assert (Result.Evicted_Count = 5, "retention eviction count is deterministic");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) =
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) =
                 Editor.Feature_Diagnostics.Max_Diagnostics,
               "Diagnostics retention cap is applied");
-      Assert (Editor.Feature_Diagnostics.Item_Message (S.Feature_Diagnostics, 1) =
+      Assert (Editor.Feature_Diagnostics.Item_Message (S.Panel.Feature_Diagnostics, 1) =
                 "diagnostic 6",
               "oldest diagnostics are evicted first");
    end Test_External_Producer_Applies_Diagnostics_Retention;
@@ -401,7 +401,7 @@ package body Editor.External_Producers.Tests is
       Items.Append (Rec ("external diagnostic"));
       Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch (S, Build_Source, Items);
       Assert (Result.Accepted_Count = 1, "external diagnostic accepted while Outline active");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                 Editor.Feature_Panel.Outline_Feature,
               "external producer must not switch active feature");
       Assert (not Result.Projection_Changed,
@@ -420,8 +420,8 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Outline_Before := Editor.Outline.Item_Count (S.Outline);
-      Messages_Before := Editor.Feature_Messages.Row_Count (S.Feature_Messages);
-      Search_Before := Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results);
+      Messages_Before := Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages);
+      Search_Before := Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results);
       Items.Append (Rec ("external diagnostic"));
       declare
          Result : constant Editor.External_Producers.Diagnostics.Producer_Batch_Result :=
@@ -431,9 +431,9 @@ package body Editor.External_Producers.Tests is
       end;
       Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Before,
               "external producer does not mutate Outline");
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = Messages_Before,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = Messages_Before,
               "external producer does not mutate Messages");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = Search_Before,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = Search_Before,
               "external producer does not mutate Search Results");
    end Test_External_Producer_Does_Not_Mutate_Unrelated_Features;
 
@@ -449,10 +449,10 @@ package body Editor.External_Producers.Tests is
       Assert (Editor.Feature_Panel_Controller.Show_Feature
                 (S, Editor.Feature_Panel.Messages_Feature),
               "test can activate Messages");
-      Token := Editor.Feature_Panel.Build_Feature_Projection_Token (S.Feature_Panel);
-      Editor.Feature_Panel.Clear_Rows (S.Feature_Panel);
+      Token := Editor.Feature_Panel.Build_Feature_Projection_Token (S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Clear_Rows (S.Panel.Feature_Panel);
       Assert (not Editor.Feature_Panel.Validate_Feature_Projection_Token
-                (S.Feature_Panel, Token),
+                (S.Panel.Feature_Panel, Token),
               "clearing rows makes token stale");
       Items.Append (Rec ("external diagnostic"));
       declare
@@ -462,7 +462,7 @@ package body Editor.External_Producers.Tests is
          Assert (Result.Accepted_Count = 1, "external diagnostic accepted");
       end;
       Assert (not Editor.Feature_Panel.Validate_Feature_Projection_Token
-                (S.Feature_Panel, Token),
+                (S.Panel.Feature_Panel, Token),
               "external producer cannot revive stale projection token");
    end Test_External_Producer_Does_Not_Revive_Stale_Projection_Token;
 
@@ -479,15 +479,15 @@ package body Editor.External_Producers.Tests is
       Assert (Editor.Feature_Panel_Controller.Show_Feature
                 (S, Editor.Feature_Panel.Diagnostics_Feature),
               "test can activate Diagnostics");
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Result := Editor.Feature_Panel_Audit.Run_Feature_Panel_Audit;
       Assert (Result.Passed, Editor.Feature_Panel_Audit.Summary (Result));
       Assert (Editor.External_Producers.Audits.External_Producer_Audit_Passes,
               "external producer audit passes");
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Before = After,
               "external producer audit must not mutate feature-panel state");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "external producer audit must not ingest diagnostics");
    end Test_External_Producer_Audit_Is_Side_Effect_Free;
 
@@ -506,7 +506,7 @@ package body Editor.External_Producers.Tests is
       Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Batch (S, Bad, Items);
       Assert (Result.Accepted_Count = 0, "tampered producer accepts no rows");
       Assert (Result.Rejected_Count = 1, "tampered producer rejects the input row");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "invalid producer metadata does not mutate Diagnostics");
    end Test_External_Producer_Rejects_Invalid_Metadata_Without_Mutation;
 
@@ -678,15 +678,15 @@ package body Editor.External_Producers.Tests is
         (S, Compiler_Source, Inputs);
       Assert (Result.Accepted_Count = 1 and then Result.Rejected_Count = 0,
               "structured compiler diagnostic is accepted through batch ingestion");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "combined compiler ingestion stores exactly one Diagnostics row");
-      Assert (Editor.Feature_Diagnostics.Item_Severity (S.Feature_Diagnostics, 1) =
+      Assert (Editor.Feature_Diagnostics.Item_Severity (S.Panel.Feature_Diagnostics, 1) =
                 Editor.Feature_Diagnostics.Diagnostic_Error,
               "compiler fatal stores as diagnostic error");
-      Assert (Editor.Feature_Diagnostics.Item_Source_Kind (S.Feature_Diagnostics, 1) =
+      Assert (Editor.Feature_Diagnostics.Item_Source_Kind (S.Panel.Feature_Diagnostics, 1) =
                 Editor.Feature_Diagnostics.External_Diagnostic_Source,
               "compiler ingestion routes through external Diagnostics source kind");
-      Assert (Editor.Feature_Diagnostics.Item_Has_Target (S.Feature_Diagnostics, 1),
+      Assert (Editor.Feature_Diagnostics.Item_Has_Target (S.Panel.Feature_Diagnostics, 1),
               "compiler ingestion keeps validated target metadata");
    end Test_Compiler_Diagnostic_Ingestion_Uses_Diagnostics_API;
 
@@ -703,8 +703,8 @@ package body Editor.External_Producers.Tests is
       Assert (Editor.Feature_Panel_Controller.Show_Feature
                 (S, Editor.Feature_Panel.Outline_Feature),
               "test can activate Outline");
-      Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warn");
-      Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Set_Filter_Text (S.Panel.Feature_Diagnostics, "warn");
+      Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Panel.Feature_Diagnostics);
       Inputs.Append
         (CRec ("warn from compiler", Severity => Editor.External_Producers.Diagnostics.Compiler_Warning,
                File_Label => "main.adb", Has_Location => True,
@@ -712,12 +712,12 @@ package body Editor.External_Producers.Tests is
       Result := Editor.External_Producers.Diagnostics.Ingest_Compiler_Diagnostic_Batch
         (S, Compiler_Source, Inputs);
       Assert (Result.Accepted_Count = 1, "compiler diagnostic accepted while another feature is active");
-      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "warn",
+      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Panel.Feature_Diagnostics) = "warn",
               "compiler ingestion preserves Diagnostics filter text");
       Assert (not Editor.Feature_Diagnostics.Severity_Is_Visible
-                (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error),
+                (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error),
               "compiler ingestion preserves Diagnostics severity visibility");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                 Editor.Feature_Panel.Outline_Feature,
               "compiler ingestion must not switch active feature");
       Assert (not Result.Projection_Changed,
@@ -737,8 +737,8 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Name_Current_Buffer (S);
       Outline_Before := Editor.Outline.Item_Count (S.Outline);
-      Messages_Before := Editor.Feature_Messages.Row_Count (S.Feature_Messages);
-      Search_Before := Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results);
+      Messages_Before := Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages);
+      Search_Before := Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results);
       Inputs.Append (CRec ("external compiler warning",
                            Severity => Editor.External_Producers.Diagnostics.Compiler_Warning));
       declare
@@ -750,9 +750,9 @@ package body Editor.External_Producers.Tests is
       end;
       Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Before,
               "compiler ingestion does not mutate Outline");
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = Messages_Before,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = Messages_Before,
               "compiler ingestion does not mutate Messages");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = Search_Before,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = Search_Before,
               "compiler ingestion does not mutate Search Results");
    end Test_Compiler_Diagnostic_Ingestion_Does_Not_Mutate_Unrelated_Features;
 
@@ -765,17 +765,17 @@ package body Editor.External_Producers.Tests is
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
    begin
       Prepare_State (S);
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Editor.External_Producers.Audits.Compiler_Diagnostic_Normalization_Audit_Passes,
               "producer audit covers compiler diagnostic normalization boundary");
       Assert (Editor.External_Producers.Audits.Producer_Lifecycle_Audit_Passes,
               "producer lifecycle audit documents synchronous-only lifecycle state");
       Assert (Editor.External_Producers.Audits.External_Producer_Audit_Passes,
               "external producer audit includes compiler normalization checks");
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Before = After,
               "compiler producer audit is side-effect-free");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "compiler producer audit must not ingest diagnostic rows");
    end Test_Producer_Audit_Covers_Compiler_Diagnostic_Normalization;
 
@@ -1249,9 +1249,9 @@ package body Editor.External_Producers.Tests is
       Lines.Append (To_Unbounded_String ("main.adb:1:1: error: parsed"));
       Lines.Append (To_Unbounded_String ("main.adb:0:1: error: malformed"));
       Lines.Append (To_Unbounded_String ("not a diagnostic"));
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Batch := Editor.External_Producers.Diagnostic_Line_Parsing.Parse_Compiler_Diagnostic_Lines (Lines, "gnat");
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Batch.Accepted_Count = 1,
               "parser-only mixed batch still parses accepted record");
       Assert (Batch.Error_Count = 1
@@ -1262,7 +1262,7 @@ package body Editor.External_Producers.Tests is
               "parser-only batch reports scalar severity counts");
       Assert (Before = After,
               "parser-only batch does not mutate feature panel state");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "parser-only batch does not add Diagnostics rows");
    end Test_Diagnostic_Line_Parser_Does_Not_Mutate_Diagnostics;
 
@@ -1283,11 +1283,11 @@ package body Editor.External_Producers.Tests is
               "line ingestion reports parser counts");
       Assert (Result.Ingestion_Result.Accepted_Count = 1,
               "line ingestion accepts normalized compiler record");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "line ingestion stores exactly one Diagnostics row");
-      Assert (Editor.Feature_Diagnostics.Item_Has_Target (S.Feature_Diagnostics, 1),
+      Assert (Editor.Feature_Diagnostics.Item_Has_Target (S.Panel.Feature_Diagnostics, 1),
               "line ingestion uses normalizer to resolve live buffer target");
-      Assert (Editor.Feature_Diagnostics.Item_Source_Kind (S.Feature_Diagnostics, 1) =
+      Assert (Editor.Feature_Diagnostics.Item_Source_Kind (S.Panel.Feature_Diagnostics, 1) =
                 Editor.Feature_Diagnostics.External_Diagnostic_Source,
               "line ingestion routes through Diagnostics external source API");
    end Test_Diagnostic_Line_Ingestion_Uses_Normalization_And_Diagnostics_API;
@@ -1388,8 +1388,8 @@ package body Editor.External_Producers.Tests is
       Assert (Editor.Feature_Panel_Controller.Show_Feature
                 (S, Editor.Feature_Panel.Outline_Feature),
               "test can activate Outline");
-      Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warning");
-      Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Set_Filter_Text (S.Panel.Feature_Diagnostics, "warning");
+      Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Panel.Feature_Diagnostics);
       for I in 1 .. Editor.Feature_Diagnostics.Max_Diagnostics + 3 loop
          Lines.Append (To_Unbounded_String
            ("src/main.adb:1:1: warning: warning" & Natural'Image (I)));
@@ -1400,15 +1400,15 @@ package body Editor.External_Producers.Tests is
               "all raw lines are parsed before retention");
       Assert (Result.Ingestion_Result.Evicted_Count = 3,
               "line ingestion applies Diagnostics retention");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) =
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) =
                 Editor.Feature_Diagnostics.Max_Diagnostics,
               "Diagnostics retention cap remains effective");
-      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "warning",
+      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Panel.Feature_Diagnostics) = "warning",
               "line ingestion preserves diagnostic filter text");
       Assert (not Editor.Feature_Diagnostics.Severity_Is_Visible
-                (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error),
+                (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error),
               "line ingestion preserves severity visibility");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                 Editor.Feature_Panel.Outline_Feature,
               "line ingestion must not switch active feature");
    end Test_Diagnostic_Line_Ingestion_Preserves_Filter_Retention_And_Feature;
@@ -1426,8 +1426,8 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Outline_Before := Editor.Outline.Item_Count (S.Outline);
-      Messages_Before := Editor.Feature_Messages.Row_Count (S.Feature_Messages);
-      Search_Before := Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results);
+      Messages_Before := Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages);
+      Search_Before := Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results);
       Lines.Append (To_Unbounded_String ("src/main.adb:1:1: warning: parsed warning"));
       Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Compiler_Diagnostic_Lines
         (S, Compiler_Source, Lines);
@@ -1435,9 +1435,9 @@ package body Editor.External_Producers.Tests is
               "line diagnostic is ingested");
       Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Before,
               "line ingestion does not mutate Outline");
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = Messages_Before,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = Messages_Before,
               "line ingestion does not mutate Messages");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = Search_Before,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = Search_Before,
               "line ingestion does not mutate Search Results");
    end Test_Diagnostic_Line_Ingestion_Does_Not_Mutate_Unrelated_Features;
 
@@ -1484,7 +1484,7 @@ package body Editor.External_Producers.Tests is
               "command-facing ingestion emits one deterministic message");
       Assert (not Result.Should_Show_Diagnostics,
               "state-only command-facing ingestion does not request a feature switch");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                 Editor.Feature_Panel.Messages_Feature,
               "command-facing ingestion preserves the active feature by default");
    end Test_Diagnostic_Line_Command_Ingestion_Does_Not_Switch_Active_Feature_By_Default;
@@ -1506,10 +1506,10 @@ package body Editor.External_Producers.Tests is
         (S, Compiler_Source, Lines, Show_Diagnostics => True);
       Assert (Result.Should_Show_Diagnostics,
               "explicit show command records that Diagnostics was shown");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                 Editor.Feature_Panel.Diagnostics_Feature,
               "explicit show command switches through normal feature-panel activation");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "explicit show command still ingests through Diagnostics-owned storage");
    end Test_Diagnostic_Line_Command_Ingestion_Can_Show_Diagnostics_When_Explicit;
 
@@ -1523,14 +1523,14 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Editor.Feature_Diagnostics.Toggle_Source_Visible
-        (S.Feature_Diagnostics, Editor.Feature_Diagnostics.External_Diagnostic_Source);
+        (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.External_Diagnostic_Source);
       Lines.Append (To_Unbounded_String ("main.adb:1:1: warning: hidden external source"));
       Result := Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
         (S, Compiler_Source, Lines);
       Assert (Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "source visibility does not block command-facing storage");
       Assert (not Editor.Feature_Diagnostics.Source_Is_Visible
-                (S.Feature_Diagnostics, Editor.Feature_Diagnostics.External_Diagnostic_Source),
+                (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.External_Diagnostic_Source),
               "command-facing ingestion preserves Diagnostics source visibility filters");
    end Test_Diagnostic_Line_Command_Ingestion_Preserves_Diagnostics_Source_Visibility;
 
@@ -1552,7 +1552,7 @@ package body Editor.External_Producers.Tests is
       Assert (Project_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "command-facing ingestion is safe after project close lifecycle cleanup");
       Assert (not Editor.Feature_Diagnostics.Item_Has_Target
-                (Project_State.Feature_Diagnostics, 1),
+                (Project_State.Panel.Feature_Diagnostics, 1),
               "closed/unresolved targets remain untargeted after project close");
 
       Prepare_State (Workspace_State);
@@ -1625,7 +1625,7 @@ package body Editor.External_Producers.Tests is
       Result : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Prepare_State (S);
-      Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warning");
+      Editor.Feature_Diagnostics.Set_Filter_Text (S.Panel.Feature_Diagnostics, "warning");
       Lines.Append (To_Unbounded_String ("main.adb:1:1: warning: repeated warning"));
       Lines.Append (To_Unbounded_String (""));
       Lines.Append (To_Unbounded_String ("not a diagnostic"));
@@ -1648,9 +1648,9 @@ package body Editor.External_Producers.Tests is
                  "each repeated mixed command batch remains count-consistent");
       end loop;
 
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 3,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 3,
               "repeated mixed command batches append accepted diagnostics only");
-      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "warning",
+      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Panel.Feature_Diagnostics) = "warning",
               "repeated mixed command batches preserve Diagnostics filter text");
    end Test_Diagnostic_Line_Ingestion_Repeated_Mixed_Batches;
 
@@ -1679,7 +1679,7 @@ package body Editor.External_Producers.Tests is
                  "malformed-only batches use stable feedback");
       end loop;
 
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "repeated malformed-only batches never mutate Diagnostics rows");
    end Test_Diagnostic_Line_Ingestion_Repeated_Malformed_Only_Batches;
 
@@ -1691,12 +1691,12 @@ package body Editor.External_Producers.Tests is
       Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
    begin
       Prepare_State (S);
-      Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "needle");
+      Editor.Feature_Diagnostics.Set_Filter_Text (S.Panel.Feature_Diagnostics, "needle");
       Lines.Append (To_Unbounded_String ("main.adb:1:1: warning: haystack"));
       Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
                 (S, Compiler_Source, Lines).Ingestion.Ingestion_Result.Accepted_Count = 1,
               "filter-active command ingestion stores accepted diagnostic");
-      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "needle",
+      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Panel.Feature_Diagnostics) = "needle",
               "filter-active command ingestion preserves filter");
    end Test_Diagnostic_Line_Ingestion_With_Filter_Active_Preserves_Filter;
 
@@ -1708,13 +1708,13 @@ package body Editor.External_Producers.Tests is
       Lines : Editor.External_Producers.Diagnostic_Line_Parsing.Text_Line_Array;
    begin
       Prepare_State (S);
-      Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Panel.Feature_Diagnostics);
       Lines.Append (To_Unbounded_String ("main.adb:1:1: error: hidden severity"));
       Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
                 (S, Compiler_Source, Lines).Ingestion.Ingestion_Result.Accepted_Count = 1,
               "hidden-severity command ingestion stores accepted diagnostic");
       Assert (not Editor.Feature_Diagnostics.Severity_Is_Visible
-                (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error),
+                (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error),
               "hidden-severity command ingestion preserves visibility");
    end Test_Diagnostic_Line_Ingestion_With_Severity_Hidden_Preserves_Visibility;
 
@@ -1736,7 +1736,7 @@ package body Editor.External_Producers.Tests is
       Assert (Editor.External_Producers.Diagnostic_Line_Parsing.Ingest_Diagnostic_Lines_From_Command
                 (S, Compiler_Source, Lines).Ingestion.Ingestion_Result.Accepted_Count = 1,
               "feature-switch command ingestion stores accepted diagnostic");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                 Editor.Feature_Panel.Messages_Feature,
               "feature-switch command ingestion preserves active feature by default");
    end Test_Diagnostic_Line_Ingestion_After_Feature_Switch_Preserves_Active_Feature;
@@ -1764,7 +1764,7 @@ package body Editor.External_Producers.Tests is
       Assert (Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "command ingestion after buffer close remains synchronous and safe");
       Assert (not Editor.Feature_Diagnostics.Item_Has_Target
-                (S.Feature_Diagnostics, 1),
+                (S.Panel.Feature_Diagnostics, 1),
               "diagnostic after buffer close is stored without stale buffer target");
    end Test_Diagnostic_Line_Ingestion_After_Buffer_Close_Is_Safe;
 
@@ -1815,13 +1815,13 @@ package body Editor.External_Producers.Tests is
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
    begin
       Prepare_State (S);
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Editor.External_Producers.Audits.Diagnostic_Line_Command_Surface_Audit_Passes,
               "producer audit covers diagnostic-line command-surface feedback semantics");
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Before = After,
               "diagnostic-line command-surface audit is side-effect-free");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "diagnostic-line command-surface audit must not ingest rows");
    end Test_Producer_Audit_Covers_Diagnostic_Line_Command_Surface;
 
@@ -1834,15 +1834,15 @@ package body Editor.External_Producers.Tests is
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
    begin
       Prepare_State (S);
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Editor.External_Producers.Audits.Diagnostic_Line_Parser_Audit_Passes,
               "producer audit covers diagnostic line parser boundary");
       Assert (Editor.External_Producers.Audits.External_Producer_Audit_Passes,
               "external producer audit includes line parser checks");
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Before = After,
               "line parser audit is side-effect-free");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "line parser audit must not ingest diagnostic rows");
    end Test_Producer_Audit_Covers_Diagnostic_Line_Parser;
 
@@ -1922,7 +1922,7 @@ package body Editor.External_Producers.Tests is
               "timeout produces exactly one canonical primary message");
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "bounded output captured before timeout can be ingested through Diagnostics");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "timeout diagnostics are owned by Diagnostics, not the runner");
    end Test_Build_Timeout_Result_Maps_To_Canonical_Status;
 
@@ -2522,7 +2522,7 @@ package body Editor.External_Producers.Tests is
               "real build-tool diagnostic fixture can return supplied process success");
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "fixture output routes through existing diagnostic-line ingestion pipeline");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "Diagnostics rows are created only by the established ingestion seam");
    end Test_Real_Build_Tool_Fixture_Output_Uses_Diagnostic_Line_Pipeline;
 
@@ -2559,13 +2559,13 @@ package body Editor.External_Producers.Tests is
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
    begin
       Prepare_State (S);
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Editor.External_Producers.Audits.Audit_Real_Build_Tool_Fixture_Gates,
               "real build-tool fixture audit covers explicit gate and preflight checks");
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Before = After,
               "real build-tool fixture audit does not mutate feature-panel state");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "real build-tool fixture audit does not ingest diagnostics");
    end Test_Real_Build_Tool_Fixture_Audit_Is_Side_Effect_Free;
 
@@ -2580,23 +2580,23 @@ package body Editor.External_Producers.Tests is
       Status : Editor.External_Producers.Build_Types.Real_Build_Tool_Fixture_Validation_Status;
    begin
       Prepare_State (S);
-      Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warning");
+      Editor.Feature_Diagnostics.Set_Filter_Text (S.Panel.Feature_Diagnostics, "warning");
       Assert (Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Outline_Feature),
         "feature panel show feature succeeds");
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Status := Editor.External_Producers.Build_Requests.Validate_Real_Build_Tool_Fixture_Request
         (Real_Build_Tool_Fixture_Request,
          Editor.External_Producers.Build_Types.GPRbuild_Version_Fixture,
          Real_Build_Tool_Fixture_Gate);
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Status = Editor.External_Producers.Build_Types.Real_Build_Fixture_Valid,
               "central real build-tool fixture validation accepts explicit opt-in fixture");
       Assert (Before = After,
               "real build-tool fixture validation does not switch or rebuild features");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "real build-tool fixture validation does not ingest diagnostics");
-      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "warning",
+      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Panel.Feature_Diagnostics) = "warning",
               "real build-tool fixture validation preserves diagnostics filter text");
    end Test_Real_Build_Tool_Fixture_Validation_Is_Side_Effect_Free;
 
@@ -2620,7 +2620,7 @@ package body Editor.External_Producers.Tests is
               "unknown fixture request is rejected before runner output can be consumed");
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 0,
               "rejected real build-tool fixture does not ingest supplied runner diagnostics");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "rejected real build-tool fixture leaves Diagnostics unchanged");
       Assert (To_String (Result.Command_Message) = "Build: build fixture rejected",
               "rejected fixture feedback is normalized");
@@ -2742,7 +2742,7 @@ package body Editor.External_Producers.Tests is
             Stderr_Text => "main.adb:1:1: error: fixture"));
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 0,
               "disabled ingestion reports no ingested fixture diagnostics");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "disabled ingestion preserves Diagnostics rows");
    end Test_Real_Build_Tool_Fixture_Ingestion_Disabled_Preserves_Diagnostics;
 
@@ -2754,7 +2754,7 @@ package body Editor.External_Producers.Tests is
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warning");
+      Editor.Feature_Diagnostics.Set_Filter_Text (S.Panel.Feature_Diagnostics, "warning");
       Assert (Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Outline_Feature),
         "feature panel show feature succeeds");
@@ -2771,9 +2771,9 @@ package body Editor.External_Producers.Tests is
          Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Succeeded,
                  "repeated real build-tool fixture run succeeds deterministically");
       end loop;
-      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "warning",
+      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Panel.Feature_Diagnostics) = "warning",
               "repeated real build-tool fixture runs preserve Diagnostics filter text");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                 Editor.Feature_Panel.Outline_Feature,
               "repeated real build-tool fixture runs preserve active feature by default");
    end Test_Real_Build_Tool_Fixture_Repeated_Run_Preserves_Filter_And_Feature;
@@ -2799,7 +2799,7 @@ package body Editor.External_Producers.Tests is
             Stderr_Text => "main.adb:1:1: warning: fixture"));
       Assert (Result.Diagnostic_Result.Should_Show_Diagnostics,
               "real build-tool fixture show flag is reported through diagnostic command result");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                 Editor.Feature_Panel.Diagnostics_Feature,
               "real build-tool fixture show flag uses normal feature-panel switch");
    end Test_Real_Build_Tool_Fixture_Show_Diagnostics_Uses_Normal_Feature_Switch;
@@ -2994,7 +2994,7 @@ package body Editor.External_Producers.Tests is
               "valid fixture diagnostic line is accepted by parser");
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Ignored_Unrecognized_Count = 1,
               "unrecognized fixture output remains inert and ignored");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "fixture command ingests only through Diagnostics ingestion seam");
    end Test_Process_Fixture_Output_Uses_Diagnostic_Line_Pipeline;
 
@@ -3044,7 +3044,7 @@ package body Editor.External_Producers.Tests is
               "mixed fixture extracts stderr before stdout and preserves extra colons");
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Accepted_Count = 2,
               "mixed fixture valid stdout and stderr diagnostics are parsed");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 2,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 2,
               "mixed fixture diagnostics enter through the normal ingestion path");
    end Test_Process_Fixture_Mixed_Output_And_Extra_Colons;
 
@@ -3064,7 +3064,7 @@ package body Editor.External_Producers.Tests is
          Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate);
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Rejected_Malformed_Count = 1,
               "malformed diagnostic-looking fixture line is counted by parser");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "malformed-only fixture output creates no fabricated diagnostic rows");
    end Test_Process_Fixture_Malformed_Line_Is_Counted;
 
@@ -3076,8 +3076,8 @@ package body Editor.External_Producers.Tests is
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Feature_Diagnostics);
-      Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warning");
+      Editor.Feature_Diagnostics.Toggle_Errors_Visible (S.Panel.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Set_Filter_Text (S.Panel.Feature_Diagnostics, "warning");
       Assert (Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Outline_Feature),
         "feature panel show feature succeeds");
@@ -3088,12 +3088,12 @@ package body Editor.External_Producers.Tests is
          Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate);
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "fixture output can ingest a diagnostic while filters are active");
-      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "warning",
+      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Panel.Feature_Diagnostics) = "warning",
               "fixture diagnostic ingestion preserves diagnostic filter text");
       Assert (not Editor.Feature_Diagnostics.Severity_Is_Visible
-                (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error),
+                (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error),
               "fixture diagnostic ingestion preserves severity visibility");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                 Editor.Feature_Panel.Outline_Feature,
               "fixture command does not switch active feature by default");
    end Test_Process_Fixture_Preserves_Filter_And_Feature_Default;
@@ -3115,7 +3115,7 @@ package body Editor.External_Producers.Tests is
            (Show_Diagnostics => True));
       Assert (Result.Diagnostic_Result.Should_Show_Diagnostics,
               "explicit fixture show flag is reported");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                 Editor.Feature_Panel.Diagnostics_Feature,
               "explicit fixture show flag switches to Diagnostics");
    end Test_Process_Fixture_Show_Diagnostics_Explicitly_Switches_Feature;
@@ -3129,13 +3129,13 @@ package body Editor.External_Producers.Tests is
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
    begin
       Prepare_State (S);
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Editor.External_Producers.Audits.Audit_Process_Fixture_Gates,
               "fixture audit covers explicit gate, identity, argv, bounds, and line pipeline");
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Before = After,
               "fixture audit is side-effect-free for caller feature panel");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "fixture audit does not mutate caller Diagnostics");
    end Test_Process_Fixture_Audit_Is_Side_Effect_Free;
 
@@ -3149,15 +3149,15 @@ package body Editor.External_Producers.Tests is
       Status : Editor.External_Producers.Build_Types.Process_Fixture_Validation_Status;
    begin
       Prepare_State (S);
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Status := Editor.External_Producers.Build_Requests.Validate_Process_Fixture_Request
         (Fixture_Request, Real_Fixture_Process_Policy);
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Status = Editor.External_Producers.Build_Types.Fixture_Request_Valid,
               "fixture validation accepts an explicit approved fixture request");
       Assert (Before = After,
               "fixture validation does not mutate feature-panel state");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "fixture validation does not ingest diagnostics");
    end Test_Process_Fixture_Validation_Is_Side_Effect_Free;
 
@@ -3175,7 +3175,7 @@ package body Editor.External_Producers.Tests is
          Editor.External_Producers.Execution_Policy.Build_Real_Fixture_Execution_Gate);
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "unknown fixture request is rejected before runner execution");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "rejected fixture request does not ingest supplied or fabricated diagnostics");
       Assert (To_String (Result.Command_Message) = "Build: fixture rejected",
               "fixture rejection feedback is normalized and does not expose argv");
@@ -3199,7 +3199,7 @@ package body Editor.External_Producers.Tests is
               "fixture output beyond the bound maps to execution error");
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Input_Count = 0,
               "oversized fixture output is dropped before diagnostic parsing");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "oversized fixture output fabricates no diagnostic rows");
    end Test_Process_Fixture_Output_Over_Limit_Does_Not_Fabricate_Diagnostics;
 
@@ -3241,7 +3241,7 @@ package body Editor.External_Producers.Tests is
               "fixture execution can succeed while diagnostics ingestion is disabled");
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Input_Count = 0,
               "diagnostics-disabled fixture command reports no parse/input count");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "diagnostics-disabled fixture command mutates no diagnostics rows");
       Assert (To_String (Result.Command_Message) =
                 "Build: succeeded, diagnostics ingestion disabled",
@@ -3527,7 +3527,7 @@ package body Editor.External_Producers.Tests is
               "invalid preflight rejects before supplied runner output can succeed");
       Assert (To_String (Result.Command_Message) = "Build: structured arguments required",
               "command feedback reports structured argv requirement without raw command text");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "preflight rejection does not ingest diagnostics");
    end Test_Preflight_Does_Not_Call_Runner;
 
@@ -3688,7 +3688,7 @@ package body Editor.External_Producers.Tests is
               "disabled gate ignores supplied runner success");
       Assert (To_String (Result.Command_Message) = "Build: execution disabled",
               "disabled gate emits execution-disabled feedback");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "disabled gate cannot ingest supplied output");
    end Test_Build_Gate_Disabled_Does_Not_Call_Runner;
 
@@ -3801,7 +3801,7 @@ package body Editor.External_Producers.Tests is
             Stderr_Text => "main.adb:1:1: error: must-not-run"));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "invalid build request rejects before supplied runner result");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "invalid build request cannot ingest supplied output");
    end Test_Build_Gate_Invalid_Build_Request_Does_Not_Call_Runner;
 
@@ -3819,7 +3819,7 @@ package body Editor.External_Producers.Tests is
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result (Editor.External_Producers.Build_Types.Process_Run_Succeeded));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "invalid process-preparation input rejects before supplied runner result");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "invalid process request cannot mutate Diagnostics");
    end Test_Build_Gate_Invalid_Process_Request_Does_Not_Call_Runner;
 
@@ -3890,7 +3890,7 @@ package body Editor.External_Producers.Tests is
               "disabling ingestion does not alter build status");
       Assert (Result.Diagnostic_Result.Ingestion.Parse_Input_Count = 0,
               "disabled ingestion does not parse process output");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "disabled ingestion leaves Diagnostics unchanged");
       Assert (To_String (Result.Command_Message) = "Build: failed, diagnostics ingestion disabled",
               "disabled ingestion feedback reports status without count");
@@ -3927,13 +3927,13 @@ package body Editor.External_Producers.Tests is
       Prepare_State (S);
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Editor.Feature_Panel.Outline_Feature),
         "feature panel show feature succeeds");
-      Before := Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel);
       Result := Editor.External_Producers.Build_Requests.Run_Build_Command_With_Gate
         (S, Build_Request, Editor.External_Producers.Execution_Policy.Build_Test_Fixture_Execution_Gate,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Build_Types.Process_Run_Failed,
             Stderr_Text => "main.adb:1:1: error: hidden"));
-      After := Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
+      After := Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel);
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "diagnostic was ingested for active-feature test");
       Assert (Before = After,
@@ -3958,7 +3958,7 @@ package body Editor.External_Producers.Tests is
             Stderr_Text => "main.adb:1:1: error: visible"));
       Assert (Result.Diagnostic_Result.Should_Show_Diagnostics,
               "explicit show flag is reflected in command result");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) = Editor.Feature_Panel.Diagnostics_Feature,
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) = Editor.Feature_Panel.Diagnostics_Feature,
               "explicit show flag switches to Diagnostics feature");
    end Test_Build_Gate_Show_Diagnostics_Explicitly_Switches_Feature;
 
@@ -3971,17 +3971,17 @@ package body Editor.External_Producers.Tests is
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
    begin
       Prepare_State (S);
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Editor.External_Producers.Audits.Audit_Build_Execution_Gates,
               "build gate audit covers default, fixture, real, shell, and ambiguous cases");
       Assert (Editor.External_Producers.Audits.Audit_Gated_Runner_Command_Path,
               "gated runner command audit covers disabled, invalid, fixture, no-ingest, unavailable, and opaque cases");
       Assert (Editor.External_Producers.Audits.Audit_Real_Build_Execution_Gates,
               "real build opt-in audit covers provenance, implicit source, working context, and gate rejection cases");
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Before = After,
               "gated build audits are side-effect-free for caller state");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "gated build audits do not mutate caller Diagnostics");
    end Test_Build_Gate_Audit_Is_Side_Effect_Free;
 
@@ -4005,13 +4005,13 @@ package body Editor.External_Producers.Tests is
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
    begin
       Prepare_State (S);
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Editor.External_Producers.Audits.Audit_Process_Argv_And_Preflight_Gates,
               "process audit covers structured argv and preflight gates");
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Before = After,
               "structured argv/preflight audit is side-effect-free");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "structured argv/preflight audit does not ingest diagnostics");
    end Test_Process_Runner_Audit_Covers_Structured_Argv_And_Preflight;
 
@@ -4184,7 +4184,7 @@ package body Editor.External_Producers.Tests is
       Command : Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result;
    begin
       Prepare_State (S);
-      Editor.Feature_Diagnostics.Set_Filter_Text (S.Feature_Diagnostics, "warning");
+      Editor.Feature_Diagnostics.Set_Filter_Text (S.Panel.Feature_Diagnostics, "warning");
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Types.Build_Run_Succeeded,
          Stdout_Text => "main.adb:1:1: warning: preserved filter");
@@ -4192,7 +4192,7 @@ package body Editor.External_Producers.Tests is
         (S, Build_Source, Result);
       Assert (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "build output diagnostic is ingested");
-      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "warning",
+      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Panel.Feature_Diagnostics) = "warning",
               "build output ingestion preserves diagnostic filter text");
    end Test_Build_Run_Output_Preserves_Diagnostics_Filter;
 
@@ -4206,7 +4206,7 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Editor.Feature_Diagnostics.Toggle_Warnings_Visible
-        (S.Feature_Diagnostics);
+        (S.Panel.Feature_Diagnostics);
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Types.Build_Run_Succeeded,
          Stderr_Text => "main.adb:1:1: warning: hidden severity remains hidden");
@@ -4215,7 +4215,7 @@ package body Editor.External_Producers.Tests is
       Assert (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "severity visibility does not block diagnostic storage");
       Assert (not Editor.Feature_Diagnostics.Severity_Is_Visible
-                (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Warning),
+                (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Warning),
               "build output ingestion preserves severity visibility");
    end Test_Build_Run_Output_Preserves_Diagnostics_Severity_Visibility;
 
@@ -4229,7 +4229,7 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Editor.Feature_Diagnostics.Toggle_Source_Visible
-        (S.Feature_Diagnostics, Editor.Feature_Diagnostics.External_Diagnostic_Source);
+        (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.External_Diagnostic_Source);
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Types.Build_Run_Succeeded,
          Stderr_Text => "main.adb:1:1: warning: hidden source remains hidden");
@@ -4238,7 +4238,7 @@ package body Editor.External_Producers.Tests is
       Assert (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "source visibility does not block storage");
       Assert (not Editor.Feature_Diagnostics.Source_Is_Visible
-                (S.Feature_Diagnostics, Editor.Feature_Diagnostics.External_Diagnostic_Source),
+                (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.External_Diagnostic_Source),
               "build output ingestion preserves source visibility");
    end Test_Build_Run_Output_Preserves_Diagnostics_Source_Visibility;
 
@@ -4261,7 +4261,7 @@ package body Editor.External_Producers.Tests is
         (S, Build_Source, Result);
       Assert (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "build output diagnostic is ingested");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                 Editor.Feature_Panel.Messages_Feature,
               "build output ingestion preserves active feature by default");
    end Test_Build_Run_Output_Does_Not_Switch_Active_Feature_By_Default;
@@ -4285,7 +4285,7 @@ package body Editor.External_Producers.Tests is
         (S, Build_Source, Result, Show_Diagnostics => True);
       Assert (Command.Should_Show_Diagnostics,
               "explicit build-output ingestion can show Diagnostics");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                 Editor.Feature_Panel.Diagnostics_Feature,
               "explicit show uses existing feature-panel activation");
    end Test_Build_Run_Output_Can_Show_Diagnostics_When_Explicit;
@@ -4303,8 +4303,8 @@ package body Editor.External_Producers.Tests is
    begin
       Prepare_State (S);
       Outline_Before := Editor.Outline.Item_Count (S.Outline);
-      Messages_Before := Editor.Feature_Messages.Row_Count (S.Feature_Messages);
-      Search_Before := Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results);
+      Messages_Before := Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages);
+      Search_Before := Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results);
       Result := Editor.External_Producers.Build_Requests.Build_Build_Run_Result
         (Editor.External_Producers.Build_Types.Build_Run_Failed,
          Stderr_Text => "main.adb:1:1: error: unrelated stable");
@@ -4314,9 +4314,9 @@ package body Editor.External_Producers.Tests is
               "build diagnostic is ingested");
       Assert (Editor.Outline.Item_Count (S.Outline) = Outline_Before,
               "build output ingestion does not mutate Outline");
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = Messages_Before,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = Messages_Before,
               "build output ingestion does not mutate Messages");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = Search_Before,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = Search_Before,
               "build output ingestion does not mutate Search Results");
    end Test_Build_Run_Output_Does_Not_Mutate_Unrelated_Features;
 
@@ -4405,7 +4405,7 @@ package body Editor.External_Producers.Tests is
               "invalid build command test seam request is rejected safely");
       Assert (To_String (Result.Command_Message) = "Build: rejected",
               "rejected build test-seam command emits one compact primary message");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "rejected build test-seam command does not ingest diagnostics");
    end Test_Build_Command_Test_Seam_Rejected_Request_Is_Compact;
 
@@ -4427,10 +4427,10 @@ package body Editor.External_Producers.Tests is
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
    begin
       Prepare_State (S);
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Editor.External_Producers.Audits.Build_Run_Test_Seam_Audit_Passes,
               "producer audit includes build output diagnostic ingestion seam");
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Before = After,
               "build-run test seam audit is side-effect-free");
    end Test_Producer_Audit_Covers_Build_Output_Ingestion_Seam;
@@ -4695,15 +4695,15 @@ package body Editor.External_Producers.Tests is
       Result : Editor.External_Producers.Build_Types.Build_Preflight_Result;
    begin
       Prepare_State (S);
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Result := Editor.External_Producers.Build_Requests.Preflight_User_Opt_In_Build_Request
         (User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed));
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Editor.External_Producers.Build_Requests.User_Opt_In_Build_Preflight_Is_Consistent (Result),
               "user opt-in preflight consistency check passes");
       Assert (Before = After,
               "user opt-in preflight does not mutate feature panel state");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "user opt-in preflight does not ingest diagnostics");
    end Test_User_Opt_In_Build_Preflight_Is_Side_Effect_Free;
 
@@ -4723,7 +4723,7 @@ package body Editor.External_Producers.Tests is
             Stderr_Text => "main.adb:1:1: error: must-not-run"));
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
               "invalid user opt-in preflight rejects before supplied runner result");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "rejected user opt-in command cannot ingest supplied output");
    end Test_User_Opt_In_Build_Preflight_Does_Not_Call_Runner;
 
@@ -4758,7 +4758,7 @@ package body Editor.External_Producers.Tests is
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Active_Before := Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
+      Active_Before := Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel);
       Result := Editor.External_Producers.Build_Requests.Run_User_Opt_In_Build_Command_Test_Seam
         (S, User_Request, Editor.External_Producers.Execution_Policy.Build_Real_Execution_Gate (Consent => Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed),
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
@@ -4767,13 +4767,13 @@ package body Editor.External_Producers.Tests is
             Stderr_Text => "main.adb:1:1: warning: user opt-in"));
       Assert (Result.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "setup user opt-in diagnostic is accepted");
-      Assert (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) = Active_Before,
+      Assert (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) = Active_Before,
               "user opt-in build command does not switch active feature by default");
       Assert (Editor.Outline.Item_Count (S.Outline) = 0,
               "user opt-in build command does not mutate Outline");
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 0,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 0,
               "user opt-in build command does not mutate Messages");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 0,
               "user opt-in build command does not mutate Search Results");
    end Test_User_Opt_In_Build_Preserves_Unrelated_Features_And_Active_Feature;
 
@@ -4786,13 +4786,13 @@ package body Editor.External_Producers.Tests is
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
    begin
       Prepare_State (S);
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Editor.External_Producers.Audits.Audit_User_Opt_In_Build_Gates,
               "user opt-in build audit covers gates, provenance, argv, working context and feedback");
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Before = After,
               "user opt-in build audit does not mutate feature panel state");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "user opt-in build audit does not ingest diagnostics");
    end Test_User_Opt_In_Build_Audit_Is_Side_Effect_Free;
 
@@ -4848,7 +4848,7 @@ package body Editor.External_Producers.Tests is
               "missing user opt-in command context rejects before runner result");
       Assert (To_String (Result.Command_Message) = "Build: user opt-in required",
               "missing context uses deterministic user opt-in feedback");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "missing context cannot ingest supplied diagnostic output");
    end Test_User_Opt_In_Build_Command_Rejects_Missing_Context;
 
@@ -5009,7 +5009,7 @@ package body Editor.External_Producers.Tests is
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Prepare_State (S);
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Result := Editor.External_Producers.Build_Requests.Execute_User_Opt_In_Build_Command
         (S, Editor.External_Producers.Build_Requests.Empty_User_Opt_In_Build_Command_Context,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
@@ -5017,7 +5017,7 @@ package body Editor.External_Producers.Tests is
             Has_Exit_Code => True,
             Exit_Code     => 0,
             Stderr_Text   => "main.adb:1:1: error: must-not-ingest"));
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Editor.External_Producers.Build_Requests.Assert_User_Opt_In_Build_Command_Result_Consistent
         (Result);
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Rejected,
@@ -5026,7 +5026,7 @@ package body Editor.External_Producers.Tests is
               "invalid context does not ingest supplied output");
       Assert (Before = After,
               "invalid context does not switch or invalidate active feature state");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "invalid context leaves Diagnostics unchanged");
    end Test_User_Opt_In_Build_Command_Invalid_Context_Does_Not_Mutate_Features;
 
@@ -5108,13 +5108,13 @@ package body Editor.External_Producers.Tests is
       Result : Editor.External_Producers.Build_Types.Build_Execution_Consent_Audit_Result;
    begin
       Prepare_State (S);
-      Before_Panel := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Before_Diagnostics := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
-      Before_Messages := Editor.Feature_Messages.Row_Count (S.Feature_Messages);
+      Before_Panel := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
+      Before_Diagnostics := Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
+      Before_Messages := Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages);
       Result := Editor.External_Producers.Audits.Run_Build_Execution_Consent_Audit (S);
-      After_Panel := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      After_Diagnostics := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
-      After_Messages := Editor.Feature_Messages.Row_Count (S.Feature_Messages);
+      After_Panel := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
+      After_Diagnostics := Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
+      After_Messages := Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages);
 
       Assert (Result.Passed,
               "side-effect audit must still pass");
@@ -5144,13 +5144,13 @@ package body Editor.External_Producers.Tests is
       After : Editor.Feature_Panel.Feature_Panel_Fingerprint;
    begin
       Prepare_State (S);
-      Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Editor.External_Producers.Audits.Audit_User_Opt_In_Build_Command_Surface,
               "user opt-in build command audit covers context, gate, consent, argv and shell rejection");
-      After := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      After := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
       Assert (Before = After,
               "user opt-in build command audit is side-effect-free");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "user opt-in build command audit does not ingest diagnostics");
    end Test_User_Opt_In_Build_Command_Surface_Audit;
 

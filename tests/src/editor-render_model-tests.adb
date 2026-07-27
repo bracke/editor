@@ -4630,7 +4630,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
       Editor.State.Add_Diagnostic (S, 0, 3, Editor.Diagnostics.Error);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error,
+        (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error,
          "render packet diagnostic", "src/main.adb", Has_Target => False);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Show);
       S.Build.Latest_Result :=
@@ -4704,23 +4704,23 @@ package body Editor.Render_Model.Tests is
 
       for I in 1 .. 2 loop
          Editor.Feature_Diagnostics.Add_Diagnostic
-           (S.Feature_Diagnostics,
+           (S.Panel.Feature_Diagnostics,
             Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
             Message      => "suppressed render" & Natural'Image (I),
             Source_Label => "src/main.adb",
             Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source);
       end loop;
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Assert
         (Editor.Feature_Diagnostics.Suppress_Selected_Diagnostic
-           (S.Feature_Diagnostics, S.Feature_Panel),
+           (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel),
          "fixture can suppress first render diagnostic");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Assert
         (Editor.Feature_Diagnostics.Suppress_Selected_Diagnostic
-           (S.Feature_Diagnostics, S.Feature_Panel),
+           (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel),
          "fixture can suppress second render diagnostic");
 
       Set_Render_State_For_Test (S);
@@ -4757,7 +4757,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Load_Text (S, "procedure Demo is begin null; end Demo;");
       Editor.Build_UI_Actions.Show_Build_UI (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message      => "missing with clause",
          Source_Label => "semantic",
@@ -4775,8 +4775,8 @@ package body Editor.Render_Model.Tests is
          Quick_Fix_Label   => Label,
          Quick_Fix_Detail  => Detail);
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
@@ -4939,7 +4939,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "bounded workflow packet");
       Editor.Diagnostics.Add
-        (S.Diagnostics, Start_Index => 0, End_Index => 1,
+        (S.Panel.Diagnostics, Start_Index => 0, End_Index => 1,
          Start_Row => 0, Start_Column => 0,
          Severity => Editor.Diagnostics.Error,
          Message => "bounded diagnostic with a long label that must stay inside render bounds");
@@ -5061,7 +5061,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Show_Feature_Panel);
-      Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Feature_Panel);
+      Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Panel.Feature_Panel);
 
       Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
@@ -5110,14 +5110,14 @@ package body Editor.Render_Model.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("one" & ASCII.LF & "two"));
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Show_Feature_Panel);
-      Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Feature_Panel);
+      Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Panel.Feature_Panel);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Feature_Panel_Select_Next);
 
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Before_Dirty := Editor.State.Is_Dirty (S);
-      Before_Selected_Row := Editor.Feature_Panel.Selected_Row (S.Feature_Panel);
-      Before_Row_Count := Editor.Feature_Panel.Row_Count (S.Feature_Panel);
+      Before_Selected_Row := Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel);
+      Before_Row_Count := Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel);
 
       Set_Render_State_For_Test (S);
       Editor.View.Reset_Scroll;
@@ -5135,10 +5135,10 @@ package body Editor.Render_Model.Tests is
         (Before_Dirty = Editor.State.Is_Dirty (After),
          "render must not mutate dirty state");
       Assert
-        (Before_Row_Count = Editor.Feature_Panel.Row_Count (After.Feature_Panel),
+        (Before_Row_Count = Editor.Feature_Panel.Row_Count (After.Panel.Feature_Panel),
          "render must not mutate feature panel rows");
       Assert
-        (Before_Selected_Row = Editor.Feature_Panel.Selected_Row (After.Feature_Panel),
+        (Before_Selected_Row = Editor.Feature_Panel.Selected_Row (After.Panel.Feature_Panel),
          "render must not mutate feature panel selection");
    end Test_Render_Does_Not_Mutate_State;
 
@@ -5177,7 +5177,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
 
       Editor.Feature_Search_Results.Activate_Search_Query_Input
-        (S.Feature_Search_Results);
+        (S.Panel.Feature_Search_Results);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
         (Snap.Search_Query_Input_Active,
@@ -5187,7 +5187,7 @@ package body Editor.Render_Model.Tests is
          "Search query focus must not imply Outline filter focus");
 
       Editor.Feature_Search_Results.Deactivate_Search_Query_Input
-        (S.Feature_Search_Results);
+        (S.Panel.Feature_Search_Results);
       Editor.Outline.Activate_Filter_Input (S.Outline);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert
@@ -5364,7 +5364,7 @@ package body Editor.Render_Model.Tests is
       Editor.Bookmarks.Toggle
         (S.Bookmarks, "/project/src/main.adb", "src/main.adb", 2, 1, True, Added);
       Editor.Diagnostics.Add
-        (S.Diagnostics,
+        (S.Panel.Diagnostics,
          Start_Index => 0,
          End_Index   => 1,
          Start_Row   => 0,

@@ -70,7 +70,7 @@ package body Editor.Executor.Panel_Focus_Commands is
         (S.Panels, Editor.Panels.Bottom_Panel, not Visible);
       if Visible then
          Editor.Focus_Management.Restore_Focus_To_Editor (S);
-      elsif Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
+      elsif Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_Diagnostics);
       end if;
@@ -123,15 +123,15 @@ package body Editor.Executor.Panel_Focus_Commands is
      (S : in out Editor.State.State_Type)
    is
       Full_Snapshot : constant Editor.Problems.Problems_Snapshot :=
-        Editor.Problems.Build_Snapshot (S.Diagnostics);
+        Editor.Problems.Build_Snapshot (S.Panel.Diagnostics);
       Snapshot : constant Editor.Problems.Problems_Snapshot :=
-        Editor.Problems.Filtered_Snapshot (Full_Snapshot, S.Problems_View);
+        Editor.Problems.Filtered_Snapshot (Full_Snapshot, S.Panel.Problems_View);
    begin
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Diagnostics);
 
       Editor.Problems.Ensure_Selected_Row_Visible
-        (S.Problems_View, Snapshot, Problems_Visible_Row_Count);
+        (S.Panel.Problems_View, Snapshot, Problems_Visible_Row_Count);
       if Editor.Problems.Row_Count (Full_Snapshot) = 0 then
          Report_Info (S, "No problems");
       end if;
@@ -144,7 +144,7 @@ package body Editor.Executor.Panel_Focus_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
+      if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
          Execute_Focus_Editor_Text (S);
       elsif Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel) then
          case Editor.Panels.Active_Bottom_Content (S.Panels) is

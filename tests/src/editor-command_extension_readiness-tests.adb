@@ -180,10 +180,10 @@ package body Editor.Command_Extension_Readiness.Tests is
    begin
       Editor.State.Init (Before);
       Editor.Recent_Projects.Add_Or_Promote
-        (Before.Recent_Projects, Editor.Test_Temp.Base & "/domain-a", "domain-a", 1);
+        (Before.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/domain-a", "domain-a", 1);
       Editor.Recent_Projects.Add_Or_Promote
-        (Before.Recent_Projects, Editor.Test_Temp.Base & "/domain-b", "domain-b", 2);
-      Before.Recent_Project_Selected_Index := 0;
+        (Before.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/domain-b", "domain-b", 2);
+      Before.Project_Runtime.Recent_Project_Selected_Index := 0;
       After := Before;
 
       Editor.Executor.Execute_Command

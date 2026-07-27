@@ -38,7 +38,7 @@ package body Editor.Feature_Panel.Fixtures is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      pragma Assert (Invariant_Holds (S.Feature_Panel),
+      pragma Assert (Invariant_Holds (S.Panel.Feature_Panel),
                      "feature-panel fixture base invariant");
       return S;
    end Base_State;
@@ -48,8 +48,8 @@ package body Editor.Feature_Panel.Fixtures is
    is
       S : Editor.State.State_Type := Base_State;
    begin
-      Set_Visible (S.Feature_Panel, False);
-      pragma Assert (not Is_Visible (S.Feature_Panel),
+      Set_Visible (S.Panel.Feature_Panel, False);
+      pragma Assert (not Is_Visible (S.Panel.Feature_Panel),
                      "hidden fixture postcondition");
       return S;
    end State_With_Feature_Panel_Hidden;
@@ -59,8 +59,8 @@ package body Editor.Feature_Panel.Fixtures is
    is
       S : Editor.State.State_Type := Base_State;
    begin
-      Set_Visible (S.Feature_Panel, True);
-      pragma Assert (Is_Visible (S.Feature_Panel),
+      Set_Visible (S.Panel.Feature_Panel, True);
+      pragma Assert (Is_Visible (S.Panel.Feature_Panel),
                      "visible fixture postcondition");
       return S;
    end State_With_Feature_Panel_Visible;
@@ -70,8 +70,8 @@ package body Editor.Feature_Panel.Fixtures is
    is
       S : Editor.State.State_Type := State_With_Feature_Panel_Visible;
    begin
-      Set_Focused (S.Feature_Panel, True);
-      pragma Assert (Is_Focused (S.Feature_Panel),
+      Set_Focused (S.Panel.Feature_Panel, True);
+      pragma Assert (Is_Focused (S.Panel.Feature_Panel),
                      "focused fixture postcondition");
       return S;
    end State_With_Feature_Panel_Focused;
@@ -81,10 +81,10 @@ package body Editor.Feature_Panel.Fixtures is
    is
       S : Editor.State.State_Type := State_With_Feature_Panel_Visible;
    begin
-      Set_Placeholder_Rows (S.Feature_Panel);
-      pragma Assert (Row_Count (S.Feature_Panel) = 3,
+      Set_Placeholder_Rows (S.Panel.Feature_Panel);
+      pragma Assert (Row_Count (S.Panel.Feature_Panel) = 3,
                      "rows fixture postcondition");
-      pragma Assert (not Has_Selection (S.Feature_Panel),
+      pragma Assert (not Has_Selection (S.Panel.Feature_Panel),
                      "rows fixture does not select implicitly");
       return S;
    end State_With_Feature_Panel_Rows;
@@ -94,8 +94,8 @@ package body Editor.Feature_Panel.Fixtures is
    is
       S : Editor.State.State_Type := State_With_Feature_Panel_Rows;
    begin
-      Select_First (S.Feature_Panel);
-      pragma Assert (Has_Selection (S.Feature_Panel),
+      Select_First (S.Panel.Feature_Panel);
+      pragma Assert (Has_Selection (S.Panel.Feature_Panel),
                      "selected-row fixture postcondition");
       return S;
    end State_With_Feature_Panel_Selected_Row;
@@ -105,8 +105,8 @@ package body Editor.Feature_Panel.Fixtures is
    is
       S : Editor.State.State_Type := State_With_Feature_Panel_Visible;
    begin
-      Clear_Rows (S.Feature_Panel);
-      pragma Assert (Row_Count (S.Feature_Panel) = 0,
+      Clear_Rows (S.Panel.Feature_Panel);
+      pragma Assert (Row_Count (S.Panel.Feature_Panel) = 0,
                      "visible-empty fixture postcondition");
       return S;
    end State_With_Feature_Panel_Visible_And_Empty;
@@ -123,10 +123,10 @@ package body Editor.Feature_Panel.Fixtures is
          Ada.Directories.Create_Directory (Path);
       end if;
       Result := Editor.Project.Open_Project (Path);
-      Editor.Project.Apply_Open_Result (S.Project, Result);
-      pragma Assert (Editor.Project.Has_Project (S.Project),
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Result);
+      pragma Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
                      "project + rows fixture opens project root");
-      pragma Assert (Row_Count (S.Feature_Panel) = 3,
+      pragma Assert (Row_Count (S.Panel.Feature_Panel) = 3,
                      "project + rows fixture preserves rows");
       return S;
    end State_With_Project_And_Feature_Panel_Rows;
@@ -139,7 +139,7 @@ package body Editor.Feature_Panel.Fixtures is
       Editor.State.Set_Dirty (S, True);
       pragma Assert (Editor.State.Is_Dirty (S),
                      "dirty-buffer fixture marks active buffer dirty");
-      pragma Assert (Row_Count (S.Feature_Panel) = 3,
+      pragma Assert (Row_Count (S.Panel.Feature_Panel) = 3,
                      "dirty-buffer fixture preserves feature rows");
       return S;
    end State_With_Dirty_Buffer_And_Feature_Panel_Rows;
@@ -162,7 +162,7 @@ package body Editor.Feature_Panel.Fixtures is
       Editor.Pending_Transitions.Set_Pending (S.Pending_Transitions, Target, Summary);
       pragma Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
                      "pending-transition fixture has pending state");
-      pragma Assert (Row_Count (S.Feature_Panel) = 3,
+      pragma Assert (Row_Count (S.Panel.Feature_Panel) = 3,
                      "pending-transition fixture preserves feature rows");
       return S;
    end State_With_Pending_Transition_And_Feature_Panel_Rows;
@@ -173,7 +173,7 @@ package body Editor.Feature_Panel.Fixtures is
       S : Editor.State.State_Type := State_With_Feature_Panel_Rows;
    begin
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Command_Palette);
-      pragma Assert (Row_Count (S.Feature_Panel) = 3,
+      pragma Assert (Row_Count (S.Panel.Feature_Panel) = 3,
                      "command-palette fixture preserves feature rows");
       return S;
    end State_With_Command_Palette_And_Feature_Panel_Rows;

@@ -131,7 +131,7 @@ package body Editor.Files.Save_Operation_Tests is
         "public Save As without payload should open target prompt");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Label (S) = "Save As target",
         "Save As target prompt should use deterministic label");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
         "opening Save As prompt must not emit underlying command feedback");
    end Test_Save_As_Command_Metadata_And_No_Target_Route;
 
@@ -161,10 +161,10 @@ package body Editor.Files.Save_Operation_Tests is
           Anchor                => 0,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Active_Find_Query := To_Unbounded_String ("alpha");
-      S.Active_Replace_Text := To_Unbounded_String ("omega");
-      S.Active_Find_Prompt := True;
-      S.Active_Replace_Prompt := True;
+      S.Search.Active_Find_Query := To_Unbounded_String ("alpha");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("omega");
+      S.Search.Active_Find_Prompt := True;
+      S.Search.Active_Replace_Prompt := True;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clip"));
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Old_Path);
@@ -197,17 +197,17 @@ package body Editor.Files.Save_Operation_Tests is
         and then S.Carets (0).Pos = Before_Caret.Pos
         and then S.Carets (0).Anchor = Before_Caret.Anchor,
         "Save As must preserve caret and selection");
-      Assert (To_String (S.Active_Find_Query) = "alpha"
-        and then To_String (S.Active_Replace_Text) = "omega"
-        and then S.Active_Find_Prompt
-        and then S.Active_Replace_Prompt,
+      Assert (To_String (S.Search.Active_Find_Query) = "alpha"
+        and then To_String (S.Search.Active_Replace_Text) = "omega"
+        and then S.Search.Active_Find_Prompt
+        and then S.Search.Active_Replace_Prompt,
         "Save As must preserve Find/Replace state");
       Assert (Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clip",
         "Save As must preserve Clipboard state");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
         "Save As success must emit one primary message");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Success_Message
         and then To_String (M.Text) = "Saved file as",
         "Save As success must use deterministic feedback");
@@ -286,9 +286,9 @@ package body Editor.Files.Save_Operation_Tests is
         "failed Save As must preserve caret and selection");
       Assert (Read_Bytes (Old_Path) = "old disk",
         "failed Save As must not write the old path");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
         "failed Save As must emit one primary message");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message
         and then To_String (M.Text) = "Invalid Save As target",
         "failed Save As must use deterministic invalid-target feedback");
@@ -383,8 +383,8 @@ package body Editor.Files.Save_Operation_Tests is
           Anchor                => 1,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Active_Find_Query := To_Unbounded_String ("missing");
-      S.Active_Replace_Text := To_Unbounded_String ("present");
+      S.Search.Active_Find_Query := To_Unbounded_String ("missing");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("present");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clip"));
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Old_Path);
@@ -420,12 +420,12 @@ package body Editor.Files.Save_Operation_Tests is
         and then S.Carets (0).Pos = Before_Caret.Pos
         and then S.Carets (0).Anchor = Before_Caret.Anchor,
         "failed Save As must preserve caret and selection");
-      Assert (To_String (S.Active_Find_Query) = "missing"
-        and then To_String (S.Active_Replace_Text) = "present"
+      Assert (To_String (S.Search.Active_Find_Query) = "missing"
+        and then To_String (S.Search.Active_Replace_Text) = "present"
         and then Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clip",
         "failed Save As must preserve Find/Replace and Clipboard state");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message
         and then To_String (M.Text) = "Could not save file as",
         "missing-parent Save As must be reported as a deterministic write failure");
@@ -473,13 +473,13 @@ package body Editor.Files.Save_Operation_Tests is
         "failed untitled Save As must preserve dirty state and baseline");
       Assert (Buffer_Text (S) = Before_Text,
         "failed untitled Save As must preserve current text");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message
         and then To_String (M.Text) = "Could not save file as",
         "failed untitled Save As must use deterministic write-failure feedback");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Info_Message
         and then To_String (M.Text) = "No file path for active buffer",
         "file.save after failed untitled Save As must still report no associated path");
@@ -565,8 +565,8 @@ package body Editor.Files.Save_Operation_Tests is
           Anchor                => 2,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Active_Find_Query := To_Unbounded_String ("save-as");
-      S.Active_Replace_Text := To_Unbounded_String ("availability");
+      S.Search.Active_Find_Query := To_Unbounded_String ("save-as");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("availability");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("save-as side effect guard"));
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
@@ -594,12 +594,12 @@ package body Editor.Files.Save_Operation_Tests is
         "render and Save As availability must not mutate text, dirty state, or baseline");
       Assert (S.Carets.Length = 1 and then S.Carets (0).Pos = 6 and then S.Carets (0).Anchor = 2,
         "render and Save As availability must preserve caret and selection");
-      Assert (To_String (S.Active_Find_Query) = "save-as"
-        and then To_String (S.Active_Replace_Text) = "availability"
+      Assert (To_String (S.Search.Active_Find_Query) = "save-as"
+        and then To_String (S.Search.Active_Replace_Text) = "availability"
         and then Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "save-as side effect guard",
         "render and Save As availability must preserve Find/Replace and Clipboard state");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
         "render and Save As availability checks must not emit Save As messages");
 
       Remove_If_Exists (Path);
@@ -645,8 +645,8 @@ package body Editor.Files.Save_Operation_Tests is
           Anchor                => 1,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Active_Find_Query := To_Unbounded_String ("B0");
-      S.Active_Replace_Text := To_Unbounded_String ("B1");
+      S.Search.Active_Find_Query := To_Unbounded_String ("B0");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("B1");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clip"));
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Undo_Before := Editor.History.Undo_Stack.Length;
@@ -676,15 +676,15 @@ package body Editor.Files.Save_Operation_Tests is
         and then S.Carets (0).Pos = 4
         and then S.Carets (0).Anchor = 1,
         "Save As must preserve caret and selection");
-      Assert (To_String (S.Active_Find_Query) = "B0"
-        and then To_String (S.Active_Replace_Text) = "B1"
+      Assert (To_String (S.Search.Active_Find_Query) = "B0"
+        and then To_String (S.Search.Active_Replace_Text) = "B1"
         and then Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clip",
         "Save As must preserve Find/Replace and Clipboard state");
       Assert (Editor.Recent_Buffers.Count (S.Recent_Buffers) = Recent_Before,
         "Save As must not update recent-buffer history");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then Editor.Messages.Count (S.Messages) = 1
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
+      Assert (Found and then Editor.Messages.Count (S.Panel.Messages) = 1
         and then M.Severity = Editor.Messages.Success_Message
         and then To_String (M.Text) = "Saved file as",
         "Save As success must emit exactly one deterministic primary message");
@@ -768,7 +768,7 @@ package body Editor.Files.Save_Operation_Tests is
         "file.save after successful untitled Save As must target the Save As path");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Failure_Path);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message
         and then To_String (M.Text) = "Could not save file as",
         "write-failure Save As must emit deterministic failure feedback");
@@ -778,7 +778,7 @@ package body Editor.Files.Save_Operation_Tests is
         and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
         "failed Save As after a clean associated save must preserve dirty state and baseline");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No changes to save",
         "subsequent file.save after failed Save As must retain canonical clean-save policy");
 
@@ -823,7 +823,7 @@ package body Editor.Files.Save_Operation_Tests is
       Before_Redo := Editor.History.Redo_Stack.Length;
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, "");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No target path for Save As",
         "missing Save As target must use deterministic no-target feedback");
       Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path_A
@@ -834,7 +834,7 @@ package body Editor.Files.Save_Operation_Tests is
         "missing target must not write the old associated file");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Failure_Path);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Could not save file as",
         "failed target write must use deterministic write-failure feedback");
       Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path_A
@@ -891,8 +891,8 @@ package body Editor.Files.Save_Operation_Tests is
           Anchor                => 1,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Active_Find_Query := To_Unbounded_String ("availability");
-      S.Active_Replace_Text := To_Unbounded_String ("mutation");
+      S.Search.Active_Find_Query := To_Unbounded_String ("availability");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("mutation");
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("side_effect_target.txt");
@@ -921,12 +921,12 @@ package body Editor.Files.Save_Operation_Tests is
         and then S.Carets (0).Pos = 7
         and then S.Carets (0).Anchor = 1,
         "render and availability must preserve caret and selection");
-      Assert (To_String (S.Active_Find_Query) = "availability"
-        and then To_String (S.Active_Replace_Text) = "mutation"
+      Assert (To_String (S.Search.Active_Find_Query) = "availability"
+        and then To_String (S.Search.Active_Replace_Text) = "mutation"
         and then Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "render clip",
         "render and availability must preserve Find/Replace and Clipboard state");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
         "render and availability must not emit Save As messages");
 
       Id := Editor.Commands.Name_Metadata.Command_Id_From_Stable_Name ("file.save-all", Found);
@@ -982,8 +982,8 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
           Anchor                => 1,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Active_Find_Query := To_Unbounded_String ("");
-      S.Active_Replace_Text := To_Unbounded_String ("canonical");
+      S.Search.Active_Find_Query := To_Unbounded_String ("");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("canonical");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard"));
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -994,7 +994,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S)
         and then Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Label (S) = "Save As target",
         "public targetless Save As route must open the canonical prompt");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
         "opening Save As prompt must not emit command outcome feedback");
       Editor.Executor.File_Target_Prompt_Commands.Cancel_File_Target_Prompt (S);
       Assert (not Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Is_Active (S),
@@ -1019,8 +1019,8 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         "Save As must not create, clear, or squash Undo/Redo entries");
       Assert (S.Carets.Length = 1 and then S.Carets (0).Pos = 5 and then S.Carets (0).Anchor = 1,
         "Save As must not move caret or normalize selection");
-      Assert (To_String (S.Active_Find_Query) = ""
-        and then To_String (S.Active_Replace_Text) = "canonical"
+      Assert (To_String (S.Search.Active_Find_Query) = ""
+        and then To_String (S.Search.Active_Replace_Text) = "canonical"
         and then Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard",
         "Save As must not mutate Find/Replace or Clipboard state");
@@ -1035,7 +1035,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Insert_Text_At (S, Buffer_Text (S)'Length, " updated");
       Before_Saved := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Failure_Path);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Could not save file as",
         "failed explicit-target write must use deterministic Save As failure feedback");
       Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Success_Path
@@ -1116,7 +1116,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         "clean no-op save must preserve clean state");
       Assert (Buffer_Text (S) = "memory text",
         "clean no-op save must not alter buffer text");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Info_Message,
         "clean no-op save should publish one info message");
       Assert (To_String (M.Text) = "No changes to save",
@@ -1146,10 +1146,10 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
           Anchor                => 1,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Active_Find_Query := To_Unbounded_String ("alpha");
-      S.Active_Replace_Text := To_Unbounded_String ("omega");
-      S.Active_Find_Prompt := True;
-      S.Active_Replace_Prompt := True;
+      S.Search.Active_Find_Query := To_Unbounded_String ("alpha");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("omega");
+      S.Search.Active_Find_Prompt := True;
+      S.Search.Active_Replace_Prompt := True;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard text"));
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
@@ -1180,17 +1180,17 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         and then S.Carets (0).Pos = Before_Caret.Pos
         and then S.Carets (0).Anchor = Before_Caret.Anchor,
         "save must preserve caret and selection");
-      Assert (To_String (S.Active_Find_Query) = "alpha"
-        and then To_String (S.Active_Replace_Text) = "omega"
-        and then S.Active_Find_Prompt
-        and then S.Active_Replace_Prompt,
+      Assert (To_String (S.Search.Active_Find_Query) = "alpha"
+        and then To_String (S.Search.Active_Replace_Text) = "omega"
+        and then S.Search.Active_Find_Prompt
+        and then S.Search.Active_Replace_Prompt,
         "save must not mutate Find/Replace state");
       Assert (Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard text",
         "save must not mutate Clipboard state");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
         "save must emit one primary command message");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Success_Message,
         "successful save should publish success severity");
       Assert (To_String (M.Text) = "Saved file",
@@ -1288,9 +1288,9 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "failed save must preserve Undo/Redo stacks");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
         "failed save must emit one primary command message");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message,
         "failed save should publish error severity");
       Assert (To_String (M.Text) = "Could not save file.",
@@ -1428,7 +1428,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         and then S.Buffer_Lifecycle.File_Info.Dirty
         and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Saved,
         "availability must not mutate text, dirty state, or saved baseline");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
         "availability must not emit command messages");
 
       Remove_If_Exists (Path);
@@ -1558,10 +1558,10 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
           Anchor                => 1,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Active_Find_Query := To_Unbounded_String ("alpha");
-      S.Active_Replace_Text := To_Unbounded_String ("omega");
-      S.Active_Find_Prompt := True;
-      S.Active_Replace_Prompt := True;
+      S.Search.Active_Find_Query := To_Unbounded_String ("alpha");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("omega");
+      S.Search.Active_Find_Prompt := True;
+      S.Search.Active_Replace_Prompt := True;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard before failed save"));
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
@@ -1590,17 +1590,17 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         and then S.Carets (0).Pos = Before_Caret.Pos
         and then S.Carets (0).Anchor = Before_Caret.Anchor,
         "failed save must preserve caret and selection");
-      Assert (To_String (S.Active_Find_Query) = "alpha"
-        and then To_String (S.Active_Replace_Text) = "omega"
-        and then S.Active_Find_Prompt
-        and then S.Active_Replace_Prompt,
+      Assert (To_String (S.Search.Active_Find_Query) = "alpha"
+        and then To_String (S.Search.Active_Replace_Text) = "omega"
+        and then S.Search.Active_Find_Prompt
+        and then S.Search.Active_Replace_Prompt,
         "failed save must preserve Find/Replace state");
       Assert (Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard before failed save",
         "failed save must preserve Clipboard state");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
         "failed save must emit exactly one primary message");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message,
         "failed save should publish error severity");
       Assert (To_String (M.Text) = "Could not save file.",
@@ -1676,7 +1676,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         "save must not mutate active or inactive buffer text");
       Assert (True,
         "save must not create reopen lifecycle entries");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Success_Message
         and then To_String (M.Text) = "Saved file",
         "switched active-buffer save must emit one canonical success message");
@@ -1731,7 +1731,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (Editor.History.Redo_Stack.Length = Redo_Before
         and then Editor.History.Undo_Stack.Length = Undo_Before,
         "clean no-op save must preserve Undo/Redo stacks exactly");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No changes to save",
         "clean no-op save after undo should report retained clean policy");
 
@@ -1820,10 +1820,10 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
           Anchor                => 2,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Active_Find_Query := To_Unbounded_String ("failure");
-      S.Active_Replace_Text := To_Unbounded_String ("success");
-      S.Active_Find_Prompt := True;
-      S.Active_Replace_Prompt := True;
+      S.Search.Active_Find_Query := To_Unbounded_String ("failure");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("success");
+      S.Search.Active_Find_Prompt := True;
+      S.Search.Active_Replace_Prompt := True;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard survives failure"));
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
@@ -1854,15 +1854,15 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         and then S.Carets (0).Pos = Before_Caret.Pos
         and then S.Carets (0).Anchor = Before_Caret.Anchor,
         "failed save must preserve caret and selection exactly");
-      Assert (To_String (S.Active_Find_Query) = "failure"
-        and then To_String (S.Active_Replace_Text) = "success"
-        and then S.Active_Find_Prompt
-        and then S.Active_Replace_Prompt,
+      Assert (To_String (S.Search.Active_Find_Query) = "failure"
+        and then To_String (S.Search.Active_Replace_Text) = "success"
+        and then S.Search.Active_Find_Prompt
+        and then S.Search.Active_Replace_Prompt,
         "failed save must preserve Find/Replace state");
       Assert (Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard survives failure",
         "failed save must preserve Clipboard text");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message
         and then To_String (M.Text) = "Could not save file.",
         "failed save must use the deterministic save-failure message");
@@ -1893,8 +1893,8 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
           Anchor                => 1,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Active_Find_Query := To_Unbounded_String ("render");
-      S.Active_Replace_Text := To_Unbounded_String ("availability");
+      S.Search.Active_Find_Query := To_Unbounded_String ("render");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("availability");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("side effect guard"));
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Path);
@@ -1922,12 +1922,12 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         "render and availability must not mutate text, dirty state, or baseline");
       Assert (S.Carets.Length = 1 and then S.Carets (0).Pos = 5 and then S.Carets (0).Anchor = 1,
         "render and availability must preserve caret and selection");
-      Assert (To_String (S.Active_Find_Query) = "render"
-        and then To_String (S.Active_Replace_Text) = "availability"
+      Assert (To_String (S.Search.Active_Find_Query) = "render"
+        and then To_String (S.Search.Active_Replace_Text) = "availability"
         and then Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "side effect guard",
         "render and availability must preserve Find/Replace and Clipboard state");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
         "render and availability checks must not emit save messages");
 
       Remove_If_Exists (Path);
@@ -1956,7 +1956,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
           Anchor                => 0,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Active_Find_Query := To_Unbounded_String ("untitled");
+      S.Search.Active_Find_Query := To_Unbounded_String ("untitled");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard for no path"));
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
@@ -1977,11 +1977,11 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (S.Carets (0).Pos = Before_Caret.Pos
         and then S.Carets (0).Anchor = Before_Caret.Anchor,
         "no-path save must preserve caret and selection");
-      Assert (To_String (S.Active_Find_Query) = "untitled"
+      Assert (To_String (S.Search.Active_Find_Query) = "untitled"
         and then Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard for no path",
         "no-path save must preserve Find and Clipboard state");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Info_Message
         and then To_String (M.Text) = "No file path for active buffer",
         "no-path save must emit the canonical no-path message");
@@ -2009,7 +2009,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (S.Carets (0).Pos = Before_Caret.Pos
         and then S.Carets (0).Anchor = Before_Caret.Anchor,
         "clean save must preserve caret and selection");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Info_Message
         and then To_String (M.Text) = "No changes to save",
         "clean save must emit the canonical no-op message");

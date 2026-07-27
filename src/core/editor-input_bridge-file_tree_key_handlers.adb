@@ -63,7 +63,7 @@ package body Editor.Input_Bridge.File_Tree_Key_Handlers is
         (Id : Editor.Command_Ids.Command_Id)) return Focused_Key_Result
    is
    begin
-      if not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus) then
+      if not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel.Panel_Focus) then
          return File_Tree_Not_Focused;
       end if;
 
@@ -99,11 +99,11 @@ package body Editor.Input_Bridge.File_Tree_Key_Handlers is
         (Id : Editor.Command_Ids.Command_Id)) return Boolean
    is
    begin
-      if not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus) then
+      if not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel.Panel_Focus) then
          return False;
       end if;
 
-      if (not Editor.Project.Has_Project (S.Project))
+      if (not Editor.Project.Has_Project (S.Project_Runtime.Project))
         or else not Editor.Panels.Is_Visible
           (S.Panels, Editor.Panels.File_Tree_Panel)
       then

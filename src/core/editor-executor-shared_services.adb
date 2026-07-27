@@ -43,7 +43,7 @@ package body Editor.Executor.Shared_Services is
    is
    begin
       Editor.Messages.Push_Info
-        (S.Messages,
+        (S.Panel.Messages,
          Editor.Commands.Workflow_Messages.Normalize_Workflow_Message (Text),
          Current_Message_Time_Ms, Default_Message_Config);
    end Report_Info;
@@ -54,7 +54,7 @@ package body Editor.Executor.Shared_Services is
    is
    begin
       Editor.Messages.Push_Info
-        (S.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
+        (S.Panel.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
    end Report_Info_Raw;
 
    function Append_Message_Config return Editor.Messages.Message_Config
@@ -72,7 +72,7 @@ package body Editor.Executor.Shared_Services is
    is
    begin
       Editor.Messages.Push_Info
-        (S.Messages,
+        (S.Panel.Messages,
          Editor.Commands.Workflow_Messages.Normalize_Workflow_Message (Text),
          Current_Message_Time_Ms, Append_Message_Config);
    end Report_Info_Append;
@@ -83,7 +83,7 @@ package body Editor.Executor.Shared_Services is
    is
    begin
       Editor.Messages.Push_Success
-        (S.Messages, Text, Current_Message_Time_Ms, Append_Message_Config);
+        (S.Panel.Messages, Text, Current_Message_Time_Ms, Append_Message_Config);
    end Report_Success_Append;
 
    function Visible_Restore_Message_In_History
@@ -92,13 +92,13 @@ package body Editor.Executor.Shared_Services is
       Now    : constant Natural := Current_Message_Time_Ms;
       Config : constant Editor.Messages.Message_Config := Default_Message_Config;
       Count  : constant Natural :=
-        Editor.Messages.Visible_Count (S.Messages, Now, Config);
+        Editor.Messages.Visible_Count (S.Panel.Messages, Now, Config);
    begin
       for I in 1 .. Count loop
          declare
             Text : constant String :=
               Editor.Messages.Text
-                (Editor.Messages.Visible_Message (S.Messages, I, Now, Config));
+                (Editor.Messages.Visible_Message (S.Panel.Messages, I, Now, Config));
          begin
             if Text = "Workspace restored."
               or else Ada.Strings.Fixed.Index
@@ -121,7 +121,7 @@ package body Editor.Executor.Shared_Services is
    is
    begin
       Editor.Messages.Push_Warning
-        (S.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
+        (S.Panel.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
    end Report_Warning_Raw;
 
 
@@ -138,7 +138,7 @@ package body Editor.Executor.Shared_Services is
    is
    begin
       Editor.Messages.Push_Success
-        (S.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
+        (S.Panel.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
    end Report_Success;
 
    procedure Report_Warning
@@ -147,7 +147,7 @@ package body Editor.Executor.Shared_Services is
    is
    begin
       Editor.Messages.Push_Warning
-        (S.Messages,
+        (S.Panel.Messages,
          Editor.Commands.Workflow_Messages.Normalize_Workflow_Message (Text),
          Current_Message_Time_Ms, Default_Message_Config);
    end Report_Warning;
@@ -159,7 +159,7 @@ package body Editor.Executor.Shared_Services is
    is
    begin
       Editor.Messages.Push_Error
-        (S.Messages,
+        (S.Panel.Messages,
          Editor.Commands.Workflow_Messages.Normalize_Workflow_Message (Text),
          Current_Message_Time_Ms, Default_Message_Config);
    end Report_Error;

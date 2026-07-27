@@ -172,8 +172,8 @@ package body Editor.Executor.Configuration_Commands is
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      if Editor.Messages.Count (S.Messages) > Before_Messages then
-         Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      if Editor.Messages.Count (S.Panel.Messages) > Before_Messages then
+         Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
          if Found then
             if Editor.Messages.Severity (Msg) =
               Editor.Messages.Error_Message
@@ -335,10 +335,10 @@ package body Editor.Executor.Configuration_Commands is
       end if;
 
       Editor.Configuration_Recovery.Reset_Workspace_Domain (Snapshot, Status);
-      if Editor.Project.Has_Project (S.Project) then
+      if Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Path := To_Unbounded_String
            (Editor.Workspace_Persistence.Session_File_Path
-              (Editor.Project.Root_Path (S.Project)));
+              (Editor.Project.Root_Path (S.Project_Runtime.Project)));
          if Ada.Directories.Exists (To_String (Path)) then
             begin
                Ada.Directories.Delete_File (To_String (Path));
@@ -363,8 +363,8 @@ package body Editor.Executor.Configuration_Commands is
       end if;
 
       Editor.Configuration_Recovery.Reset_Recent_Projects_Domain
-        (S.Recent_Projects, Status);
-      S.Recent_Project_Selected_Index := 0;
+        (S.Project_Runtime.Recent_Projects, Status);
+      S.Project_Runtime.Recent_Project_Selected_Index := 0;
       Report_Recovery_Status (S, Status);
    end Execute_Configuration_Reset_Recent_Projects;
 
@@ -411,11 +411,11 @@ package body Editor.Executor.Configuration_Commands is
       end if;
       Editor.Configuration_Recovery.Append (Summary, Row);
 
-      if Editor.Project.Has_Project (S.Project) then
+      if Editor.Project.Has_Project (S.Project_Runtime.Project) then
          declare
             Path : constant String :=
               Editor.Workspace_Persistence.Session_File_Path
-                (Editor.Project.Root_Path (S.Project));
+                (Editor.Project.Root_Path (S.Project_Runtime.Project));
          begin
             if Ada.Directories.Exists (Path) then
                begin
@@ -440,8 +440,8 @@ package body Editor.Executor.Configuration_Commands is
       Row.User_Action_Suggestion := To_Unbounded_String ("Workspace cleared.");
       Editor.Configuration_Recovery.Append (Summary, Row);
 
-      Editor.Recent_Projects.Clear (S.Recent_Projects);
-      S.Recent_Project_Selected_Index := 0;
+      Editor.Recent_Projects.Clear (S.Project_Runtime.Recent_Projects);
+      S.Project_Runtime.Recent_Project_Selected_Index := 0;
       Row := Editor.Configuration_Recovery.Status_From_Recent_Projects
         (Editor.Recent_Projects.Recent_Project_Not_Found);
       Row.User_Action_Suggestion := To_Unbounded_String ("Recent Projects cleared.");
@@ -508,7 +508,7 @@ package body Editor.Executor.Configuration_Commands is
          return;
       end if;
 
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Info (S, "No project open");
          return;
       end if;
@@ -516,7 +516,7 @@ package body Editor.Executor.Configuration_Commands is
       Editor.Configuration_Recovery.Save_Clean_Workspace
         (Snapshot,
          Editor.Workspace_Persistence.Session_File_Path
-           (Editor.Project.Root_Path (S.Project)),
+           (Editor.Project.Root_Path (S.Project_Runtime.Project)),
          Status);
       Report_Recovery_Status (S, Status);
    end Execute_Configuration_Save_Clean_Workspace;
@@ -531,7 +531,7 @@ package body Editor.Executor.Configuration_Commands is
       end if;
 
       Editor.Configuration_Recovery.Save_Clean_Recent_Projects
-        (S.Recent_Projects, Editor.Recent_Projects.Recent_Projects_File_Path, Status);
+        (S.Project_Runtime.Recent_Projects, Editor.Recent_Projects.Recent_Projects_File_Path, Status);
       Report_Recovery_Status (S, Status);
    end Execute_Configuration_Save_Clean_Recent_Projects;
 
@@ -799,7 +799,7 @@ package body Editor.Executor.Configuration_Commands is
       Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
-      Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
+      Before_Messages : constant Natural := Editor.Messages.Count (S.Panel.Messages);
    begin
       case Id is
          when Command_Save_Settings

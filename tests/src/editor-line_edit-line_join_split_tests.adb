@@ -92,7 +92,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (M);
       else
@@ -420,8 +420,8 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-      S.Active_Find_Query := To_Unbounded_String ("beta");
-      S.Active_Replace_Text := To_Unbounded_String ("BETA");
+      S.Search.Active_Find_Query := To_Unbounded_String ("beta");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("BETA");
       Set_Primary_Selection (S, 0, 5);
       Before_Clip := Editor.Clipboard.Get_Text;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
@@ -450,9 +450,9 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Assert_Navigation_Counts
         (S, Before_Back, Before_Forward,
          "join must not record navigation history");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("beta"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("beta"),
               "join must not mutate Find query");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("BETA"),
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("BETA"),
               "join must not mutate Replace text");
 
       Workspace_Snap := Editor.State.Build_Workspace_Snapshot (S);
@@ -639,19 +639,19 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
               "last-line join no-op must preserve clean dirty state");
 
       Set_Caret (S, 0);
-      S.Active_Find_Query := To_Unbounded_String ("one two");
-      S.Active_Find_Stale := False;
-      S.Active_Replace_Text := To_Unbounded_String ("ONE TWO");
+      S.Search.Active_Find_Query := To_Unbounded_String ("one two");
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Replace_Text := To_Unbounded_String ("ONE TWO");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Join_Next);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "one two",
               "successful join after undo must produce expected text");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
               "successful join after undo must clear redo stack");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "successful join must invalidate active find matches through text-edit hook");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("one two"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("one two"),
               "join must not mutate Find query");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("ONE TWO"),
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("ONE TWO"),
               "join must not mutate Replace text");
    end Test_Join_Next_No_Op_Redo_Dirty_And_Find_Policy;
 
@@ -675,8 +675,8 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Editor.History.Redo_Stack.Clear;
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
       Set_Primary_Selection (S, 0, 12);
-      S.Active_Find_Query := To_Unbounded_String ("Beta Gamma");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta Gamma");
+      S.Search.Active_Find_Stale := False;
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
       Before_Clip := Editor.Clipboard.Get_Text;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
@@ -906,10 +906,10 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Clipboard.Set_Text (Before_Clip);
-      S.Active_Find_Query := Before_Query;
-      S.Active_Find_Stale := False;
-      S.Active_Replace_Text := Before_Replace;
-      S.Active_Replace_Prompt := True;
+      S.Search.Active_Find_Query := Before_Query;
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Replace_Text := Before_Replace;
+      S.Search.Active_Replace_Prompt := True;
       Set_Primary_Selection (S, 0, 16);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -926,9 +926,9 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
               "availability must not mutate text");
       Assert (Editor.Selection.Has_Selection (S),
               "availability must not collapse selection");
-      Assert (S.Active_Find_Query = Before_Query
-              and then S.Active_Replace_Text = Before_Replace
-              and then S.Active_Replace_Prompt,
+      Assert (S.Search.Active_Find_Query = Before_Query
+              and then S.Search.Active_Replace_Text = Before_Replace
+              and then S.Search.Active_Replace_Prompt,
               "availability must not mutate Find/Replace state");
 
       Set_Primary_Selection
@@ -940,11 +940,11 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
          1, 0, "Joined line", True, False, Before_Clip,
          Before_Back, Before_Forward,
          "selected text is not consumed; caret line joins only next line");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "text-changing join must invalidate Find ranges");
-      Assert (S.Active_Find_Query = Before_Query,
+      Assert (S.Search.Active_Find_Query = Before_Query,
               "Line Join must not mutate Find query");
-      Assert (S.Active_Replace_Text = Before_Replace and then S.Active_Replace_Prompt,
+      Assert (S.Search.Active_Replace_Text = Before_Replace and then S.Search.Active_Replace_Prompt,
               "Line Join must not mutate Replace prompt/text");
 
       Snap := Editor.Render_Model.Build_Snapshot (S);
@@ -1111,9 +1111,9 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Editor.Clipboard.Set_Text (Before_Clip);
-      S.Active_Find_Query := To_Unbounded_String ("Quick Open");
-      S.Active_Replace_Text := To_Unbounded_String ("QO");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Quick Open");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("QO");
+      S.Search.Active_Find_Stale := False;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
@@ -1180,9 +1180,9 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Set_Caret (S, 6);
       Set_Primary_Selection (S, 8, 6);
       Editor.Clipboard.Set_Text (Before_Clip);
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Replace_Text := To_Unbounded_String ("BETA");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("BETA");
+      S.Search.Active_Find_Stale := False;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
@@ -1193,11 +1193,11 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
          2, 0, 6, 1, 0, "Joined line", True, False,
          Before_Clip, Before_Back, Before_Fwd,
          "canonical Line Join behavior preservation");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("Beta"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("Beta"),
               "Line Join must not mutate Find query");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("BETA"),
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("BETA"),
               "Line Join must not mutate Replace text");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "Line Join must use canonical Find/Replace invalidation hook");
 
       Editor.Render_Model.Build_Render_Snapshot (S, R);
@@ -1322,9 +1322,9 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.History.Redo_Stack.Clear;
       Set_Primary_Selection (S, 0, 5);
       Editor.Clipboard.Set_Text (Before_Clip);
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Replace_Text := To_Unbounded_String ("BETA");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("BETA");
+      S.Search.Active_Find_Stale := False;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
@@ -1337,11 +1337,11 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
          3, 1, 0, 1, 0, "Split line", True, False,
          Before_Clip, Before_Back, Before_Fwd,
          "split state boundaries");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("Beta"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("Beta"),
               "split must not mutate Find query");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("BETA"),
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("BETA"),
               "split must not mutate Replace text");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "split must use canonical Find/Replace invalidation hook");
 
       Editor.Render_Model.Build_Render_Snapshot (S, R);
@@ -1505,9 +1505,9 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.History.Redo_Stack.Clear;
       Set_Primary_Selection (S, 0, 5);
       Editor.Clipboard.Set_Text (Before_Clip);
-      S.Active_Find_Query := To_Unbounded_String ("AlphaBeta");
-      S.Active_Replace_Text := To_Unbounded_String ("A-B");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("AlphaBeta");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("A-B");
+      S.Search.Active_Find_Stale := False;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
@@ -1520,11 +1520,11 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
          3, 1, 0, 1, 0, "Split line", True, False,
          Before_Clip, Before_Back, Before_Fwd,
          "split selection/find/clipboard/navigation boundaries");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("AlphaBeta"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("AlphaBeta"),
               "split must not mutate Find query text");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("A-B"),
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("A-B"),
               "split must not mutate Replace text");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "split must invalidate active Find ranges through canonical text-edit hook");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
@@ -1868,9 +1868,9 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.History.Redo_Stack.Clear;
       Editor.Clipboard.Set_Text (Before_Clip);
       Set_Primary_Selection (S, 0, 5);
-      S.Active_Find_Query := To_Unbounded_String ("AlphaBeta");
-      S.Active_Replace_Text := To_Unbounded_String ("Alpha-Beta");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("AlphaBeta");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Alpha-Beta");
+      S.Search.Active_Find_Stale := False;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
@@ -1883,11 +1883,11 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
          3, 1, 0, 1, 0, "Split line", True, False,
          Before_Clip, Before_Back, Before_Fwd,
          "split selection/find/clipboard/navigation coherent result");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("AlphaBeta"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("AlphaBeta"),
               "split must not mutate Find query");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("Alpha-Beta"),
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("Alpha-Beta"),
               "split must not mutate Replace text");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "split must stale active Find ranges through text edit hook");
 
       Editor.Render_Model.Build_Render_Snapshot (S, R);
@@ -2101,8 +2101,8 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 7);
-      S.Active_Find_Query := To_Unbounded_String ("Feature");
-      S.Active_Replace_Text := To_Unbounded_String ("ReplaceSeed");
+      S.Search.Active_Find_Query := To_Unbounded_String ("Feature");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("ReplaceSeed");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("FEATURE-CLIP"));
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
       Before_Caret := S.Carets (S.Carets.First_Index).Pos;
@@ -2136,9 +2136,9 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert_Buffer_Text (S, "Feature" & ASCII.LF & "AlphaBeta" & ASCII.LF & "Tail",
                           "feature-populated split exact text");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("Feature"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("Feature"),
               "split does not mutate Find query in feature-populated state");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("ReplaceSeed"),
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("ReplaceSeed"),
               "split does not mutate Replace text in feature-populated state");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("FEATURE-CLIP"),
               "split does not mutate clipboard in feature-populated state");
@@ -2188,9 +2188,9 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.History.Redo_Stack.Clear;
       Set_Primary_Selection (S, 2, 10);
       Editor.Clipboard.Set_Text (Before_Clip);
-      S.Active_Find_Query := To_Unbounded_String ("Alpha");
-      S.Active_Replace_Text := To_Unbounded_String ("Omega");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Omega");
+      S.Search.Active_Find_Stale := False;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
@@ -2211,11 +2211,11 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
               "split must not create custom redo state");
       Assert (Editor.State.Is_Dirty (S),
               "split must update dirty state through canonical edit policy");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("Alpha"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("Alpha"),
               "split must not mutate Find query");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("Omega"),
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("Omega"),
               "split must not mutate Replace text");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "split must use canonical Find/Replace invalidation");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
               "split must not read or mutate Clipboard state");
@@ -2328,8 +2328,8 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
               "failed split must not mutate Clipboard state");
       Assert (not Editor.State.Is_Dirty (S),
               "failed split must not dirty the buffer");
-      Assert (S.Active_Find_Query = Null_Unbounded_String
-              and then S.Active_Replace_Text = Null_Unbounded_String,
+      Assert (S.Search.Active_Find_Query = Null_Unbounded_String
+              and then S.Search.Active_Replace_Text = Null_Unbounded_String,
               "failed split must not synthesize Find/Replace state");
    end Test_Line_Split_Failure_Read_Only_And_Ordinary_Newline_Separation;
 
@@ -2343,8 +2343,8 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.History.Redo_Stack.Clear;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "AlphaBeta");
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Find_Stale := False;
       Set_Caret (S, 5);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Insert_Newline);
@@ -2356,7 +2356,7 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
               "line-boundary payload moves caret after canonical boundary");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "line-boundary insertion creates one undo entry");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "line-boundary insertion invalidates Find through text-edit hook");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);

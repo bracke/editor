@@ -130,7 +130,7 @@ package body Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers is
         (Editor.Search_Results.Build_Snapshot
            (S.Project_Search, Config,
             Editor.Buffers.Global_Registry_For_UI),
-         S.Search_Results_View,
+         S.Panel.Search_Results_View,
          (if Editor.Layout.Cell_H = 0 then 0 else Panel.Height / Editor.Layout.Cell_H));
       Hit := Editor.Search_Results.Hit_Test
         (Panel_Rect  => Panel,

@@ -169,7 +169,7 @@ package body Editor.Buffers.Tests is
 
       Assert (Editor.Buffers.Global_Active_Buffer = Before,
         "invalid switch should preserve active buffer");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message,
         "invalid switch should publish an error message");
    end Test_Invalid_Switch_Preserves_Active_Buffer;
@@ -201,7 +201,7 @@ package body Editor.Buffers.Tests is
         "dirty close should open explicit close review");
       Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Scope = Editor.State.Active_Buffer_Close_Scope,
         "active dirty close records active close scope");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Warning_Message,
         "dirty close should publish a warning");
       Assert (To_String (M.Text) = "Discard unsaved scratch buffer?",
@@ -316,7 +316,7 @@ package body Editor.Buffers.Tests is
         "explicit-id inactive close must not remove an inactive buffer");
       Assert (Editor.Buffers.Global_Active_Buffer = B_Id,
         "rejected inactive close must keep the active buffer");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Could not close buffer",
         "rejected inactive close must use canonical close failure text");
    end Test_Close_Inactive_Buffer_Reports_Closed_Buffer_Name;
@@ -438,7 +438,7 @@ package body Editor.Buffers.Tests is
 
       Assert (S.Buffer_Lifecycle.File_Info = Old,
         "Save As to a path open in another buffer should preserve active identity");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Invalid Save As target",
         "duplicate Save As path should publish deterministic error");
       Remove_File (A_Path);
@@ -1171,7 +1171,7 @@ package body Editor.Buffers.Tests is
       Cmd.Kind := Editor.Command_Kinds.Show_Buffer_Note;
       Cmd.Text := Null_Unbounded_String;
       Editor.Executor.Execute_No_Log (S, Cmd);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Notes.adb: needs tests",
         "show note should emit one deterministic message");
 
@@ -1186,7 +1186,7 @@ package body Editor.Buffers.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Editor.Buffers.Global_Has_Buffer_Note (Id),
         "too-long note should be rejected without storing state");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Note too long",
         "too-long note feedback should be deterministic");
    end Test_Buffer_Notes_Set_Clear_Show_And_Markers;
@@ -1369,7 +1369,7 @@ package body Editor.Buffers.Tests is
       Cmd.Kind := Editor.Command_Kinds.Show_Buffer_Label;
       Cmd.Text := Null_Unbounded_String;
       Editor.Executor.Execute_No_Log (S, Cmd);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Labels.adb label: review",
         "show label should emit one deterministic message");
 
@@ -1378,7 +1378,7 @@ package body Editor.Buffers.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Buffer_Label (Id) = "review",
         "invalid multiline label should be rejected without replacing current label");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Invalid label",
         "invalid label feedback should be deterministic");
 
@@ -1387,7 +1387,7 @@ package body Editor.Buffers.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Buffers.Global_Buffer_Label (Id) = "review",
         "too-long label should be rejected without replacing current label");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Label too long",
         "too-long label feedback should be deterministic");
 
@@ -1641,7 +1641,7 @@ package body Editor.Buffers.Tests is
         "file.close-buffer must preserve inactive buffers");
       Assert (Editor.Buffers.Global_Active_Buffer = A_Id,
         "file.close-buffer must select deterministic remaining buffer");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer closed",
         "successful close must emit canonical success message");
 
@@ -1755,7 +1755,7 @@ package body Editor.Buffers.Tests is
         "reopened buffer must follow canonical clean file-open baseline");
       Assert (not S.Buffer_Lifecycle.Has_Reopen_Candidate,
         "successful reopen must consume the candidate");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then To_String (M.Text) = "Reopened editor_reopen_success.txt",
         "successful reopen must emit one canonical message");
@@ -1802,7 +1802,7 @@ package body Editor.Buffers.Tests is
         "blocked close must preserve buffer text");
       Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
         "dirty close must open explicit review instead of discarding");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Discard unsaved scratch buffer?",
         "dirty scratch close must emit explicit review message");
 
@@ -1972,7 +1972,7 @@ package body Editor.Buffers.Tests is
         "closing the last clean buffer must leave no active buffer");
       Assert (S.Buffer_Lifecycle.Active_Buffer_Token = 0,
         "close-last-buffer must clear the state's active-buffer token");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer closed",
         "close-last-buffer success must emit only Buffer closed");
 
@@ -1981,7 +1981,7 @@ package body Editor.Buffers.Tests is
         "a subsequent close with no active buffer must not resurrect stale state");
       Assert (Editor.Buffers.Global_Active_Buffer = Editor.Buffers.No_Buffer,
         "no-active close must preserve no active buffer");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No active buffer.",
         "no-active close must emit the canonical no-active message");
 
@@ -2045,7 +2045,7 @@ package body Editor.Buffers.Tests is
       Assert (Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard",
         "close must not mutate Clipboard state");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer closed",
         "stale-state close success must emit only Buffer closed");
 
@@ -2111,7 +2111,7 @@ package body Editor.Buffers.Tests is
         "dirty blocked close must preserve Clipboard");
       Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
         "dirty close must open review without mutating local state");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Discard unsaved scratch buffer?",
         "dirty scratch close must emit explicit review message");
 
@@ -2161,7 +2161,7 @@ package body Editor.Buffers.Tests is
         "blocked close must not save the associated file");
       Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
         "dirty associated close must open explicit review");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Unsaved changes require confirmation.",
         "dirty associated close must emit explicit review message");
 
@@ -2173,7 +2173,7 @@ package body Editor.Buffers.Tests is
         "clean associated buffer after save must close successfully");
       Assert (Read_File (A_Path) = "A01",
         "successful clean close must not perform an additional write");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer closed",
         "clean associated close must emit only Buffer closed");
 
@@ -2280,7 +2280,7 @@ package body Editor.Buffers.Tests is
       Assert (Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard",
         "close must preserve global Clipboard text");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer closed",
         "close target workflow must emit only Buffer closed");
 
@@ -2423,7 +2423,7 @@ package body Editor.Buffers.Tests is
         "dirty blocked close must not replace the previous safe candidate");
       Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
         "dirty untitled close must open explicit review");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Discard unsaved scratch buffer?",
         "dirty untitled close must emit explicit review message");
 
@@ -2456,7 +2456,7 @@ package body Editor.Buffers.Tests is
         "retained candidate reopen must read file contents through canonical open");
       Assert (not S.Buffer_Lifecycle.Has_Reopen_Candidate,
         "successful reopen must consume the retained candidate");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then To_String (M.Text) = "Reopened editor_candidate_a.txt",
         "successful reopen after exclusions must emit only the named reopen message");
@@ -2529,7 +2529,7 @@ package body Editor.Buffers.Tests is
         "duplicate reopen must preserve Clipboard state");
       Assert (not S.Buffer_Lifecycle.Has_Reopen_Candidate,
         "successful duplicate reopen must consume the path-only candidate");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then To_String (M.Text) = "Reopened editor_duplicate.txt",
         "duplicate reopen success must emit one canonical message");
@@ -2642,7 +2642,7 @@ package body Editor.Buffers.Tests is
       Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate
         and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Candidate_Path,
         "failed reopen must retain the same candidate for deterministic retry");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Could not reopen closed buffer",
         "failed reopen must emit one canonical failure message");
 
@@ -2710,7 +2710,7 @@ package body Editor.Buffers.Tests is
         "reopened file-backed buffer must follow clean open baseline");
       Assert (not S.Buffer_Lifecycle.Has_Reopen_Candidate,
         "successful reopen must consume candidate A");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then To_String (M.Text) = "Reopened editor_integrated_a.txt",
         "successful reopen must emit one primary Reopened buffer message");
@@ -2740,7 +2740,7 @@ package body Editor.Buffers.Tests is
       Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate
         and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = B_Path,
         "failed reopen must retain candidate B for deterministic retry");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Could not reopen closed buffer",
         "failed reopen must emit one primary failure message");
       Write_File (B_Path, "B restored disk");
@@ -2791,8 +2791,8 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Candidate_Path);
       Set_Caret (S, 5, 1);
-      S.Active_Find_Query := To_Unbounded_String ("candidate-find-must-not-survive");
-      S.Active_Replace_Text := To_Unbounded_String ("candidate-replace-must-not-survive");
+      S.Search.Active_Find_Query := To_Unbounded_String ("candidate-find-must-not-survive");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("candidate-replace-must-not-survive");
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
       Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate
@@ -2804,15 +2804,15 @@ package body Editor.Buffers.Tests is
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length, '!'));
       Set_Caret (S, 3, 7);
-      S.Active_Find_Query := To_Unbounded_String ("active-find");
-      S.Active_Replace_Text := To_Unbounded_String ("active-replace");
+      S.Search.Active_Find_Query := To_Unbounded_String ("active-find");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("active-replace");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard"));
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Before_Count := Editor.Buffers.Global_Count;
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
-      Before_Find := S.Active_Find_Query;
-      Before_Replace := S.Active_Replace_Text;
+      Before_Find := S.Search.Active_Find_Query;
+      Before_Replace := S.Search.Active_Replace_Text;
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Reopen_Closed_Buffer);
       Assert (Editor.Buffers.Global_Count = Before_Count + 1,
@@ -2830,8 +2830,8 @@ package body Editor.Buffers.Tests is
         and then S.Carets (S.Carets.First_Index).Pos = 0
         and then S.Carets (S.Carets.First_Index).Anchor = 0,
         "newly reopened buffer must use canonical caret/selection defaults");
-      Assert (S.Active_Find_Query /= To_Unbounded_String ("candidate-find-must-not-survive")
-        and then S.Active_Replace_Text /=
+      Assert (S.Search.Active_Find_Query /= To_Unbounded_String ("candidate-find-must-not-survive")
+        and then S.Search.Active_Replace_Text /=
           To_Unbounded_String ("candidate-replace-must-not-survive"),
         "reopen must not restore candidate Find/Replace state from closed memory");
       Assert (Editor.Clipboard.Has_Text
@@ -2846,7 +2846,7 @@ package body Editor.Buffers.Tests is
       Assert (Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard",
         "no-candidate reopen must preserve Clipboard");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No closed buffer to reopen",
         "no-candidate reopen must emit one primary no-candidate message");
 
@@ -2913,8 +2913,8 @@ package body Editor.Buffers.Tests is
         (S, Editor.Test_Helper.Insert (Editor.State.Current_Text (S)'Length, '!'));
       Set_Caret (S, 6, 2);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("duplicate clipboard"));
-      S.Active_Find_Query := To_Unbounded_String ("duplicate-find");
-      S.Active_Replace_Text := To_Unbounded_String ("duplicate-replace");
+      S.Search.Active_Find_Query := To_Unbounded_String ("duplicate-find");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("duplicate-replace");
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Before_Count := Editor.Buffers.Global_Count;
       Before_Text := To_Unbounded_String (Text (S));
@@ -2950,8 +2950,8 @@ package body Editor.Buffers.Tests is
         and then S.Carets (S.Carets.First_Index).Pos = 6
         and then S.Carets (S.Carets.First_Index).Anchor = 2,
         "duplicate-open reopen must preserve existing caret/selection");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("duplicate-find")
-        and then S.Active_Replace_Text = To_Unbounded_String ("duplicate-replace"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("duplicate-find")
+        and then S.Search.Active_Replace_Text = To_Unbounded_String ("duplicate-replace"),
         "duplicate-open reopen must preserve active buffer Find/Replace state");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
         and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Fwd,
@@ -2961,7 +2961,7 @@ package body Editor.Buffers.Tests is
         "duplicate-open reopen must preserve Clipboard");
       Assert (not S.Buffer_Lifecycle.Has_Reopen_Candidate,
         "duplicate-open success must consume candidate under retained policy");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then To_String (M.Text) = "Reopened editor_duplicate.txt",
         "duplicate-open success must emit one primary Reopened buffer message");
@@ -3520,7 +3520,7 @@ package body Editor.Buffers.Tests is
       end if;
       Write_File (Path, "procedure Rendered is begin null; end Rendered;");
       Editor.State.Init (S);
-      S.Project := Make_Project (Root);
+      S.Project_Runtime.Project := Make_Project (Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);

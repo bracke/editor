@@ -68,7 +68,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
       Editor.Panels.Set_Bottom_Content
         (S.Panels, Editor.Panels.Search_Results_Content);
       Editor.Panels.Set_Visible (S.Panels, Editor.Panels.Bottom_Panel, True);
-      if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
+      if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_Project_Search_Results);
       end if;
@@ -90,7 +90,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
         Editor.Project_Search.Replace_Preview_Count (S.Project_Search) > 0;
    begin
       Editor.Project_Search.Mark_Stale (S.Project_Search);
-      if Query'Length > 0 and then Editor.Project.Has_Project (S.Project) then
+      if Query'Length > 0 and then Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Project_Search.Search_Project
            (State   => S.Project_Search,
             Tree    => S.File_Tree,
@@ -112,8 +112,8 @@ package body Editor.Executor.Project_Search_Result_Commands is
    begin
       if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0 then
          return Editor.File_Tree.File_Node_Count (S.File_Tree);
-      elsif Editor.Project.Has_Project (S.Project) then
-         return Editor.Project.Known_File_Count (S.Project);
+      elsif Editor.Project.Has_Project (S.Project_Runtime.Project) then
+         return Editor.Project.Known_File_Count (S.Project_Runtime.Project);
       else
          return 0;
       end if;
@@ -218,7 +218,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
       Editor.Project_Search.Set_Query (S.Project_Search, Query);
       Show_Search_Results_Panel (S);
 
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Project_Search.Set_Status
            (S.Project_Search, Editor.Project_Search.Project_Search_No_Project);
          Report_Warning (S, "No project open");
@@ -253,7 +253,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
       else
          Editor.Project_Search.Search_Known_Project_Files
            (State   => S.Project_Search,
-            Project => S.Project,
+            Project => S.Project_Runtime.Project,
             Options => Options);
       end if;
 
@@ -510,7 +510,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
       Status : Context_Search_Query_Status := Context_Query_Ready;
       Query  : Unbounded_String := Null_Unbounded_String;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Warning (S, Context_Search_Message (Context_No_Project));
          return;
       elsif Project_Search_File_Count (S) = 0 then
@@ -534,7 +534,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
       Status : Context_Search_Query_Status := Context_Query_Ready;
       Query  : Unbounded_String := Null_Unbounded_String;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Warning (S, Context_Search_Message (Context_No_Project));
          return;
       elsif Project_Search_File_Count (S) = 0 then
@@ -560,7 +560,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
       Found  : Boolean := False;
       Path   : Unbounded_String := Null_Unbounded_String;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Warning (S, Context_Search_Message (Context_No_Project));
          return;
       elsif Project_Search_File_Count (S) = 0 then
@@ -604,7 +604,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
       end if;
       Show_Search_Results_Panel (S);
       Report_Info (S, "Project search query cleared");
-      if Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) =
+      if Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) =
         Editor.Panel_Focus.Search_Results_Focus
       then
          Editor.Focus_Management.Restore_Focus_To_Editor (S);
@@ -636,7 +636,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
 
       function Result_Target_Is_Current_Project_File return Boolean is
       begin
-         if not Editor.Project.Has_Project (S.Project) then
+         if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             return False;
          end if;
 
@@ -646,10 +646,10 @@ package body Editor.Executor.Project_Search_Result_Commands is
             return Editor.File_Tree.Contains (S.File_Tree, Result.File_Node_Id);
          end if;
 
-         for I in 1 .. Editor.Project.Known_File_Count (S.Project) loop
+         for I in 1 .. Editor.Project.Known_File_Count (S.Project_Runtime.Project) loop
             declare
                Item : constant Editor.Project.Project_File_Entry :=
-                 Editor.Project.Known_File_At (S.Project, I);
+                 Editor.Project.Known_File_At (S.Project_Runtime.Project, I);
             begin
                if To_String (Item.Relative_Path) = Relative_Path
                  and then To_String (Item.Absolute_Path) = Target_Path
@@ -687,7 +687,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
       end;
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Target_Path);
-      Editor.Messages.Dismiss_Latest (S.Messages);
+      Editor.Messages.Dismiss_Latest (S.Panel.Messages);
 
       if not S.Buffer_Lifecycle.File_Info.Has_Path
         or else To_String (S.Buffer_Lifecycle.File_Info.Path) /= Target_Path

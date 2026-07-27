@@ -167,17 +167,17 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
            and then Chord.Key = Editor.Keybindings.Key_Down
          then
             Editor.Feature_Diagnostics.Select_Next_Suppressed_Diagnostic
-              (S.Feature_Diagnostics);
+              (S.Panel.Feature_Diagnostics);
             Editor.Feature_Diagnostics.Ensure_Selected_Suppressed_Diagnostic_Visible
-              (S.Feature_Diagnostics, Projection.Displayed_Suppressed_Count);
+              (S.Panel.Feature_Diagnostics, Projection.Displayed_Suppressed_Count);
             Editor.Render_Cache.Invalidate_All;
          elsif Chord.Modifiers.Ctrl
            and then Chord.Key = Editor.Keybindings.Key_Up
          then
             Editor.Feature_Diagnostics.Select_Previous_Suppressed_Diagnostic
-              (S.Feature_Diagnostics);
+              (S.Panel.Feature_Diagnostics);
             Editor.Feature_Diagnostics.Ensure_Selected_Suppressed_Diagnostic_Visible
-              (S.Feature_Diagnostics, Projection.Displayed_Suppressed_Count);
+              (S.Panel.Feature_Diagnostics, Projection.Displayed_Suppressed_Count);
             Editor.Render_Cache.Invalidate_All;
          elsif Chord.Modifiers.Ctrl
            and then Chord.Key = Editor.Keybindings.Key_Enter

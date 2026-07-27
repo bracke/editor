@@ -305,7 +305,7 @@ package body Editor.Project_Search.Tests is
       --  it cannot hold a known file that is missing from disk. These tests are about
       --  the known-file set, so they ask about the known-file set.
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project, Options);
+        (S.Project_Search, S.Project_Runtime.Project, Options);
    end Rerun_Project_Search;
 
    procedure Assert_Project_Search_File_Lifecycle_Observation_Coherent
@@ -1533,9 +1533,9 @@ package body Editor.Project_Search.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
-      Add_Known (S.Project, "src/alpha.adb", Alpha_Path);
-      Add_Known (S.Project, "src/beta.adb", Beta_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
+      Add_Known (S.Project_Runtime.Project, "src/alpha.adb", Alpha_Path);
+      Add_Known (S.Project_Runtime.Project, "src/beta.adb", Beta_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Alpha_Path);
       Alpha_Id := Editor.Buffers.Global_Active_Buffer;
@@ -1548,7 +1548,7 @@ package body Editor.Project_Search.Tests is
 
       Editor.Project_Search.Set_Query (S.Project_Search, "needle");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project, Options);
+        (S.Project_Search, S.Project_Runtime.Project, Options);
       Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 2,
               "setup should search retained known project files only");
       Assert (Project_Search_Has_Result_Path (S.Project_Search, "src/alpha.adb")
@@ -1565,7 +1565,7 @@ package body Editor.Project_Search.Tests is
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Command_Ids.Command_Copy_Buffer_File, Copy_Target);
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project, Options);
+        (S.Project_Search, S.Project_Runtime.Project, Options);
       Assert_Project_Search_File_Lifecycle_Observation_Coherent
         (S.Project_Search, "src/alpha.adb", "src/alpha_copy.adb",
          "copy observation through retained searchable sources");
@@ -1578,7 +1578,7 @@ package body Editor.Project_Search.Tests is
               and then Found,
               "rename should update canonical active buffer association");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project, Options);
+        (S.Project_Search, S.Project_Runtime.Project, Options);
       Assert_Project_Search_File_Lifecycle_Observation_Coherent
         (S.Project_Search, "src/alpha.adb", "src/beta_renamed.adb",
          "rename target must not be promoted to searchable source");
@@ -1620,9 +1620,9 @@ package body Editor.Project_Search.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
-      Add_Known (S.Project, "src/alpha.adb", Alpha_Path);
-      Add_Known (S.Project, "src/beta.adb", Beta_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
+      Add_Known (S.Project_Runtime.Project, "src/alpha.adb", Alpha_Path);
+      Add_Known (S.Project_Runtime.Project, "src/beta.adb", Beta_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Alpha_Path);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Beta_Path);
@@ -1632,7 +1632,7 @@ package body Editor.Project_Search.Tests is
         (S.Project_Search, "src/query-must-not-seed-target.adb");
       Editor.Project_Search.Set_Query (S.Project_Search, "needle");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project, Options);
+        (S.Project_Search, S.Project_Runtime.Project, Options);
       Found := Editor.Project_Search.Select_First_Result_For_Path
         (S.Project_Search, "src/alpha.adb");
       Assert (Found,
@@ -1657,7 +1657,7 @@ package body Editor.Project_Search.Tests is
       Assert (Ada.Directories.Exists (Alpha_Path),
               "selected Project Search result remains local UI state and is not renamed");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project, Options);
+        (S.Project_Search, S.Project_Runtime.Project, Options);
       Assert (not Project_Search_Has_Result_Path
                 (S.Project_Search, "src/query-must-not-seed-target.adb"),
               "query text must not create target history results");
@@ -1754,9 +1754,9 @@ package body Editor.Project_Search.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
-      Add_Known (S.Project, "src/alpha.adb", Alpha_Path);
-      Add_Known (S.Project, "src/beta.adb", Beta_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
+      Add_Known (S.Project_Runtime.Project, "src/alpha.adb", Alpha_Path);
+      Add_Known (S.Project_Runtime.Project, "src/beta.adb", Beta_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Alpha_Path);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Beta_Path);
@@ -1839,9 +1839,9 @@ package body Editor.Project_Search.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
-      Add_Known (S.Project, "src/alpha.adb", Alpha_Path);
-      Add_Known (S.Project, "src/beta.adb", Beta_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
+      Add_Known (S.Project_Runtime.Project, "src/alpha.adb", Alpha_Path);
+      Add_Known (S.Project_Runtime.Project, "src/beta.adb", Beta_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Alpha_Path);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Beta_Path);
@@ -1910,9 +1910,9 @@ package body Editor.Project_Search.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
-      Add_Known (S.Project, "src/alpha.adb", Alpha_Path);
-      Add_Known (S.Project, "src/beta.adb", Beta_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
+      Add_Known (S.Project_Runtime.Project, "src/alpha.adb", Alpha_Path);
+      Add_Known (S.Project_Runtime.Project, "src/beta.adb", Beta_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Alpha_Path);
       Alpha_Id := Editor.Buffers.Global_Active_Buffer;
@@ -2027,9 +2027,9 @@ package body Editor.Project_Search.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
-      Add_Known (S.Project, "src/alpha.adb", Alpha_Path);
-      Add_Known (S.Project, "src/beta.adb", Beta_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
+      Add_Known (S.Project_Runtime.Project, "src/alpha.adb", Alpha_Path);
+      Add_Known (S.Project_Runtime.Project, "src/beta.adb", Beta_Path);
 
       Editor.Project_Search.Set_Query (S.Project_Search, "needle");
       Rerun_Project_Search (S, Options);
@@ -2074,9 +2074,9 @@ package body Editor.Project_Search.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
-      Add_Known (S.Project, "src/alpha.adb", Alpha_Path);
-      Add_Known (S.Project, "src/beta.adb", Beta_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
+      Add_Known (S.Project_Runtime.Project, "src/alpha.adb", Alpha_Path);
+      Add_Known (S.Project_Runtime.Project, "src/beta.adb", Beta_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Alpha_Path);
       Alpha_Id := Editor.Buffers.Global_Active_Buffer;
@@ -2219,9 +2219,9 @@ package body Editor.Project_Search.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
-      Add_Known (S.Project, "src/alpha.adb", Alpha_Path);
-      Add_Known (S.Project, "src/beta.adb", Beta_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
+      Add_Known (S.Project_Runtime.Project, "src/alpha.adb", Alpha_Path);
+      Add_Known (S.Project_Runtime.Project, "src/beta.adb", Beta_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Alpha_Path);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Beta_Path);
@@ -2312,9 +2312,9 @@ package body Editor.Project_Search.Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
-      Add_Known (S.Project, "src/alpha.adb", Alpha_Path);
-      Add_Known (S.Project, "src/beta.adb", Beta_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
+      Add_Known (S.Project_Runtime.Project, "src/alpha.adb", Alpha_Path);
+      Add_Known (S.Project_Runtime.Project, "src/beta.adb", Beta_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Alpha_Path);
       Alpha_Id := Editor.Buffers.Global_Active_Buffer;
@@ -2498,13 +2498,13 @@ package body Editor.Project_Search.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
-      Add_Known (S.Project, "a.txt", Ada.Directories.Compose (Root, "a.txt"));
-      Add_Known (S.Project, "b.txt", Ada.Directories.Compose (Root, "b.txt"));
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
+      Add_Known (S.Project_Runtime.Project, "a.txt", Ada.Directories.Compose (Root, "a.txt"));
+      Add_Known (S.Project_Runtime.Project, "b.txt", Ada.Directories.Compose (Root, "b.txt"));
 
       Editor.Project_Search.Set_Query (S.Project_Search, "needle");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project, Options);
+        (S.Project_Search, S.Project_Runtime.Project, Options);
       Assert (Editor.Project_Search.Selected_Result_Index (S.Project_Search) /= 0,
               "setup should select a real result");
 
@@ -2963,13 +2963,13 @@ package body Editor.Project_Search.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
-      Add_Known (S.Project, "a.txt", Ada.Directories.Compose (Root, "a.txt"));
-      Add_Known (S.Project, "b.txt", Ada.Directories.Compose (Root, "b.txt"));
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
+      Add_Known (S.Project_Runtime.Project, "a.txt", Ada.Directories.Compose (Root, "a.txt"));
+      Add_Known (S.Project_Runtime.Project, "b.txt", Ada.Directories.Compose (Root, "b.txt"));
 
       Editor.Project_Search.Set_Query (S.Project_Search, "needle");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project, Options);
+        (S.Project_Search, S.Project_Runtime.Project, Options);
       Assert (Editor.Project_Search.Result_Count (S.Project_Search) > 0,
               "navigation setup should retain project search results");
 

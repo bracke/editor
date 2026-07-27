@@ -58,7 +58,7 @@ package body Editor.Outline.Structure_Range_Tests is
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (Msg);
       end if;
@@ -191,8 +191,8 @@ package body Editor.Outline.Structure_Range_Tests is
              Line         => 99,
              Column       => 1)));
       Select_Item (S.Outline, 1);
-      Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Before := S.Carets (S.Carets.First_Index).Pos;
 
       Result := Editor.Executor.Execute_Command_With_Result

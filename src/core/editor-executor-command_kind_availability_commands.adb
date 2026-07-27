@@ -49,7 +49,7 @@ package body Editor.Executor.Command_Kind_Availability_Commands is
 
       function Has_Project return Boolean is
       begin
-         return Editor.Project.Has_Project (S.Project);
+         return Editor.Project.Has_Project (S.Project_Runtime.Project);
       end Has_Project;
 
       Lifecycle_Handled : Boolean := False;

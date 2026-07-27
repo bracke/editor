@@ -72,7 +72,7 @@ package body Editor.Executor.Search_Commands is
 
       function Has_Project return Boolean is
       begin
-         return Editor.Project.Has_Project (S.Project);
+         return Editor.Project.Has_Project (S.Project_Runtime.Project);
       end Has_Project;
 
       function Has_Selection return Boolean is
@@ -94,22 +94,22 @@ package body Editor.Executor.Search_Commands is
 
       function Search_Results_Has_Focus return Boolean is
       begin
-         return Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) =
+         return Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) =
            Editor.Panel_Focus.Search_Results_Focus;
       end Search_Results_Has_Focus;
 
       function Active_Overlay_Is
         (Overlay : Editor.Overlay_Focus.Overlay_Target) return Boolean is
       begin
-         return Editor.Overlay_Focus.Is_Active (S.Overlay_Focus, Overlay);
+         return Editor.Overlay_Focus.Is_Active (S.Panel.Overlay_Focus, Overlay);
       end Active_Overlay_Is;
 
       function Project_Search_File_Count return Natural is
       begin
          if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0 then
             return Editor.File_Tree.File_Node_Count (S.File_Tree);
-         elsif Editor.Project.Has_Project (S.Project) then
-            return Editor.Project.Known_File_Count (S.Project);
+         elsif Editor.Project.Has_Project (S.Project_Runtime.Project) then
+            return Editor.Project.Known_File_Count (S.Project_Runtime.Project);
          else
             return 0;
          end if;
@@ -128,14 +128,14 @@ package body Editor.Executor.Search_Commands is
            and then Result.File_Node_Id /= Editor.File_Tree.No_File_Tree_Node
          then
             return Editor.File_Tree.Contains (S.File_Tree, Result.File_Node_Id);
-         elsif not Editor.Project.Has_Project (S.Project) then
+         elsif not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             return False;
          end if;
 
-         for I in 1 .. Editor.Project.Known_File_Count (S.Project) loop
+         for I in 1 .. Editor.Project.Known_File_Count (S.Project_Runtime.Project) loop
             declare
                Item : constant Editor.Project.Project_File_Entry :=
-                 Editor.Project.Known_File_At (S.Project, I);
+                 Editor.Project.Known_File_At (S.Project_Runtime.Project, I);
             begin
                if To_String (Item.Relative_Path) = Rel
                  and then To_String (Item.Absolute_Path) = Abs_Path
@@ -174,7 +174,7 @@ package body Editor.Executor.Search_Commands is
 
          when Command_Open_Project_Search_Bar
             | Command_Toggle_Project_Search_Bar =>
-            if not Editor.Project.Has_Project (S.Project) then
+            if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -194,7 +194,7 @@ package body Editor.Executor.Search_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Rerun_Project_Search | Command_Run_Project_Search =>
-            if not Editor.Project.Has_Project (S.Project) then
+            if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif Project_Search_File_Count = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open.");
@@ -538,7 +538,7 @@ package body Editor.Executor.Search_Commands is
       Editor.Panels.Set_Bottom_Content
         (S.Panels, Editor.Panels.Search_Results_Content);
       Editor.Panels.Set_Visible (S.Panels, Editor.Panels.Bottom_Panel, True);
-      if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
+      if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_Project_Search_Results);
       end if;

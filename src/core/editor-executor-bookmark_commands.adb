@@ -202,7 +202,7 @@ package body Editor.Executor.Bookmark_Commands is
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
       S.Preferred_Column := 0;
-      S.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
+      S.Panel.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
 
       Viewport_Rows := Natural'Max
         (1,
@@ -233,10 +233,10 @@ package body Editor.Executor.Bookmark_Commands is
    is
       Path : constant String := To_String (S.Buffer_Lifecycle.File_Info.Path);
    begin
-      if Editor.Project.Has_Project (S.Project)
-        and then Editor.Project.Is_Under_Project (S.Project, Path)
+      if Editor.Project.Has_Project (S.Project_Runtime.Project)
+        and then Editor.Project.Is_Under_Project (S.Project_Runtime.Project, Path)
       then
-         return Editor.Project.Relative_Path (S.Project, Path);
+         return Editor.Project.Relative_Path (S.Project_Runtime.Project, Path);
       else
          return Path;
       end if;
@@ -266,11 +266,11 @@ package body Editor.Executor.Bookmark_Commands is
       Line := Row + 1;
       Path := S.Buffer_Lifecycle.File_Info.Path;
       Display := To_Unbounded_String (Current_Bookmark_Display_Path (S));
-      if Editor.Project.Has_Project (S.Project)
-        and then Editor.Project.Is_Under_Project (S.Project, To_String (Path))
+      if Editor.Project.Has_Project (S.Project_Runtime.Project)
+        and then Editor.Project.Is_Under_Project (S.Project_Runtime.Project, To_String (Path))
       then
          Project_Relative := To_Unbounded_String
-           (Editor.Project.Relative_Path (S.Project, To_String (Path)));
+           (Editor.Project.Relative_Path (S.Project_Runtime.Project, To_String (Path)));
          Has_Project_Relative := True;
       end if;
 
@@ -500,7 +500,7 @@ package body Editor.Executor.Bookmark_Commands is
       end if;
 
       Execute_Open_File (S, Target_Path);
-      Editor.Messages.Dismiss_Latest (S.Messages);
+      Editor.Messages.Dismiss_Latest (S.Panel.Messages);
 
       if not S.Buffer_Lifecycle.File_Info.Has_Path or else To_String (S.Buffer_Lifecycle.File_Info.Path) /= Target_Path then
          if Show_On_Failure then

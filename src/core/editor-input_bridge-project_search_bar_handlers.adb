@@ -38,7 +38,7 @@ package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
       end if;
 
       if not Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Project_Search_Bar_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Project_Search_Bar_Overlay)
       then
          return False;
       end if;

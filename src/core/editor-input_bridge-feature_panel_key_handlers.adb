@@ -21,7 +21,7 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
    is
    begin
       Editor.Feature_Search_Results.Project_Rows
-        (S.Feature_Search_Results, S.Feature_Panel);
+        (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
       Editor.Render_Cache.Invalidate_All;
    end Project_Search_Rows;
 
@@ -30,7 +30,7 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
    is
    begin
       Editor.Outline.Set_Rows_From_Outline
-        (S.Outline, S.Feature_Panel);
+        (S.Outline, S.Panel.Feature_Panel);
       Editor.Render_Cache.Invalidate_All;
    end Project_Outline_Rows;
 
@@ -53,15 +53,15 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
               (Editor.Command_Ids.Command_Search_Results_Search_Active_Buffer);
          when Editor.Keybindings.Key_Escape =>
             Editor.Feature_Search_Results.Deactivate_Search_Query_Input
-              (S.Feature_Search_Results);
+              (S.Panel.Feature_Search_Results);
             Project_Search_Rows (S);
          when Editor.Keybindings.Key_Backspace =>
             Editor.Feature_Search_Results.Delete_Search_Input_Character_Backward
-              (S.Feature_Search_Results);
+              (S.Panel.Feature_Search_Results);
             Project_Search_Rows (S);
          when Editor.Keybindings.Key_Delete =>
             Editor.Feature_Search_Results.Delete_Search_Input_Character_Forward
-              (S.Feature_Search_Results);
+              (S.Panel.Feature_Search_Results);
             Project_Search_Rows (S);
          when others =>
             null;
@@ -142,11 +142,11 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
          when Editor.Keybindings.Key_Down =>
             Execute (Editor.Command_Ids.Command_Feature_Panel_Select_Next);
          when Editor.Keybindings.Key_Enter =>
-            if Editor.Feature_Panel.Selected_Row (S.Feature_Panel) /= 0
+            if Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) /= 0
               and then Editor.Outline.Feature_Row_Maps_To_Item
                 (S.Outline,
-                 S.Feature_Panel,
-                 Editor.Feature_Panel.Selected_Row (S.Feature_Panel))
+                 S.Panel.Feature_Panel,
+                 Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel))
             then
                Execute (Editor.Command_Ids.Command_Open_Selected_Outline_Item);
             else
@@ -166,14 +166,14 @@ package body Editor.Input_Bridge.Feature_Panel_Key_Handlers is
         (Id : Editor.Command_Ids.Command_Id)) return Boolean
    is
    begin
-      if not Editor.Feature_Panel.Is_Focused (S.Feature_Panel) then
+      if not Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel) then
          return False;
       end if;
 
-      if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
+      if not Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel) then
          Execute (Editor.Command_Ids.Command_Focus_Editor_Text);
       elsif Editor.Feature_Search_Results.Search_Input_Is_Active
-        (S.Feature_Search_Results)
+        (S.Panel.Feature_Search_Results)
       then
          return Handle_Search_Input_Key (S, Chord, Execute);
       elsif Editor.Outline.Filter_Input_Is_Active (S.Outline) then

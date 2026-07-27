@@ -104,10 +104,10 @@ package body Editor.Input_Bridge.Build_UI_Pointer_Handlers is
         and then Hit.Row in 1 .. Projection.Displayed_Suppressed_Count
       then
          Editor.Feature_Diagnostics.Select_Suppressed_Diagnostic
-           (S.Feature_Diagnostics,
+           (S.Panel.Feature_Diagnostics,
             Projection.Suppressed_Top_Row + Hit.Row - 1);
          Editor.Feature_Diagnostics.Ensure_Selected_Suppressed_Diagnostic_Visible
-           (S.Feature_Diagnostics,
+           (S.Panel.Feature_Diagnostics,
             Projection.Displayed_Suppressed_Count);
          Editor.Render_Cache.Invalidate_All;
       end if;

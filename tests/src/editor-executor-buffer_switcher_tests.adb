@@ -2009,7 +2009,7 @@ package body Editor.Executor.Buffer_Switcher_Tests is
 
       Cmd := Editor.Commands.Payloads.Command_For_Id (Editor.Command_Ids.Command_Buffer_Switcher_Mark_Summary);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (Msg.Text) = "Marked buffers: 2",
               "summary reports the current open marked-buffer count");
 

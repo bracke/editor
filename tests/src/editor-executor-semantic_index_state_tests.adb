@@ -85,9 +85,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "semantic availability fixture refreshes Outline");
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Find_References);
@@ -125,7 +125,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Find_References);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "executing unavailable semantic commands remains blocked");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 0,
               "unavailable semantic commands must not project stale Search Results");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -155,9 +155,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "semantic hidden-panel fixture refreshes Outline");
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Ignored := LM.Add_Symbol
         (Analysis, "Run", LM.Symbol_Procedure,
@@ -169,7 +169,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, False);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, False);
       S.Carets.Replace_Element
         (S.Carets.First_Index,
          Editor.Cursors.Caret_State'
@@ -185,7 +185,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Find_References);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "hidden Outline still allows caret semantic command execution");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 1,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 1,
               "caret semantic command projects semantic results");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -227,7 +227,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
 
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, False);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, False);
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Goto_Declaration);
@@ -275,9 +275,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "semantic overflow fixture refreshes Outline");
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       for I in 1 .. 201 loop
          Ignored := LM.Add_Symbol
@@ -317,7 +317,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "overflowed semantic execution remains blocked");
       Assert (Latest_Message_Text (S) = "References unavailable for Run: overflow.",
               "overflowed semantic execution reports the bounded service reason");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 0,
               "overflowed semantic commands must not project partial Search Results");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -349,9 +349,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "semantic stale-current fixture refreshes Outline");
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/project/run.adb");
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("run.adb");
@@ -416,7 +416,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "stale current semantic execution remains blocked");
       Assert (Latest_Message_Text (S) = "References unavailable for Run: stale.",
               "stale current execution reports the stale service reason");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 0,
               "stale current references must not project stale Search Results");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -447,7 +447,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Latest_Message_Text (S) = "Rename apply unavailable for Run: stale.",
               "stale current rename apply execution reports the stale service reason");
 
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, False);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, False);
       S.Carets.Replace_Element
         (S.Carets.First_Index,
          Editor.Cursors.Caret_State'
@@ -497,9 +497,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "semantic stale-edit fixture refreshes Outline");
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Ignored := LM.Add_Symbol
         (Analysis, "Run", LM.Symbol_Procedure,
@@ -537,7 +537,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Find_References);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "stale edit semantic execution remains blocked");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 0,
               "stale edit semantic commands must not project stale Search Results");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -847,26 +847,26 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Editor.Ada_Language_Service.Semantic_Diagnostic_Count_For_Path
                 (S.Semantic.Language_Service, Path) > 0,
               "semantic refresh publishes live diagnostics to language service");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) > 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) > 0,
               "semantic refresh projects live diagnostics to Diagnostics");
       Assert (Editor.Feature_Diagnostics.Item_Source_Label
-                (S.Feature_Diagnostics, 1) = Path,
+                (S.Panel.Feature_Diagnostics, 1) = Path,
               "live Diagnostics rows retain file source labels");
       Assert (Editor.Feature_Diagnostics.Item_Source_Kind
-                (S.Feature_Diagnostics, 1) =
+                (S.Panel.Feature_Diagnostics, 1) =
               Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
               "live semantic Diagnostics rows use editor semantic source kind");
       Assert (Editor.Feature_Diagnostics.Item_Has_Target
-                (S.Feature_Diagnostics, 1),
+                (S.Panel.Feature_Diagnostics, 1),
               "live semantic Diagnostics rows are navigable");
       Assert (Editor.Feature_Diagnostics.Item_Target_Buffer
-                (S.Feature_Diagnostics, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
+                (S.Panel.Feature_Diagnostics, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "live semantic Diagnostics rows target the active buffer snapshot");
-      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) loop
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) loop
          if Editor.Feature_Diagnostics.Item_Quick_Fix_Label
-              (S.Feature_Diagnostics, I)'Length > 0
+              (S.Panel.Feature_Diagnostics, I)'Length > 0
            and then Editor.Feature_Diagnostics.Item_Primary_Action_Kind
-              (S.Feature_Diagnostics, I) /=
+              (S.Panel.Feature_Diagnostics, I) /=
                 Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_None
          then
             Quick_Fix_Row := I;
@@ -876,12 +876,12 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Quick_Fix_Row > 0,
               "live semantic Diagnostics must expose a descriptor-backed quick-fix row");
       Assert (Editor.Feature_Diagnostics.Item_Quick_Fix_Detail
-                (S.Feature_Diagnostics, Quick_Fix_Row)'Length > 0,
+                (S.Panel.Feature_Diagnostics, Quick_Fix_Row)'Length > 0,
               "live semantic quick-fix row renders descriptor detail");
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "Diagnostics feature is shown for live semantic quick-fix execution");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, Quick_Fix_Row);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Quick_Fix_Row);
       Action_Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Action_Avail),
@@ -891,12 +891,12 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "live semantic quick-fix executes through the Diagnostics command");
 
-      First_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+      First_Count := Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Project_Index);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "repeated semantic refresh executes");
-      Second_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+      Second_Count := Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Assert (Second_Count = First_Count,
               "repeated semantic refresh replaces live Diagnostics rows without duplicates");
 
@@ -917,7 +917,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Editor.Ada_Language_Service.Semantic_Diagnostic_Count
                 (S.Semantic.Language_Service) = 0,
               "language index clear removes live semantic backend diagnostics");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "language index clear removes projected live semantic Diagnostics rows");
 
       Remove_Tree_If_Exists (Root);
@@ -968,21 +968,21 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Editor.Ada_Language_Service.Semantic_Diagnostic_Count_For_Path
                 (S.Semantic.Language_Service, Path) > 0,
               "semantic buffer refresh publishes live diagnostics to language service");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) > 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) > 0,
               "semantic buffer refresh projects live diagnostics to Diagnostics");
       Assert (Editor.Feature_Diagnostics.Item_Source_Label
-                (S.Feature_Diagnostics, 1) = Path,
+                (S.Panel.Feature_Diagnostics, 1) = Path,
               "buffer live Diagnostics rows retain file source labels");
       Assert (Editor.Feature_Diagnostics.Item_Target_Buffer
-                (S.Feature_Diagnostics, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
+                (S.Panel.Feature_Diagnostics, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "buffer live Diagnostics rows target the active buffer snapshot");
 
-      First_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+      First_Count := Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Semantic_Refresh_Buffer);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "repeated semantic buffer refresh executes");
-      Second_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+      Second_Count := Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Assert (Second_Count = First_Count,
               "repeated semantic buffer refresh replaces live Diagnostics rows without duplicates");
 
@@ -990,7 +990,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
         (S, Editor.Command_Ids.Command_Language_Index_Clear);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "language index clear executes after buffer live diagnostics");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "language index clear removes buffer-projected live Diagnostics rows");
 
       Remove_Tree_If_Exists (Root);
@@ -1051,10 +1051,10 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          end;
       end loop;
 
-      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) loop
-         if Editor.Feature_Diagnostics.Item_Source_Label (S.Feature_Diagnostics, I) = Path
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) loop
+         if Editor.Feature_Diagnostics.Item_Source_Label (S.Panel.Feature_Diagnostics, I) = Path
            and then Ada.Strings.Fixed.Index
-             (Editor.Feature_Diagnostics.Item_Message (S.Feature_Diagnostics, I),
+             (Editor.Feature_Diagnostics.Item_Message (S.Panel.Feature_Diagnostics, I),
               "cross-unit") > 0
          then
             Found_Feature := True;
@@ -1136,9 +1136,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       end loop;
       Assert (Spec_Row /= 0, "indexed body/spec fixture exposes spec package row");
       Editor.Outline.Select_Item (S.Outline, Spec_Row);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, Spec_Row);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Spec_Row);
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Goto_Body);
@@ -1175,9 +1175,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       end loop;
       Assert (Body_Row /= 0, "indexed body/spec fixture exposes package body row");
       Editor.Outline.Select_Item (S.Outline, Body_Row);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, Body_Row);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Body_Row);
 
       Unit_Target := Editor.Ada_Project_Index.Resolve_Unique_Unit_Target
         (S.Semantic.Language_Index, "Demo", Editor.Ada_Project_Index.Unit_Package_Spec);
@@ -1231,9 +1231,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Sep_Row /= 0,
               "indexed body/spec fixture exposes separate procedure body row");
       Editor.Outline.Select_Item (S.Outline, Sep_Row);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, Sep_Row);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Sep_Row);
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Goto_Spec);
@@ -1272,9 +1272,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       end loop;
       Assert (Spec_Row /= 0, "stale body/spec fixture exposes spec package row");
       Editor.Outline.Select_Item (S.Outline, Spec_Row);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, Spec_Row);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Spec_Row);
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Insert (0, 'X'));
       Assert (Editor.Ada_Language_Service.Status (S.Semantic.Language_Service) =
               Editor.Ada_Language_Service.Status (S.Semantic.Language_Index),
@@ -2093,9 +2093,9 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >= 2,
               "diagnostic-open fixture indexed both files");
 
-      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "inactive-buffer semantic diagnostic",
          Source_Label  => "semantic",
@@ -2107,7 +2107,7 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostics feature is shown for inactive target test");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);

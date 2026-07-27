@@ -95,7 +95,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (M);
       else
@@ -1436,10 +1436,10 @@ procedure Test_Line_Comment_Command_Descriptors
          String'(1 => ASCII.HT) & "D");
       Editor.State.Set_Dirty (S, False);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-      S.Active_Find_Query := To_Unbounded_String ("B");
-      S.Active_Find_Stale := False;
-      S.Active_Replace_Text := To_Unbounded_String ("Bee");
-      S.Active_Replace_Prompt := True;
+      S.Search.Active_Find_Query := To_Unbounded_String ("B");
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Bee");
+      S.Search.Active_Replace_Prompt := True;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
@@ -1461,11 +1461,11 @@ procedure Test_Line_Comment_Command_Descriptors
                             "comment must keep caret valid on same logical line");
       Assert (not Editor.Selection.Has_Selection (S),
               "text-changing comment must clear/collapse active selection");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "text-changing comment must invalidate Find ranges");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("B")
-              and then S.Active_Replace_Text = To_Unbounded_String ("Bee")
-              and then S.Active_Replace_Prompt,
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("B")
+              and then S.Search.Active_Replace_Text = To_Unbounded_String ("Bee")
+              and then S.Search.Active_Replace_Prompt,
               "line comment must not mutate Find query or Replace text");
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",

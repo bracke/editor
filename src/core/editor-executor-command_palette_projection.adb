@@ -47,7 +47,7 @@ package body Editor.Executor.Command_Palette_Projection is
       function Relevance_Boost (Id : Editor.Command_Ids.Command_Id) return Natural is
          Stable : constant String := Editor.Commands.Name_Metadata.Stable_Command_Name (Id);
          Previous : constant Editor.Overlay_Focus.Previous_Focus_Target :=
-           Editor.Overlay_Focus.Previous_Focus (S.Overlay_Focus);
+           Editor.Overlay_Focus.Previous_Focus (S.Panel.Overlay_Focus);
       begin
          --  while the Command Palette owns overlay focus, rank
          --  commands for the surface that opened it. This is pure projection
@@ -86,11 +86,11 @@ package body Editor.Executor.Command_Palette_Projection is
             return
               "Current Problems view: filter "
               & Editor.Problems.Severity_Filter_Label
-                  (S.Problems_View.Severity_Filter)
+                  (S.Panel.Problems_View.Severity_Filter)
               & ", sort "
-              & Editor.Problems.Sort_Mode_Label (S.Problems_View.Sort_Mode)
+              & Editor.Problems.Sort_Mode_Label (S.Panel.Problems_View.Sort_Mode)
               & ", group "
-              & Editor.Problems.Group_Mode_Label (S.Problems_View.Group_Mode)
+              & Editor.Problems.Group_Mode_Label (S.Panel.Problems_View.Group_Mode)
               & ".";
          elsif Starts_With (Stable, "diagnostics.") then
             return
@@ -98,13 +98,13 @@ package body Editor.Executor.Command_Palette_Projection is
               & Ada.Strings.Fixed.Trim
                   (Natural'Image
                      (Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-                        (S.Feature_Diagnostics)),
+                        (S.Panel.Feature_Diagnostics)),
                    Ada.Strings.Both)
               & ", visible "
               & Ada.Strings.Fixed.Trim
                   (Natural'Image
                      (Editor.Feature_Diagnostics.Visible_Row_Count
-                        (S.Feature_Diagnostics)),
+                        (S.Panel.Feature_Diagnostics)),
                    Ada.Strings.Both)
               & ".";
          elsif Starts_With (Stable, "build.") then

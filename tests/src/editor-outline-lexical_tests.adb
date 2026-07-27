@@ -61,7 +61,7 @@ package body Editor.Outline.Lexical_Tests is
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (Msg);
       end if;
@@ -659,8 +659,8 @@ package body Editor.Outline.Lexical_Tests is
               "boundary fixture starts from an explicit lexical-safe refresh");
 
       Outline_Before := Fingerprint (S.Outline);
-      Panel_Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Messages_Before := Editor.Messages.Count (S.Messages);
+      Panel_Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
+      Messages_Before := Editor.Messages.Count (S.Panel.Messages);
 
       Editor.State.Load_Text
         (S, "-- procedure Fake_Comment;" & ASCII.LF &
@@ -670,8 +670,8 @@ package body Editor.Outline.Lexical_Tests is
             "end Changed;");
 
       Outline_Before := Fingerprint (S.Outline);
-      Panel_Before := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
-      Messages_Before := Editor.Messages.Count (S.Messages);
+      Panel_Before := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
+      Messages_Before := Editor.Messages.Count (S.Panel.Messages);
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Refresh_Outline);
@@ -679,15 +679,15 @@ package body Editor.Outline.Lexical_Tests is
               "refresh availability remains available with an active buffer");
       Assert (Fingerprint (S.Outline) = Outline_Before,
               "availability does not scan changed Ada text");
-      Assert (Editor.Feature_Panel.Fingerprint (S.Feature_Panel) = Panel_Before,
+      Assert (Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel) = Panel_Before,
               "availability does not reproject lexical-safe rows");
-      Assert (Editor.Messages.Count (S.Messages) = Messages_Before,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Messages_Before,
               "availability emits no lexical scan feedback");
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Fingerprint (S.Outline) = Outline_Before,
               "render snapshot does not run lexical scanning or refresh outline");
-      Assert (Editor.Feature_Panel.Fingerprint (S.Feature_Panel) = Panel_Before,
+      Assert (Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel) = Panel_Before,
               "render snapshot observes existing feature-panel rows only");
       Assert (Snap.Length = Editor.State.Current_Text (S)'Length,
               "render snapshot still reflects current buffer text without sanitizer output");

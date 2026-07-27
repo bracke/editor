@@ -14,7 +14,7 @@ package body Editor.Input_Bridge.Build_UI_Projection is
       Action_Count : constant Natural := Natural (Snapshot.Actions.Length);
       Suppressed_Count : constant Natural :=
         Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-          (S.Feature_Diagnostics);
+          (S.Panel.Feature_Diagnostics);
       Text_Viewport_Height : constant Natural :=
         Editor.Layout.Text_Viewport_Height
           (Layout_Config, Editor.View.Viewport_Height);
@@ -26,7 +26,7 @@ package body Editor.Input_Bridge.Build_UI_Projection is
            Suppressed_Count     => Suppressed_Count);
       Suppressed_Top_Row : constant Natural :=
         Editor.Feature_Diagnostics.Suppressed_Top_Row
-          (S.Feature_Diagnostics, Displayed_Suppressed_Count);
+          (S.Panel.Feature_Diagnostics, Displayed_Suppressed_Count);
       Geometry : constant Editor.Build_UI_Panel_Layout.Build_UI_Panel_Geometry :=
         Editor.Build_UI_Panel_Layout.Layout
           (Viewport_Width       => Editor.View.Viewport_Width,

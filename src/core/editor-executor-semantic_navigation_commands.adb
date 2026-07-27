@@ -248,7 +248,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
    begin
       case Id is
          when Editor.Command_Ids.Command_Goto_Declaration =>
-            if Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
+            if Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel)
               and then Editor.Executor.Has_Selected_Outline_Activation_Target
                 (S)
             then
@@ -281,14 +281,14 @@ package body Editor.Executor.Semantic_Navigation_Commands is
 
          when Editor.Command_Ids.Command_Goto_Body
             | Editor.Command_Ids.Command_Goto_Spec =>
-            if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
+            if not Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_Feature_Panel_Hidden);
-            elsif not Editor.Feature_Panel.Has_Selection (S.Feature_Panel)
+            elsif not Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel)
               or else not Editor.Outline.Validate_Outline_Row_For_Selection
                 (S.Outline,
-                 S.Feature_Panel,
-                 Editor.Feature_Panel.Selected_Row (S.Feature_Panel))
+                 S.Panel.Feature_Panel,
+                 Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel))
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Outline.Reason_No_Outline_Item_Selected);
@@ -313,7 +313,7 @@ package body Editor.Executor.Semantic_Navigation_Commands is
    begin
       case Id is
          when Editor.Command_Ids.Command_Goto_Declaration =>
-            if Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
+            if Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel)
               and then Editor.Executor.Has_Selected_Outline_Activation_Target
                 (S)
             then

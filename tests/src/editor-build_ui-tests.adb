@@ -226,23 +226,23 @@ package body Editor.Build_UI.Tests is
       S.Build.Build_UI := Two_Candidate_Focused_UI;
       for I in 1 .. 2 loop
          Editor.Feature_Diagnostics.Add_Diagnostic
-           (S.Feature_Diagnostics,
+           (S.Panel.Feature_Diagnostics,
             Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
             Message      => "suppressed keyboard" & Natural'Image (I),
             Source_Label => "src/main.adb",
             Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source);
       end loop;
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Assert
         (Editor.Feature_Diagnostics.Suppress_Selected_Diagnostic
-           (S.Feature_Diagnostics, S.Feature_Panel),
+           (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel),
          "fixture can suppress first Build UI keyboard diagnostic");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Assert
         (Editor.Feature_Diagnostics.Suppress_Selected_Diagnostic
-           (S.Feature_Diagnostics, S.Feature_Panel),
+           (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel),
          "fixture can suppress second Build UI keyboard diagnostic");
       Editor.Input_Bridge.Set_State_For_Test (S);
 
@@ -292,7 +292,7 @@ package body Editor.Build_UI.Tests is
               "Tab selects the first focused Build UI action row");
 
       Editor.Feature_Diagnostics.Select_Suppressed_Diagnostic
-        (After.Feature_Diagnostics, 2);
+        (After.Panel.Feature_Diagnostics, 2);
       Editor.Build_UI.Focus (After.Build.Build_UI);
       Editor.Input_Bridge.Set_State_For_Test (After);
 
@@ -301,7 +301,7 @@ package body Editor.Build_UI.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (Editor.Feature_Diagnostics.Selected_Suppressed_Diagnostic
-           (After.Feature_Diagnostics) = 1,
+           (After.Panel.Feature_Diagnostics) = 1,
          "Ctrl+Up moves focused Build UI suppressed diagnostic selection");
 
       Editor.Input_Bridge.Handle_Key_Chord
@@ -309,7 +309,7 @@ package body Editor.Build_UI.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (Editor.Feature_Diagnostics.Selected_Suppressed_Diagnostic
-           (After.Feature_Diagnostics) = 2,
+           (After.Panel.Feature_Diagnostics) = 2,
          "Ctrl+Down moves focused Build UI suppressed diagnostic selection");
 
       Editor.Input_Bridge.Handle_Key_Chord
@@ -317,7 +317,7 @@ package body Editor.Build_UI.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-           (After.Feature_Diagnostics) = 1,
+           (After.Panel.Feature_Diagnostics) = 1,
          "Ctrl+Enter restores selected suppressed diagnostic from focused Build UI");
 
       Editor.Input_Bridge.Handle_Key_Chord
@@ -325,7 +325,7 @@ package body Editor.Build_UI.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
       Assert
         (Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-           (After.Feature_Diagnostics) = 0,
+           (After.Panel.Feature_Diagnostics) = 0,
          "Ctrl+Delete clears remaining suppressed diagnostics from focused Build UI");
 
       Editor.Input_Bridge.Handle_Key_Chord
@@ -786,9 +786,9 @@ package body Editor.Build_UI.Tests is
                 (Before, S, Result),
               "Build UI suppress diagnostic remains command-routed when unavailable");
 
-      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "suppressed diagnostic",
          Source_Label  => "build",
@@ -798,9 +798,9 @@ package body Editor.Build_UI.Tests is
          Target_Line   => 0,
          Target_Column => 0);
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "setup should create one suppressible diagnostic");
 
       Before := S;
@@ -808,7 +808,7 @@ package body Editor.Build_UI.Tests is
       Assert (Result.Command = Editor.Command_Ids.Command_Diagnostic_Suppress_Selected
               and then Result.Status = Editor.Command_Execution.Command_Executed,
               "Build UI suppress diagnostic removes the selected diagnostic through Executor");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "suppressed diagnostic should be removed from session diagnostics");
       Assert (Editor.Build_UI_Actions.Assert_Build_UI_Diagnostic_Action_Is_UI_Routed
                 (Before, S, Result),
@@ -1049,18 +1049,18 @@ package body Editor.Build_UI.Tests is
               and then not Snapshot.Diagnostics_View.Suppress_Available,
               "Build UI diagnostic actions require live selectable diagnostics, not only a build summary count");
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message      => "selected build diagnostic",
          Source_Label => "build",
          Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source);
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Assert
         (Editor.Feature_Diagnostics.Map_Diagnostic_Row_To_Item
-           (S.Feature_Diagnostics, S.Feature_Panel, 1,
-            Editor.Feature_Panel.Projection_Generation (S.Feature_Panel)) = 1,
+           (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel, 1,
+            Editor.Feature_Panel.Projection_Generation (S.Panel.Feature_Panel)) = 1,
          "fixture diagnostic row should map to the first diagnostics source row");
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
       Assert (Snapshot.Diagnostics_View.Suppress_Available
@@ -1076,7 +1076,7 @@ package body Editor.Build_UI.Tests is
 
       Assert
         (Editor.Feature_Diagnostics.Suppress_Selected_Diagnostic
-           (S.Feature_Diagnostics, S.Feature_Panel),
+           (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel),
          "fixture diagnostic can be suppressed for Build UI suppressed action rows");
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
       for I in Snapshot.Actions.First_Index .. Snapshot.Actions.Last_Index loop
@@ -1111,9 +1111,9 @@ package body Editor.Build_UI.Tests is
          "begin" & ASCII.LF &
          "   null" & ASCII.LF &
          "end Demo;" & ASCII.LF);
-      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message      => "missing semicolon",
          Source_Label => "semantic",
@@ -1130,18 +1130,18 @@ package body Editor.Build_UI.Tests is
          Edit_End_Line     => 3,
          Edit_End_Column   => 8,
          Replacement_Text  => ";");
-      Assert (Editor.Feature_Diagnostics.Item_Has_Edit (S.Feature_Diagnostics, 1),
+      Assert (Editor.Feature_Diagnostics.Item_Has_Edit (S.Panel.Feature_Diagnostics, 1),
               "fixture diagnostic should retain edit metadata at ingestion");
       Assert (Editor.Feature_Diagnostics.Item_Quick_Fix_Label
-                (S.Feature_Diagnostics, 1) = "",
+                (S.Panel.Feature_Diagnostics, 1) = "",
               "fixture diagnostic should have no producer quick-fix label");
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Assert
         (Editor.Feature_Diagnostics.Map_Diagnostic_Row_To_Item
-           (S.Feature_Diagnostics, S.Feature_Panel, 1,
-            Editor.Feature_Panel.Projection_Generation (S.Feature_Panel)) = 1,
+           (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel, 1,
+            Editor.Feature_Panel.Projection_Generation (S.Panel.Feature_Panel)) = 1,
          "fixture diagnostic row should map to the first diagnostics source row");
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
       Assert (To_String (Snapshot.Diagnostics_View.Quick_Fix_Label) =
@@ -1149,9 +1149,9 @@ package body Editor.Build_UI.Tests is
               and then To_String (Snapshot.Diagnostics_View.Quick_Fix_Detail) =
                 "Edit 3:8-3:8, replacement 1 chars",
               "Build UI quick-fix action exposes selected edit metadata");
-      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message      => "missing with clause",
          Source_Label => "semantic",
@@ -1171,11 +1171,11 @@ package body Editor.Build_UI.Tests is
          Quick_Fix_Label   => "Add missing context clause",
          Quick_Fix_Detail  => "Insert Ada.Text_IO dependency");
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Assert
         (Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Count
-           (S.Feature_Diagnostics, 1) = 1,
+           (S.Panel.Feature_Diagnostics, 1) = 1,
          "Diagnostics exposes the selected quick-fix action explicitly");
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
       Assert (To_String (Snapshot.Diagnostics_View.Quick_Fix_Label) =
@@ -1791,7 +1791,7 @@ package body Editor.Build_UI.Tests is
       Editor.Build_UI_Actions.Show_Build_UI (S);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "missing semicolon",
          Source_Label  => "semantic",
@@ -1809,18 +1809,18 @@ package body Editor.Build_UI.Tests is
          Quick_Fix_Label   => "Insert semicolon",
          Quick_Fix_Detail  => "Append statement delimiter");
       Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Command
-        (S.Feature_Diagnostics, 1,
+        (S.Panel.Feature_Diagnostics, 1,
          Label  => "Explain missing semicolon",
          Detail => "Open diagnostic explanation",
          Primary_Action_Kind =>
            Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Explain_Diagnostic);
       Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Unavailable
-        (S.Feature_Diagnostics, 1,
+        (S.Panel.Feature_Diagnostics, 1,
          Label  => "Unavailable quick fix",
          Detail => "No edit or command");
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
       for I in Snapshot.Actions.First_Index .. Snapshot.Actions.Last_Index loop
@@ -1921,7 +1921,7 @@ package body Editor.Build_UI.Tests is
          end if;
 
          Editor.Feature_Diagnostics.Add_Diagnostic
-           (S.Feature_Diagnostics,
+           (S.Panel.Feature_Diagnostics,
             Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
             Message       => Message,
             Source_Label  => "semantic",
@@ -1940,7 +1940,7 @@ package body Editor.Build_UI.Tests is
             Quick_Fix_Detail  => "Edit target");
          if Mark_Stale then
             Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
-              (S.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
+              (S.Panel.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
          end if;
          Select_Diagnostic_By_Message (S, Message);
 
@@ -1990,7 +1990,7 @@ package body Editor.Build_UI.Tests is
 
       for I in 1 .. 80 loop
          Editor.Feature_Diagnostics.Add_Diagnostic
-           (S.Feature_Diagnostics,
+           (S.Panel.Feature_Diagnostics,
             Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
             Message      => "bulk quick fix" & Natural'Image (I),
             Source_Label => "semantic",
@@ -2009,7 +2009,7 @@ package body Editor.Build_UI.Tests is
             Quick_Fix_Detail  => "Edit");
          for A in 2 .. Editor.Feature_Diagnostics.Max_Quick_Fix_Actions_Per_Diagnostic loop
             Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Command
-              (S.Feature_Diagnostics, I,
+              (S.Panel.Feature_Diagnostics, I,
                Label  => "Alternative" & Natural'Image (A),
                Detail => "review",
                Primary_Action_Kind =>
@@ -2017,16 +2017,16 @@ package body Editor.Build_UI.Tests is
          end loop;
       end loop;
 
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 80,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 80,
               "bulk quick-fix diagnostics should stay within row cap");
       Assert
         (Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Count
-           (S.Feature_Diagnostics, 1) =
+           (S.Panel.Feature_Diagnostics, 1) =
          Editor.Feature_Diagnostics.Max_Quick_Fix_Actions_Per_Diagnostic,
          "bulk diagnostics should retain bounded quick-fix action lists");
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
       for I in Snapshot.Actions.First_Index .. Snapshot.Actions.Last_Index loop
          if To_String (Snapshot.Actions.Element (I).Command_Name) =

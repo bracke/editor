@@ -40,24 +40,24 @@ package body Editor.Executor.Feature_Panel_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Show_Feature_Panel =>
-            if Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
+            if Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_Feature_Panel_Already_Shown);
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Hide_Feature_Panel =>
-            if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
+            if not Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_Feature_Panel_Hidden);
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Focus_Feature_Panel =>
-            if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
+            if not Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_Feature_Panel_Hidden);
-            elsif Editor.Feature_Panel.Is_Focused (S.Feature_Panel) then
+            elsif Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_Feature_Panel_Already_Focused);
             end if;
@@ -65,11 +65,11 @@ package body Editor.Executor.Feature_Panel_Commands is
 
          when Editor.Command_Ids.Command_Clear_Feature_Panel =>
             if not Editor.Feature_Panel.Feature_Can_Clear
-              (Editor.Feature_Panel.Active_Feature (S.Feature_Panel))
+              (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel))
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("Feature panel: no active feature");
-            elsif not Editor.Feature_Panel.Has_Selectable_Row (S.Feature_Panel)
+            elsif not Editor.Feature_Panel.Has_Selectable_Row (S.Panel.Feature_Panel)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_No_Feature_Panel_Rows);
@@ -78,10 +78,10 @@ package body Editor.Executor.Feature_Panel_Commands is
 
          when Editor.Command_Ids.Command_Feature_Panel_Select_Next
             | Editor.Command_Ids.Command_Feature_Panel_Select_Previous =>
-            if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
+            if not Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_Feature_Panel_Hidden);
-            elsif not Editor.Feature_Panel.Has_Selectable_Row (S.Feature_Panel)
+            elsif not Editor.Feature_Panel.Has_Selectable_Row (S.Panel.Feature_Panel)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_No_Feature_Panel_Rows);
@@ -89,28 +89,28 @@ package body Editor.Executor.Feature_Panel_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Feature_Panel_Open_Selected =>
-            if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
+            if not Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_Feature_Panel_Hidden);
             elsif not Editor.Feature_Panel.Is_Known_Feature
-              (Editor.Feature_Panel.Active_Feature (S.Feature_Panel))
+              (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel))
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("Feature panel: no active feature");
-            elsif not Editor.Feature_Panel.Has_Selection (S.Feature_Panel) then
+            elsif not Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Panel.Reason_No_Feature_Panel_Row_Selected);
             elsif not Editor.Feature_Panel.Row_Can_Open
-              (S.Feature_Panel,
-               Positive (Editor.Feature_Panel.Selected_Row (S.Feature_Panel)))
-              and then Editor.Feature_Panel.Active_Feature (S.Feature_Panel) /=
+              (S.Panel.Feature_Panel,
+               Positive (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel)))
+              and then Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) /=
                 Editor.Feature_Panel.Diagnostics_Feature
               and then not
-                (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+                (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
                    Editor.Feature_Panel.Search_Results_Feature
                  and then Editor.State.Has_Pending_Quick_Fix_Workflow (S)
                  and then Editor.Feature_Search_Results.External_Kind
-                   (S.Feature_Search_Results) =
+                   (S.Panel.Feature_Search_Results) =
                      Editor.Feature_Search_Results
                        .Diagnostic_Quick_Fix_Action_List)
             then
@@ -130,7 +130,7 @@ package body Editor.Executor.Feature_Panel_Commands is
       Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
-      Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
+      Before_Messages : constant Natural := Editor.Messages.Count (S.Panel.Messages);
 
       function Result_After_Command
         (Command : Editor.Command_Ids.Command_Id)
@@ -139,8 +139,8 @@ package body Editor.Executor.Feature_Panel_Commands is
          Found : Boolean := False;
          Msg   : Editor.Messages.Editor_Message;
       begin
-         if Editor.Messages.Count (S.Messages) > Before_Messages then
-            Msg := Editor.Messages.Active_Message (S.Messages, Found);
+         if Editor.Messages.Count (S.Panel.Messages) > Before_Messages then
+            Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
             if Found then
                if Editor.Messages.Severity (Msg) =
                  Editor.Messages.Error_Message
@@ -159,13 +159,13 @@ package body Editor.Executor.Feature_Panel_Commands is
    begin
       case Id is
          when Editor.Command_Ids.Command_Toggle_Feature_Panel =>
-            if Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
-               Editor.Feature_Panel.Set_Visible (S.Feature_Panel, False);
+            if Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel) then
+               Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, False);
                Report_Info
                  (S, Editor.Feature_Panel.Message_Feature_Panel_Hidden);
             else
-               Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-               Editor.Feature_Panel.Set_Focused (S.Feature_Panel, False);
+               Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+               Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, False);
                Report_Info
                  (S, Editor.Feature_Panel.Message_Feature_Panel_Shown);
             end if;
@@ -173,37 +173,37 @@ package body Editor.Executor.Feature_Panel_Commands is
             return Result_After_Command (Id);
 
          when Editor.Command_Ids.Command_Show_Feature_Panel =>
-            if Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
+            if Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel) then
                return Editor.Command_Execution.No_Op (Id);
             end if;
-            Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-            Editor.Feature_Panel.Set_Focused (S.Feature_Panel, False);
+            Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+            Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, False);
             Report_Info (S, Editor.Feature_Panel.Message_Feature_Panel_Shown);
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
          when Editor.Command_Ids.Command_Hide_Feature_Panel =>
-            if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel) then
+            if not Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel) then
                return Editor.Command_Execution.No_Op (Id);
             end if;
-            Editor.Feature_Panel.Set_Visible (S.Feature_Panel, False);
+            Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, False);
             Report_Info (S, Editor.Feature_Panel.Message_Feature_Panel_Hidden);
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
          when Editor.Command_Ids.Command_Focus_Feature_Panel =>
-            if Editor.Feature_Panel.Is_Focused (S.Feature_Panel) then
+            if Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel) then
                return Editor.Command_Execution.No_Op (Id);
             end if;
             Editor.Focus_Management.Clear_Transient_Focus_Owners (S);
-            Editor.Panel_Focus.Focus_Editor_Text (S.Panel_Focus);
-            Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
+            Editor.Panel_Focus.Focus_Editor_Text (S.Panel.Panel_Focus);
+            Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, True);
             Report_Info (S, Editor.Feature_Panel.Message_Feature_Panel_Focused);
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
          when Editor.Command_Ids.Command_Clear_Feature_Panel =>
-            if Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0 then
+            if Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0 then
                return Editor.Command_Execution.No_Op (Id);
             elsif not Editor.Feature_Panel_Controller.Dispatch_Active_Feature_Clear
               (S)
@@ -217,27 +217,27 @@ package body Editor.Executor.Feature_Panel_Commands is
             return Result_After_Command (Id);
 
          when Editor.Command_Ids.Command_Feature_Panel_Select_Next =>
-            if Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0 then
+            if Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0 then
                return Editor.Command_Execution.No_Op (Id);
             end if;
-            Editor.Feature_Panel.Select_Next (S.Feature_Panel);
+            Editor.Feature_Panel.Select_Next (S.Panel.Feature_Panel);
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
          when Editor.Command_Ids.Command_Feature_Panel_Select_Previous =>
-            if Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0 then
+            if Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0 then
                return Editor.Command_Execution.No_Op (Id);
             end if;
-            Editor.Feature_Panel.Select_Previous (S.Feature_Panel);
+            Editor.Feature_Panel.Select_Previous (S.Panel.Feature_Panel);
             Editor.Render_Cache.Invalidate_All;
             return Result_After_Command (Id);
 
          when Editor.Command_Ids.Command_Feature_Panel_Open_Selected =>
             declare
                Row : constant Natural :=
-                 Editor.Feature_Panel.Selected_Row (S.Feature_Panel);
+                 Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel);
             begin
-               case Editor.Feature_Panel.Active_Feature (S.Feature_Panel) is
+               case Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) is
                   when Editor.Feature_Panel.Outline_Feature =>
                      declare
                         Outline_Result : constant

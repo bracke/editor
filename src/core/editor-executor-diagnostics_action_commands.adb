@@ -83,11 +83,11 @@ package body Editor.Executor.Diagnostics_Action_Commands is
       package Action_Execution renames Editor.Ada_Diagnostic_Action_Execution;
       package Action_Commands renames Editor.Ada_Diagnostic_Command_Projection;
 
-      Row : constant Natural := Editor.Feature_Panel.Selected_Row (S.Feature_Panel);
+      Row : constant Natural := Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel);
       Selected_Item_Index : constant Natural :=
         Editor.Feature_Diagnostics.Map_Diagnostic_Row_To_Item
-          (S.Feature_Diagnostics, S.Feature_Panel, Row,
-           Editor.Feature_Panel.Projection_Generation (S.Feature_Panel));
+          (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel, Row,
+           Editor.Feature_Panel.Projection_Generation (S.Panel.Feature_Panel));
       Item_Index : constant Natural :=
         (if Id = Command_Diagnostic_Apply_Quick_Fix
            and then Editor.State.Has_Pending_Quick_Fix_Workflow (S)
@@ -109,7 +109,7 @@ package body Editor.Executor.Diagnostics_Action_Commands is
       if Id = Command_Diagnostic_Apply_Quick_Fix
         and then
           Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Count
-            (S.Feature_Diagnostics, Positive (Item_Index)) > 1
+            (S.Panel.Feature_Diagnostics, Positive (Item_Index)) > 1
         and then Editor.State.Pending_Quick_Fix_Action_Index (S) = 0
       then
          declare
@@ -119,7 +119,7 @@ package body Editor.Executor.Diagnostics_Action_Commands is
          begin
             Editor.State.Start_Quick_Fix_Workflow (S, Item_Index);
             Editor.Feature_Search_Results.Begin_External_Result_Set
-              (S.Feature_Search_Results,
+              (S.Panel.Feature_Search_Results,
                Query        =>
                  Editor.Feature_Diagnostics.Diagnostic_Quick_Fix_Picker_Query_Text,
                Source_Label => "Diagnostics",
@@ -127,7 +127,7 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                  Editor.Feature_Search_Results.Diagnostic_Quick_Fix_Action_List);
             for Action_Index in 1 ..
               Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Count
-                (S.Feature_Diagnostics, Positive (Item_Index))
+                (S.Panel.Feature_Diagnostics, Positive (Item_Index))
             loop
                declare
                   Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
@@ -137,13 +137,13 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                   if Editor.Commands.Availability_Metadata.Is_Available (Availability) then
                      Added_Actions := Added_Actions + 1;
                      Editor.Feature_Search_Results.Add_Search_Result
-                       (S.Feature_Search_Results,
+                       (S.Panel.Feature_Search_Results,
                         Label         =>
                           Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Label_For_Display
-                            (S.Feature_Diagnostics, Positive (Item_Index), Action_Index),
+                            (S.Panel.Feature_Diagnostics, Positive (Item_Index), Action_Index),
                         Source_Label  =>
                           Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Detail_For_Display
-                            (S.Feature_Diagnostics, Positive (Item_Index), Action_Index),
+                            (S.Panel.Feature_Diagnostics, Positive (Item_Index), Action_Index),
                         Has_Target    => False,
                         Target_Buffer => 0,
                         Target_Line   => 0,
@@ -174,13 +174,13 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                return Editor.Command_Execution.Unavailable (Id);
             end if;
             Editor.Feature_Search_Results.Reconcile_Search_Results_After_Row_Change
-              (S.Feature_Search_Results, S.Feature_Panel,
+              (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel,
                Select_First_When_Available => True);
             Editor.Panels.Set_Bottom_Content
               (S.Panels, Editor.Panels.Search_Results_Content);
             Editor.Panels.Set_Visible
               (S.Panels, Editor.Panels.Bottom_Panel, True);
-            Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+            Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
             Shared_Services.Report_Info
               (S, "Choose a diagnostic quick fix");
             Editor.Render_Cache.Invalidate_All;
@@ -212,19 +212,19 @@ package body Editor.Executor.Diagnostics_Action_Commands is
            Action_Commands.Diagnostic_Command_Descriptor_Id
              (Natural
                 (Editor.Feature_Diagnostics.Item_Id
-                   (S.Feature_Diagnostics, Positive (Item_Index))));
+                   (S.Panel.Feature_Diagnostics, Positive (Item_Index))));
          Descriptor.Command_Kind :=
            (if Id = Command_Diagnostic_Apply_Quick_Fix
             then Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Kind
-              (S.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index))
+              (S.Panel.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index))
             else Editor.Feature_Diagnostics.Item_Primary_Action_Kind
-              (S.Feature_Diagnostics, Positive (Item_Index)));
+              (S.Panel.Feature_Diagnostics, Positive (Item_Index)));
          Descriptor.Availability :=
            (if Editor.Feature_Diagnostics.Item_Is_Stale
-                 (S.Feature_Diagnostics, Positive (Item_Index))
+                 (S.Panel.Feature_Diagnostics, Positive (Item_Index))
             then Action_Commands.Diagnostic_Command_Rejected_Stale
             elsif Editor.Feature_Diagnostics.Item_Has_Target
-                 (S.Feature_Diagnostics, Positive (Item_Index))
+                 (S.Panel.Feature_Diagnostics, Positive (Item_Index))
               and then Descriptor.Command_Kind /=
                 Action_Commands.Diagnostic_Command_None
             then Action_Commands.Diagnostic_Command_Available
@@ -232,18 +232,18 @@ package body Editor.Executor.Diagnostics_Action_Commands is
          declare
             Quick_Fix_Label : constant String :=
               Editor.Feature_Diagnostics.Item_Quick_Fix_Label_For_Display
-                (S.Feature_Diagnostics, Positive (Item_Index));
+                (S.Panel.Feature_Diagnostics, Positive (Item_Index));
             Quick_Fix_Detail : constant String :=
               (if Action_Index = 1
                then Editor.Feature_Diagnostics.Item_Quick_Fix_Detail_For_Display
-                 (S.Feature_Diagnostics, Positive (Item_Index))
+                 (S.Panel.Feature_Diagnostics, Positive (Item_Index))
                else Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Detail_For_Display
-                 (S.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index)));
+                 (S.Panel.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index)));
             Effective_Quick_Fix_Label : constant String :=
               (if Action_Index = 1
                then Quick_Fix_Label
                else Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Label_For_Display
-                 (S.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index)));
+                 (S.Panel.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index)));
          begin
             Descriptor.Display_Label :=
               To_Unbounded_String
@@ -251,73 +251,73 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                  then Effective_Quick_Fix_Label
                  else "Diagnostic action: " &
                    Editor.Feature_Diagnostics.Item_Display_Label
-                     (S.Feature_Diagnostics, Positive (Item_Index)));
+                     (S.Panel.Feature_Diagnostics, Positive (Item_Index)));
             Descriptor.Detail :=
               To_Unbounded_String
                 (if Id = Command_Diagnostic_Apply_Quick_Fix
                  then Quick_Fix_Detail
                  else Editor.Feature_Diagnostics.Item_Source_Display_Label
-                   (S.Feature_Diagnostics, Positive (Item_Index)));
+                   (S.Panel.Feature_Diagnostics, Positive (Item_Index)));
          end;
          Descriptor.Has_Edit :=
            (if Id = Command_Diagnostic_Apply_Quick_Fix
             then Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Has_Edit
-              (S.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index))
+              (S.Panel.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index))
             else Editor.Feature_Diagnostics.Item_Has_Edit
-              (S.Feature_Diagnostics, Positive (Item_Index)));
+              (S.Panel.Feature_Diagnostics, Positive (Item_Index)));
          if Descriptor.Has_Edit then
             Descriptor.Edit_Start_Line :=
               Positive'Max
                 (1, Positive
                   ((if Id = Command_Diagnostic_Apply_Quick_Fix
                     then Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Edit_Start_Line
-                      (S.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index))
+                      (S.Panel.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index))
                     else Editor.Feature_Diagnostics.Item_Edit_Start_Line
-                      (S.Feature_Diagnostics, Positive (Item_Index)))));
+                      (S.Panel.Feature_Diagnostics, Positive (Item_Index)))));
             Descriptor.Edit_Start_Column :=
               Positive'Max
                 (1, Positive
                   ((if Id = Command_Diagnostic_Apply_Quick_Fix
                     then Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Edit_Start_Column
-                      (S.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index))
+                      (S.Panel.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index))
                     else Editor.Feature_Diagnostics.Item_Edit_Start_Column
-                      (S.Feature_Diagnostics, Positive (Item_Index)))));
+                      (S.Panel.Feature_Diagnostics, Positive (Item_Index)))));
             Descriptor.Edit_End_Line :=
               Positive'Max
                 (1, Positive
                   ((if Id = Command_Diagnostic_Apply_Quick_Fix
                     then Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Edit_End_Line
-                      (S.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index))
+                      (S.Panel.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index))
                     else Editor.Feature_Diagnostics.Item_Edit_End_Line
-                      (S.Feature_Diagnostics, Positive (Item_Index)))));
+                      (S.Panel.Feature_Diagnostics, Positive (Item_Index)))));
             Descriptor.Edit_End_Column :=
               Positive'Max
                 (1, Positive
                   ((if Id = Command_Diagnostic_Apply_Quick_Fix
                     then Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Edit_End_Column
-                      (S.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index))
+                      (S.Panel.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index))
                     else Editor.Feature_Diagnostics.Item_Edit_End_Column
-                      (S.Feature_Diagnostics, Positive (Item_Index)))));
+                      (S.Panel.Feature_Diagnostics, Positive (Item_Index)))));
             Descriptor.Replacement_Text :=
               To_Unbounded_String
                 ((if Id = Command_Diagnostic_Apply_Quick_Fix
                   then Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Replacement_Text
-                    (S.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index))
+                    (S.Panel.Feature_Diagnostics, Positive (Item_Index), Positive (Action_Index))
                   else Editor.Feature_Diagnostics.Item_Replacement_Text
-                    (S.Feature_Diagnostics, Positive (Item_Index))));
+                    (S.Panel.Feature_Diagnostics, Positive (Item_Index))));
          end if;
          Descriptor.Start_Line :=
            Positive'Max
              (1, Positive
                (Natural'Max
                   (1, Editor.Feature_Diagnostics.Item_Target_Line
-                    (S.Feature_Diagnostics, Positive (Item_Index)))));
+                    (S.Panel.Feature_Diagnostics, Positive (Item_Index)))));
          Descriptor.Start_Column :=
            Positive'Max
              (1, Positive
                (Natural'Max
                   (1, Editor.Feature_Diagnostics.Item_Target_Column
-                    (S.Feature_Diagnostics, Positive (Item_Index)))));
+                    (S.Panel.Feature_Diagnostics, Positive (Item_Index)))));
          Descriptor.End_Line := Descriptor.Start_Line;
          Descriptor.End_Column := Descriptor.Start_Column;
 
@@ -343,7 +343,7 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                Activation : Editor.Command_Execution.Command_Execution_Result :=
                  Editor.Executor.Diagnostics_Navigation_Commands.Execute_Diagnostic_Row_Activation
                    (S, Row,
-                    Editor.Feature_Panel.Projection_Generation (S.Feature_Panel));
+                    Editor.Feature_Panel.Projection_Generation (S.Panel.Feature_Panel));
             begin
                if Activation.Status = Editor.Command_Execution.Command_Executed then
                   return Result_After_Command (Id);
@@ -356,7 +356,7 @@ package body Editor.Executor.Diagnostics_Action_Commands is
             declare
                Target_Buffer : constant Natural :=
                  Editor.Feature_Diagnostics.Item_Target_Buffer
-                   (S.Feature_Diagnostics, Positive (Item_Index));
+                   (S.Panel.Feature_Diagnostics, Positive (Item_Index));
                Active_Buffer : constant Natural :=
                  Editor.Executor.Active_Feature_Buffer_Token (S);
                Replacement : constant Unbounded_String :=
@@ -482,7 +482,7 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                   Shared_Services.Report_Info
                     (S, To_String (Action_Result.Message) & " in " &
                      Editor.Feature_Diagnostics.Item_Source_Display_Label
-                       (S.Feature_Diagnostics, Positive (Item_Index)) &
+                       (S.Panel.Feature_Diagnostics, Positive (Item_Index)) &
                      "; use Open Buffer Switcher to open the changed buffer");
                end if;
                Editor.Render_Cache.Invalidate_All;
@@ -499,18 +499,18 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                   else 1);
             begin
                Editor.Feature_Search_Results.Begin_External_Result_Set
-                 (S.Feature_Search_Results,
+                 (S.Panel.Feature_Search_Results,
                   Query        => "diagnostic action: " &
                     Diagnostic_Action_Effect_Label (Action_Result.Effect),
                   Source_Label => "Ada diagnostic action");
                Editor.Feature_Search_Results.Add_Search_Result
-                 (S.Feature_Search_Results,
+                 (S.Panel.Feature_Search_Results,
                   Label         => To_String (Action_Result.Message),
                   Source_Label  => To_String (Descriptor.Detail),
                   Has_Target    => Editor.Feature_Diagnostics.Item_Has_Target
-                    (S.Feature_Diagnostics, Positive (Item_Index)),
+                    (S.Panel.Feature_Diagnostics, Positive (Item_Index)),
                   Target_Buffer => Editor.Feature_Diagnostics.Item_Target_Buffer
-                    (S.Feature_Diagnostics, Positive (Item_Index)),
+                    (S.Panel.Feature_Diagnostics, Positive (Item_Index)),
                   Target_Line   => Action_Result.Start_Line,
                   Target_Column => Action_Result.Start_Column,
                   Query         => Diagnostic_Action_Effect_Label
@@ -519,13 +519,13 @@ package body Editor.Executor.Diagnostics_Action_Commands is
                   Match_Column  => Action_Result.Start_Column,
                   Match_Length  => Match_Length);
                Editor.Feature_Search_Results.Reconcile_Search_Results_After_Row_Change
-                 (S.Feature_Search_Results, S.Feature_Panel,
+                 (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel,
                   Select_First_When_Available => True);
                Editor.Panels.Set_Bottom_Content
                  (S.Panels, Editor.Panels.Search_Results_Content);
                Editor.Panels.Set_Visible
                  (S.Panels, Editor.Panels.Bottom_Panel, True);
-               if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
+               if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
                   Editor.Focus_Management.Set_Focus_Owner
                     (S, Editor.Focus_Management.Focus_Project_Search_Results);
                end if;

@@ -61,7 +61,7 @@ package body Editor.Executor.Workspace_Commands is
          when Command_Save_Workspace_State
             | Command_Restore_Workspace_State
             | Command_Clear_Workspace_State =>
-            if not Editor.Project.Has_Project (S.Project) then
+            if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -76,15 +76,15 @@ package body Editor.Executor.Workspace_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      S.Post_Restore_Feedback_Current := True;
+      S.Project_Runtime.Post_Restore_Feedback_Current := True;
    end Mark_Restore_Feedback_Current;
 
    procedure Clear_Restore_Feedback_Current
      (S : in out Editor.State.State_Type)
    is
    begin
-      S.Post_Restore_Feedback_Current := False;
-      S.Last_Restore_Summary_Available := False;
+      S.Project_Runtime.Post_Restore_Feedback_Current := False;
+      S.Project_Runtime.Last_Restore_Summary_Available := False;
    end Clear_Restore_Feedback_Current;
 
    procedure Mark_Restore_Summary_Current
@@ -92,8 +92,8 @@ package body Editor.Executor.Workspace_Commands is
       Summary : Editor.Workspace_Persistence.Workspace_Restore_Summary)
    is
    begin
-      S.Last_Restore_Summary := Summary;
-      S.Last_Restore_Summary_Available := True;
+      S.Project_Runtime.Last_Restore_Summary := Summary;
+      S.Project_Runtime.Last_Restore_Summary_Available := True;
    end Mark_Restore_Summary_Current;
 
    procedure Report_Restore_Success
@@ -342,13 +342,13 @@ package body Editor.Executor.Workspace_Commands is
          return;
       end if;
 
-      for I in 1 .. Editor.Recent_Projects.Count (S.Recent_Projects) loop
+      for I in 1 .. Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) loop
          declare
             Item : constant Editor.Recent_Projects.Recent_Project_Entry :=
-              Editor.Recent_Projects.Item (S.Recent_Projects, I);
+              Editor.Recent_Projects.Item (S.Project_Runtime.Recent_Projects, I);
          begin
             if To_String (Item.Root_Path) = Target then
-               S.Recent_Project_Selected_Index := I;
+               S.Project_Runtime.Recent_Project_Selected_Index := I;
                return;
             end if;
          end;
@@ -387,8 +387,8 @@ package body Editor.Executor.Workspace_Commands is
             Result : constant Editor.Project.Project_Open_Result :=
               Editor.Project.Open_Project (Root);
          begin
-            if Editor.Project.Has_Project (S.Project)
-              and then Editor.Project.Root_Path (S.Project) /= Root
+            if Editor.Project.Has_Project (S.Project_Runtime.Project)
+              and then Editor.Project.Root_Path (S.Project_Runtime.Project) /= Root
             then
                Status := Editor.Workspace_Persistence.Workspace_Persistence_Invalid_Format;
                return;
@@ -397,16 +397,16 @@ package body Editor.Executor.Workspace_Commands is
                return;
             end if;
 
-            if not Editor.Project.Has_Project (S.Project) then
+            if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
                Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project
                  (S, Root, Refresh_Build_Candidates => False);
-               if not Editor.Project.Has_Project (S.Project) then
+               if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
                   Status := Editor.Workspace_Persistence.Workspace_Persistence_Read_Error;
                   return;
                end if;
             end if;
          end;
-      elsif not Editor.Project.Has_Project (S.Project) then
+      elsif not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Status := Editor.Workspace_Persistence.Workspace_Persistence_Invalid_Format;
          return;
       end if;
@@ -621,14 +621,14 @@ package body Editor.Executor.Workspace_Commands is
          Restored_Quick_Open_Filter
            (Editor.Workspace_Persistence.Quick_Open_File_Kind_Filter (Snapshot)));
       if not Editor.Feature_Panel.Set_Active_Feature
-        (S.Feature_Panel,
+        (S.Panel.Feature_Panel,
          Restored_Feature_Panel
            (Editor.Workspace_Persistence.Active_Feature_Panel (Snapshot)))
       then
          Partial := True;
       end if;
       Editor.Feature_Panel.Set_Visible
-        (S.Feature_Panel,
+        (S.Panel.Feature_Panel,
          Editor.Workspace_Persistence.Feature_Panel_Visible (Snapshot));
       Restore_Recent_Project_Selection (S, Snapshot);
 
@@ -683,7 +683,7 @@ package body Editor.Executor.Workspace_Commands is
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status   : Editor.Workspace_Persistence.Workspace_Persistence_Status;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Info (S, "No project open");
          return;
       end if;
@@ -692,7 +692,7 @@ package body Editor.Executor.Workspace_Commands is
       Editor.Workspace_Persistence.Save_To_File_Atomically
         (Snapshot,
          Editor.Workspace_Persistence.Session_File_Path
-           (Editor.Project.Root_Path (S.Project)),
+           (Editor.Project.Root_Path (S.Project_Runtime.Project)),
          Status);
 
       if Status = Editor.Workspace_Persistence.Workspace_Persistence_Ok then
@@ -710,7 +710,7 @@ package body Editor.Executor.Workspace_Commands is
       Restore_Status : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary        : Editor.Workspace_Persistence.Workspace_Restore_Summary;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Info (S, "No project open");
          return;
       end if;
@@ -727,7 +727,7 @@ package body Editor.Executor.Workspace_Commands is
               (S,
                Pending_Target_For
                  (Editor.Pending_Transitions.Pending_Restore_Workspace,
-                  Path    => Editor.Project.Root_Path (S.Project),
+                  Path    => Editor.Project.Root_Path (S.Project_Runtime.Project),
                   Display => "workspace state"),
                Guard);
             return;
@@ -736,7 +736,7 @@ package body Editor.Executor.Workspace_Commands is
 
       Editor.Workspace_Persistence.Load_From_File
         (Editor.Workspace_Persistence.Session_File_Path
-           (Editor.Project.Root_Path (S.Project)),
+           (Editor.Project.Root_Path (S.Project_Runtime.Project)),
          Snapshot,
          Load_Status);
 
@@ -745,7 +745,7 @@ package body Editor.Executor.Workspace_Commands is
             | Editor.Workspace_Persistence.Workspace_Persistence_Partial_Restore =>
             if Editor.Workspace_Persistence.Has_Project_Root (Snapshot)
               and then Editor.Workspace_Persistence.Project_Root (Snapshot) /=
-                Editor.Project.Root_Path (S.Project)
+                Editor.Project.Root_Path (S.Project_Runtime.Project)
             then
                Report_Error (S, "Workspace could not be restored.");
                return;
@@ -786,14 +786,14 @@ package body Editor.Executor.Workspace_Commands is
    is
       Path : Unbounded_String;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Info (S, "No project open");
          return;
       end if;
 
       Path := To_Unbounded_String
         (Editor.Workspace_Persistence.Session_File_Path
-           (Editor.Project.Root_Path (S.Project)));
+           (Editor.Project.Root_Path (S.Project_Runtime.Project)));
 
       if not Ada.Directories.Exists (To_String (Path)) then
          Invalidate_Pending_Transition_If_Stale (S);
@@ -806,7 +806,7 @@ package body Editor.Executor.Workspace_Commands is
            (S.Pending_Transitions,
             Pending_Target_For
               (Editor.Pending_Transitions.Pending_Clear_Workspace_State,
-               Path    => Editor.Project.Root_Path (S.Project),
+               Path    => Editor.Project.Root_Path (S.Project_Runtime.Project),
                Display => "workspace state"),
             (Dirty_Count       => 0,
              Untitled_Count    => 0,
@@ -863,7 +863,7 @@ package body Editor.Executor.Workspace_Commands is
             Found : Boolean := False;
             Msg   : Editor.Messages.Editor_Message;
          begin
-            Msg := Editor.Messages.Active_Message (S.Messages, Found);
+            Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
             if Found
               and then Editor.Messages.Severity (Msg) =
                 Editor.Messages.Error_Message

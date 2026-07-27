@@ -115,7 +115,7 @@ package body Editor.Search_Results_Audit is
      (State : Editor.State.State_Type) return Boolean
    is
       Copy   : Editor.Feature_Search_Results.Search_Results_Feature_State :=
-        State.Feature_Search_Results;
+        State.Panel.Feature_Search_Results;
       Before : constant String := Editor.State.Current_Text (State);
    begin
       Editor.Feature_Search_Results.Activate_Search_Query_Input (Copy);
@@ -264,21 +264,21 @@ package body Editor.Search_Results_Audit is
       Review : Search_Results_Contract_Review;
    begin
       Review.Active_Buffer_Only :=
-        Active_Buffer_Scope_Check (State.Feature_Search_Results, State.Buffer_Lifecycle.Registry_Token);
+        Active_Buffer_Scope_Check (State.Panel.Feature_Search_Results, State.Buffer_Lifecycle.Registry_Token);
       Review.Search_Command_Owned := Search_Command_Owned_Check;
       Review.Matching_Deterministic := Matching_Determinism_Check;
       Review.Query_Input_Non_Mutating := Query_Input_Check (State);
       Review.Results_Transient := True;
       Review.Projection_Side_Effect_Free :=
-        Projection_Purity_Check (State.Feature_Search_Results);
+        Projection_Purity_Check (State.Panel.Feature_Search_Results);
       Review.Selection_Stable :=
-        Selection_Stability_Check (State.Feature_Search_Results);
+        Selection_Stability_Check (State.Panel.Feature_Search_Results);
       Review.Targets_Validated :=
-        Target_Validation_Check (State.Feature_Search_Results, State.Buffer_Lifecycle.Registry_Token);
+        Target_Validation_Check (State.Panel.Feature_Search_Results, State.Buffer_Lifecycle.Registry_Token);
       Review.Query_History_Bounded :=
-        Query_History_Check (State.Feature_Search_Results);
+        Query_History_Check (State.Panel.Feature_Search_Results);
       Review.Lifecycle_Reset_Stable :=
-        Lifecycle_Check (State.Feature_Search_Results, State.Buffer_Lifecycle.Registry_Token);
+        Lifecycle_Check (State.Panel.Feature_Search_Results, State.Buffer_Lifecycle.Registry_Token);
       Review.Persistence_Clean := Manifest.Persistence_Exclusion_Clean;
       Review.Feature_Panel_Intact := Panel_Review.Review_Passed;
       Review.Command_Surface_Intact := Command_Review.Review_Passed;

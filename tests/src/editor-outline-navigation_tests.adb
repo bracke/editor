@@ -59,7 +59,7 @@ package body Editor.Outline.Navigation_Tests is
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (Msg);
       end if;
@@ -183,7 +183,7 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "refresh setup executes");
-      Editor.Feature_Panel.Select_First (S.Feature_Panel);
+      Editor.Feature_Panel.Select_First (S.Panel.Feature_Panel);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -207,7 +207,7 @@ package body Editor.Outline.Navigation_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
-      Editor.Feature_Panel.Select_First (S.Feature_Panel);
+      Editor.Feature_Panel.Select_First (S.Panel.Feature_Panel);
       Editor.Outline.Clear (S.Outline);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
@@ -234,10 +234,10 @@ package body Editor.Outline.Navigation_Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "refresh executes with active buffer");
       Outline_First := Fingerprint (S.Outline);
-      Panel_First := Editor.Feature_Panel.Fingerprint (S.Feature_Panel);
+      Panel_First := Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel);
 
-      Editor.Feature_Panel.Select_First (S.Feature_Panel);
-      Assert (not Editor.Feature_Panel.Has_Selection (S.Feature_Panel),
+      Editor.Feature_Panel.Select_First (S.Panel.Feature_Panel);
+      Assert (not Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel),
               "display-only empty outline row is not selectable before replacement refresh");
       Editor.State.Load_Text (S, "different active text still must not affect outline");
 
@@ -247,17 +247,17 @@ package body Editor.Outline.Navigation_Tests is
               "replacement refresh executes");
       Assert (Fingerprint (S.Outline) = Outline_First,
               "refresh twice produces identical outline fingerprint");
-      Assert (Editor.Feature_Panel.Fingerprint (S.Feature_Panel).Row_Labels_Hash =
+      Assert (Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel).Row_Labels_Hash =
                 Panel_First.Row_Labels_Hash,
               "refresh twice produces identical feature-panel row label fingerprint");
-      Assert (Editor.Feature_Panel.Fingerprint (S.Feature_Panel).Row_Details_Hash =
+      Assert (Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel).Row_Details_Hash =
                 Panel_First.Row_Details_Hash,
               "refresh twice produces identical feature-panel row detail fingerprint");
-      Assert (not Editor.Feature_Panel.Has_Selection (S.Feature_Panel),
+      Assert (not Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel),
               "refresh clears feature-panel selection");
-      Assert (Editor.Feature_Panel.Is_Visible (S.Feature_Panel),
+      Assert (Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel),
               "refresh shows the feature panel");
-      Assert (not Editor.Feature_Panel.Is_Focused (S.Feature_Panel),
+      Assert (not Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel),
               "refresh does not focus the feature panel");
    end Test_Refresh_Replaces_And_Clears_Selection;
 
@@ -271,13 +271,13 @@ package body Editor.Outline.Navigation_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Reset_Test" & ASCII.LF & "x");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
-      Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_First (S.Feature_Panel);
+      Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_First (S.Panel.Feature_Panel);
 
       Assert (not Editor.Outline.Feature_Row_Maps_To_Item
-                (S.Outline, S.Feature_Panel,
-                 Editor.Feature_Panel.Selected_Row (S.Feature_Panel)),
+                (S.Outline, S.Panel.Feature_Panel,
+                 Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel)),
               "generic feature-panel rows are not current outline projections");
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
@@ -652,12 +652,12 @@ package body Editor.Outline.Navigation_Tests is
 
       Assert (Current_Symbol_Label (S.Outline) = "procedure Later",
               "cursor movement updates passive current-symbol state");
-      Assert (Editor.Feature_Panel.Header_Text (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Header_Text (S.Panel.Feature_Panel) =
                 "Outline: procedure Later",
               "cursor movement refreshes compact outline header projection");
-      Assert (Editor.Feature_Panel.Row_Is_Current_Symbol (S.Feature_Panel, 2),
+      Assert (Editor.Feature_Panel.Row_Is_Current_Symbol (S.Panel.Feature_Panel, 2),
               "cursor movement marks the current-symbol row projection");
-      Assert (not Editor.Feature_Panel.Has_Selection (S.Feature_Panel),
+      Assert (not Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel),
               "cursor movement does not steal outline selection");
    end Test_Cursor_Move_Command_Updates_Current_Symbol_Projection;
 
@@ -689,14 +689,14 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "reveal current symbol command executes");
-      Assert (Editor.Feature_Panel.Is_Visible (S.Feature_Panel),
+      Assert (Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel),
               "reveal current symbol shows the outline panel");
-      Assert (Editor.Feature_Panel.Requested_Reveal_Row (S.Feature_Panel) = 2,
+      Assert (Editor.Feature_Panel.Requested_Reveal_Row (S.Panel.Feature_Panel) = 2,
               "reveal current symbol requests reveal of the current-symbol row");
       Assert (Selected_Index (S.Outline) = 2,
               "reveal current symbol selects the matching outline row");
-      Assert (Editor.Feature_Panel.Has_Selection (S.Feature_Panel)
-              and then Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 2,
+      Assert (Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel)
+              and then Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 2,
               "reveal current symbol mirrors feature-panel selection");
    end Test_Reveal_Current_Symbol_Requests_Reveal;
 
@@ -723,7 +723,7 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "reveal current symbol is unavailable without a current symbol");
-      Assert (Editor.Feature_Panel.Requested_Reveal_Row (S.Feature_Panel) = 0,
+      Assert (Editor.Feature_Panel.Requested_Reveal_Row (S.Panel.Feature_Panel) = 0,
               "no-current reveal leaves no reveal request");
       Assert (Active_Message_Text (S) = Editor.Outline.Message_Outline_No_Current_Symbol,
               "no-current reveal emits deterministic feedback");
@@ -755,9 +755,9 @@ package body Editor.Outline.Navigation_Tests is
               "select current symbol executes");
       Assert (Selected_Index (S.Outline) = 2,
               "select current symbol intentionally changes outline selection");
-      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 2,
+      Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 2,
               "select current symbol mirrors feature-panel selection");
-      Assert (Editor.Feature_Panel.Requested_Reveal_Row (S.Feature_Panel) = 2,
+      Assert (Editor.Feature_Panel.Requested_Reveal_Row (S.Panel.Feature_Panel) = 2,
               "select current symbol also requests reveal of selected row");
    end Test_Select_Current_Symbol_Changes_Selection_And_Reveals;
 
@@ -786,9 +786,9 @@ package body Editor.Outline.Navigation_Tests is
               "fixture current symbol is row two before open-selected");
 
       Select_Item (S.Outline, 1);
-      Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
@@ -820,15 +820,15 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Command_Ids.Command_Focus_Outline);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "fixture focuses feature panel");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 2);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 2);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "open-selected succeeds for a live selected outline target");
-      Assert (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel_Focus),
+      Assert (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus),
               "successful outline open-selected should return focus to editor text");
-      Assert (not Editor.Feature_Panel.Is_Focused (S.Feature_Panel),
+      Assert (not Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel),
               "successful outline open-selected should clear feature-panel focus");
    end Test_Outline_Open_Selected_Returns_Focus_To_Editor_On_Success;
 
@@ -846,13 +846,13 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Focus_Outline);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 0);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 0);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "open-selected without a selected target should be unavailable");
-      Assert (Editor.Feature_Panel.Is_Focused (S.Feature_Panel),
+      Assert (Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel),
               "failed open-selected should not steal feature-panel focus");
    end Test_Outline_Open_Selected_Does_Not_Return_Focus_On_No_Target;
 
@@ -880,8 +880,8 @@ package body Editor.Outline.Navigation_Tests is
       Assert (Current_Symbol_Index (S.Outline) = 2,
               "fixture has current symbol on row two");
       Select_Item (S.Outline, 1);
-      Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
@@ -917,7 +917,7 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Command_Ids.Command_Select_Current_Outline_Symbol);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "select-current-symbol executes");
-      Assert (Editor.Feature_Panel.Is_Focused (S.Feature_Panel),
+      Assert (Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel),
               "select-current-symbol should preserve feature-panel focus");
    end Test_Outline_Select_Current_Symbol_Preserves_Focus;
 
@@ -967,7 +967,7 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Command_Ids.Command_Select_Next_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "select-next reveal fixture executes");
-      Assert (Editor.Feature_Panel.Requested_Reveal_Row (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Requested_Reveal_Row (S.Panel.Feature_Panel) =
                 Editor.Outline.Selected_Index (S.Outline),
               "select-next should request reveal for the new selected row");
    end Test_Outline_Select_Next_Requests_Reveal;
@@ -986,12 +986,12 @@ package body Editor.Outline.Navigation_Tests is
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Select_Item (S.Outline, 2);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 2);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 2);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Select_Previous_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "select-previous reveal fixture executes");
-      Assert (Editor.Feature_Panel.Requested_Reveal_Row (S.Feature_Panel) =
+      Assert (Editor.Feature_Panel.Requested_Reveal_Row (S.Panel.Feature_Panel) =
                 Editor.Outline.Selected_Index (S.Outline),
               "select-previous should request reveal for the new selected row");
    end Test_Outline_Select_Previous_Requests_Reveal;
@@ -1021,11 +1021,11 @@ package body Editor.Outline.Navigation_Tests is
               "mouse click should select a live outline row");
       Assert (Editor.Outline.Selected_Index (S.Outline) = 2,
               "mouse click updates outline selection");
-      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 2,
+      Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 2,
               "mouse click mirrors feature-panel selection");
       Assert (S.Carets (S.Carets.First_Index).Pos = Before,
               "mouse click must not navigate the editor cursor");
-      Assert (Editor.Feature_Panel.Is_Focused (S.Feature_Panel),
+      Assert (Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel),
               "mouse click preserves feature-panel focus");
    end Test_Outline_Mouse_Click_Selects_Row_Without_Navigation;
 
@@ -1058,9 +1058,9 @@ package body Editor.Outline.Navigation_Tests is
       Editor.State.Row_Col_For_Index (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
       Assert (Row = 2,
               "mouse activation navigates to the selected row target");
-      Assert (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel_Focus),
+      Assert (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus),
               "successful mouse activation returns focus to editor text");
-      Assert (not Editor.Feature_Panel.Is_Focused (S.Feature_Panel),
+      Assert (not Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel),
               "successful mouse activation clears feature-panel focus");
    end Test_Outline_Mouse_Double_Click_Opens_Selected_Row;
 
@@ -1079,7 +1079,7 @@ package body Editor.Outline.Navigation_Tests is
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Focus_Outline);
       Populate_Synthetic_Outline (S.Outline);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
       Before := S.Carets (S.Carets.First_Index).Pos;
 
       Result :=
@@ -1088,7 +1088,7 @@ package body Editor.Outline.Navigation_Tests is
               "placeholder/diagnostic row activation should be rejected");
       Assert (S.Carets (S.Carets.First_Index).Pos = Before,
               "rejected diagnostic activation must not move the cursor");
-      Assert (Editor.Feature_Panel.Is_Focused (S.Feature_Panel),
+      Assert (Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel),
               "rejected diagnostic activation must not return focus to editor text");
    end Test_Outline_Mouse_Click_Diagnostic_Row_Does_Not_Navigate;
 
@@ -1107,7 +1107,7 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Focus_Outline);
-      Gen := Editor.Feature_Panel.Projection_Generation (S.Feature_Panel);
+      Gen := Editor.Feature_Panel.Projection_Generation (S.Panel.Feature_Panel);
       Before := S.Carets (S.Carets.First_Index).Pos;
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Clear_Outline);
@@ -1116,7 +1116,7 @@ package body Editor.Outline.Navigation_Tests is
         Editor.Executor.Outline_Commands.Execute_Outline_Row_Click (S, 1, Gen);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "stale mouse projection should be rejected");
-      Assert (not Editor.Feature_Panel.Has_Selection (S.Feature_Panel),
+      Assert (not Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel),
               "stale mouse projection must not recreate selection");
       Assert (S.Carets (S.Carets.First_Index).Pos = Before,
               "stale mouse projection must not navigate");
@@ -1225,8 +1225,8 @@ package body Editor.Outline.Navigation_Tests is
              Line         => 99,
              Column       => 1)));
       Select_Item (S.Outline, 1);
-      Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Open_Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
@@ -1518,7 +1518,7 @@ package body Editor.Outline.Navigation_Tests is
              Column       => 4)));
       Apply_Filter (S.Outline, "run");
       Update_Current_Symbol_For_Cursor (S.Outline, S.Buffer_Lifecycle.Registry_Token, 2, 4);
-      Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
 
       Before_FP := Fingerprint (S.Outline);
       Before_Select := Selected_Index (S.Outline);
@@ -1580,8 +1580,8 @@ package body Editor.Outline.Navigation_Tests is
               "reveal current executes after lexical-safe refresh");
       Assert (Selected_Index (S.Outline) = 3,
               "reveal current selects only the real procedure row");
-      Assert (Editor.Feature_Panel.Has_Selection (S.Feature_Panel)
-              and then Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 3,
+      Assert (Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel)
+              and then Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 3,
               "reveal current mirrors the real row into feature-panel selection");
    end Test_Ada_Current_Symbol_And_Reveal_Skip_Fakes;
 
@@ -1753,7 +1753,7 @@ package body Editor.Outline.Navigation_Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
       Assert (Item_Count (S.Outline) > 0,
               "close-buffer setup has outline rows");
-      Editor.Feature_Panel.Select_First (S.Feature_Panel);
+      Editor.Feature_Panel.Select_First (S.Panel.Feature_Panel);
       Before := S.Carets (S.Carets.First_Index).Pos;
 
       Reset_Outline_For_Buffer_Close (S.Outline, S.Buffer_Lifecycle.Active_Buffer_Token);

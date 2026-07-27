@@ -30,7 +30,7 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
       Status : Editor.Recent_Projects.Recent_Project_Status;
    begin
       Editor.Recent_Projects.Save_To_File
-        (S.Recent_Projects,
+        (S.Project_Runtime.Recent_Projects,
          Editor.Recent_Projects.Recent_Projects_File_Path,
          Status);
       if Status /= Editor.Recent_Projects.Recent_Project_Ok then
@@ -47,8 +47,8 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      if Editor.Messages.Count (S.Messages) > Before_Messages then
-         Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      if Editor.Messages.Count (S.Panel.Messages) > Before_Messages then
+         Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
          if Found then
             if Editor.Messages.Severity (Msg) =
               Editor.Messages.Error_Message
@@ -68,24 +68,24 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
    procedure Ensure_Recent_Project_Selection
      (S : in out Editor.State.State_Type)
    is
-      Total : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
+      Total : constant Natural := Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects);
    begin
       if Total = 0 then
-         S.Recent_Project_Selected_Index := 0;
-      elsif S.Recent_Project_Selected_Index not in 1 .. Total then
-         S.Recent_Project_Selected_Index := 1;
+         S.Project_Runtime.Recent_Project_Selected_Index := 0;
+      elsif S.Project_Runtime.Recent_Project_Selected_Index not in 1 .. Total then
+         S.Project_Runtime.Recent_Project_Selected_Index := 1;
       end if;
    end Ensure_Recent_Project_Selection;
 
    function Selected_Recent_Project_Index
      (S : Editor.State.State_Type) return Natural
    is
-      Total : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
+      Total : constant Natural := Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects);
    begin
       if Total = 0 then
          return 0;
-      elsif S.Recent_Project_Selected_Index in 1 .. Total then
-         return S.Recent_Project_Selected_Index;
+      elsif S.Project_Runtime.Recent_Project_Selected_Index in 1 .. Total then
+         return S.Project_Runtime.Recent_Project_Selected_Index;
       else
          return 1;
       end if;
@@ -97,14 +97,14 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
    is
       Item : Editor.Recent_Projects.Recent_Project_Entry;
    begin
-      if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
+      if Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0 then
          Report_Info (S, "No recent projects");
          return;
       end if;
 
       Ensure_Recent_Project_Selection (S);
       Item := Editor.Recent_Projects.Item
-        (S.Recent_Projects, Selected_Recent_Project_Index (S));
+        (S.Project_Runtime.Recent_Projects, Selected_Recent_Project_Index (S));
       Report_Info
         (S,
          Prefix & ": " & To_String (Item.Display_Name)
@@ -117,20 +117,20 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
    procedure Execute_Select_Next_Recent_Project
      (S : in out Editor.State.State_Type)
    is
-      Total : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
+      Total : constant Natural := Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects);
    begin
       if Total = 0 then
          Report_Info (S, "No recent projects");
-         S.Recent_Project_Selected_Index := 0;
+         S.Project_Runtime.Recent_Project_Selected_Index := 0;
          return;
       end if;
 
-      if S.Recent_Project_Selected_Index not in 1 .. Total then
-         S.Recent_Project_Selected_Index := 1;
-      elsif S.Recent_Project_Selected_Index >= Total then
-         S.Recent_Project_Selected_Index := 1;
+      if S.Project_Runtime.Recent_Project_Selected_Index not in 1 .. Total then
+         S.Project_Runtime.Recent_Project_Selected_Index := 1;
+      elsif S.Project_Runtime.Recent_Project_Selected_Index >= Total then
+         S.Project_Runtime.Recent_Project_Selected_Index := 1;
       else
-         S.Recent_Project_Selected_Index := S.Recent_Project_Selected_Index + 1;
+         S.Project_Runtime.Recent_Project_Selected_Index := S.Project_Runtime.Recent_Project_Selected_Index + 1;
       end if;
       Report_Selected_Recent_Project (S, "Selected recent project");
    end Execute_Select_Next_Recent_Project;
@@ -138,20 +138,20 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
    procedure Execute_Select_Previous_Recent_Project
      (S : in out Editor.State.State_Type)
    is
-      Total : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
+      Total : constant Natural := Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects);
    begin
       if Total = 0 then
          Report_Info (S, "No recent projects");
-         S.Recent_Project_Selected_Index := 0;
+         S.Project_Runtime.Recent_Project_Selected_Index := 0;
          return;
       end if;
 
-      if S.Recent_Project_Selected_Index not in 1 .. Total then
-         S.Recent_Project_Selected_Index := Total;
-      elsif S.Recent_Project_Selected_Index <= 1 then
-         S.Recent_Project_Selected_Index := Total;
+      if S.Project_Runtime.Recent_Project_Selected_Index not in 1 .. Total then
+         S.Project_Runtime.Recent_Project_Selected_Index := Total;
+      elsif S.Project_Runtime.Recent_Project_Selected_Index <= 1 then
+         S.Project_Runtime.Recent_Project_Selected_Index := Total;
       else
-         S.Recent_Project_Selected_Index := S.Recent_Project_Selected_Index - 1;
+         S.Project_Runtime.Recent_Project_Selected_Index := S.Project_Runtime.Recent_Project_Selected_Index - 1;
       end if;
       Report_Selected_Recent_Project (S, "Selected recent project");
    end Execute_Select_Previous_Recent_Project;
@@ -159,7 +159,7 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
    procedure Execute_Show_Recent_Projects
      (S : in out Editor.State.State_Type)
    is
-      Total : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
+      Total : constant Natural := Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects);
       Summary : Unbounded_String := Null_Unbounded_String;
       Selected : Natural := 0;
    begin
@@ -168,7 +168,7 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
          return;
       end if;
 
-      Editor.Recent_Projects.Refresh_Availability (S.Recent_Projects);
+      Editor.Recent_Projects.Refresh_Availability (S.Project_Runtime.Recent_Projects);
       Ensure_Recent_Project_Selection (S);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Recent_Projects);
@@ -177,24 +177,24 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
         (Summary,
          "Recent projects: "
          & Ada.Strings.Fixed.Trim (Natural'Image (Total), Ada.Strings.Both));
-      if Editor.Recent_Projects.Available_Count (S.Recent_Projects) = 0 then
+      if Editor.Recent_Projects.Available_Count (S.Project_Runtime.Recent_Projects) = 0 then
          Append (Summary, "; No available recent projects");
-         if Editor.Recent_Projects.Unavailable_Count (S.Recent_Projects) > 0 then
+         if Editor.Recent_Projects.Unavailable_Count (S.Project_Runtime.Recent_Projects) > 0 then
             Append (Summary, "; project path no longer exists");
          end if;
-      elsif Editor.Recent_Projects.Unavailable_Count (S.Recent_Projects) > 0 then
+      elsif Editor.Recent_Projects.Unavailable_Count (S.Project_Runtime.Recent_Projects) > 0 then
          Append
            (Summary,
             "; unavailable: "
             & Ada.Strings.Fixed.Trim
               (Natural'Image
-                 (Editor.Recent_Projects.Unavailable_Count (S.Recent_Projects)),
+                 (Editor.Recent_Projects.Unavailable_Count (S.Project_Runtime.Recent_Projects)),
                Ada.Strings.Both));
       end if;
       for Index in 1 .. Total loop
          declare
             Item : constant Editor.Recent_Projects.Recent_Project_Entry :=
-              Editor.Recent_Projects.Item (S.Recent_Projects, Index);
+              Editor.Recent_Projects.Item (S.Project_Runtime.Recent_Projects, Index);
          begin
             Append
               (Summary,
@@ -211,10 +211,10 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
    is
       Status : Editor.Recent_Projects.Recent_Project_Status;
    begin
-      Editor.Recent_Projects.Clear (S.Recent_Projects);
-      S.Recent_Project_Selected_Index := 0;
+      Editor.Recent_Projects.Clear (S.Project_Runtime.Recent_Projects);
+      S.Project_Runtime.Recent_Project_Selected_Index := 0;
       Editor.Recent_Projects.Save_To_File
-        (S.Recent_Projects,
+        (S.Project_Runtime.Recent_Projects,
          Editor.Recent_Projects.Recent_Projects_File_Path,
          Status);
       if Status /= Editor.Recent_Projects.Recent_Project_Ok then
@@ -227,14 +227,14 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
+      if Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0 then
          Report_Info (S, "No recent project selected");
          return;
       end if;
 
       Ensure_Recent_Project_Selection (S);
       Editor.Recent_Projects.Remove_At
-        (S.Recent_Projects, Selected_Recent_Project_Index (S));
+        (S.Project_Runtime.Recent_Projects, Selected_Recent_Project_Index (S));
       Ensure_Recent_Project_Selection (S);
       Save_Recent_Projects_Best_Effort (S);
       Report_Info (S, "Removed recent project");
@@ -245,7 +245,7 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
    is
       Removed : Natural := 0;
    begin
-      Removed := Editor.Recent_Projects.Remove_Missing (S.Recent_Projects);
+      Removed := Editor.Recent_Projects.Remove_Missing (S.Project_Runtime.Recent_Projects);
       if Removed = 0 then
          Report_Info (S, "No unavailable recent projects");
          return;
@@ -265,7 +265,7 @@ package body Editor.Executor.Project_Lifecycle_Recent_Commands is
       Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
-      Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
+      Before_Messages : constant Natural := Editor.Messages.Count (S.Panel.Messages);
    begin
       case Id is
          when Editor.Command_Ids.Command_Show_Recent_Projects =>

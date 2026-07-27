@@ -27,7 +27,7 @@ package body Editor.Input_Bridge.Buffer_Switcher_Handlers is
       end if;
 
       if not Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
       then
          return False;
       end if;

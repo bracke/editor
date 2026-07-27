@@ -34,9 +34,9 @@ package body Editor.Focus_Management is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus)
+      return Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus)
         or else Editor.Feature_Search_Results.Search_Input_Is_Active
-          (S.Feature_Search_Results)
+          (S.Panel.Feature_Search_Results)
         or else Editor.Outline.Filter_Input_Is_Active (S.Outline);
    end Overlay_Input_Owns_Text;
 
@@ -58,7 +58,7 @@ package body Editor.Focus_Management is
          end if;
       end if;
 
-      case Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus) is
+      case Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus) is
          when Editor.Overlay_Focus.Command_Palette_Overlay =>
             return Focus_Command_Palette;
          when Editor.Overlay_Focus.Quick_Open_Overlay =>
@@ -91,16 +91,16 @@ package body Editor.Focus_Management is
          return Focus_Terminal;
       elsif S.Build.Build_UI.Build_UI_Focused then
          return Focus_Build_UI;
-      elsif S.Recent_Projects_Focused then
+      elsif S.Project_Runtime.Recent_Projects_Focused then
          return Focus_Recent_Projects;
       elsif Editor.Feature_Search_Results.Search_Input_Is_Active
-        (S.Feature_Search_Results)
+        (S.Panel.Feature_Search_Results)
       then
          return Focus_Project_Search_Query;
       elsif Editor.Outline.Filter_Input_Is_Active (S.Outline) then
          return Focus_Outline_Filter;
-      elsif Editor.Feature_Panel.Is_Focused (S.Feature_Panel) then
-         case Editor.Feature_Panel.Active_Feature (S.Feature_Panel) is
+      elsif Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel) then
+         case Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) is
             when Editor.Feature_Panel.Outline_Feature =>
                return Focus_Outline;
             when Editor.Feature_Panel.Diagnostics_Feature =>
@@ -112,13 +112,13 @@ package body Editor.Focus_Management is
          end case;
       end if;
 
-      case Editor.Panel_Focus.Target (S.Panel_Focus) is
+      case Editor.Panel_Focus.Target (S.Panel.Panel_Focus) is
          when Editor.Panel_Focus.Editor_Text_Focus =>
             return Focus_Editor;
          when Editor.Panel_Focus.File_Tree_Focus =>
             return Focus_File_Tree;
          when Editor.Panel_Focus.Bottom_Panel_Focus =>
-            case Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) is
+            case Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) is
                when Editor.Panel_Focus.Search_Results_Focus =>
                   return Focus_Project_Search_Results;
                when Editor.Panel_Focus.Problems_Focus =>
@@ -889,13 +889,13 @@ package body Editor.Focus_Management is
                if Owner in Focus_Project_Search_Query
                   | Focus_Project_Replace_Input
                then
-                  if Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus) =
+                  if Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus) =
                     Editor.Overlay_Focus.Project_Search_Bar_Overlay
                   then
                      return Is_Project_Search_Command_Id (Id)
                        or else Command_Closes_Focus_Owner (Id, Owner);
                   elsif Editor.Feature_Search_Results.Search_Input_Is_Active
-                    (S.Feature_Search_Results)
+                    (S.Panel.Feature_Search_Results)
                   then
                      return Is_Feature_Search_Query_Command_Id (Id);
                   else
@@ -1227,11 +1227,11 @@ package body Editor.Focus_Management is
    is
    begin
       return (not Editor.Feature_Search_Results.Search_Input_Is_Active
-          (S.Feature_Search_Results))
+          (S.Panel.Feature_Search_Results))
         or else
-          (Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
-           and then Editor.Feature_Panel.Is_Focused (S.Feature_Panel)
-           and then Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+          (Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel)
+           and then Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel)
+           and then Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
              Editor.Feature_Panel.Search_Results_Feature);
    end Feature_Search_Input_Has_Valid_Parent;
 
@@ -1241,9 +1241,9 @@ package body Editor.Focus_Management is
    begin
       return (not Editor.Outline.Filter_Input_Is_Active (S.Outline))
         or else
-          (Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
-           and then Editor.Feature_Panel.Is_Focused (S.Feature_Panel)
-           and then Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+          (Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel)
+           and then Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel)
+           and then Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
              Editor.Feature_Panel.Outline_Feature);
    end Outline_Filter_Input_Has_Valid_Parent;
 
@@ -1267,18 +1267,18 @@ package body Editor.Focus_Management is
          return Effective_Focus_Owner (S) = Focus_Pending_Confirmation;
       end if;
 
-      Count (Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus));
+      Count (Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus));
       Count (Editor.Feature_Search_Results.Search_Input_Is_Active
-        (S.Feature_Search_Results));
+        (S.Panel.Feature_Search_Results));
       Count (Editor.Outline.Filter_Input_Is_Active (S.Outline));
-      Count (Editor.Feature_Panel.Is_Focused (S.Feature_Panel)
+      Count (Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel)
         and then not Editor.Feature_Search_Results.Search_Input_Is_Active
-          (S.Feature_Search_Results)
+          (S.Panel.Feature_Search_Results)
         and then not Editor.Outline.Filter_Input_Is_Active (S.Outline));
       Count (S.Build.Build_UI.Build_UI_Focused);
       Count (S.Build.Latest_Result_Focused);
       Count (S.Build.Latest_Output_Details.Build_Output_Details_Focused);
-      Count (S.Recent_Projects_Focused);
+      Count (S.Project_Runtime.Recent_Projects_Focused);
 
       --  Embedded text inputs are valid only when their parent Feature Panel
       --  surface remains visible and focused.  They are child owners, not
@@ -1302,22 +1302,22 @@ package body Editor.Focus_Management is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus) then
+      if Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus) then
          Editor.Overlay_Focus.Dismiss
-           (S.Overlay_Focus, Editor.Overlay_Focus.Dismiss_Command);
+           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Dismiss_Command);
       end if;
 
       S.Build.Build_UI.Build_UI_Focused := False;
       Editor.Terminal_Tasks.Unfocus (S.Build.Terminal_Tasks);
       S.Build.Latest_Result_Focused := False;
       S.Build.Latest_Output_Details.Build_Output_Details_Focused := False;
-      S.Recent_Projects_Focused := False;
+      S.Project_Runtime.Recent_Projects_Focused := False;
 
       if Editor.Feature_Search_Results.Search_Input_Is_Active
-        (S.Feature_Search_Results)
+        (S.Panel.Feature_Search_Results)
       then
          Editor.Feature_Search_Results.Deactivate_Search_Query_Input
-           (S.Feature_Search_Results);
+           (S.Panel.Feature_Search_Results);
       end if;
 
       if Editor.Outline.Filter_Input_Is_Active (S.Outline) then
@@ -1342,13 +1342,13 @@ package body Editor.Focus_Management is
    is
    begin
       Clear_Overlay_And_Local_Text_Focus (S);
-      Editor.Feature_Panel.Set_Focused (S.Feature_Panel, False);
+      Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, False);
       S.Build.Build_UI.Build_UI_Focused := False;
       Editor.Terminal_Tasks.Unfocus (S.Build.Terminal_Tasks);
       S.Build.Latest_Result_Focused := False;
       S.Build.Latest_Output_Details.Build_Output_Details_Focused := False;
-      S.Recent_Projects_Focused := False;
-      Editor.Panel_Focus.Focus_Editor_Text (S.Panel_Focus);
+      S.Project_Runtime.Recent_Projects_Focused := False;
+      Editor.Panel_Focus.Focus_Editor_Text (S.Panel.Panel_Focus);
    end Restore_Focus_To_Editor;
 
 
@@ -1361,7 +1361,7 @@ package body Editor.Focus_Management is
          when Editor.Overlay_Focus.Previous_Editor_Text =>
             return True;
          when Editor.Overlay_Focus.Previous_File_Tree =>
-            return Editor.Project.Has_Project (S.Project)
+            return Editor.Project.Has_Project (S.Project_Runtime.Project)
               and then Editor.Panels.Is_Visible
                 (S.Panels, Editor.Panels.File_Tree_Panel);
          when Editor.Overlay_Focus.Previous_Search_Results =>
@@ -1383,28 +1383,28 @@ package body Editor.Focus_Management is
      (S : in out Editor.State.State_Type)
    is
       Previous : constant Editor.Overlay_Focus.Previous_Focus_Target :=
-        Editor.Overlay_Focus.Previous_Focus (S.Overlay_Focus);
+        Editor.Overlay_Focus.Previous_Focus (S.Panel.Overlay_Focus);
    begin
       Clear_Overlay_And_Local_Text_Focus (S);
-      Editor.Feature_Panel.Set_Focused (S.Feature_Panel, False);
+      Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, False);
 
       if not Previous_Focus_Target_Still_Valid (S, Previous) then
-         Editor.Panel_Focus.Focus_Editor_Text (S.Panel_Focus);
+         Editor.Panel_Focus.Focus_Editor_Text (S.Panel.Panel_Focus);
          return;
       end if;
 
       case Previous is
          when Editor.Overlay_Focus.Previous_File_Tree =>
-            Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+            Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
          when Editor.Overlay_Focus.Previous_Search_Results =>
             Editor.Panel_Focus.Focus_Bottom_Panel
-              (S.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
+              (S.Panel.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
          when Editor.Overlay_Focus.Previous_Problems =>
             Editor.Panel_Focus.Focus_Bottom_Panel
-              (S.Panel_Focus, Editor.Panel_Focus.Problems_Focus);
+              (S.Panel.Panel_Focus, Editor.Panel_Focus.Problems_Focus);
          when Editor.Overlay_Focus.Previous_Editor_Text
             | Editor.Overlay_Focus.Previous_None =>
-            Editor.Panel_Focus.Focus_Editor_Text (S.Panel_Focus);
+            Editor.Panel_Focus.Focus_Editor_Text (S.Panel.Panel_Focus);
       end case;
    end Restore_Previous_Focus_Or_Editor;
 
@@ -1421,78 +1421,78 @@ package body Editor.Focus_Management is
       end if;
 
       Clear_Overlay_And_Local_Text_Focus (S);
-      Editor.Feature_Panel.Set_Focused (S.Feature_Panel, False);
+      Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, False);
 
       case Owner is
          when Focus_None | Focus_Editor =>
-            Editor.Panel_Focus.Focus_Editor_Text (S.Panel_Focus);
+            Editor.Panel_Focus.Focus_Editor_Text (S.Panel.Panel_Focus);
          when Focus_Command_Palette =>
             Editor.Overlay_Focus.Activate
-              (S.Overlay_Focus,
+              (S.Panel.Overlay_Focus,
                Editor.Overlay_Focus.Command_Palette_Overlay,
-               S.Panel_Focus);
+               S.Panel.Panel_Focus);
          when Focus_Quick_Open =>
             Editor.Overlay_Focus.Activate
-              (S.Overlay_Focus,
+              (S.Panel.Overlay_Focus,
                Editor.Overlay_Focus.Quick_Open_Overlay,
-               S.Panel_Focus);
+               S.Panel.Panel_Focus);
          when Focus_Project_Search_Query =>
             Editor.Project_Search_Bar.Focus_Query_Field (S.Project_Search_Bar);
             Editor.Overlay_Focus.Activate
-              (S.Overlay_Focus,
+              (S.Panel.Overlay_Focus,
                Editor.Overlay_Focus.Project_Search_Bar_Overlay,
-               S.Panel_Focus);
+               S.Panel.Panel_Focus);
          when Focus_Project_Replace_Input =>
             Editor.Project_Search_Bar.Focus_Replace_Field (S.Project_Search_Bar);
             Editor.Overlay_Focus.Activate
-              (S.Overlay_Focus,
+              (S.Panel.Overlay_Focus,
                Editor.Overlay_Focus.Project_Search_Bar_Overlay,
-               S.Panel_Focus);
+               S.Panel.Panel_Focus);
          when Focus_Buffer_List =>
             Editor.Overlay_Focus.Activate
-              (S.Overlay_Focus,
+              (S.Panel.Overlay_Focus,
                Editor.Overlay_Focus.Buffer_Switcher_Overlay,
-               S.Panel_Focus);
+               S.Panel.Panel_Focus);
          when Focus_Workspace_Prompt =>
             Editor.Overlay_Focus.Activate
-              (S.Overlay_Focus,
+              (S.Panel.Overlay_Focus,
                Editor.Overlay_Focus.File_Target_Prompt_Overlay,
-               S.Panel_Focus);
+               S.Panel.Panel_Focus);
          when Focus_File_Tree =>
             Editor.Panels.Set_Visible
               (S.Panels, Editor.Panels.File_Tree_Panel, True);
-            Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+            Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
          when Focus_Project_Search_Results =>
             Editor.Panels.Set_Bottom_Content
               (S.Panels, Editor.Panels.Search_Results_Content);
             Editor.Panels.Set_Visible
               (S.Panels, Editor.Panels.Bottom_Panel, True);
             Editor.Panel_Focus.Focus_Bottom_Panel
-              (S.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
+              (S.Panel.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
          when Focus_Diagnostics =>
             Editor.Panels.Set_Bottom_Content
               (S.Panels, Editor.Panels.Problems_Content);
             Editor.Panels.Set_Visible
               (S.Panels, Editor.Panels.Bottom_Panel, True);
             Editor.Panel_Focus.Focus_Bottom_Panel
-              (S.Panel_Focus, Editor.Panel_Focus.Problems_Focus);
+              (S.Panel.Panel_Focus, Editor.Panel_Focus.Problems_Focus);
          when Focus_Outline =>
             declare
                Accepted : constant Boolean := Editor.Feature_Panel.Set_Active_Feature
-                 (S.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
+                 (S.Panel.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
             begin
                pragma Unreferenced (Accepted);
-               Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-               Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
+               Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+               Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, True);
             end;
          when Focus_Outline_Filter =>
             declare
                Accepted : constant Boolean := Editor.Feature_Panel.Set_Active_Feature
-                 (S.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
+                 (S.Panel.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
             begin
                pragma Unreferenced (Accepted);
-               Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-               Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
+               Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+               Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, True);
                Editor.Outline.Activate_Filter_Input (S.Outline);
             end;
          when Focus_Build_UI =>
@@ -1514,7 +1514,7 @@ package body Editor.Focus_Management is
             --  Recent Projects has a list selection but no separate panel
             --  focus package.  Keep the focus marker in State as transient UI
             --  state and leave recent-project persistence untouched.
-            S.Recent_Projects_Focused := True;
+            S.Project_Runtime.Recent_Projects_Focused := True;
          when Focus_Pending_Confirmation =>
             null;
       end case;
@@ -1640,9 +1640,9 @@ package body Editor.Focus_Management is
          | Focus_Recent_Projects
       then
          return True;
-      elsif Editor.Feature_Panel.Is_Focused (S.Feature_Panel) then
+      elsif Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel) then
          return Owner /= Focus_Editor;
-      elsif Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel_Focus) then
+      elsif Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus) then
          return Owner = Focus_Editor;
       else
          return Owner /= Focus_Editor;

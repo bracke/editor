@@ -68,7 +68,7 @@ package body Editor.Messages.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta" & ASCII.LF & "gamma");
-      Editor.Messages.Push_Info (S.Messages, "hello");
+      Editor.Messages.Push_Info (S.Panel.Messages, "hello");
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.View.Set_Viewport (800, 200);
       Editor.Scrollbars.Reset;
@@ -294,7 +294,7 @@ package body Editor.Messages.Tests is
         (Layout          => To_Message_Layout (Layout, Editor.View.Viewport_Height),
          Viewport_Width  => Editor.View.Viewport_Width,
          Viewport_Height => Editor.View.Viewport_Height,
-         State           => S.Messages);
+         State           => S.Panel.Messages);
       Assert (Rect.Visible, "Prepared active message must have visible overlay rect");
 
       Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
@@ -324,7 +324,7 @@ package body Editor.Messages.Tests is
         (Layout          => To_Message_Layout (Editor.Layout.Current, Editor.View.Viewport_Height),
          Viewport_Width  => Editor.View.Viewport_Width,
          Viewport_Height => Editor.View.Viewport_Height,
-         State           => S.Messages);
+         State           => S.Panel.Messages);
       Assert (Rect.Visible, "Prepared active message must have visible overlay rect");
 
       Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
@@ -352,7 +352,7 @@ package body Editor.Messages.Tests is
         (Layout          => To_Message_Layout (Editor.Layout.Current, Editor.View.Viewport_Height),
          Viewport_Width  => Editor.View.Viewport_Width,
          Viewport_Height => Editor.View.Viewport_Height,
-         State           => S.Messages);
+         State           => S.Panel.Messages);
       Assert (Rect.Visible, "Prepared active message must have visible overlay rect");
 
       Cmd.Kind := Editor.Command_Kinds.Move_To_Point;
@@ -388,7 +388,7 @@ package body Editor.Messages.Tests is
       Cmd.Path := To_Unbounded_String (Path);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found, "Save_File_As success must publish a message");
       Assert (M.Severity = Editor.Messages.Success_Message,
               "Save_File_As success must publish success severity");
@@ -427,7 +427,7 @@ package body Editor.Messages.Tests is
       Cmd.Kind := Editor.Command_Kinds.Save_File;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found, "Save_File failure must publish a message");
       Assert (M.Severity = Editor.Messages.Error_Message,
               "Save_File failure must publish error severity");
@@ -450,7 +450,7 @@ package body Editor.Messages.Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "zzz");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found, "No-match search must publish a message");
       Assert (M.Severity = Editor.Messages.Info_Message,
               "No-match search must publish info severity");
@@ -474,7 +474,7 @@ package body Editor.Messages.Tests is
         (Layout          => To_Message_Layout (Layout, Height),
          Viewport_Width  => 800,
          Viewport_Height => Height,
-         State           => S.Messages);
+         State           => S.Panel.Messages);
       Assert (Rect.Visible, "Active message overlay must be visible");
       Assert (Editor.Layout.Text_Viewport_Height (Layout, Height) = Before_Text_H,
               "Message overlay must not change text viewport height");

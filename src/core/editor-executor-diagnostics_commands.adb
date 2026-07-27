@@ -55,7 +55,7 @@ package body Editor.Executor.Diagnostics_Commands is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) =
+      return Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) =
         Editor.Panel_Focus.Problems_Focus;
    end Problems_Has_Focus;
 
@@ -68,7 +68,7 @@ package body Editor.Executor.Diagnostics_Commands is
       case Id is
          when Command_Next_Diagnostic
             | Command_Previous_Diagnostic =>
-            if Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) = 0 then
+            if Editor.Diagnostics.Diagnostic_Count (S.Panel.Diagnostics) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -77,7 +77,7 @@ package body Editor.Executor.Diagnostics_Commands is
             | Command_Problems_Move_Down
             | Command_Problems_Page_Up
             | Command_Problems_Page_Down =>
-            if Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) = 0 then
+            if Editor.Diagnostics.Diagnostic_Count (S.Panel.Diagnostics) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
             elsif not Problems_Has_Focus (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("Command not available here");
@@ -85,20 +85,20 @@ package body Editor.Executor.Diagnostics_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Problems_Open_Selected =>
-            if Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) = 0 then
+            if Editor.Diagnostics.Diagnostic_Count (S.Panel.Diagnostics) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No problems");
             elsif not Problems_Has_Focus (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("Command not available here");
-            elsif Editor.Problems.Selected_Row_Index (S.Problems_View) = 0 then
+            elsif Editor.Problems.Selected_Row_Index (S.Panel.Problems_View) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostic selected");
             end if;
             declare
                Snapshot : constant Editor.Problems.Problems_Snapshot :=
                  Editor.Problems.Filtered_Snapshot
-                   (Editor.Problems.Build_Snapshot (S.Diagnostics),
-                    S.Problems_View);
+                   (Editor.Problems.Build_Snapshot (S.Panel.Diagnostics),
+                    S.Panel.Problems_View);
                Selected : constant Natural :=
-                 Editor.Problems.Selected_Row_Index (S.Problems_View);
+                 Editor.Problems.Selected_Row_Index (S.Panel.Problems_View);
                Row : Editor.Problems.Problem_Row;
             begin
                if Selected = 0
@@ -142,7 +142,7 @@ package body Editor.Executor.Diagnostics_Commands is
             | Command_Diagnostic_Open_Source
             | Command_Diagnostics_Execute_Selected_Action
             | Command_Diagnostic_Apply_Quick_Fix =>
-            if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
+            if Editor.Feature_Diagnostics.Is_Empty (S.Panel.Feature_Diagnostics) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
             elsif Id = Command_Diagnostic_Apply_Quick_Fix
               and then Editor.State.Has_Pending_Quick_Fix_Workflow (S)
@@ -159,48 +159,48 @@ package body Editor.Executor.Diagnostics_Commands is
                     (S, Mapped, Action_Index);
                end;
             elsif not Editor.Feature_Diagnostics.Has_Selected_Diagnostic
-              (S.Feature_Diagnostics, S.Feature_Panel)
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostic selected");
             elsif not Editor.Feature_Diagnostics.Selected_Diagnostic_Has_Target
-              (S.Feature_Diagnostics, S.Feature_Panel)
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Feature_Diagnostics.Selected_Diagnostic_Open_Unavailable_Reason
-                    (S.Feature_Diagnostics, S.Feature_Panel));
+                    (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel));
             else
                declare
                   Diagnostic_Id : constant Editor.Feature_Diagnostics.Diagnostic_Id :=
                     Editor.Feature_Diagnostics.Selected_Diagnostic_Id
-                      (S.Feature_Diagnostics, S.Feature_Panel);
+                      (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
                   Mapped : constant Natural :=
                     Editor.Feature_Diagnostics.Map_Diagnostic_Id_To_Item
-                      (S.Feature_Diagnostics, Diagnostic_Id);
+                      (S.Panel.Feature_Diagnostics, Diagnostic_Id);
                   Target_Buffer : constant Natural :=
                     (if Mapped = 0 then 0 else
                        Editor.Feature_Diagnostics.Item_Target_Buffer
-                         (S.Feature_Diagnostics, Positive (Mapped)));
+                         (S.Panel.Feature_Diagnostics, Positive (Mapped)));
                   Target_Line : constant Natural :=
                     (if Mapped = 0 then 0 else
                        Editor.Feature_Diagnostics.Item_Target_Line
-                         (S.Feature_Diagnostics, Positive (Mapped)));
+                         (S.Panel.Feature_Diagnostics, Positive (Mapped)));
                   Target_Column : constant Natural :=
                     (if Mapped = 0 then 0 else
                        Natural'Max
                          (1, Editor.Feature_Diagnostics.Item_Target_Column
-                               (S.Feature_Diagnostics, Positive (Mapped))));
+                               (S.Panel.Feature_Diagnostics, Positive (Mapped))));
                begin
                   if Mapped = 0 then
                      return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Executor.Diagnostic_Availability_Reason
                           (S, Mapped, Target_Buffer, Target_Line, Target_Column));
                   elsif Editor.Feature_Diagnostics.Item_Is_Stale
-                    (S.Feature_Diagnostics, Positive (Mapped))
+                    (S.Panel.Feature_Diagnostics, Positive (Mapped))
                   then
                      return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Commands.Workflow_Messages.Reason_Target_Stale);
                   elsif not Editor.Feature_Diagnostics.Validate_Diagnostic_Target
-                      (S.Feature_Diagnostics, Positive (Mapped), Target_Buffer)
+                      (S.Panel.Feature_Diagnostics, Positive (Mapped), Target_Buffer)
                     or else not Editor.Executor.Feature_Target_Position_Is_Valid
                       (S, Target_Buffer, Target_Line, Target_Column)
                   then
@@ -210,7 +210,7 @@ package body Editor.Executor.Diagnostics_Commands is
                   elsif (Id = Command_Diagnostics_Execute_Selected_Action
                          or else Id = Command_Diagnostic_Apply_Quick_Fix)
                     and then Editor.Feature_Diagnostics.Item_Primary_Action_Kind
-                      (S.Feature_Diagnostics, Positive (Mapped)) =
+                      (S.Panel.Feature_Diagnostics, Positive (Mapped)) =
                         Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_None
                   then
                      return Editor.Commands.Availability_Metadata.Unavailable
@@ -218,20 +218,20 @@ package body Editor.Executor.Diagnostics_Commands is
                   elsif (Id = Command_Diagnostics_Execute_Selected_Action
                          or else Id = Command_Diagnostic_Apply_Quick_Fix)
                     and then Editor.Feature_Diagnostics.Item_Has_Edit
-                      (S.Feature_Diagnostics, Positive (Mapped))
+                      (S.Panel.Feature_Diagnostics, Positive (Mapped))
                     and then
                       (not Editor.Executor.Feature_Target_Position_Is_Valid
                          (S, Target_Buffer,
                           Editor.Feature_Diagnostics.Item_Edit_Start_Line
-                            (S.Feature_Diagnostics, Positive (Mapped)),
+                            (S.Panel.Feature_Diagnostics, Positive (Mapped)),
                           Editor.Feature_Diagnostics.Item_Edit_Start_Column
-                            (S.Feature_Diagnostics, Positive (Mapped)))
+                            (S.Panel.Feature_Diagnostics, Positive (Mapped)))
                        or else not Editor.Executor.Feature_Target_Position_Is_Valid
                          (S, Target_Buffer,
                           Editor.Feature_Diagnostics.Item_Edit_End_Line
-                            (S.Feature_Diagnostics, Positive (Mapped)),
+                            (S.Panel.Feature_Diagnostics, Positive (Mapped)),
                           Editor.Feature_Diagnostics.Item_Edit_End_Column
-                            (S.Feature_Diagnostics, Positive (Mapped))))
+                            (S.Panel.Feature_Diagnostics, Positive (Mapped))))
                   then
                      return Editor.Commands.Availability_Metadata.Unavailable
                        (Editor.Commands.Workflow_Messages.Reason_Diagnostic_Edit_Stale_Target);
@@ -241,10 +241,10 @@ package body Editor.Executor.Diagnostics_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Diagnostic_Suppress_Selected =>
-            if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
+            if Editor.Feature_Diagnostics.Is_Empty (S.Panel.Feature_Diagnostics) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
             elsif not Editor.Feature_Diagnostics.Has_Selected_Diagnostic
-              (S.Feature_Diagnostics, S.Feature_Panel)
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostic selected");
             end if;
@@ -255,7 +255,7 @@ package body Editor.Executor.Diagnostics_Commands is
             | Command_Diagnostic_Restore_Selected_Suppressed
             | Command_Diagnostic_Clear_Suppressed =>
             if Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-              (S.Feature_Diagnostics) = 0
+              (S.Panel.Feature_Diagnostics) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No suppressed diagnostics");
             end if;
@@ -263,10 +263,10 @@ package body Editor.Executor.Diagnostics_Commands is
 
          when Command_Diagnostics_Clear_Selected
             | Command_Diagnostics_Copy_Selected_Text =>
-            if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
+            if Editor.Feature_Diagnostics.Is_Empty (S.Panel.Feature_Diagnostics) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
             elsif not Editor.Feature_Diagnostics.Has_Selected_Diagnostic
-              (S.Feature_Diagnostics, S.Feature_Panel)
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostic selected");
             end if;
@@ -274,20 +274,20 @@ package body Editor.Executor.Diagnostics_Commands is
 
          when Command_Diagnostics_Select_Next
             | Command_Diagnostics_Select_Previous =>
-            if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
+            if Editor.Feature_Diagnostics.Is_Empty (S.Panel.Feature_Diagnostics) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
             elsif not Editor.Feature_Diagnostics.Has_Visible_Diagnostic
-              (S.Feature_Diagnostics)
+              (S.Panel.Feature_Diagnostics)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No visible diagnostics");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Diagnostics_Clear_Info =>
-            if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
+            if Editor.Feature_Diagnostics.Is_Empty (S.Panel.Feature_Diagnostics) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
             elsif not Editor.Feature_Diagnostics.Has_Info_Or_Note_Diagnostic
-              (S.Feature_Diagnostics)
+              (S.Panel.Feature_Diagnostics)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No info or note diagnostics");
@@ -295,10 +295,10 @@ package body Editor.Executor.Diagnostics_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Diagnostics_Clear_Warnings =>
-            if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
+            if Editor.Feature_Diagnostics.Is_Empty (S.Panel.Feature_Diagnostics) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
             elsif not Editor.Feature_Diagnostics.Has_Diagnostic_With_Severity
-              (S.Feature_Diagnostics,
+              (S.Panel.Feature_Diagnostics,
                Editor.Feature_Diagnostics.Diagnostic_Warning)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No warning diagnostics");
@@ -306,10 +306,10 @@ package body Editor.Executor.Diagnostics_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Diagnostics_Clear_Errors =>
-            if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
+            if Editor.Feature_Diagnostics.Is_Empty (S.Panel.Feature_Diagnostics) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
             elsif not Editor.Feature_Diagnostics.Has_Diagnostic_With_Severity
-              (S.Feature_Diagnostics,
+              (S.Panel.Feature_Diagnostics,
                Editor.Feature_Diagnostics.Diagnostic_Error)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No error diagnostics");
@@ -318,7 +318,7 @@ package body Editor.Executor.Diagnostics_Commands is
 
          when Command_Diagnostics_Clear_Filter =>
             if not Editor.Feature_Diagnostics.Filter_Active
-              (S.Feature_Diagnostics)
+              (S.Panel.Feature_Diagnostics)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No filter is active");
             end if;
@@ -327,34 +327,34 @@ package body Editor.Executor.Diagnostics_Commands is
          when Command_Diagnostics_Filter_Errors
             | Command_Diagnostics_Filter_Warnings
             | Command_Diagnostics_Filter_Info_Notes =>
-            if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
+            if Editor.Feature_Diagnostics.Is_Empty (S.Panel.Feature_Diagnostics) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Diagnostics_Filter_Build =>
-            if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
+            if Editor.Feature_Diagnostics.Is_Empty (S.Panel.Feature_Diagnostics) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
             elsif not Editor.Feature_Diagnostics.Has_Build_Diagnostic
-              (S.Feature_Diagnostics)
+              (S.Panel.Feature_Diagnostics)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No build diagnostics");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Diagnostics_Filter_Source =>
-            if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
+            if Editor.Feature_Diagnostics.Is_Empty (S.Panel.Feature_Diagnostics) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
             elsif not Editor.Feature_Diagnostics.Has_Visible_Diagnostic
-              (S.Feature_Diagnostics)
+              (S.Panel.Feature_Diagnostics)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No visible diagnostics");
             elsif not Editor.Feature_Diagnostics.Has_Selected_Diagnostic
-              (S.Feature_Diagnostics, S.Feature_Panel)
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostic selected");
             elsif Editor.Feature_Diagnostics.Selected_Diagnostic_Source_Filter_Label
-              (S.Feature_Diagnostics, S.Feature_Panel)'Length = 0
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel)'Length = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("Selected diagnostic has no source label");
@@ -363,7 +363,7 @@ package body Editor.Executor.Diagnostics_Commands is
 
          when Command_Diagnostics_Clear_Build =>
             if not Editor.Feature_Diagnostics.Has_Build_Diagnostic
-              (S.Feature_Diagnostics)
+              (S.Panel.Feature_Diagnostics)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No build diagnostics");
             end if;
@@ -477,7 +477,7 @@ package body Editor.Executor.Diagnostics_Commands is
       if Mapped = 0 then
          return "Selected diagnostic is no longer available.";
       elsif not Editor.Feature_Diagnostics.Item_Has_Target
-        (S.Feature_Diagnostics, Positive (Mapped))
+        (S.Panel.Feature_Diagnostics, Positive (Mapped))
       then
          return "Selected diagnostic has no source target.";
       elsif Target_Buffer = 0
@@ -488,7 +488,7 @@ package body Editor.Executor.Diagnostics_Commands is
          return Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Line_Unavailable;
       elsif Line_Count = 0 or else Line > Line_Count then
          if Editor.Feature_Diagnostics.Item_Is_Stale
-           (S.Feature_Diagnostics, Positive (Mapped))
+           (S.Panel.Feature_Diagnostics, Positive (Mapped))
          then
             return Editor.Commands.Workflow_Messages.Reason_Target_Stale;
          else
@@ -499,7 +499,7 @@ package body Editor.Executor.Diagnostics_Commands is
          return Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Column_Unavailable;
       elsif Column - 1 > Feature_Target_Line_Length (S, Target_Buffer, Line) then
          if Editor.Feature_Diagnostics.Item_Is_Stale
-           (S.Feature_Diagnostics, Positive (Mapped))
+           (S.Panel.Feature_Diagnostics, Positive (Mapped))
          then
             return Editor.Commands.Workflow_Messages.Reason_Target_Stale;
          else
@@ -566,52 +566,52 @@ package body Editor.Executor.Diagnostics_Commands is
       Target_Buffer : constant Natural :=
         (if Diagnostic_Index = 0
            or else Diagnostic_Index >
-             Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics)
+             Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics)
          then 0
          else Editor.Feature_Diagnostics.Item_Target_Buffer
-           (S.Feature_Diagnostics, Positive (Diagnostic_Index)));
+           (S.Panel.Feature_Diagnostics, Positive (Diagnostic_Index)));
       Target_Line : constant Natural :=
         (if Diagnostic_Index = 0
            or else Diagnostic_Index >
-             Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics)
+             Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics)
          then 0
          else Editor.Feature_Diagnostics.Item_Target_Line
-           (S.Feature_Diagnostics, Positive (Diagnostic_Index)));
+           (S.Panel.Feature_Diagnostics, Positive (Diagnostic_Index)));
       Target_Column : constant Natural :=
         (if Diagnostic_Index = 0
            or else Diagnostic_Index >
-             Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics)
+             Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics)
          then 0
          else Natural'Max
            (1, Editor.Feature_Diagnostics.Item_Target_Column
-                 (S.Feature_Diagnostics, Positive (Diagnostic_Index))));
+                 (S.Panel.Feature_Diagnostics, Positive (Diagnostic_Index))));
    begin
-      if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
+      if Editor.Feature_Diagnostics.Is_Empty (S.Panel.Feature_Diagnostics) then
          return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
       elsif Diagnostic_Index = 0
         or else Diagnostic_Index >
-          Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics)
+          Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics)
       then
          return Editor.Commands.Availability_Metadata.Unavailable
            ("Diagnostic quick fix is no longer available");
       elsif Action_Index = 0
         or else Action_Index >
           Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Count
-            (S.Feature_Diagnostics, Positive (Diagnostic_Index))
+            (S.Panel.Feature_Diagnostics, Positive (Diagnostic_Index))
       then
          return Editor.Commands.Availability_Metadata.Unavailable
            (Editor.Feature_Diagnostics
               .Quick_Fix_Action_Intrinsic_Unavailable_Reason
-                (S.Feature_Diagnostics,
+                (S.Panel.Feature_Diagnostics,
                  Positive (Diagnostic_Index),
                  Action_Index));
       elsif Editor.Feature_Diagnostics.Item_Is_Stale
-        (S.Feature_Diagnostics, Positive (Diagnostic_Index))
+        (S.Panel.Feature_Diagnostics, Positive (Diagnostic_Index))
       then
          return Editor.Commands.Availability_Metadata.Unavailable
            (Editor.Commands.Workflow_Messages.Reason_Target_Stale);
       elsif not Editor.Feature_Diagnostics.Validate_Diagnostic_Target
-          (S.Feature_Diagnostics, Positive (Diagnostic_Index), Target_Buffer)
+          (S.Panel.Feature_Diagnostics, Positive (Diagnostic_Index), Target_Buffer)
         or else not Feature_Target_Position_Is_Valid
           (S, Target_Buffer, Target_Line, Target_Column)
       then
@@ -620,12 +620,12 @@ package body Editor.Executor.Diagnostics_Commands is
               (S, Diagnostic_Index, Target_Buffer, Target_Line, Target_Column));
       elsif not Editor.Feature_Diagnostics
         .Quick_Fix_Action_Is_Intrinsically_Available
-          (S.Feature_Diagnostics, Positive (Diagnostic_Index), Action_Index)
+          (S.Panel.Feature_Diagnostics, Positive (Diagnostic_Index), Action_Index)
       then
          return Editor.Commands.Availability_Metadata.Unavailable
            (Editor.Feature_Diagnostics
               .Quick_Fix_Action_Intrinsic_Unavailable_Reason
-                (S.Feature_Diagnostics,
+                (S.Panel.Feature_Diagnostics,
                  Positive (Diagnostic_Index),
                  Action_Index));
       else

@@ -186,7 +186,7 @@ package body Editor.Build_Milestone_Freeze.Tests is
       S.Build.Build_UI := Manual_UI;
       S.Build.Public_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Disabled;
-      Editor.Project.Apply_Open_Result (S.Project, Project_Result);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Project_Result);
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Command_Ids.Command_Build_Run) = "build.run",
               "build.run stable command name is frozen");
@@ -274,7 +274,7 @@ package body Editor.Build_Milestone_Freeze.Tests is
          Request_Show_Diagnostics => True);
       Assert (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
               "diagnostics ingestion uses the Diagnostics API result");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "Diagnostics owns resulting row storage");
       Assert (Editor.Build_Milestone_Freeze.Assert_Public_Build_Diagnostics_Boundary_Frozen,
               "diagnostics boundary freeze helper passes");

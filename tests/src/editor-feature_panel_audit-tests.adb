@@ -159,28 +159,28 @@ package body Editor.Feature_Panel_Audit.Tests is
       Result         : Feature_Panel_Audit_Result;
    begin
       Editor.State.Init (S);
-      Assert (Set_Active_Feature (S.Feature_Panel, Messages_Feature),
+      Assert (Set_Active_Feature (S.Panel.Feature_Panel, Messages_Feature),
               "test can activate Messages");
-      Set_Visible (S.Feature_Panel, True);
-      Set_Focused (S.Feature_Panel, True);
-      Set_Placeholder_Rows (S.Feature_Panel);
-      Select_First (S.Feature_Panel);
-      Request_Reveal_Row (S.Feature_Panel, 2);
-      Before_Panel := Fingerprint (S.Feature_Panel);
-      Before_Feature := Active_Feature (S.Feature_Panel);
-      Before_Gen := Projection_Generation (S.Feature_Panel);
+      Set_Visible (S.Panel.Feature_Panel, True);
+      Set_Focused (S.Panel.Feature_Panel, True);
+      Set_Placeholder_Rows (S.Panel.Feature_Panel);
+      Select_First (S.Panel.Feature_Panel);
+      Request_Reveal_Row (S.Panel.Feature_Panel, 2);
+      Before_Panel := Fingerprint (S.Panel.Feature_Panel);
+      Before_Feature := Active_Feature (S.Panel.Feature_Panel);
+      Before_Gen := Projection_Generation (S.Panel.Feature_Panel);
 
       Result := Run_Feature_Panel_Audit;
       Assert (Result.Passed, Summary (Result));
 
-      After_Panel := Fingerprint (S.Feature_Panel);
-      Assert (Before_Feature = Active_Feature (S.Feature_Panel),
+      After_Panel := Fingerprint (S.Panel.Feature_Panel);
+      Assert (Before_Feature = Active_Feature (S.Panel.Feature_Panel),
               "audit must not change active feature");
-      Assert (Before_Gen = Projection_Generation (S.Feature_Panel),
+      Assert (Before_Gen = Projection_Generation (S.Panel.Feature_Panel),
               "audit must not bump projection generation");
       Assert (Before_Panel = After_Panel,
               "audit must not mutate visibility, focus, rows, or selection");
-      Assert (Requested_Reveal_Row (S.Feature_Panel) = 2,
+      Assert (Requested_Reveal_Row (S.Panel.Feature_Panel) = 2,
               "audit must not clear pending reveal request");
    end Test_Feature_Audit_Is_Side_Effect_Free;
 
@@ -195,7 +195,7 @@ package body Editor.Feature_Panel_Audit.Tests is
       Result := Editor.Executor.Execute_Command_With_Result (S, Show_Command);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "feature show command executes");
-      Assert (Active_Feature (S.Feature_Panel) = Feature,
+      Assert (Active_Feature (S.Panel.Feature_Panel) = Feature,
               "feature-specific show command selects expected active feature");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -203,7 +203,7 @@ package body Editor.Feature_Panel_Audit.Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed
                 or else Result.Status = Editor.Executor.Command_Unavailable,
               "generic select-next delegates safely");
-      Assert (Active_Feature (S.Feature_Panel) = Feature,
+      Assert (Active_Feature (S.Panel.Feature_Panel) = Feature,
               "generic select-next preserves active feature");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -211,7 +211,7 @@ package body Editor.Feature_Panel_Audit.Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed
                 or else Result.Status = Editor.Executor.Command_Unavailable,
               "generic open-selected delegates safely");
-      Assert (Active_Feature (S.Feature_Panel) = Feature,
+      Assert (Active_Feature (S.Panel.Feature_Panel) = Feature,
               "generic open-selected preserves active feature");
 
       Result := Editor.Executor.Execute_Command_With_Result
@@ -219,7 +219,7 @@ package body Editor.Feature_Panel_Audit.Tests is
       Assert (Result.Status = Editor.Executor.Command_Executed
                 or else Result.Status = Editor.Executor.Command_Unavailable,
               "generic clear-active-feature delegates safely");
-      Assert (Active_Feature (S.Feature_Panel) = Feature,
+      Assert (Active_Feature (S.Panel.Feature_Panel) = Feature,
               "generic clear preserves active feature");
       Assert (Editor.Feature_Panel_Controller.Assert_Feature_Panel_State_Consistent (S),
               "state remains consistent after generic delegation");
@@ -342,24 +342,24 @@ package body Editor.Feature_Panel_Audit.Tests is
       Token : Feature_Projection_Token;
    begin
       Editor.State.Init (S);
-      Assert (Set_Active_Feature (S.Feature_Panel, Search_Results_Feature),
+      Assert (Set_Active_Feature (S.Panel.Feature_Panel, Search_Results_Feature),
               "activate search results");
-      Set_Placeholder_Rows (S.Feature_Panel);
-      Token := Build_Feature_Projection_Token (S.Feature_Panel);
+      Set_Placeholder_Rows (S.Panel.Feature_Panel);
+      Token := Build_Feature_Projection_Token (S.Panel.Feature_Panel);
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Buffer_Close (S, 1);
-      Assert (not Validate_Feature_Projection_Token (S.Feature_Panel, Token),
+      Assert (not Validate_Feature_Projection_Token (S.Panel.Feature_Panel, Token),
               "old token rejected after buffer close");
 
-      Set_Placeholder_Rows (S.Feature_Panel);
-      Token := Build_Feature_Projection_Token (S.Feature_Panel);
+      Set_Placeholder_Rows (S.Panel.Feature_Panel);
+      Token := Build_Feature_Projection_Token (S.Panel.Feature_Panel);
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Project_Close (S);
-      Assert (not Validate_Feature_Projection_Token (S.Feature_Panel, Token),
+      Assert (not Validate_Feature_Projection_Token (S.Panel.Feature_Panel, Token),
               "old token rejected after project close");
 
-      Set_Placeholder_Rows (S.Feature_Panel);
-      Token := Build_Feature_Projection_Token (S.Feature_Panel);
+      Set_Placeholder_Rows (S.Panel.Feature_Panel);
+      Token := Build_Feature_Projection_Token (S.Panel.Feature_Panel);
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Workspace_Close (S);
-      Assert (not Validate_Feature_Projection_Token (S.Feature_Panel, Token),
+      Assert (not Validate_Feature_Projection_Token (S.Panel.Feature_Panel, Token),
               "old token rejected after workspace close");
    end Test_Feature_Old_Token_Rejected_After_Lifecycle_Close;
 
@@ -398,21 +398,21 @@ package body Editor.Feature_Panel_Audit.Tests is
    begin
       Editor.State.Init (S);
       Editor.Feature_Messages.Add_Message
-        (S.Feature_Messages, Editor.Feature_Messages.Info_Message,
+        (S.Panel.Feature_Messages, Editor.Feature_Messages.Info_Message,
          "message survives inactive clear");
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Warning,
+        (S.Panel.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Warning,
          "diagnostic cleared when active", Source_Label => "");
       Editor.Feature_Search_Results.Run_Active_Buffer_Search
-        (S.Feature_Search_Results, Query => "alpha",
+        (S.Panel.Feature_Search_Results, Query => "alpha",
          Snapshot_Text => "alpha beta alpha", Source_Label => "buffer",
          Target_Buffer => 1);
 
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) > 0,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) > 0,
               "Messages setup has rows");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) > 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) > 0,
               "Diagnostics setup has rows");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) > 0,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) > 0,
               "Search Results setup has rows");
 
       Assert (Editor.Feature_Panel_Controller.Show_Feature (S, Diagnostics_Feature),
@@ -420,11 +420,11 @@ package body Editor.Feature_Panel_Audit.Tests is
       Assert (Editor.Feature_Panel_Controller.Dispatch_Active_Feature_Clear (S),
               "clear active Diagnostics feature");
 
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "active Diagnostics rows are cleared");
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) > 0,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) > 0,
               "inactive Messages rows survive active clear");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) > 0,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) > 0,
               "inactive Search Results rows survive active clear");
       Assert_Audit_Passed ("after active-only clear");
    end Test_Four_Feature_Clear_Active_Only_Clears_Active_Feature;
@@ -496,30 +496,30 @@ package body Editor.Feature_Panel_Audit.Tests is
       Review         : Feature_Panel_Contract_Review;
    begin
       Editor.State.Init (S);
-      Assert (Set_Active_Feature (S.Feature_Panel, Messages_Feature),
+      Assert (Set_Active_Feature (S.Panel.Feature_Panel, Messages_Feature),
               "test can activate Messages");
-      Set_Visible (S.Feature_Panel, True);
-      Set_Focused (S.Feature_Panel, True);
-      Set_Placeholder_Rows (S.Feature_Panel);
-      Select_First (S.Feature_Panel);
-      Request_Reveal_Row (S.Feature_Panel, 2);
-      Before_Panel := Fingerprint (S.Feature_Panel);
-      Before_Feature := Active_Feature (S.Feature_Panel);
-      Before_Gen := Projection_Generation (S.Feature_Panel);
-      Before_Reveal := Requested_Reveal_Row (S.Feature_Panel);
+      Set_Visible (S.Panel.Feature_Panel, True);
+      Set_Focused (S.Panel.Feature_Panel, True);
+      Set_Placeholder_Rows (S.Panel.Feature_Panel);
+      Select_First (S.Panel.Feature_Panel);
+      Request_Reveal_Row (S.Panel.Feature_Panel, 2);
+      Before_Panel := Fingerprint (S.Panel.Feature_Panel);
+      Before_Feature := Active_Feature (S.Panel.Feature_Panel);
+      Before_Gen := Projection_Generation (S.Panel.Feature_Panel);
+      Before_Reveal := Requested_Reveal_Row (S.Panel.Feature_Panel);
 
       Review := Review_Feature_Panel_Contract (S);
       Assert (Review.Review_Passed,
               Build_Feature_Panel_Contract_Review_Feedback (Review));
 
-      After_Panel := Fingerprint (S.Feature_Panel);
+      After_Panel := Fingerprint (S.Panel.Feature_Panel);
       Assert (Before_Panel = After_Panel,
               "contract review must not mutate panel fingerprint");
-      Assert (Before_Feature = Active_Feature (S.Feature_Panel),
+      Assert (Before_Feature = Active_Feature (S.Panel.Feature_Panel),
               "contract review must not change active feature");
-      Assert (Before_Gen = Projection_Generation (S.Feature_Panel),
+      Assert (Before_Gen = Projection_Generation (S.Panel.Feature_Panel),
               "contract review must not bump projection generation");
-      Assert (Before_Reveal = Requested_Reveal_Row (S.Feature_Panel),
+      Assert (Before_Reveal = Requested_Reveal_Row (S.Panel.Feature_Panel),
               "contract review must not clear reveal request");
    end Test_Feature_Panel_Contract_Review_Is_Side_Effect_Free;
 
@@ -622,9 +622,9 @@ package body Editor.Feature_Panel_Audit.Tests is
       for F of Features loop
          Assert (Editor.Feature_Panel_Controller.Show_Feature (S, F),
                  "feature switch succeeds deterministically");
-         Assert (Active_Feature (S.Feature_Panel) = F,
+         Assert (Active_Feature (S.Panel.Feature_Panel) = F,
                  "feature switch selects requested feature");
-         Assert (Invariant_Holds (S.Feature_Panel),
+         Assert (Invariant_Holds (S.Panel.Feature_Panel),
                  "feature switch leaves panel invariant intact");
          Assert (Review_Feature_Panel_Contract (S).Review_Passed,
                  "feature switch preserves contract review");

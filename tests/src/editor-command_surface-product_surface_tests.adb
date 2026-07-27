@@ -608,14 +608,14 @@ package body Editor.Command_Surface.Product_Surface_Tests is
          R              : Editor.Executor.Command_Execution_Result;
       begin
          Editor.State.Init (S);
-         Before_Project := Editor.Project.Has_Project (S.Project);
+         Before_Project := Editor.Project.Has_Project (S.Project_Runtime.Project);
          Before_Dirty := S.Buffer_Lifecycle.File_Info.Dirty;
          Before_Pending := Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions);
 
          R := Editor.Executor.Execute_Command_With_Result (S, Id);
          Assert (R.Status /= Editor.Executor.Command_Unavailable,
                  Label & " must be executable in the empty global fixture");
-         Assert (Editor.Project.Has_Project (S.Project) = Before_Project,
+         Assert (Editor.Project.Has_Project (S.Project_Runtime.Project) = Before_Project,
                  Label & " must not mutate project root state");
          Assert (S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty,
                  Label & " must not mutate file dirty state");

@@ -46,7 +46,7 @@ package body Editor.Executor.Project_Search_Surface_Commands is
    is
    begin
       if Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Project_Search_Bar_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Project_Search_Bar_Overlay)
       then
          Dismiss_Active_Overlay
            (S, Editor.Overlay_Focus.Dismiss_Command);
@@ -63,7 +63,7 @@ package body Editor.Executor.Project_Search_Surface_Commands is
    begin
       if Editor.Project_Search_Bar.Is_Open (S.Project_Search_Bar)
         and then Editor.Overlay_Focus.Is_Active
-          (S.Overlay_Focus, Editor.Overlay_Focus.Project_Search_Bar_Overlay)
+          (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Project_Search_Bar_Overlay)
       then
          Execute_Close_Project_Search_Bar (S);
       else

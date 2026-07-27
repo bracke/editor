@@ -141,34 +141,34 @@ package body Editor.Executor.File_Open_Commands is
       begin
          if Preserve_Open_Find_State then
             Editor.Input_Field.Set_Text
-              (S.Active_Find_Input, To_String (S.Active_Find_Query));
-            S.Active_Find_Matches.Clear;
-            S.Active_Find_Match := Editor.Search.No_Match;
-            S.Active_Find_Stale := Length (S.Active_Find_Query) > 0;
-            S.Active_Find_Wrapped := False;
-            S.Active_Find_Source_Buffer_Token := 0;
-            S.Active_Replace_Error_Message := Null_Unbounded_String;
+              (S.Search.Active_Find_Input, To_String (S.Search.Active_Find_Query));
+            S.Search.Active_Find_Matches.Clear;
+            S.Search.Active_Find_Match := Editor.Search.No_Match;
+            S.Search.Active_Find_Stale := Length (S.Search.Active_Find_Query) > 0;
+            S.Search.Active_Find_Wrapped := False;
+            S.Search.Active_Find_Source_Buffer_Token := 0;
+            S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
             return;
          end if;
 
-         Editor.Input_Field.Clear (S.Active_Find_Input);
-         S.Active_Find_Query := Null_Unbounded_String;
-         S.Active_Find_Matches.Clear;
-         S.Active_Find_Match := Editor.Search.No_Match;
-         S.Active_Find_Stale := False;
-         S.Active_Find_Wrapped := False;
-         S.Active_Find_Case_Sensitive := False;
-         S.Active_Find_Whole_Word := False;
-         S.Active_Find_Source_Buffer_Token := 0;
-         S.Active_Find_Prompt := False;
-         S.Active_Replace_Prompt := False;
-         S.Active_Replace_Text := Null_Unbounded_String;
-         S.Active_Replace_Error_Message := Null_Unbounded_String;
+         Editor.Input_Field.Clear (S.Search.Active_Find_Input);
+         S.Search.Active_Find_Query := Null_Unbounded_String;
+         S.Search.Active_Find_Matches.Clear;
+         S.Search.Active_Find_Match := Editor.Search.No_Match;
+         S.Search.Active_Find_Stale := False;
+         S.Search.Active_Find_Wrapped := False;
+         S.Search.Active_Find_Case_Sensitive := False;
+         S.Search.Active_Find_Whole_Word := False;
+         S.Search.Active_Find_Source_Buffer_Token := 0;
+         S.Search.Active_Find_Prompt := False;
+         S.Search.Active_Replace_Prompt := False;
+         S.Search.Active_Replace_Text := Null_Unbounded_String;
+         S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
          if Editor.Overlay_Focus.Is_Active
-           (S.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
+           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
          then
             Editor.Overlay_Focus.Dismiss
-              (S.Overlay_Focus, Editor.Overlay_Focus.Dismiss_Command);
+              (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Dismiss_Command);
          end if;
       end Clear_Explicit_Open_Find_State;
    begin
@@ -359,7 +359,7 @@ package body Editor.Executor.File_Open_Commands is
       function Active_Message_Is_Non_Info return Boolean is
          Found : Boolean := False;
          M     : constant Editor.Messages.Editor_Message :=
-           Editor.Messages.Active_Message (S.Messages, Found);
+           Editor.Messages.Active_Message (S.Panel.Messages, Found);
       begin
          return Found and then M.Severity /= Editor.Messages.Info_Message;
       end Active_Message_Is_Non_Info;
@@ -408,7 +408,7 @@ package body Editor.Executor.File_Open_Commands is
         (S.Recent_Buffers, Natural (Id), Preserve_Traversal => Recent_Traversal);
       Editor.Outline.Deactivate_Filter_Input (S.Outline);
       if Editor.Outline.Restore_Filter_For_Buffer (S.Outline, Natural (Id)) then
-         Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+         Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
       end if;
       if Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
         and then Editor.Panels.Active_Bottom_Content (S.Panels) =
@@ -416,9 +416,9 @@ package body Editor.Executor.File_Open_Commands is
       then
          declare
             Snapshot : constant Editor.Problems.Problems_Snapshot :=
-              Editor.Problems.Build_Snapshot (S.Diagnostics);
+              Editor.Problems.Build_Snapshot (S.Panel.Diagnostics);
          begin
-            Editor.Problems.Ensure_Valid_Selection (S.Problems_View, Snapshot);
+            Editor.Problems.Ensure_Valid_Selection (S.Panel.Problems_View, Snapshot);
          end;
       end if;
       if Emit_Feedback and then not Active_Message_Is_Non_Info then
@@ -548,7 +548,7 @@ package body Editor.Executor.File_Open_Commands is
       end if;
 
       Execute_Open_File (S, Candidate_Path);
-      Editor.Messages.Dismiss_Latest (S.Messages);
+      Editor.Messages.Dismiss_Latest (S.Panel.Messages);
 
       if Reopen_Target_Is_Active (S, Candidate_Path) then
          Pop_Reopen_Candidate (S);

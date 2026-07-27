@@ -92,7 +92,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (M);
       else
@@ -1101,9 +1101,9 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
          "Character Delete must not record or clear Navigation History");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "text-changing Character Delete must use canonical Find invalidation");
-      Assert (To_String (S.Active_Find_Query) = "Beta",
+      Assert (To_String (S.Search.Active_Find_Query) = "Beta",
               "Character Delete must not mutate Find query text");
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -1319,8 +1319,8 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Editor.State.Load_Text (S, "Alpha Beta Gamma");
       Editor.State.Set_Dirty (S, False);
       Set_Primary_Selection (S, 0, 11);
-      S.Active_Replace_Prompt := True;
-      S.Active_Replace_Text := To_Unbounded_String ("BETA");
+      S.Search.Active_Replace_Prompt := True;
+      S.Search.Active_Replace_Text := To_Unbounded_String ("BETA");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
       Editor.Navigation_History.Record_Explicit_Navigation
@@ -1349,12 +1349,12 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
               "previous delete caret must move to deleted range start");
       Assert (not Editor.Selection.Has_Selection (S),
               "successful Character Delete must clear active selection");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "text-changing Character Delete must invalidate Find matches");
-      Assert (To_String (S.Active_Find_Query) = "Beta",
+      Assert (To_String (S.Search.Active_Find_Query) = "Beta",
               "Character Delete must not mutate Find query");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("BETA")
-              and then S.Active_Replace_Prompt,
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("BETA")
+              and then S.Search.Active_Replace_Prompt,
               "Character Delete must not mutate Replace text or visibility");
       Assert (Editor.Clipboard.Has_Text and then Editor.Clipboard.Get_Text = Before_Clip,
               "Character Delete must not mutate Clipboard");

@@ -771,7 +771,7 @@ package body Editor.Command_Palette.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "line 1" & ASCII.LF);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Warning,
          "semantic diagnostic with no action",
          Source_Label  => "semantic",
@@ -785,15 +785,15 @@ package body Editor.Command_Palette.Tests is
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostic action command-id fixture shows diagnostics");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Editor.Input_Bridge.Execute_Command_Id
         (Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
       After := Editor.Input_Bridge.Get_State_For_Test;
-      Msg := Editor.Messages.Active_Message (After.Messages, Found);
+      Msg := Editor.Messages.Active_Message (After.Panel.Messages, Found);
 
-      Assert (Editor.Messages.Count (After.Messages) > 0,
+      Assert (Editor.Messages.Count (After.Panel.Messages) > 0,
               "diagnostic action command id dispatches through the input bridge");
       Assert (Found
               and then Editor.Messages.Text (Msg) = "Diagnostic action unavailable",
@@ -840,8 +840,8 @@ package body Editor.Command_Palette.Tests is
               "Dismiss Latest Message must remain hidden from palette candidates");
 
       Editor.State.Init (S);
-      Editor.Messages.Push_Info (S.Messages, "one");
-      Editor.Messages.Push_Warning (S.Messages, "two");
+      Editor.Messages.Push_Info (S.Panel.Messages, "one");
+      Editor.Messages.Push_Warning (S.Panel.Messages, "two");
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Editor.Input_Bridge.Execute_Command_Id
@@ -1034,7 +1034,7 @@ package body Editor.Command_Palette.Tests is
 
       Assert (Editor.Command_Palette.Is_Open,
               "Accepting an unavailable command must keep the palette open");
-      Assert (Editor.Messages.Count (After.Messages) > 0,
+      Assert (Editor.Messages.Count (After.Panel.Messages) > 0,
               "Accepting an unavailable command must push feedback");
    end Test_Enter_Unavailable_Command_Keeps_Palette_Open;
 
@@ -3066,7 +3066,7 @@ package body Editor.Command_Palette.Tests is
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Editor.Overlay_Focus.Activate_With_Previous
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Command_Palette_Overlay,
          Editor.Overlay_Focus.Previous_File_Tree);
 
@@ -3109,7 +3109,7 @@ package body Editor.Command_Palette.Tests is
 
       Assert (not Editor.Command_Palette.Current_Config.Show_Help_Row,
               "Direct command-kind help route must not toggle help while palette is closed");
-      Assert (Editor.Messages.Count (S.Messages) > 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) > 0,
               "Guarded command id route must report unavailable help when palette is closed");
 
       Editor.Command_Palette.Open;

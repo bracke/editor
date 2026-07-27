@@ -138,8 +138,8 @@ package body Editor.Lifecycle_Audit is
       end if;
 
       return
-        (Has_Project                 => Editor.Project.Has_Project (State.Project),
-         Project_Display             => To_Unbounded_String (Editor.Project.Display_Name (State.Project)),
+        (Has_Project                 => Editor.Project.Has_Project (State.Project_Runtime.Project),
+         Project_Display             => To_Unbounded_String (Editor.Project.Display_Name (State.Project_Runtime.Project)),
          Buffer_Count                => Buffer_Count,
          Dirty_Buffer_Count          => Dirty_Count,
          Dirty_File_Backed_Count     => File_Dirty,
@@ -149,10 +149,10 @@ package body Editor.Lifecycle_Audit is
          File_Tree_Expansion_Count   => Editor.File_Tree.Expanded_Node_Count (State.File_Tree),
          Project_Search_Result_Count => Editor.Project_Search.Result_Count (State.Project_Search),
          Search_Results_Row_Count    => Editor.Search_Results.Row_Count (Search_View),
-         Recent_Project_Count        => Editor.Recent_Projects.Count (State.Recent_Projects),
+         Recent_Project_Count        => Editor.Recent_Projects.Count (State.Project_Runtime.Recent_Projects),
          Has_Pending_Transition      => Editor.Pending_Transitions.Has_Pending (State.Pending_Transitions),
          Pending_Kind_Name           => To_Unbounded_String (Pending_Kind_Image (Pending_Kind)),
-         Message_Count               => Editor.Messages.Count (State.Messages));
+         Message_Count               => Editor.Messages.Count (State.Panel.Messages));
    end State_Summary;
 
 
@@ -182,10 +182,10 @@ package body Editor.Lifecycle_Audit is
          Minimap_Visible               => Editor.Settings.Minimap_Visible (Normalized),
          Scrollbars_Visible            => Editor.Settings.Scrollbars_Visible (Normalized),
          Command_Palette_Show_Bindings => Palette.Show_Keybindings,
-         Has_Project                   => Editor.Project.Has_Project (State.Project),
+         Has_Project                   => Editor.Project.Has_Project (State.Project_Runtime.Project),
          Dirty_Buffer_Count            => Dirty_Count,
          Has_Pending_Transition        => Editor.Pending_Transitions.Has_Pending (State.Pending_Transitions),
-         Recent_Project_Count          => Editor.Recent_Projects.Count (State.Recent_Projects));
+         Recent_Project_Count          => Editor.Recent_Projects.Count (State.Project_Runtime.Recent_Projects));
    end Settings_Lifecycle_Summary_For;
 
    procedure Check_Equal

@@ -116,15 +116,15 @@ package body Editor.Build_Diagnostics_Review.Tests is
         (Command.Outcome = Editor.External_Producers.Diagnostic_Line_Parsing.Diagnostic_Line_Command_Succeeded,
          "build output ingestion succeeds through Diagnostics seam");
       Assert
-        (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+        (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
          "build diagnostic is stored only as a Diagnostics-owned row");
       Assert
-        (Editor.Feature_Diagnostics.Item_Source_Kind (S.Feature_Diagnostics, 1) =
+        (Editor.Feature_Diagnostics.Item_Source_Kind (S.Panel.Feature_Diagnostics, 1) =
            Editor.Feature_Diagnostics.External_Diagnostic_Source,
          "build diagnostic row keeps external Diagnostics source metadata");
       Assert
         (Contains
-           (Editor.Feature_Diagnostics.Item_Source_Label (S.Feature_Diagnostics, 1),
+           (Editor.Feature_Diagnostics.Item_Source_Label (S.Panel.Feature_Diagnostics, 1),
             "build"),
          "build diagnostic row exposes a Diagnostics-owned build source label");
       Assert
@@ -146,7 +146,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Assert (Review.Review_Uses_Existing_Diagnostics,
               "build diagnostics are reviewable through existing Diagnostics projection");
       Assert
-        (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+        (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
            Editor.Feature_Panel.Diagnostics_Feature,
          "show request reveals existing Diagnostics feature, not a build table");
       Assert
@@ -231,7 +231,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
            Has_Exit_Code => True);
 
       Assert
-        (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+        (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
          "raw output details alone do not create Diagnostics rows");
       Assert
         (Assert_Build_Output_Details_Stores_No_Diagnostics_Rows
@@ -249,14 +249,14 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Audit   : Editor.Build_Diagnostics_Review_Audit.Build_Diagnostics_Review_Audit_Result;
    begin
       Ingest_One_Build_Diagnostic (S, Command);
-      Before := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+      Before := Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Audit := Editor.Build_Diagnostics_Review_Audit.Run_Build_Diagnostics_Review_Audit (S);
 
       Assert (Audit.Coherent, "review audit is coherent");
       Assert (Audit.Audit_Side_Effect_Free,
               "audit observes review boundaries without mutating state");
       Assert
-        (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = Before,
+        (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = Before,
          "audit does not clear, append, or replace Diagnostics rows");
    end Test_Audit_Is_Coherent_And_Side_Effect_Free;
 
@@ -362,7 +362,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
         (Command.Ingestion.Ingestion_Result.Accepted_Count = 2,
          "stdout and stderr diagnostic lines are both ingested by Diagnostics");
       Assert
-        (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 2,
+        (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 2,
          "mixed stream diagnostics produce ordinary Diagnostics rows only");
       Assert
         (Assert_Build_Diagnostics_Truncated_Or_Partial_Output_Reliable (S, Command),
@@ -478,7 +478,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Command : Editor.External_Producers.Diagnostic_Line_Parsing.Command_Result;
    begin
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Warning,
          "existing editor diagnostic",
          Source_Label => "Editor diagnostic",
@@ -486,7 +486,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Ingest_One_Build_Diagnostic (S, Command);
 
       Assert
-        (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 2,
+        (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 2,
          "mixed build and non-build diagnostics share the Diagnostics row model");
       Assert
         (Assert_Build_Diagnostics_Mixed_Source_Review_Reliable (S),
@@ -668,16 +668,16 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Assert
         (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
          "final freeze audit fixture creates one Diagnostics row");
-      Before_Row_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
-      Before_Selected := Editor.Feature_Panel.Selected_Row (S.Feature_Panel);
+      Before_Row_Count := Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
+      Before_Selected := Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel);
       Audit := Editor.Build_Diagnostics_Review_Audit.Run_Build_Diagnostics_Review_Audit (S);
 
       Assert (Audit.Coherent, "review audit remains coherent at final freeze");
       Assert (Audit.Audit_Side_Effect_Free,
               "audit remains side-effect-free at final freeze");
       Assert
-        (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = Before_Row_Count
-         and then Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = Before_Selected,
+        (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = Before_Row_Count
+         and then Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = Before_Selected,
          "audit does not mutate Diagnostics rows or selection");
       Assert
         (Assert_Build_Diagnostics_Final_No_Build_Local_Selection (S),
@@ -711,10 +711,10 @@ package body Editor.Build_Diagnostics_Review.Tests is
          "fixture creates one build-produced Diagnostics row");
       Assert
         (Contains
-           (Editor.Feature_Diagnostics.Item_Source_Label (S.Feature_Diagnostics, 1),
+           (Editor.Feature_Diagnostics.Item_Source_Label (S.Panel.Feature_Diagnostics, 1),
             "Build")
          and then Contains
-           (Editor.Feature_Diagnostics.Item_Source_Label (S.Feature_Diagnostics, 1),
+           (Editor.Feature_Diagnostics.Item_Source_Label (S.Panel.Feature_Diagnostics, 1),
             "gprbuild"),
          "build-produced row shows a readable build/tool source label");
       Assert
@@ -746,7 +746,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
         (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
          "valid build diagnostic target is ingested as one Diagnostics row");
       Assert
-        (Editor.Feature_Diagnostics.Item_Has_Target (S.Feature_Diagnostics, 1),
+        (Editor.Feature_Diagnostics.Item_Has_Target (S.Panel.Feature_Diagnostics, 1),
          "diagnostic row keeps a Diagnostics-owned valid buffer target");
       Assert
         (Assert_Build_Diagnostics_Navigate_Through_Diagnostics (S),
@@ -773,7 +773,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "only one line");
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "invalid build target",
          Source_Label => "Build / gprbuild: Untitled",
@@ -782,7 +782,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
          Target_Buffer => S.Buffer_Lifecycle.Registry_Token,
          Target_Line => 99,
          Target_Column => 1);
-      Editor.Feature_Diagnostics.Project_Rows (S.Feature_Diagnostics, S.Feature_Panel);
+      Editor.Feature_Diagnostics.Project_Rows (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
@@ -816,8 +816,8 @@ package body Editor.Build_Diagnostics_Review.Tests is
            (Before, After, Result),
          "Build UI reveal invokes the existing Diagnostics command without row payload");
       Assert
-        (Editor.Feature_Diagnostics.Row_Count (After.Feature_Diagnostics) =
-           Editor.Feature_Diagnostics.Row_Count (Before.Feature_Diagnostics),
+        (Editor.Feature_Diagnostics.Row_Count (After.Panel.Feature_Diagnostics) =
+           Editor.Feature_Diagnostics.Row_Count (Before.Panel.Feature_Diagnostics),
          "Build UI reveal does not copy, select, or navigate Diagnostics rows directly");
    end Test_Build_UI_Reveal_Uses_Diagnostics_Command;
 
@@ -853,15 +853,15 @@ package body Editor.Build_Diagnostics_Review.Tests is
          "alr build diagnostic is ingested through the Diagnostics API");
       Assert
         (Contains
-           (Editor.Feature_Diagnostics.Item_Source_Label (S.Feature_Diagnostics, 1),
+           (Editor.Feature_Diagnostics.Item_Source_Label (S.Panel.Feature_Diagnostics, 1),
             "Build / alr"),
          "build-produced alr diagnostics show the bounded build/tool source label");
       Assert
         (not Contains
-           (Editor.Feature_Diagnostics.Item_Source_Label (S.Feature_Diagnostics, 1),
+           (Editor.Feature_Diagnostics.Item_Source_Label (S.Panel.Feature_Diagnostics, 1),
             "argv")
          and then not Contains
-           (Editor.Feature_Diagnostics.Item_Source_Label (S.Feature_Diagnostics, 1),
+           (Editor.Feature_Diagnostics.Item_Source_Label (S.Panel.Feature_Diagnostics, 1),
             "private")
          and then Editor.Build_Diagnostics.Assert_Build_Diagnostic_Source_Display_Labels_Bounded,
          "source labels exclude raw argv, working context, consent, shell, and rerun payloads");
@@ -880,7 +880,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta" & ASCII.LF);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Warning,
          "non-build warning",
          Source_Label => "Editor",
@@ -901,7 +901,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
         (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
          "build diagnostic is appended beside an existing non-build diagnostic");
       Assert
-        (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 2,
+        (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 2,
          "mixed build and non-build diagnostics live in one Diagnostics row store");
       Assert
         (Assert_Mixed_Build_And_Non_Build_Diagnostics_Share_Model (S),
@@ -945,7 +945,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Audit : Editor.Build_Diagnostics_Review_Audit.Build_Diagnostics_Review_Audit_Result;
    begin
       Ingest_One_Build_Diagnostic (S, Command);
-      Before_Count := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+      Before_Count := Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Audit := Editor.Build_Diagnostics_Review_Audit.Run_Build_Diagnostics_Review_Audit (S);
 
       Assert (Audit.Source_Labels_Practical,
@@ -957,7 +957,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Assert
         (Audit.Coherent
          and then Audit.Audit_Side_Effect_Free
-         and then Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = Before_Count,
+         and then Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = Before_Count,
          "audit remains coherent and side-effect-free");
    end Test_Audit_Covers_Navigation_Workflow;
 

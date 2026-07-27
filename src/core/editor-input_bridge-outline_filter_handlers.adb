@@ -13,10 +13,10 @@ package body Editor.Input_Bridge.Outline_Filter_Handlers is
 
    procedure Project_Outline_Rows (S : in out Editor.State.State_Type) is
    begin
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
       if Editor.Outline.Selected_Index (S.Outline) /= 0 then
          Editor.Feature_Panel.Request_Reveal_Row
-           (S.Feature_Panel,
+           (S.Panel.Feature_Panel,
             Editor.Outline.Visible_Row_For_Outline_Row
               (S.Outline, Editor.Outline.Selected_Index (S.Outline)));
       end if;
@@ -38,7 +38,7 @@ package body Editor.Input_Bridge.Outline_Filter_Handlers is
          when Editor.Command_Kinds.Insert_Text_Input =>
             if Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                Editor.Outline.Commit_Filter_To_History (S.Outline);
-               if Editor.Feature_Panel.Has_Selection (S.Feature_Panel) then
+               if Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel) then
                   Execute (Editor.Command_Ids.Command_Open_Selected_Outline_Item);
                end if;
             elsif Cmd.Ch = ASCII.HT then
@@ -114,7 +114,7 @@ package body Editor.Input_Bridge.Outline_Filter_Handlers is
             else
                Editor.Outline.Deactivate_Filter_Input (S.Outline);
             end if;
-            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
             Editor.Render_Cache.Invalidate_All;
             return True;
 

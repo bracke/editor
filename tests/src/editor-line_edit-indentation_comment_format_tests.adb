@@ -94,7 +94,7 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (M);
       else
@@ -458,8 +458,8 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
       Dirty_Before := Editor.State.Is_Dirty (S);
-      S.Active_Find_Query := To_Unbounded_String ("plain");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("plain");
+      S.Search.Active_Find_Stale := False;
       Set_Primary_Selection (S, 21, 23);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Decrease);
       Assert (Message_Text (S) = "Nothing to outdent",
@@ -468,7 +468,7 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
               "no-op outdent after undo must preserve redo stack");
       Assert (Editor.State.Is_Dirty (S) = Dirty_Before,
               "no-op outdent must leave dirty state unchanged");
-      Assert (not S.Active_Find_Stale,
+      Assert (not S.Search.Active_Find_Stale,
               "no-op outdent must not invalidate Find/Replace state");
       Assert (Editor.Selection.Has_Selection (S),
               "no-op outdent must preserve an already valid active selection");
@@ -501,8 +501,8 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta" & ASCII.LF & "gamma");
       Editor.State.Set_Dirty (S, False);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-      S.Active_Find_Query := To_Unbounded_String ("beta");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("beta");
+      S.Search.Active_Find_Stale := False;
       Set_Primary_Selection (S, 8, 6);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -519,9 +519,9 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
         (Editor.Clipboard.Has_Text
          and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
          "indent command must not mutate clipboard text");
-      Assert (To_String (S.Active_Find_Query) = "beta",
+      Assert (To_String (S.Search.Active_Find_Query) = "beta",
               "indent command must not mutate Find query");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "text-changing indent command must invalidate active Find matches");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
@@ -684,12 +684,12 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
          Editor.State.Load_Text (S, Before_Text);
          Editor.State.Set_Dirty (S, False);
          Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-         S.Active_Find_Query := To_Unbounded_String ("Alpha");
-         S.Active_Find_Stale := False;
+         S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
+         S.Search.Active_Find_Stale := False;
          Set_Caret (S, Caret_Pos);
          Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
          Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
-         Before_Msgs := Natural (Editor.Messages.Count (S.Messages));
+         Before_Msgs := Natural (Editor.Messages.Count (S.Panel.Messages));
 
          Editor.Executor.Execute_Command
            (S, Editor.Command_Ids.Command_Indent_Increase);
@@ -702,7 +702,7 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
                                Why & ": caret policy mismatch");
          Assert (Message_Text (S) = "Indented line",
                  Why & ": success message mismatch");
-         Assert (Natural (Editor.Messages.Count (S.Messages)) = Before_Msgs + 1,
+         Assert (Natural (Editor.Messages.Count (S.Panel.Messages)) = Before_Msgs + 1,
                  Why & ": indentation must emit one primary message");
          Assert (Editor.State.Is_Dirty (S),
                  Why & ": text-changing indent must dirty a clean buffer");
@@ -710,7 +710,7 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
                  Why & ": text-changing indent must create one undo entry");
          Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
                  Why & ": text-changing indent must clear redo stack");
-         Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+         Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
                  Why & ": text-changing indent must invalidate Find matches");
          Assert (Editor.Clipboard.Has_Text
                  and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
@@ -755,8 +755,8 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
       Editor.State.Load_Text (S, "");
       Editor.State.Set_Dirty (S, False);
       Set_Caret (S, 0);
-      S.Active_Find_Query := To_Unbounded_String ("anything");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("anything");
+      S.Search.Active_Find_Stale := False;
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Indent_Increase);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "",
               "empty buffer indent-increase must leave text unchanged");
@@ -768,7 +768,7 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
               "empty buffer indent-increase must preserve redo history");
       Assert (not Editor.State.Is_Dirty (S),
               "empty buffer indent-increase must not dirty buffer");
-      Assert (not S.Active_Find_Stale,
+      Assert (not S.Search.Active_Find_Stale,
               "empty buffer indent-increase must not invalidate Find state");
 
       Editor.State.Load_Text (S, "Alpha" & ASCII.LF & "Beta");
@@ -814,8 +814,8 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
          Editor.State.Load_Text (S, Before_Text);
          Editor.State.Set_Dirty (S, False);
          Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-         S.Active_Find_Query := To_Unbounded_String ("Alpha");
-         S.Active_Find_Stale := False;
+         S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
+         S.Search.Active_Find_Stale := False;
          Set_Caret (S, 0);
          Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
          Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -842,14 +842,14 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
                     Why & ": no-op outdent must preserve redo history");
             Assert (Editor.State.Is_Dirty (S) = Before_Dirty,
                     Why & ": no-op outdent must preserve dirty state");
-            Assert (not S.Active_Find_Stale,
+            Assert (not S.Search.Active_Find_Stale,
                     Why & ": no-op outdent must not invalidate Find state");
          else
             Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
                     Why & ": text-changing outdent must create one undo entry");
             Assert (Editor.State.Is_Dirty (S),
                     Why & ": text-changing outdent must dirty a clean buffer");
-            Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+            Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
                     Why & ": text-changing outdent must invalidate Find matches");
             Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
             Assert (Text_Buffer.UTF8_Text (S.Buffer) = Before_Text,
@@ -1171,10 +1171,10 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
          Editor.State.Load_Text (S, Before);
          Editor.State.Set_Dirty (S, False);
          Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-         S.Active_Find_Query := To_Unbounded_String ("Alpha");
-         S.Active_Find_Stale := False;
-         S.Active_Replace_Text := To_Unbounded_String ("Omega");
-         S.Active_Replace_Prompt := True;
+         S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
+         S.Search.Active_Find_Stale := False;
+         S.Search.Active_Replace_Text := To_Unbounded_String ("Omega");
+         S.Search.Active_Replace_Prompt := True;
          Set_Caret (S, 0);
          Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
          Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -1195,18 +1195,18 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
          Assert_Navigation_Counts
            (S, Before_Back, Before_Fwd,
             Why & ": line comment command must not mutate navigation history");
-         Assert (S.Active_Find_Query = To_Unbounded_String ("Alpha")
-                 and then S.Active_Replace_Text = To_Unbounded_String ("Omega")
-                 and then S.Active_Replace_Prompt,
+         Assert (S.Search.Active_Find_Query = To_Unbounded_String ("Alpha")
+                 and then S.Search.Active_Replace_Text = To_Unbounded_String ("Omega")
+                 and then S.Search.Active_Replace_Prompt,
                  Why & ": Find/Replace payloads must remain in their domain");
 
          if Expected_Undo = 0 then
-            Assert (not S.Active_Find_Stale,
+            Assert (not S.Search.Active_Find_Stale,
                     Why & ": no-op line comment command must not stale Find");
             Assert (not Editor.State.Is_Dirty (S),
                     Why & ": no-op line comment command must not dirty clean buffer");
          else
-            Assert (S.Active_Find_Stale,
+            Assert (S.Search.Active_Find_Stale,
                     Why & ": text-changing line comment command must stale Find");
             Assert (Editor.State.Is_Dirty (S),
                     Why & ": text-changing line comment command must dirty clean buffer");
@@ -1348,11 +1348,11 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
         (S, "Alpha" & ASCII.LF & "  Beta -- internal" & ASCII.LF & "--Gamma");
       Editor.State.Set_Dirty (S, False);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Find_Stale := False;
-      S.Active_Replace_Text := To_Unbounded_String ("BETA");
-      S.Active_Replace_Prompt := True;
-      Before_Replace := S.Active_Replace_Text;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Replace_Text := To_Unbounded_String ("BETA");
+      S.Search.Active_Replace_Prompt := True;
+      Before_Replace := S.Search.Active_Replace_Text;
       Before_Clip := Editor.Clipboard.Get_Text;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -1367,9 +1367,9 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
               "comment-line must create exactly one canonical undo entry");
       Assert (Editor.State.Is_Dirty (S),
               "comment-line must dirty through canonical policy");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "comment-line must invalidate Find through canonical edit hook");
-      Assert (S.Active_Replace_Text = Before_Replace,
+      Assert (S.Search.Active_Replace_Text = Before_Replace,
               "comment-line must not mutate Replace text");
       Assert (Editor.Clipboard.Has_Text and then Editor.Clipboard.Get_Text = Before_Clip,
               "comment-line must not mutate Clipboard");
@@ -1377,7 +1377,7 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
         (S, Before_Back, Before_Fwd,
          "comment-line must not record Navigation History");
 
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Stale := False;
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 2, 1)));
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Toggle_Line_Comment);
       Assert
@@ -1388,10 +1388,10 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
               "toggle-line must emit one operation-specific primary message");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 2,
               "toggle-line must create one undo entry, not two");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "toggle-line must invalidate Find through canonical edit hook");
 
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Stale := False;
       Set_Caret (S, Cursor_Index (Editor.Navigation.Index_For_Line_Column (S, 1, 10)));
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Uncomment_Line);
       Assert
@@ -1406,7 +1406,7 @@ procedure Test_Canonical_Line_Comment_Path_And_Persistence_Exclusion
               "no-op uncomment-line must report deterministic no-op");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 3,
               "no-op uncomment-line must not create an undo entry");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "no-op after prior edit must not repair stale state");
 
       Snap := Editor.Render_Model.Build_Snapshot (S);

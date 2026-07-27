@@ -267,7 +267,7 @@ package body Editor.Executor.Buffer_Close_Commands is
             | Editor.Pending_Transitions.Pending_Clear_Project =>
             declare
                Sets : constant Editor.Buffers.Buffer_Project_Lifecycle_Sets :=
-                 Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project);
+                 Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project_Runtime.Project);
             begin
                return Project_Lifecycle_Set_Contains
                  (Sets.Project_Close_Affected, Id);
@@ -284,7 +284,7 @@ package body Editor.Executor.Buffer_Close_Commands is
          when Editor.Pending_Transitions.Pending_Switch_Project =>
             declare
                Sets : constant Editor.Buffers.Buffer_Project_Lifecycle_Sets :=
-                 Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project);
+                 Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project_Runtime.Project);
             begin
                return Project_Lifecycle_Set_Contains
                  (Sets.Project_Close_Affected, Id);
@@ -509,7 +509,7 @@ package body Editor.Executor.Buffer_Close_Commands is
          return;
       end if;
 
-      Dirty_Summary := Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Buffer_Summary_For_All_Buffers (S.Project);
+      Dirty_Summary := Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Buffer_Summary_For_All_Buffers (S.Project_Runtime.Project);
       if Dirty_Summary.Dirty_Count > 0 then
          Editor.Executor.Buffer_Close_Prompt_Commands.Start_Dirty_Close_Prompt
            (S, Editor.State.All_Buffers_Close_Scope, True, Editor.Buffers.No_Buffer, Dirty_Summary);
@@ -661,9 +661,9 @@ package body Editor.Executor.Buffer_Close_Commands is
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Buffer_Close
         (S, Natural (Id));
       Editor.Feature_Messages.Reset_For_Buffer_Close
-        (S.Feature_Messages, Editor.Executor.Active_Feature_Buffer_Token (S));
+        (S.Panel.Feature_Messages, Editor.Executor.Active_Feature_Buffer_Token (S));
       Editor.Feature_Search_Results.Reset_For_Buffer_Close
-        (S.Feature_Search_Results, Editor.Executor.Active_Feature_Buffer_Token (S));
+        (S.Panel.Feature_Search_Results, Editor.Executor.Active_Feature_Buffer_Token (S));
       Editor.Feature_Panel_Controller.Rebuild_Active_Feature_Projection (S);
 
       if Editor.Buffers.Global_Count = 0
@@ -690,9 +690,9 @@ package body Editor.Executor.Buffer_Close_Commands is
       then
          declare
             Snapshot : constant Editor.Problems.Problems_Snapshot :=
-              Editor.Problems.Build_Snapshot (S.Diagnostics);
+              Editor.Problems.Build_Snapshot (S.Panel.Diagnostics);
          begin
-            Editor.Problems.Ensure_Valid_Selection (S.Problems_View, Snapshot);
+            Editor.Problems.Ensure_Valid_Selection (S.Panel.Problems_View, Snapshot);
          end;
       end if;
    end Finish_Active_Buffer_Close_Lifecycle;

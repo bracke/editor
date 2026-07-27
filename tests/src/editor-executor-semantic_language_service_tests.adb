@@ -83,9 +83,9 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
               "semantic reference fixture refreshes Outline");
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       S.Carets.Replace_Element
         (S.Carets.First_Index,
          Editor.Cursors.Caret_State'
@@ -129,22 +129,22 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
                 (S.Semantic.Language_Service).Status =
               Editor.Ada_Language_Service.Semantic_Request_Completed,
               "semantic find references execution records a completed request");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 2,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 2,
               "semantic references are projected into Search Results rows");
-      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Panel.Feature_Search_Results) =
               "references: Run",
               "semantic references label the Search Results query");
       Assert (Editor.Feature_Search_Results.Item_Has_Target
-                (S.Feature_Search_Results, 1),
+                (S.Panel.Feature_Search_Results, 1),
               "open-buffer semantic reference row is navigable");
       Assert (Editor.Feature_Search_Results.Item_Target_Buffer
-                (S.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
+                (S.Panel.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "semantic reference row targets the live buffer token");
       Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
               and then Editor.Panels.Active_Bottom_Content (S.Panels) =
                 Editor.Panels.Search_Results_Content,
               "semantic find references shows the Search Results panel");
-      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 1,
+      Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 1,
               "semantic references select the first projected row");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -178,9 +178,9 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
               "semantic workspace symbol fixture refreshes Outline");
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       S.Carets.Replace_Element
         (S.Carets.First_Index,
          Editor.Cursors.Caret_State'
@@ -230,13 +230,13 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
                 (S.Semantic.Language_Service).Status =
               Editor.Ada_Language_Service.Semantic_Request_Completed,
               "workspace symbols execution records a completed request");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 3,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 3,
               "workspace symbols are projected into Search Results rows");
-      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Panel.Feature_Search_Results) =
               "symbols: Run",
               "workspace symbols label the Search Results query");
       Assert (Editor.Feature_Search_Results.Item_Has_Target
-                (S.Feature_Search_Results, 1),
+                (S.Panel.Feature_Search_Results, 1),
               "workspace symbol row is navigable");
       Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
               and then Editor.Panels.Active_Bottom_Content (S.Panels) =
@@ -271,9 +271,9 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
               "semantic completion fixture refreshes Outline");
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       S.Carets.Replace_Element
         (S.Carets.First_Index,
          Editor.Cursors.Caret_State'
@@ -313,16 +313,16 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
                 (S.Semantic.Language_Service).Status =
               Editor.Ada_Language_Service.Semantic_Request_Completed,
               "semantic completion execution records a completed request");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 3,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 3,
               "semantic completions are projected into Search Results rows");
-      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Panel.Feature_Search_Results) =
               "completions: R",
               "semantic completions label the Search Results query");
       Assert (Editor.Feature_Search_Results.Item_Has_Target
-                (S.Feature_Search_Results, 1),
+                (S.Panel.Feature_Search_Results, 1),
               "open-buffer semantic completion row is navigable");
       Assert (Editor.Feature_Search_Results.Item_Target_Buffer
-                (S.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
+                (S.Panel.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "semantic completion row targets the live buffer token");
       Assert (S.Semantic.Popup.Active
               and then S.Semantic.Popup.Kind = Editor.State_Semantic.Semantic_Completion_Popup,
@@ -332,7 +332,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
               "semantic completion popup carries bounded completion rows");
       Assert (not Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
               "semantic completions do not force-open the Search Results panel");
-      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 1,
+      Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 1,
               "semantic completions select the first projected row");
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
       Assert (Snapshot.Semantic_Popup.Active
@@ -409,9 +409,9 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
               "semantic hover fixture refreshes Outline");
 
       Editor.Outline.Select_Item (S.Outline, 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Ignored := LM.Add_Symbol
         (Analysis, "Run", LM.Symbol_Procedure,
@@ -441,16 +441,16 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
                 (S.Semantic.Language_Service).Status =
               Editor.Ada_Language_Service.Semantic_Request_Completed,
               "semantic hover execution records a completed request");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 1,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 1,
               "semantic hover is projected into a Search Results row");
-      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Panel.Feature_Search_Results) =
               "hover: Run",
               "semantic hover labels the Search Results query");
       Assert (Editor.Feature_Search_Results.Item_Has_Target
-                (S.Feature_Search_Results, 1),
+                (S.Panel.Feature_Search_Results, 1),
               "open-buffer semantic hover row is navigable");
       Assert (Editor.Feature_Search_Results.Item_Target_Buffer
-                (S.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
+                (S.Panel.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "semantic hover row targets the live buffer token");
       Assert (S.Semantic.Popup.Active
               and then S.Semantic.Popup.Kind = Editor.State_Semantic.Semantic_Hover_Popup,
@@ -461,7 +461,7 @@ package body Editor.Executor.Semantic_Language_Service_Tests is
               "semantic hover popup carries label and detail");
       Assert (not Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
               "semantic hover does not force-open the Search Results panel");
-      Assert (Editor.Feature_Panel.Selected_Row (S.Feature_Panel) = 1,
+      Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 1,
               "semantic hover selects the projected row");
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
       Assert (Snapshot.Semantic_Popup.Active

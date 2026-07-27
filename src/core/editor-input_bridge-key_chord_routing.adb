@@ -94,7 +94,7 @@ package body Editor.Input_Bridge.Key_Chord_Routing is
          return False;
       end if;
 
-      if Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus) then
+      if Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel.Panel_Focus) then
          declare
             Result : constant
               Editor.Input_Bridge.File_Tree_Key_Handlers.Focused_Key_Result :=

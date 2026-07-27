@@ -125,19 +125,19 @@ package body Editor.Feature_Panel_Controller is
      (S : in out Editor.State.State_Type)
    is
    begin
-      case Editor.Feature_Panel.Active_Feature (S.Feature_Panel) is
+      case Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) is
          when Editor.Feature_Panel.Outline_Feature =>
-            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
          when Editor.Feature_Panel.Messages_Feature =>
-            Editor.Feature_Messages.Project_Rows (S.Feature_Messages, S.Feature_Panel);
+            Editor.Feature_Messages.Project_Rows (S.Panel.Feature_Messages, S.Panel.Feature_Panel);
          when Editor.Feature_Panel.Search_Results_Feature =>
             Editor.Feature_Search_Results.Project_Rows
-              (S.Feature_Search_Results, S.Feature_Panel);
+              (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
          when Editor.Feature_Panel.Diagnostics_Feature =>
             Editor.Feature_Diagnostics.Project_Rows
-              (S.Feature_Diagnostics, S.Feature_Panel);
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
          when Editor.Feature_Panel.Unknown_Feature =>
-            Editor.Feature_Panel.Clear_Rows (S.Feature_Panel);
+            Editor.Feature_Panel.Clear_Rows (S.Panel.Feature_Panel);
       end case;
    end Rebuild_Active_Feature_Projection;
 
@@ -146,17 +146,17 @@ package body Editor.Feature_Panel_Controller is
       Feature : Editor.Feature_Panel.Feature_Id) return Boolean
    is
       Previous_Feature : constant Editor.Feature_Panel.Feature_Id :=
-        Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
+        Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel);
       Feature_Changed : constant Boolean := Previous_Feature /= Feature;
    begin
-      if not Editor.Feature_Panel.Set_Active_Feature (S.Feature_Panel, Feature) then
+      if not Editor.Feature_Panel.Set_Active_Feature (S.Panel.Feature_Panel, Feature) then
          return False;
       end if;
       Rebuild_Active_Feature_Projection (S);
       if Feature_Changed then
-         Editor.Feature_Panel.Restore_Active_Feature_View_State (S.Feature_Panel);
+         Editor.Feature_Panel.Restore_Active_Feature_View_State (S.Panel.Feature_Panel);
       end if;
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       return Assert_Feature_Panel_State_Consistent (S);
    end Show_Feature;
 
@@ -164,32 +164,32 @@ package body Editor.Feature_Panel_Controller is
      (S : in out Editor.State.State_Type) return Boolean
    is
       Feature : constant Editor.Feature_Panel.Feature_Id :=
-        Editor.Feature_Panel.Active_Feature (S.Feature_Panel);
+        Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel);
    begin
       if not Editor.Feature_Panel.Feature_Can_Clear (Feature) then
          return False;
       end if;
 
-      Editor.Feature_Panel.Forget_Feature_View_State (S.Feature_Panel, Feature);
+      Editor.Feature_Panel.Forget_Feature_View_State (S.Panel.Feature_Panel, Feature);
 
       case Feature is
          when Editor.Feature_Panel.Outline_Feature =>
-            Editor.Feature_Panel.Clear_Rows (S.Feature_Panel);
+            Editor.Feature_Panel.Clear_Rows (S.Panel.Feature_Panel);
             return True;
          when Editor.Feature_Panel.Messages_Feature =>
-            Editor.Feature_Messages.Clear (S.Feature_Messages);
+            Editor.Feature_Messages.Clear (S.Panel.Feature_Messages);
             Editor.Feature_Messages.Reconcile_Messages_After_Row_Change
-              (S.Feature_Messages, S.Feature_Panel);
+              (S.Panel.Feature_Messages, S.Panel.Feature_Panel);
             return True;
          when Editor.Feature_Panel.Search_Results_Feature =>
-            Editor.Feature_Search_Results.Clear (S.Feature_Search_Results);
+            Editor.Feature_Search_Results.Clear (S.Panel.Feature_Search_Results);
             Editor.Feature_Search_Results.Project_Rows
-              (S.Feature_Search_Results, S.Feature_Panel);
+              (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
             return True;
          when Editor.Feature_Panel.Diagnostics_Feature =>
-            Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
+            Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
             Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Row_Change
-              (S.Feature_Diagnostics, S.Feature_Panel);
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
             return True;
          when Editor.Feature_Panel.Unknown_Feature =>
             return False;
@@ -207,13 +207,13 @@ package body Editor.Feature_Panel_Controller is
             Editor.Outline.Reset_Outline_For_Buffer_Close (S.Outline, Buffer_Token);
          when Editor.Feature_Panel.Messages_Feature =>
             Editor.Feature_Messages.Reset_For_Buffer_Close
-              (S.Feature_Messages, Buffer_Token);
+              (S.Panel.Feature_Messages, Buffer_Token);
          when Editor.Feature_Panel.Search_Results_Feature =>
             Editor.Feature_Search_Results.Reset_Search_Results_For_Buffer_Close
-              (S.Feature_Search_Results, Buffer_Token);
+              (S.Panel.Feature_Search_Results, Buffer_Token);
          when Editor.Feature_Panel.Diagnostics_Feature =>
             Editor.Feature_Diagnostics.Reset_Diagnostics_For_Buffer_Close
-              (S.Feature_Diagnostics, Buffer_Token);
+              (S.Panel.Feature_Diagnostics, Buffer_Token);
          when Editor.Feature_Panel.Unknown_Feature =>
             null;
       end case;
@@ -240,13 +240,13 @@ package body Editor.Feature_Panel_Controller is
          when Editor.Feature_Panel.Outline_Feature =>
             Editor.Outline.Reset_For_Project_Close (S.Outline);
          when Editor.Feature_Panel.Messages_Feature =>
-            Editor.Feature_Messages.Reset_For_Project_Close (S.Feature_Messages);
+            Editor.Feature_Messages.Reset_For_Project_Close (S.Panel.Feature_Messages);
          when Editor.Feature_Panel.Search_Results_Feature =>
             Editor.Feature_Search_Results.Reset_Search_Results_For_Project_Close
-              (S.Feature_Search_Results);
+              (S.Panel.Feature_Search_Results);
          when Editor.Feature_Panel.Diagnostics_Feature =>
             Editor.Feature_Diagnostics.Reset_Diagnostics_For_Project_Close
-              (S.Feature_Diagnostics);
+              (S.Panel.Feature_Diagnostics);
          when Editor.Feature_Panel.Unknown_Feature =>
             null;
       end case;
@@ -260,7 +260,7 @@ package body Editor.Feature_Panel_Controller is
          Reset_Feature_For_Project_Close
            (S, Editor.Feature_Panel.Descriptor_Id (I));
       end loop;
-      Editor.Feature_Panel.Reset_For_Project_Close (S.Feature_Panel);
+      Editor.Feature_Panel.Reset_For_Project_Close (S.Panel.Feature_Panel);
    end Reset_All_Features_For_Project_Close;
 
    procedure Reset_Feature_For_Workspace_Close
@@ -268,19 +268,19 @@ package body Editor.Feature_Panel_Controller is
       Feature : Editor.Feature_Panel.Feature_Id)
    is
    begin
-      Editor.Feature_Panel.Forget_Feature_View_State (S.Feature_Panel, Feature);
+      Editor.Feature_Panel.Forget_Feature_View_State (S.Panel.Feature_Panel, Feature);
 
       case Feature is
          when Editor.Feature_Panel.Outline_Feature =>
             Editor.Outline.Clear (S.Outline);
          when Editor.Feature_Panel.Messages_Feature =>
-            Editor.Feature_Messages.Reset_For_Workspace_Close (S.Feature_Messages);
+            Editor.Feature_Messages.Reset_For_Workspace_Close (S.Panel.Feature_Messages);
          when Editor.Feature_Panel.Search_Results_Feature =>
             Editor.Feature_Search_Results.Reset_Search_Results_For_Workspace_Close
-              (S.Feature_Search_Results);
+              (S.Panel.Feature_Search_Results);
          when Editor.Feature_Panel.Diagnostics_Feature =>
             Editor.Feature_Diagnostics.Reset_Diagnostics_For_Workspace_Close
-              (S.Feature_Diagnostics);
+              (S.Panel.Feature_Diagnostics);
          when Editor.Feature_Panel.Unknown_Feature =>
             null;
       end case;
@@ -294,16 +294,16 @@ package body Editor.Feature_Panel_Controller is
          Reset_Feature_For_Workspace_Close
            (S, Editor.Feature_Panel.Descriptor_Id (I));
       end loop;
-      Editor.Feature_Panel.Clear (S.Feature_Panel);
+      Editor.Feature_Panel.Clear (S.Panel.Feature_Panel);
    end Reset_All_Features_For_Workspace_Close;
 
    function Assert_Feature_Panel_State_Consistent
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return Editor.Feature_Panel.Invariant_Holds (S.Feature_Panel)
+      return Editor.Feature_Panel.Invariant_Holds (S.Panel.Feature_Panel)
         and then Editor.Feature_Panel.Is_Known_Feature
-          (Editor.Feature_Panel.Active_Feature (S.Feature_Panel));
+          (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel));
    end Assert_Feature_Panel_State_Consistent;
 
 end Editor.Feature_Panel_Controller;

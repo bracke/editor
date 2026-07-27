@@ -250,7 +250,7 @@ package body Editor.Executor.Navigation_Commands is
                return False;
             end if;
             Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-            Editor.Messages.Dismiss_Latest (S.Messages);
+            Editor.Messages.Dismiss_Latest (S.Panel.Messages);
             if not S.Buffer_Lifecycle.File_Info.Has_Path or else To_String (S.Buffer_Lifecycle.File_Info.Path) /= Path then
                Status := Editor.Executor.Navigation_Target_Missing;
                return False;
@@ -449,7 +449,7 @@ package body Editor.Executor.Navigation_Commands is
    begin
       if Editor.Go_To_Line.Is_Open (S.Go_To_Line)
         and then Editor.Overlay_Focus.Is_Active
-          (S.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay)
+          (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay)
       then
          Execute_Close_Goto_Line (S);
       else
@@ -500,7 +500,7 @@ package body Editor.Executor.Navigation_Commands is
    is
    begin
       if Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay)
       then
          Editor.Executor.Dismiss_Active_Overlay
            (S, Editor.Overlay_Focus.Dismiss_Command);
@@ -622,7 +622,7 @@ package body Editor.Executor.Navigation_Commands is
 
          if Same_Goto_Target (Before_Location, Result, Target_Column) then
             if Editor.Overlay_Focus.Is_Active
-              (S.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay)
+              (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay)
             then
                Editor.Executor.Dismiss_Active_Overlay
                  (S, Editor.Overlay_Focus.Dismiss_Accept);
@@ -643,7 +643,7 @@ package body Editor.Executor.Navigation_Commands is
            (S, Before_Location, Target_Location);
 
          if Editor.Overlay_Focus.Is_Active
-           (S.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay)
+           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay)
          then
             Editor.Executor.Dismiss_Active_Overlay
               (S, Editor.Overlay_Focus.Dismiss_Accept);

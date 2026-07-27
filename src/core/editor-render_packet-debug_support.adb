@@ -106,8 +106,8 @@ package body Editor.Render_Packet.Debug_Support is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return S.Active_Find_Source_Buffer_Token /= 0
-        and then S.Active_Find_Source_Buffer_Token = Active_Find_Buffer_Token (S);
+      return S.Search.Active_Find_Source_Buffer_Token /= 0
+        and then S.Search.Active_Find_Source_Buffer_Token = Active_Find_Buffer_Token (S);
    end Active_Find_Source_Current;
 
 end Editor.Render_Packet.Debug_Support;

@@ -84,7 +84,7 @@ package body Editor.Executor.Semantic_Index_Commands is
       Added   : Natural := 0;
    begin
       Removed := Editor.Feature_Diagnostics.Clear_Diagnostics_By_Source_And_Label
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Path);
 
@@ -99,13 +99,13 @@ package body Editor.Executor.Semantic_Index_Commands is
          begin
             if Diagnostic.Has_Command_Descriptor then
                Editor.Feature_Diagnostics.Add_Diagnostic_Command_Descriptor
-                 (S.Feature_Diagnostics,
+                 (S.Panel.Feature_Diagnostics,
                   Diagnostic.Command_Descriptor,
                   Source_Label  => Path,
                   Target_Buffer => Buffer_Token);
             else
                Editor.Feature_Diagnostics.Add_Diagnostic
-                 (S.Feature_Diagnostics,
+                 (S.Panel.Feature_Diagnostics,
                   Severity      => To_Feature_Severity (Diagnostic.Severity),
                   Message       => To_String (Diagnostic.Message),
                   Source_Label  => Path,
@@ -121,7 +121,7 @@ package body Editor.Executor.Semantic_Index_Commands is
 
       if Removed > 0 or else Added > 0 then
          Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Row_Change
-           (S.Feature_Diagnostics, S.Feature_Panel);
+           (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
       end if;
    end Publish_Service_Diagnostics_To_Feature;
 
@@ -221,11 +221,11 @@ package body Editor.Executor.Semantic_Index_Commands is
 
       Editor.Ada_Project_Index.Clear (S.Semantic.Language_Index);
 
-      if Editor.Project.Has_Project (S.Project) then
+      if Editor.Project.Has_Project (S.Project_Runtime.Project) then
          declare
             Refresh_Result : Editor.Project.Project_File_Refresh_Result;
          begin
-            Editor.Project.Refresh_Known_Files (S.Project, Refresh_Result);
+            Editor.Project.Refresh_Known_Files (S.Project_Runtime.Project, Refresh_Result);
             if Refresh_Result.Status /= Editor.Project.Project_File_Refresh_Ok then
                Read_Error_Count := Read_Error_Count + 1;
             end if;
@@ -247,13 +247,13 @@ package body Editor.Executor.Semantic_Index_Commands is
 
          Index_Open_Buffer_Overlays;
 
-         for I in 1 .. Editor.Project.Known_File_Count (S.Project) loop
+         for I in 1 .. Editor.Project.Known_File_Count (S.Project_Runtime.Project) loop
             exit when Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) >=
               Editor.Ada_Project_Index.Max_Index_Files;
 
             declare
                Known : constant Editor.Project.Project_File_Entry :=
-                 Editor.Project.Known_File_At (S.Project, I);
+                 Editor.Project.Known_File_At (S.Project_Runtime.Project, I);
                Path : constant String := To_String (Known.Absolute_Path);
             begin
                if Path'Length = 0 or else not Is_Ada_Source_Path (Path) then
@@ -349,7 +349,7 @@ package body Editor.Executor.Semantic_Index_Commands is
    procedure Rebuild_Language_Index_After_File_Lifecycle
      (S : in out Editor.State.State_Type)
    is
-      Saved_Project : constant Editor.Project.Project_State := S.Project;
+      Saved_Project : constant Editor.Project.Project_State := S.Project_Runtime.Project;
       Indexed_Files : Natural := 0;
       Indexed_Symbols : Natural := 0;
       Skipped_Files : Natural := 0;
@@ -371,7 +371,7 @@ package body Editor.Executor.Semantic_Index_Commands is
          null;
       end if;
 
-      S.Project := Saved_Project;
+      S.Project_Runtime.Project := Saved_Project;
    end Rebuild_Language_Index_After_File_Lifecycle;
 
    procedure Clear_Service_Semantic_Diagnostics_From_Feature
@@ -391,7 +391,7 @@ package body Editor.Executor.Semantic_Index_Commands is
             if Path'Length > 0 then
                Removed := Removed +
                  Editor.Feature_Diagnostics.Clear_Diagnostics_By_Source_And_Label
-                   (S.Feature_Diagnostics,
+                   (S.Panel.Feature_Diagnostics,
                     Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
                     Path);
             end if;
@@ -400,7 +400,7 @@ package body Editor.Executor.Semantic_Index_Commands is
 
       if Removed > 0 then
          Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Row_Change
-           (S.Feature_Diagnostics, S.Feature_Panel);
+           (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
       end if;
    end Clear_Service_Semantic_Diagnostics_From_Feature;
 

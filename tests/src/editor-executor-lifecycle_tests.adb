@@ -1581,7 +1581,7 @@ package body Editor.Executor.Lifecycle_Tests is
          Found : Boolean := False;
          M     : Editor.Messages.Editor_Message;
       begin
-         M := Editor.Messages.Active_Message (S.Messages, Found);
+         M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
          Assert
            (Found and then To_String (M.Text) = "Buffers: closed 1, skipped 1 dirty",
             "close-others feedback must be compact and deterministic");
@@ -1638,7 +1638,7 @@ package body Editor.Executor.Lifecycle_Tests is
          Found : Boolean := False;
          M     : Editor.Messages.Editor_Message;
       begin
-         M := Editor.Messages.Active_Message (S.Messages, Found);
+         M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
          Assert
            (Found and then To_String (M.Text) = "Buffers: closed 2, skipped 1 dirty",
             "close-clean feedback must be compact and deterministic");

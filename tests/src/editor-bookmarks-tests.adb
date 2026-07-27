@@ -244,7 +244,7 @@ package body Editor.Bookmarks.Tests is
    is
       M : Editor.Messages.Editor_Message;
    begin
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (M);
       else
@@ -930,7 +930,7 @@ package body Editor.Bookmarks.Tests is
       Before_Quick_Open_Query := To_Unbounded_String (Editor.Quick_Open.Query_Text (S.Quick_Open));
       Before_Switcher_Marked := Editor.Buffer_Switcher.Marked_Count (S.Buffer_Switcher);
 
-      Editor.Messages.Dismiss_All (S.Messages);
+      Editor.Messages.Dismiss_All (S.Panel.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Bookmark_Toggle_Current_Location);
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -939,7 +939,7 @@ package body Editor.Bookmarks.Tests is
               "executor toggle adds exactly one session-local bookmark");
       Assert_Latest_Message_Contains (S, "Bookmark added", "toggle add");
 
-      Editor.Messages.Dismiss_All (S.Messages);
+      Editor.Messages.Dismiss_All (S.Panel.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Bookmark_Show);
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -948,7 +948,7 @@ package body Editor.Bookmarks.Tests is
               "show makes bookmark surface visible");
       Assert_Latest_Message_Contains (S, "Bookmarks shown", "bookmark show");
 
-      Editor.Messages.Dismiss_All (S.Messages);
+      Editor.Messages.Dismiss_All (S.Panel.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Bookmark_Next);
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -957,7 +957,7 @@ package body Editor.Bookmarks.Tests is
               "next keeps the only bookmark selected");
       Assert_Latest_Message_Contains (S, "Selected next bookmark", "bookmark next");
 
-      Editor.Messages.Dismiss_All (S.Messages);
+      Editor.Messages.Dismiss_All (S.Panel.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Bookmark_Previous);
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -966,7 +966,7 @@ package body Editor.Bookmarks.Tests is
               "previous keeps the only bookmark selected");
       Assert_Latest_Message_Contains (S, "Selected previous bookmark", "bookmark previous");
 
-      Editor.Messages.Dismiss_All (S.Messages);
+      Editor.Messages.Dismiss_All (S.Panel.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Bookmark_Reveal_Current);
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -982,7 +982,7 @@ package body Editor.Bookmarks.Tests is
       Assert (Editor.Buffer_Switcher.Marked_Count (S.Buffer_Switcher) = Before_Switcher_Marked,
               "bookmark commands do not mutate Open Buffer Switcher marked state");
 
-      Editor.Messages.Dismiss_All (S.Messages);
+      Editor.Messages.Dismiss_All (S.Panel.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Bookmark_Clear_All);
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -1014,7 +1014,7 @@ package body Editor.Bookmarks.Tests is
       Assert (Added and then Editor.Bookmarks.Count (S.Bookmarks) = 1,
               "test setup creates one stale selected bookmark");
 
-      Editor.Messages.Dismiss_All (S.Messages);
+      Editor.Messages.Dismiss_All (S.Panel.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Bookmark_Open_Selected);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,

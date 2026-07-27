@@ -26,7 +26,7 @@ package body Editor.Input_Bridge.Diagnostics_Focus_Key_Handlers is
       Layout_Config : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
       Suppressed_Count : constant Natural :=
         Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-          (S.Feature_Diagnostics);
+          (S.Panel.Feature_Diagnostics);
       Text_Viewport_Height : constant Natural :=
         Editor.Layout.Text_Viewport_Height
           (Layout_Config, Editor.View.Viewport_Height);
@@ -53,18 +53,18 @@ package body Editor.Input_Bridge.Diagnostics_Focus_Key_Handlers is
          when Editor.Keybindings.Key_Down =>
             Displayed_Count := Displayed_Suppressed_Row_Count (S);
             Editor.Feature_Diagnostics.Select_Next_Suppressed_Diagnostic
-              (S.Feature_Diagnostics);
+              (S.Panel.Feature_Diagnostics);
             Editor.Feature_Diagnostics.Ensure_Selected_Suppressed_Diagnostic_Visible
-              (S.Feature_Diagnostics, Displayed_Count);
+              (S.Panel.Feature_Diagnostics, Displayed_Count);
          when Editor.Keybindings.Key_Up =>
             Displayed_Count := Displayed_Suppressed_Row_Count (S);
             Editor.Feature_Diagnostics.Select_Previous_Suppressed_Diagnostic
-              (S.Feature_Diagnostics);
+              (S.Panel.Feature_Diagnostics);
             Editor.Feature_Diagnostics.Ensure_Selected_Suppressed_Diagnostic_Visible
-              (S.Feature_Diagnostics, Displayed_Count);
+              (S.Panel.Feature_Diagnostics, Displayed_Count);
          when Editor.Keybindings.Key_Enter =>
             if Editor.Feature_Diagnostics.Restore_Selected_Suppressed_Diagnostic
-              (S.Feature_Diagnostics, S.Feature_Panel)
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel)
             then
                Report_Info ("Selected suppressed diagnostic restored.");
             else
@@ -74,7 +74,7 @@ package body Editor.Input_Bridge.Diagnostics_Focus_Key_Handlers is
             declare
                Cleared : constant Natural :=
                  Editor.Feature_Diagnostics.Clear_Suppressed_Diagnostics
-                   (S.Feature_Diagnostics);
+                   (S.Panel.Feature_Diagnostics);
             begin
                if Cleared = 0 then
                   Report_Info ("No suppressed diagnostics.");

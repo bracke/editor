@@ -70,7 +70,7 @@ package body Editor.Quick_Open.Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (M);
       else
@@ -2826,11 +2826,11 @@ package body Editor.Quick_Open.Tests is
          Root_Path    => To_Unbounded_String (Root),
          Display_Name => To_Unbounded_String (""),
          Error_Text   => Null_Unbounded_String);
-      Editor.Project.Apply_Open_Result (S.Project, Open_Result);
-      Editor.Project.Add_Known_File (S.Project, "src/alpha.adb", Alpha_Path);
-      Editor.Project.Add_Known_File (S.Project, "src/beta.adb", Beta_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Result);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "src/alpha.adb", Alpha_Path);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "src/beta.adb", Beta_Path);
       Editor.Project.Add_Known_File
-        (S.Project, "src/project-only.adb", Slash (Src, "project-only.adb"));
+        (S.Project_Runtime.Project, "src/project-only.adb", Slash (Src, "project-only.adb"));
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Alpha_Path);
       Alpha := Editor.Buffers.Global_Active_Buffer;
@@ -2842,12 +2842,12 @@ package body Editor.Quick_Open.Tests is
 
       Editor.Quick_Open.Open (S.Quick_Open);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "src/");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project, Config);
+      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project_Runtime.Project, Config);
       Editor.Quick_Open.Select_Path (S.Quick_Open, "src/alpha.adb", Found);
       Assert (Found, "setup must select inactive alpha candidate");
 
       Before := Editor.Quick_Open_Markers.Build_Snapshot
-        (S.Quick_Open, S.Project, Editor.Buffers.Global_Registry_For_UI,
+        (S.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers);
       Assert_Quick_Open_File_Lifecycle_Observation_Frozen
         (Before, Beta, "src/beta.adb", False, True,
@@ -2858,7 +2858,7 @@ package body Editor.Quick_Open.Tests is
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Command_Ids.Command_Save_File_As, Target_Path);
       After := Editor.Quick_Open_Markers.Build_Snapshot
-        (S.Quick_Open, S.Project, Editor.Buffers.Global_Registry_For_UI,
+        (S.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers);
 
       Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = "src/",
@@ -2933,17 +2933,17 @@ package body Editor.Quick_Open.Tests is
          Root_Path    => To_Unbounded_String (Root_Direct),
          Display_Name => To_Unbounded_String ("direct"),
          Error_Text   => Null_Unbounded_String);
-      Editor.Project.Apply_Open_Result (S.Project, Open_Result);
-      Editor.Project.Add_Known_File (S.Project, "src/alpha.adb", Direct_File);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Result);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "src/alpha.adb", Direct_File);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Direct_File);
       Direct_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Quick_Open.Open (S.Quick_Open);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "src/");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project, Config);
+      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project_Runtime.Project, Config);
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Command_Ids.Command_Rename_Buffer_File, Direct_Target);
       Direct_Snap := Editor.Quick_Open_Markers.Build_Snapshot
-        (S.Quick_Open, S.Project, Editor.Buffers.Global_Registry_For_UI,
+        (S.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers);
       Assert_Quick_Open_File_Lifecycle_Observation_Frozen
         (Direct_Snap, Direct_Id, "src/renamed.adb", False, True,
@@ -2956,19 +2956,19 @@ package body Editor.Quick_Open.Tests is
          Root_Path    => To_Unbounded_String (Root_Prompt),
          Display_Name => To_Unbounded_String ("prompt"),
          Error_Text   => Null_Unbounded_String);
-      Editor.Project.Apply_Open_Result (S.Project, Open_Result);
-      Editor.Project.Add_Known_File (S.Project, "src/alpha.adb", Prompt_File);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Result);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "src/alpha.adb", Prompt_File);
       Editor.Project.Add_Known_File
-        (S.Project, "src/selected-target-like.adb",
+        (S.Project_Runtime.Project, "src/selected-target-like.adb",
          Slash (Src_Prompt, "selected-target-like.adb"));
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Prompt_File);
       Prompt_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Quick_Open.Open (S.Quick_Open);
       Editor.Quick_Open.Set_Query_Text
         (S.Quick_Open, "src/query-must-not-seed-target.adb");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project, Config);
+      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project_Runtime.Project, Config);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "src/");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project, Config);
+      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project_Runtime.Project, Config);
       Editor.Quick_Open.Select_Path
         (S.Quick_Open, "src/selected-target-like.adb", Found);
       Assert (Found,
@@ -2989,7 +2989,7 @@ package body Editor.Quick_Open.Tests is
               "prompt confirmation leaves no Quick Open prompt state");
 
       Prompt_Snap := Editor.Quick_Open_Markers.Build_Snapshot
-        (S.Quick_Open, S.Project, Editor.Buffers.Global_Registry_For_UI,
+        (S.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers);
       Assert_Quick_Open_File_Lifecycle_Observation_Frozen
         (Prompt_Snap, Prompt_Id, "src/renamed.adb", False, True,
@@ -3089,14 +3089,14 @@ package body Editor.Quick_Open.Tests is
          Root_Path    => To_Unbounded_String (Root_One),
          Display_Name => To_Unbounded_String ("one"),
          Error_Text   => Null_Unbounded_String);
-      Editor.Project.Apply_Open_Result (S.Project, Open_Result);
-      Editor.Project.Add_Known_File (S.Project, "main.adb", File_One);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Result);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "main.adb", File_One);
       Editor.Quick_Open.Open (S.Quick_Open);
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay,
-         S.Panel_Focus);
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay,
+         S.Panel.Panel_Focus);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "main");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project, Config);
+      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project_Runtime.Project, Config);
       Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) = 1,
               "setup must produce one current-project Quick Open result");
 
@@ -3108,14 +3108,14 @@ package body Editor.Quick_Open.Tests is
                 (S),
               "fresh project navigation state should be coherent");
 
-      Editor.Project.Clear (S.Project);
+      Editor.Project.Clear (S.Project_Runtime.Project);
       Open_Result :=
         (Status       => Editor.Project.Project_Open_Ok,
          Root_Path    => To_Unbounded_String (Root_Two),
          Display_Name => To_Unbounded_String ("two"),
          Error_Text   => Null_Unbounded_String);
-      Editor.Project.Apply_Open_Result (S.Project, Open_Result);
-      Editor.Project.Add_Known_File (S.Project, "main.adb", File_Two);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Result);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "main.adb", File_Two);
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Accept_Quick_Open);
@@ -3194,8 +3194,8 @@ package body Editor.Quick_Open.Tests is
       Editor.State.Init (S);
       Editor.Quick_Open.Open (S.Quick_Open);
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay,
-         S.Panel_Focus);
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay,
+         S.Panel.Panel_Focus);
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Quick_Open_Next_Result);
@@ -3222,8 +3222,8 @@ package body Editor.Quick_Open.Tests is
       Editor.State.Init (S);
       Editor.Quick_Open.Open (S.Quick_Open);
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay,
-         S.Panel_Focus);
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay,
+         S.Panel.Panel_Focus);
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "main");
 
@@ -3257,8 +3257,8 @@ package body Editor.Quick_Open.Tests is
       Editor.State.Init (S);
       Editor.Quick_Open.Open (S.Quick_Open);
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay,
-         S.Panel_Focus);
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay,
+         S.Panel.Panel_Focus);
       Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/editor");
 
       Assert_No_Project_Availability

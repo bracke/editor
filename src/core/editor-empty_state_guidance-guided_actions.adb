@@ -414,7 +414,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
 
       if Pending_Confirmation_Blocks_Suggestion (Resolved) then
          Editor.Messages.Push_Info
-           (S.Messages, "Finish the pending confirmation before using guided actions");
+           (S.Panel.Messages, "Finish the pending confirmation before using guided actions");
          return Editor.Command_Execution.Unavailable (Resolved);
       end if;
 
@@ -449,7 +449,7 @@ package body Editor.Empty_State_Guidance.Guided_Actions is
 
       if Pending_Confirmation_Blocks_Suggestion (Suggestion.Command) then
          Editor.Messages.Push_Info
-           (S.Messages, "Finish the pending confirmation before using guided actions");
+           (S.Panel.Messages, "Finish the pending confirmation before using guided actions");
          return Editor.Command_Execution.Unavailable (Suggestion.Command);
       end if;
 

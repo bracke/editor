@@ -27,7 +27,7 @@ package body Editor.Executor.Buffer_Switcher_Shared is
         (S.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers,
-         S.Project,
+         S.Project_Runtime.Project,
          Default_Buffer_Switcher_Config);
       Editor.Render_Cache.Invalidate_All;
    end Recompute_Buffer_Switcher;

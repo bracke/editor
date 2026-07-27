@@ -93,7 +93,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (M);
       else
@@ -461,8 +461,8 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha" & ASCII.LF & "Beta" & ASCII.LF & "Gamma");
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Replace_Text := To_Unbounded_String ("Delta");
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Delta");
       Set_Primary_Selection (S, 10, 2);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -480,9 +480,9 @@ package body Editor.Line_Edit.Text_Insert_Tests is
               "replacement does not read or mutate Clipboard text");
       Assert (Editor.Clipboard.Has_Text,
               "replacement does not clear Clipboard presence");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("Beta"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("Beta"),
               "Text Insert must not mutate Find query");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("Delta"),
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("Delta"),
               "Text Insert must not mutate Replace text");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
@@ -605,8 +605,8 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha Beta");
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Find_Stale := False;
       Set_Primary_Selection (S, 6, 10);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -626,9 +626,9 @@ package body Editor.Line_Edit.Text_Insert_Tests is
               "canonical Text Insert replacement clears selection");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
               "canonical Text Insert canonical path does not touch Clipboard");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("Beta"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("Beta"),
               "canonical Text Insert must not mutate Find query text");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "canonical Text Insert must invalidate Find through text-edit hook");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
@@ -824,8 +824,8 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha");
       Editor.State.Set_Dirty (S, False);
-      S.Active_Find_Query := To_Unbounded_String ("Alpha");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
+      S.Search.Active_Find_Stale := False;
       Set_Caret (S, 5);
       Execute_Text_Input (S, "!");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
@@ -843,7 +843,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
               "empty payload preserves redo stack");
       Assert (not Editor.State.Is_Dirty (S),
               "empty payload preserves dirty state");
-      Assert (not S.Active_Find_Stale,
+      Assert (not S.Search.Active_Find_Stale,
               "empty payload must not invalidate Find state");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
               "empty payload leaves Clipboard text untouched");
@@ -856,7 +856,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
               "NUL payload preserves selection");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "NUL payload preserves redo stack");
-      Assert (not S.Active_Find_Stale,
+      Assert (not S.Search.Active_Find_Stale,
               "NUL payload must not invalidate Find state");
 
       Execute_Text_Input (S, String'(1 => ASCII.CR));
@@ -933,9 +933,9 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha Beta");
       Editor.State.Set_Dirty (S, False);
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Replace_Text := To_Unbounded_String ("Gamma");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Gamma");
+      S.Search.Active_Find_Stale := False;
       Set_Caret (S, 6);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -943,11 +943,11 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Execute_Text_Input (S, "X");
 
       Assert_Buffer_Text (S, "Alpha XBeta", "insert before find match");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("Beta"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("Beta"),
               "Text Insert does not mutate Find query");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("Gamma"),
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("Gamma"),
               "Text Insert does not mutate Replace text");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "Text Insert invalidates Find through canonical text-edit hook");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
               "Text Insert does not mutate Clipboard text");
@@ -1125,9 +1125,9 @@ package body Editor.Line_Edit.Text_Insert_Tests is
          Editor.State.Init (S);
          Editor.State.Load_Text (S, Before);
          Editor.State.Set_Dirty (S, False);
-         S.Active_Find_Query := To_Unbounded_String ("a");
-         S.Active_Replace_Text := To_Unbounded_String ("r");
-         S.Active_Find_Stale := False;
+         S.Search.Active_Find_Query := To_Unbounded_String ("a");
+         S.Search.Active_Replace_Text := To_Unbounded_String ("r");
+         S.Search.Active_Find_Stale := False;
          Set_Caret (S, Caret_Pos);
          Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
          Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -1137,11 +1137,11 @@ package body Editor.Line_Edit.Text_Insert_Tests is
          Assert_Text_Insert_Coherent
            (S, Expected, Expected_Caret, 1, 0, True,
             To_Unbounded_String ("CLIP"), Before_Back, Before_Fwd, Why);
-         Assert (S.Active_Find_Query = To_Unbounded_String ("a"),
+         Assert (S.Search.Active_Find_Query = To_Unbounded_String ("a"),
                  Why & ": Text Insert must not mutate Find query");
-         Assert (S.Active_Replace_Text = To_Unbounded_String ("r"),
+         Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("r"),
                  Why & ": Text Insert must not mutate Replace text");
-         Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+         Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
                  Why & ": text-changing insertion invalidates Find through canonical hook");
 
          Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
@@ -1170,9 +1170,9 @@ package body Editor.Line_Edit.Text_Insert_Tests is
          Editor.State.Init (S);
          Editor.State.Load_Text (S, Before);
          Editor.State.Set_Dirty (S, False);
-         S.Active_Find_Query := To_Unbounded_String (Removed);
-         S.Active_Replace_Text := To_Unbounded_String ("replacement text remains independent");
-         S.Active_Find_Stale := False;
+         S.Search.Active_Find_Query := To_Unbounded_String (Removed);
+         S.Search.Active_Replace_Text := To_Unbounded_String ("replacement text remains independent");
+         S.Search.Active_Find_Stale := False;
          Set_Primary_Selection (S, Anchor_Pos, Focus_Pos);
          Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
          Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -1182,9 +1182,9 @@ package body Editor.Line_Edit.Text_Insert_Tests is
          Assert_Text_Insert_Coherent
            (S, Expected, Expected_Caret, 1, 0, True,
             To_Unbounded_String ("CLIP"), Before_Back, Before_Fwd, Why);
-         Assert (S.Active_Find_Query = To_Unbounded_String (Removed),
+         Assert (S.Search.Active_Find_Query = To_Unbounded_String (Removed),
                  Why & ": replacement must not rewrite Find query");
-         Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+         Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
                  Why & ": replacement invalidates stale Find ranges");
 
          Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
@@ -1246,9 +1246,9 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha");
       Editor.State.Set_Dirty (S, False);
-      S.Active_Find_Query := To_Unbounded_String ("Alpha");
-      S.Active_Replace_Text := To_Unbounded_String ("Omega");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Omega");
+      S.Search.Active_Find_Stale := False;
       Set_Primary_Selection (S, 0, 5);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -1263,7 +1263,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
               "empty payload creates no redo entry");
       Assert (not Editor.State.Is_Dirty (S),
               "empty payload preserves dirty state");
-      Assert (not S.Active_Find_Stale,
+      Assert (not S.Search.Active_Find_Stale,
               "empty payload does not invalidate Find");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
               "empty payload leaves Clipboard text unchanged");
@@ -1283,7 +1283,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Assert (S.Carets (S.Carets.First_Index).Anchor = 0
               and then S.Carets (S.Carets.First_Index).Pos = 5,
               "NUL payload preserves selection anchor/focus");
-      Assert (not S.Active_Find_Stale,
+      Assert (not S.Search.Active_Find_Stale,
               "NUL payload does not invalidate Find");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
               "NUL payload leaves Clipboard text unchanged");
@@ -1664,12 +1664,12 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Assert_Buffer_Text
         (S, "Run! Run",
          "Text Insert mutates only buffer text under Replace state");
-      Assert (S.Active_Replace_Prompt
-              and then To_String (S.Active_Replace_Text) = "Execute",
+      Assert (S.Search.Active_Replace_Prompt
+              and then To_String (S.Search.Active_Replace_Text) = "Execute",
               "Text Insert preserves Replace prompt text/state");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("Run"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("Run"),
               "Text Insert preserves Find query while invalidating ranges");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "Text Insert invalidates Find ranges through edit hook only");
    end Test_Text_Insert_Overlay_Owner_Matrix_And_Command_Surface;
 
@@ -1700,9 +1700,9 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha Beta");
       Editor.State.Set_Dirty (S, False);
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Replace_Text := To_Unbounded_String ("Gamma");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Gamma");
+      S.Search.Active_Find_Stale := False;
       Set_Primary_Selection (S, 6, 10);
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Fwd_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -1718,11 +1718,11 @@ package body Editor.Line_Edit.Text_Insert_Tests is
               "replacement creates no redo entry");
       Assert (Editor.State.Is_Dirty (S),
               "replacement uses canonical dirty policy");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("Beta"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("Beta"),
               "Text Insert does not mutate Find query");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("Gamma"),
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("Gamma"),
               "Text Insert does not mutate Replace text");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "Text Insert invalidates Find through canonical hook");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("CLIP"),
               "Text Insert never reads or mutates Clipboard text");

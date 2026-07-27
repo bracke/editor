@@ -627,7 +627,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
       Before_Messages : Natural;
    begin
       Editor.State.Init (S);
-      Before_Messages := Editor.Messages.Count (S.Messages);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
       R1 := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       R2 := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Readiness_Audit (S);
       Matrix1 := Editor.External_Producers.Public_Build.Build_Public_Build_UX_Dependency_Matrix;
@@ -640,7 +640,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
          Assert (Matrix1 (Dependency) = Matrix2 (Dependency),
                  "repeated dependency matrix builds must be stable");
       end loop;
-      Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Messages,
               "repeated audits must not post messages");
       Assert_Public_Build_Name_Not_Registered ("build.run");
    end Test_Public_Build_Repeated_Audits_Are_Stable;

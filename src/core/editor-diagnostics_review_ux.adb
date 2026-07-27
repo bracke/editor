@@ -28,7 +28,7 @@ package body Editor.Diagnostics_Review_UX is
      (State : Editor.State.State_Type) return Boolean
    is
       Diagnostics : Editor.Feature_Diagnostics.Diagnostics_Feature_State
-        renames State.Feature_Diagnostics;
+        renames State.Panel.Feature_Diagnostics;
    begin
       if Editor.Feature_Diagnostics.Row_Count (Diagnostics) = 0 then
          return Editor.Feature_Diagnostics.Header_Text (Diagnostics) =
@@ -65,20 +65,20 @@ package body Editor.Diagnostics_Review_UX is
      (State : Editor.State.State_Type) return Boolean
    is
       Counts : constant Editor.Feature_Diagnostics.Diagnostics_Severity_Counts :=
-        Editor.Feature_Diagnostics.Count_By_Severity (State.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Count_By_Severity (State.Panel.Feature_Diagnostics);
       Manual_Total : constant Natural :=
         Counts.Errors + Counts.Warnings + Counts.Info + Counts.Notes + Counts.Unknown;
       Manual_Visible_Total : constant Natural :=
         Counts.Visible_Errors + Counts.Visible_Warnings + Counts.Visible_Info +
         Counts.Visible_Notes + Counts.Visible_Unknown;
       Header : constant String :=
-        Editor.Feature_Diagnostics.Header_Text (State.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Header_Text (State.Panel.Feature_Diagnostics);
    begin
       return Counts.Total =
-          Editor.Feature_Diagnostics.Row_Count (State.Feature_Diagnostics)
+          Editor.Feature_Diagnostics.Row_Count (State.Panel.Feature_Diagnostics)
         and then Manual_Total = Counts.Total
         and then Counts.Visible =
-          Editor.Feature_Diagnostics.Visible_Row_Count (State.Feature_Diagnostics)
+          Editor.Feature_Diagnostics.Visible_Row_Count (State.Panel.Feature_Diagnostics)
         and then Manual_Visible_Total = Counts.Visible
         and then Contains (Editor.Feature_Diagnostics.Count_Label (Counts), "Errors:")
         and then Contains (Editor.Feature_Diagnostics.Count_Label (Counts), "Warnings:")
@@ -92,7 +92,7 @@ package body Editor.Diagnostics_Review_UX is
    is
    begin
       return Editor.Feature_Diagnostics.Diagnostic_Message_Text_Is_Bounded
-          (State.Feature_Diagnostics);
+          (State.Panel.Feature_Diagnostics);
    end Assert_Diagnostics_Message_Text_Is_Bounded;
 
    function Assert_Diagnostics_Source_Label_Text_Is_Bounded
@@ -100,7 +100,7 @@ package body Editor.Diagnostics_Review_UX is
    is
    begin
       return Editor.Feature_Diagnostics.Diagnostic_Source_Label_Text_Is_Bounded
-          (State.Feature_Diagnostics);
+          (State.Panel.Feature_Diagnostics);
    end Assert_Diagnostics_Source_Label_Text_Is_Bounded;
 
 
@@ -108,7 +108,7 @@ package body Editor.Diagnostics_Review_UX is
      (State : Editor.State.State_Type) return Boolean
    is
       Copy : Editor.Feature_Diagnostics.Diagnostics_Feature_State :=
-        State.Feature_Diagnostics;
+        State.Panel.Feature_Diagnostics;
       Before : constant Natural := Editor.Feature_Diagnostics.Row_Count (Copy);
    begin
       Editor.Feature_Diagnostics.Filter_Errors_Only (Copy);
@@ -133,7 +133,7 @@ package body Editor.Diagnostics_Review_UX is
      (State : Editor.State.State_Type) return Boolean
    is
       Copy : Editor.Feature_Diagnostics.Diagnostics_Feature_State :=
-        State.Feature_Diagnostics;
+        State.Panel.Feature_Diagnostics;
       Before : constant Natural := Editor.Feature_Diagnostics.Row_Count (Copy);
    begin
       Editor.Feature_Diagnostics.Filter_Source_Label (Copy, "src");
@@ -145,7 +145,7 @@ package body Editor.Diagnostics_Review_UX is
      (State : Editor.State.State_Type) return Boolean
    is
       Copy : Editor.Feature_Diagnostics.Diagnostics_Feature_State :=
-        State.Feature_Diagnostics;
+        State.Panel.Feature_Diagnostics;
       Before : constant Natural := Editor.Feature_Diagnostics.Row_Count (Copy);
       Groups_Before : constant Natural :=
         Editor.Feature_Diagnostics.File_Group_Count (Copy);
@@ -162,7 +162,7 @@ package body Editor.Diagnostics_Review_UX is
      (State : Editor.State.State_Type) return Boolean
    is
       Copy : Editor.Feature_Diagnostics.Diagnostics_Feature_State :=
-        State.Feature_Diagnostics;
+        State.Panel.Feature_Diagnostics;
       Before : constant Natural := Editor.Feature_Diagnostics.Row_Count (Copy);
    begin
       Editor.Feature_Diagnostics.Filter_Build_Produced (Copy);
@@ -214,12 +214,12 @@ package body Editor.Diagnostics_Review_UX is
    is
    begin
       for I in 1 .. Editor.Feature_Diagnostics.Row_Count
-        (State.Feature_Diagnostics)
+        (State.Panel.Feature_Diagnostics)
       loop
          if not Editor.Feature_Diagnostics.Item_Has_Target
-             (State.Feature_Diagnostics, I)
+             (State.Panel.Feature_Diagnostics, I)
            and then Editor.Feature_Diagnostics.Item_Target_Unavailable_Label
-             (State.Feature_Diagnostics, I)'Length = 0
+             (State.Panel.Feature_Diagnostics, I)'Length = 0
          then
             return False;
          end if;
@@ -235,7 +235,7 @@ package body Editor.Diagnostics_Review_UX is
       Copy   : Editor.State.State_Type := State;
       Token  : Natural := Copy.Buffer_Lifecycle.Active_Buffer_Token;
       Before : constant Natural :=
-        Editor.Feature_Diagnostics.Row_Count (Copy.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Row_Count (Copy.Panel.Feature_Diagnostics);
       Added  : constant Positive := Positive (Before + 1);
    begin
       if Token = Editor.Feature_Diagnostics.No_Buffer then
@@ -244,7 +244,7 @@ package body Editor.Diagnostics_Review_UX is
       end if;
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (Copy.Feature_Diagnostics,
+        (Copy.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "stale edit target",
          Source_Label  => "src/main.adb",
@@ -256,12 +256,12 @@ package body Editor.Diagnostics_Review_UX is
 
       Editor.State.Rebuild_After_Buffer_Change (Copy);
 
-      return Editor.Feature_Diagnostics.Row_Count (Copy.Feature_Diagnostics) = Before + 1
+      return Editor.Feature_Diagnostics.Row_Count (Copy.Panel.Feature_Diagnostics) = Before + 1
         and then Editor.Feature_Diagnostics.Item_Is_Stale
-          (Copy.Feature_Diagnostics, Added)
+          (Copy.Panel.Feature_Diagnostics, Added)
         and then Contains
           (Editor.Feature_Diagnostics.Item_Display_Label
-             (Copy.Feature_Diagnostics, Added),
+             (Copy.Panel.Feature_Diagnostics, Added),
            "stale");
    end Assert_Diagnostics_Edit_Marks_Stale_Rather_Than_Clears;
 
@@ -270,7 +270,7 @@ package body Editor.Diagnostics_Review_UX is
    is
       Copy : Editor.State.State_Type := State;
    begin
-      Editor.Feature_Diagnostics.Clear_Diagnostics (Copy.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Clear_Diagnostics (Copy.Panel.Feature_Diagnostics);
       return Editor.Build_Diagnostics_Review.Assert_Build_Output_Details_Stores_No_Diagnostics_Rows
           (Copy.Build.Latest_Output_Details)
         and then Editor.Build_Diagnostics_Review.Assert_Build_Summary_Stores_No_Diagnostics_Rows

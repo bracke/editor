@@ -351,8 +351,8 @@ package body Editor.Executor.Project_Search_Replace_Commands is
          Failed := True;
          Failure_Message := To_Unbounded_String ("Replacement target changed; rerun search.");
          return;
-      elsif not Editor.Project.Has_Project (S.Project)
-        or else not Editor.Project.Is_Under_Project (S.Project, To_String (Path))
+      elsif not Editor.Project.Has_Project (S.Project_Runtime.Project)
+        or else not Editor.Project.Is_Under_Project (S.Project_Runtime.Project, To_String (Path))
       then
          Failed := True;
          Failure_Message := To_Unbounded_String ("Replacement target is outside project.");
@@ -485,7 +485,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       Replaced : Natural := 0;
       Failure_Message : Unbounded_String := Null_Unbounded_String;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Warning (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -599,7 +599,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
          return False;
       end Path_Seen_Before;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Warning (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;

@@ -49,7 +49,7 @@ package body Editor.Files.Target_Prompt_Tests is
         "prompt input must start empty and not infer a target");
       Assert (Buffer_Text (S) = "prompt text" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "prompt opening must not mutate buffer text or dirty state");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
         "prompt opening must not emit an underlying command outcome message");
       Assert (not Ada.Directories.Exists (Target),
         "prompt opening must not perform filesystem work");
@@ -66,8 +66,8 @@ package body Editor.Files.Target_Prompt_Tests is
         "prompt confirmation should clear transient prompt state");
       Assert (Read_Bytes (Target) = "prompt text",
         "prompt confirmation should dispatch the exact target to canonical Save As");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then Editor.Messages.Count (S.Messages) = 1
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
+      Assert (Found and then Editor.Messages.Count (S.Panel.Messages) = 1
         and then M.Severity = Editor.Messages.Success_Message
         and then To_String (M.Text) = "Saved file as",
         "prompt confirmation must emit exactly the canonical Save As outcome message");
@@ -96,7 +96,7 @@ package body Editor.Files.Target_Prompt_Tests is
         "cancellation should discard typed target text");
       Assert (Buffer_Text (S) = Before_Text and then S.Buffer_Lifecycle.File_Info.Dirty,
         "cancellation must not mutate active buffer text or dirty state");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
         "cancellation must not emit underlying file operation feedback");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
@@ -137,7 +137,7 @@ package body Editor.Files.Target_Prompt_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source);
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty and then S.Buffer_Lifecycle.File_Info.Has_Path,
         "fixture should be a clean associated active buffer");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
 
       Assert_Opens (Editor.Command_Ids.Command_Save_File_As, "Save As target");
       Assert_Opens (Editor.Command_Ids.Command_Rename_Buffer_File, "Rename target");
@@ -176,7 +176,7 @@ package body Editor.Files.Target_Prompt_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, "render-target.txt");
-      Before_Messages := Editor.Messages.Count (S.Messages);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.File_Target_Prompt_Visible,
@@ -187,7 +187,7 @@ package body Editor.Files.Target_Prompt_Tests is
         "render snapshot must not mutate prompt input");
       Assert (Buffer_Text (S) = Before_Text and then S.Buffer_Lifecycle.File_Info.Dirty,
         "render snapshot must not mutate buffer state");
-      Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Messages,
         "render snapshot must not emit command feedback");
    end Test_Render_Projects_File_Target_Prompt_Without_Mutation;
 

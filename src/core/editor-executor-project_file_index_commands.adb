@@ -73,16 +73,16 @@ package body Editor.Executor.Project_File_Index_Commands is
    function Format_Project_File_Summary_Message
      (S : Editor.State.State_Type) return String
    is
-      Count : constant Natural := Editor.Project.Known_File_Count (S.Project);
+      Count : constant Natural := Editor.Project.Known_File_Count (S.Project_Runtime.Project);
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          return "No project open";
       elsif Count = 0 then
          return "No project open.";
-      elsif Editor.Project.Has_Last_Refresh_Summary (S.Project) then
+      elsif Editor.Project.Has_Last_Refresh_Summary (S.Project_Runtime.Project) then
          declare
             Summary : constant Editor.Project.Project_File_Refresh_Result :=
-              Editor.Project.Last_Refresh_Summary (S.Project);
+              Editor.Project.Last_Refresh_Summary (S.Project_Runtime.Project);
             Text : Unbounded_String := To_Unbounded_String
               ("Project files: " & Natural_Image_Trimmed (Count) & " known files");
          begin
@@ -144,7 +144,7 @@ package body Editor.Executor.Project_File_Index_Commands is
    is
       Result : Editor.Project.Project_File_Refresh_Result;
    begin
-      Editor.Project.Refresh_Known_Files (S.Project, Result);
+      Editor.Project.Refresh_Known_Files (S.Project_Runtime.Project, Result);
       if Result.Status = Editor.Project.Project_File_Refresh_Ok then
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          if Editor.Quick_Open.Is_Open (S.Quick_Open) then
@@ -198,7 +198,7 @@ package body Editor.Executor.Project_File_Index_Commands is
       elsif not S.Buffer_Lifecycle.File_Info.Has_Path or else Length (S.Buffer_Lifecycle.File_Info.Path) = 0 then
          Editor.Executor.Shared_Services.Report_Info (S, "Active buffer has no file path");
          return;
-      elsif not Editor.Project.Has_Project (S.Project) then
+      elsif not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       end if;
@@ -207,7 +207,7 @@ package body Editor.Executor.Project_File_Index_Commands is
       if not Ada.Directories.Exists (To_String (Path)) then
          Editor.Executor.Shared_Services.Report_Warning (S, "Active file no longer exists");
          return;
-      elsif not Editor.Project.Is_Under_Project (S.Project, To_String (Path)) then
+      elsif not Editor.Project.Is_Under_Project (S.Project_Runtime.Project, To_String (Path)) then
          Editor.Executor.Shared_Services.Report_Info (S, "Active file is outside the current project");
          return;
       elsif Editor.File_Tree.Is_Empty (S.File_Tree) then
@@ -217,7 +217,7 @@ package body Editor.Executor.Project_File_Index_Commands is
 
       declare
          Relative_Path : constant String :=
-           Editor.Project.Relative_Path (S.Project, To_String (Path));
+           Editor.Project.Relative_Path (S.Project_Runtime.Project, To_String (Path));
       begin
          Node := Editor.File_Tree.Find_By_Path (S.File_Tree, Relative_Path, Found);
       end;
@@ -264,7 +264,7 @@ package body Editor.Executor.Project_File_Index_Commands is
    begin
       Selection_Disappeared := False;
 
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.File_Tree.Clear (S.File_Tree);
          Editor.File_Tree_View.Clear_View (S.File_Tree_View);
          Result.Status := Editor.File_Tree.File_Tree_No_Project;
@@ -281,7 +281,7 @@ package body Editor.Executor.Project_File_Index_Commands is
       end if;
 
       Tree := Editor.File_Tree.Scan_Project
-        (Editor.Project.Root_Path (S.Project));
+        (Editor.Project.Root_Path (S.Project_Runtime.Project));
       Result := Editor.File_Tree.Scan_Status (Tree);
 
       if Result.Status = Editor.File_Tree.File_Tree_Scan_Ok then
@@ -354,7 +354,7 @@ package body Editor.Executor.Project_File_Index_Commands is
          Editor.File_Tree.Clear (S.File_Tree);
          Editor.File_Tree_View.Clear_View (S.File_Tree_View);
          if Update_Known_Files then
-            Editor.Project.Clear_Known_Files (S.Project);
+            Editor.Project.Clear_Known_Files (S.Project_Runtime.Project);
          end if;
          Editor.Project_Search.Mark_Stale (S.Project_Search);
          if Editor.Quick_Open.Is_Open (S.Quick_Open) then

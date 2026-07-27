@@ -167,18 +167,18 @@ package body Editor.Executor.Semantic_Symbol_Selection is
       Kind        : Editor.Ada_Language_Model.Symbol_Kind :=
         Editor.Ada_Language_Model.Symbol_Unknown;
    begin
-      if not Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
-        or else not Editor.Feature_Panel.Has_Selection (S.Feature_Panel)
+      if not Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel)
+        or else not Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel)
       then
          return (others => <>);
       end if;
 
-      Panel_Row := Editor.Feature_Panel.Selected_Row (S.Feature_Panel);
+      Panel_Row := Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel);
       Outline_Row := Editor.Outline.Map_Panel_Row_To_Outline_Row
-        (S.Outline, S.Feature_Panel, Panel_Row);
+        (S.Outline, S.Panel.Feature_Panel, Panel_Row);
       if Outline_Row = 0
         or else not Editor.Outline.Validate_Outline_Row_For_Selection
-          (S.Outline, S.Feature_Panel, Panel_Row)
+          (S.Outline, S.Panel.Feature_Panel, Panel_Row)
       then
          return (others => <>);
       end if;

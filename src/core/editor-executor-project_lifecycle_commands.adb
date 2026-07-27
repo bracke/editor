@@ -70,8 +70,8 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      if Editor.Messages.Count (S.Messages) > Before_Messages then
-         Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      if Editor.Messages.Count (S.Panel.Messages) > Before_Messages then
+         Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
          if Found then
             if Editor.Messages.Severity (Msg) =
               Editor.Messages.Error_Message
@@ -144,12 +144,12 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       Restore_Status : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary        : Editor.Workspace_Persistence.Workspace_Restore_Summary;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          return;
       end if;
 
       Status := Editor.Workspace_Persistence.Session_File_Status
-        (Editor.Project.Root_Path (S.Project));
+        (Editor.Project.Root_Path (S.Project_Runtime.Project));
 
       case Status is
          when Editor.Workspace_Persistence.Session_File_Missing =>
@@ -164,7 +164,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       if Config.Auto_Restore_On_Project_Open then
          Editor.Workspace_Persistence.Load_From_File
            (Editor.Workspace_Persistence.Session_File_Path
-              (Editor.Project.Root_Path (S.Project)),
+              (Editor.Project.Root_Path (S.Project_Runtime.Project)),
             Snapshot,
             Load_Status);
 
@@ -173,7 +173,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
                | Editor.Workspace_Persistence.Workspace_Persistence_Partial_Restore =>
                if Editor.Workspace_Persistence.Has_Project_Root (Snapshot)
                  and then Editor.Workspace_Persistence.Project_Root (Snapshot) /=
-                   Editor.Project.Root_Path (S.Project)
+                   Editor.Project.Root_Path (S.Project_Runtime.Project)
                then
                   Report_Error (S, "Workspace could not be restored.");
                   return;
@@ -205,7 +205,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       Status : Editor.Recent_Projects.Recent_Project_Status;
    begin
       Editor.Recent_Projects.Save_To_File
-        (S.Recent_Projects,
+        (S.Project_Runtime.Recent_Projects,
          Editor.Recent_Projects.Recent_Projects_File_Path,
          Status);
       if Status /= Editor.Recent_Projects.Recent_Project_Ok then
@@ -219,7 +219,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
    is
    begin
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects,
+        (S.Project_Runtime.Recent_Projects,
          To_String (Result.Root_Path),
          To_String (Result.Display_Name),
          Current_Message_Time_Ms,
@@ -230,12 +230,12 @@ package body Editor.Executor.Project_Lifecycle_Commands is
    function Selected_Recent_Project_Index
      (S : Editor.State.State_Type) return Natural
    is
-      Total : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
+      Total : constant Natural := Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects);
    begin
       if Total = 0 then
          return 0;
-      elsif S.Recent_Project_Selected_Index in 1 .. Total then
-         return S.Recent_Project_Selected_Index;
+      elsif S.Project_Runtime.Recent_Project_Selected_Index in 1 .. Total then
+         return S.Project_Runtime.Recent_Project_Selected_Index;
       else
          return 1;
       end if;
@@ -244,12 +244,12 @@ package body Editor.Executor.Project_Lifecycle_Commands is
    procedure Ensure_Recent_Project_Selection
      (S : in out Editor.State.State_Type)
    is
-      Total : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
+      Total : constant Natural := Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects);
    begin
       if Total = 0 then
-         S.Recent_Project_Selected_Index := 0;
-      elsif S.Recent_Project_Selected_Index not in 1 .. Total then
-         S.Recent_Project_Selected_Index := 1;
+         S.Project_Runtime.Recent_Project_Selected_Index := 0;
+      elsif S.Project_Runtime.Recent_Project_Selected_Index not in 1 .. Total then
+         S.Project_Runtime.Recent_Project_Selected_Index := 1;
       end if;
    end Ensure_Recent_Project_Selection;
 
@@ -259,14 +259,14 @@ package body Editor.Executor.Project_Lifecycle_Commands is
    is
       Item : Editor.Recent_Projects.Recent_Project_Entry;
    begin
-      if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
+      if Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0 then
          Report_Info (S, "No recent projects");
          return;
       end if;
 
       Ensure_Recent_Project_Selection (S);
       Item := Editor.Recent_Projects.Item
-        (S.Recent_Projects, Selected_Recent_Project_Index (S));
+        (S.Project_Runtime.Recent_Projects, Selected_Recent_Project_Index (S));
       Report_Info
         (S,
          Prefix & ": " & To_String (Item.Display_Name)
@@ -307,7 +307,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       Path   : Unbounded_String;
       Guard  : Editor.Dirty_Guards.Dirty_Transition_Result;
    begin
-      if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
+      if Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0 then
          Report_Info (S, "No recent project selected");
          return;
       end if;
@@ -317,10 +317,10 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       --  target.  This keeps later render/availability projections
       --  observational while ensuring a failed open leaves a truthful in-memory
       --  row marker.
-      Editor.Recent_Projects.Refresh_Availability (S.Recent_Projects);
+      Editor.Recent_Projects.Refresh_Availability (S.Project_Runtime.Recent_Projects);
       Ensure_Recent_Project_Selection (S);
       Item := Editor.Recent_Projects.Item
-        (S.Recent_Projects, Selected_Recent_Project_Index (S));
+        (S.Project_Runtime.Recent_Projects, Selected_Recent_Project_Index (S));
       Path := Item.Root_Path;
 
       if not Editor.Recent_Projects.Is_Available (Item) then
@@ -382,7 +382,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
-      Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
+      Before_Messages : constant Natural := Editor.Messages.Count (S.Panel.Messages);
    begin
       case Id is
          when Command_Show_Recent_Projects =>
@@ -435,7 +435,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
          return False;
       end if;
 
-      Metadata := Editor.Buffers.Metadata_For (Registry, S.Project, Id);
+      Metadata := Editor.Buffers.Metadata_For (Registry, S.Project_Runtime.Project, Id);
       return Metadata.Ownership = Editor.Buffers.Buffer_Project_Owned;
    end Is_Project_Owned_Buffer;
 
@@ -462,12 +462,12 @@ package body Editor.Executor.Project_Lifecycle_Commands is
    is
    begin
       if Editor.Buffers.Global_Count = 0 then
-         return Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project);
+         return Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project_Runtime.Project);
       end if;
 
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      return Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project);
+      return Editor.Buffers.Global_Project_Lifecycle_Buffer_Sets (S.Project_Runtime.Project);
    end Current_Project_Lifecycle_Buffer_Sets;
 
    function Project_Dirty_Buffer_Summary
@@ -475,13 +475,13 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       return Editor.Dirty_Guards.Dirty_Buffer_Summary
    is
       Result : Editor.Dirty_Guards.Dirty_Buffer_Summary :=
-        Editor.Buffers.Global_Project_Lifecycle_Dirty_Buffer_Summary (S.Project);
+        Editor.Buffers.Global_Project_Lifecycle_Dirty_Buffer_Summary (S.Project_Runtime.Project);
    begin
       if Editor.Buffers.Global_Count = 0
         and then S.Buffer_Lifecycle.File_Info.Dirty
         and then S.Buffer_Lifecycle.File_Info.Has_Path
         and then Editor.Buffers.Classify_Buffer_Ownership
-          (S.Buffer_Lifecycle.File_Info.Has_Path, To_String (S.Buffer_Lifecycle.File_Info.Path), S.Project)
+          (S.Buffer_Lifecycle.File_Info.Has_Path, To_String (S.Buffer_Lifecycle.File_Info.Path), S.Project_Runtime.Project)
             = Editor.Buffers.Buffer_Project_Owned
       then
          Result.Dirty_Count := 1;
@@ -656,8 +656,8 @@ package body Editor.Executor.Project_Lifecycle_Commands is
    is
       Guard  : Editor.Dirty_Guards.Dirty_Transition_Result;
       Root   : constant String :=
-        (if Editor.Project.Has_Project (S.Project)
-         then Editor.Project.Root_Path (S.Project)
+        (if Editor.Project.Has_Project (S.Project_Runtime.Project)
+         then Editor.Project.Root_Path (S.Project_Runtime.Project)
          else "");
    begin
 
@@ -673,7 +673,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
          end if;
       end if;
 
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Info (S, "No project open");
          return;
       end if;
@@ -693,7 +693,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
             Pending_Target_For
               (Editor.Pending_Transitions.Pending_Close_Project,
                Path    => Root,
-               Display => Editor.Project.Display_Name (S.Project)),
+               Display => Editor.Project.Display_Name (S.Project_Runtime.Project)),
             Guard);
          return;
       end if;
@@ -738,7 +738,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Project.Clear_Known_Files (S.Project);
+      Editor.Project.Clear_Known_Files (S.Project_Runtime.Project);
       for I in 1 .. Editor.File_Tree.File_Node_Count (S.File_Tree) loop
          declare
             Node : constant Editor.File_Tree.File_Tree_Node_Summary :=
@@ -746,7 +746,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
          begin
             if Node.Id /= Editor.File_Tree.No_File_Tree_Node then
                Editor.Project.Add_Known_File
-                 (S.Project,
+                 (S.Project_Runtime.Project,
                   To_String (Node.Relative_Path),
                   To_String (Node.Absolute_Path));
             end if;
@@ -780,9 +780,9 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       Recent_Project_Open      : Boolean := False;
       Explicit_Switch          : Boolean := False)
    is
-      Old_Had_Project : constant Boolean := Editor.Project.Has_Project (S.Project);
+      Old_Had_Project : constant Boolean := Editor.Project.Has_Project (S.Project_Runtime.Project);
       Old_Project_Root : constant String :=
-        (if Old_Had_Project then Editor.Project.Root_Path (S.Project) else "");
+        (if Old_Had_Project then Editor.Project.Root_Path (S.Project_Runtime.Project) else "");
       Guard : Editor.Dirty_Guards.Dirty_Transition_Result;
       Result : Editor.Project.Project_Open_Result;
       Tree        : Editor.File_Tree.File_Tree_State;
@@ -849,7 +849,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
               (S,
                Editor.Feature_Messages.Info_Message,
                "Project already open",
-               Editor.Project.Display_Name (S.Project),
+               Editor.Project.Display_Name (S.Project_Runtime.Project),
                Editor.Feature_Messages.Project_Source);
             return;
          end if;
@@ -933,16 +933,16 @@ package body Editor.Executor.Project_Lifecycle_Commands is
          Editor.Pending_Transitions.Clear (S.Pending_Transitions);
          Clear_Project_Transition_State (S);
          Editor.Clipboard.Clear;
-         Editor.Project.Apply_Open_Result (S.Project, Result);
+         Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Result);
          Editor.Terminal_Tasks.Ensure_Project_Default_Tasks
-           (S.Build.Terminal_Tasks, Editor.Project.Root_Path (S.Project));
+           (S.Build.Terminal_Tasks, Editor.Project.Root_Path (S.Project_Runtime.Project));
          if Refresh_Build_Candidates then
             declare
                Context : constant Editor.Build_Working_Context.Build_Working_Context_Record :=
                  Editor.Build_Working_Context.Current_Project_Root
-                   (Editor.Project.Root_Path (S.Project));
+                   (Editor.Project.Root_Path (S.Project_Runtime.Project));
                Is_Switch : constant Boolean :=
-                 Old_Had_Project and then Old_Project_Root /= Editor.Project.Root_Path (S.Project);
+                 Old_Had_Project and then Old_Project_Root /= Editor.Project.Root_Path (S.Project_Runtime.Project);
                Refresh_Result : constant Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Result :=
                  (if Is_Switch then
                     Editor.Build_Candidate_Refresh.Refresh_Build_Candidates_After_Project_Switch
@@ -958,9 +958,9 @@ package body Editor.Executor.Project_Lifecycle_Commands is
          Promote_Open_Project_To_Recent (S, Result);
          Editor.Project_Search.Clear (S.Project_Search);
          if Editor.Overlay_Focus.Is_Active
-           (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
+           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
            or else Editor.Overlay_Focus.Is_Active
-             (S.Overlay_Focus, Editor.Overlay_Focus.Project_Search_Bar_Overlay)
+             (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Project_Search_Bar_Overlay)
          then
             Dismiss_Active_Overlay
               (S, Editor.Overlay_Focus.Dismiss_Command);
@@ -969,7 +969,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
             Editor.Project_Search_Bar.Close (S.Project_Search_Bar);
          end if;
          if not Explicit_Switch then
-            Tree := Editor.File_Tree.Scan_Project (Editor.Project.Root_Path (S.Project));
+            Tree := Editor.File_Tree.Scan_Project (Editor.Project.Root_Path (S.Project_Runtime.Project));
             Tree_Result := Editor.File_Tree.Scan_Status (Tree);
          end if;
          if Tree_Result.Status = Editor.File_Tree.File_Tree_Scan_Ok then
@@ -1000,7 +1000,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
             end if;
          else
             Editor.File_Tree.Clear (S.File_Tree);
-            Editor.Project.Clear_Known_Files (S.Project);
+            Editor.Project.Clear_Known_Files (S.Project_Runtime.Project);
             Editor.File_Tree_View.Clear_View (S.File_Tree_View);
             Editor.Project_Search.Clear (S.Project_Search);
             if Editor.Quick_Open.Is_Open (S.Quick_Open) then

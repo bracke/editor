@@ -24,10 +24,10 @@ package body Editor.Executor.Diagnostics_Suppressed_Commands is
    begin
       case Id is
          when Command_Diagnostic_Suppress_Selected =>
-            if Editor.Feature_Diagnostics.Is_Empty (S.Feature_Diagnostics) then
+            if Editor.Feature_Diagnostics.Is_Empty (S.Panel.Feature_Diagnostics) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostics");
             elsif not Editor.Feature_Diagnostics.Has_Selected_Diagnostic
-              (S.Feature_Diagnostics, S.Feature_Panel)
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No diagnostic selected");
             end if;
@@ -38,7 +38,7 @@ package body Editor.Executor.Diagnostics_Suppressed_Commands is
             | Command_Diagnostic_Restore_Selected_Suppressed
             | Command_Diagnostic_Clear_Suppressed =>
             if Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-              (S.Feature_Diagnostics) = 0
+              (S.Panel.Feature_Diagnostics) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No suppressed diagnostics");
             end if;
@@ -65,7 +65,7 @@ package body Editor.Executor.Diagnostics_Suppressed_Commands is
       case Id is
          when Command_Diagnostic_Suppress_Selected =>
             if Editor.Feature_Diagnostics.Suppress_Selected_Diagnostic
-              (S.Feature_Diagnostics, S.Feature_Panel)
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel)
             then
                Report_Info
                  (S,
@@ -73,7 +73,7 @@ package body Editor.Executor.Diagnostics_Suppressed_Commands is
                   & Ada.Strings.Fixed.Trim
                       (Natural'Image
                          (Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-                            (S.Feature_Diagnostics)),
+                            (S.Panel.Feature_Diagnostics)),
                        Ada.Strings.Both)
                   & " suppressed this session.");
                Editor.Render_Cache.Invalidate_All;
@@ -88,17 +88,17 @@ package body Editor.Executor.Diagnostics_Suppressed_Commands is
             declare
                Count : constant Natural :=
                  Editor.Feature_Diagnostics.Suppressed_Diagnostic_Count
-                   (S.Feature_Diagnostics);
+                   (S.Panel.Feature_Diagnostics);
                Last : constant String :=
                  Editor.Feature_Diagnostics.Last_Suppressed_Diagnostic_Text
-                   (S.Feature_Diagnostics);
+                   (S.Panel.Feature_Diagnostics);
                Selected : constant Natural :=
                  Editor.Feature_Diagnostics.Selected_Suppressed_Diagnostic
-                   (S.Feature_Diagnostics);
+                   (S.Panel.Feature_Diagnostics);
                Selected_Text : constant String :=
                  (if Selected = 0 then ""
                   else Editor.Feature_Diagnostics.Suppressed_Diagnostic_Text
-                    (S.Feature_Diagnostics, Positive (Selected)));
+                    (S.Panel.Feature_Diagnostics, Positive (Selected)));
             begin
                if Count = 0 then
                   Report_Info (S, "No suppressed diagnostics.");
@@ -121,7 +121,7 @@ package body Editor.Executor.Diagnostics_Suppressed_Commands is
 
          when Command_Diagnostic_Restore_Last_Suppressed =>
             if Editor.Feature_Diagnostics.Restore_Last_Suppressed_Diagnostic
-              (S.Feature_Diagnostics, S.Feature_Panel)
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel)
             then
                Report_Info (S, "Suppressed diagnostic restored.");
                Editor.Render_Cache.Invalidate_All;
@@ -134,7 +134,7 @@ package body Editor.Executor.Diagnostics_Suppressed_Commands is
 
          when Command_Diagnostic_Restore_Selected_Suppressed =>
             if Editor.Feature_Diagnostics.Restore_Selected_Suppressed_Diagnostic
-              (S.Feature_Diagnostics, S.Feature_Panel)
+              (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel)
             then
                Report_Info (S, "Selected suppressed diagnostic restored.");
                Editor.Render_Cache.Invalidate_All;
@@ -149,7 +149,7 @@ package body Editor.Executor.Diagnostics_Suppressed_Commands is
             declare
                Cleared : constant Natural :=
                  Editor.Feature_Diagnostics.Clear_Suppressed_Diagnostics
-                   (S.Feature_Diagnostics);
+                   (S.Panel.Feature_Diagnostics);
             begin
                if Cleared = 0 then
                   Report_Info (S, "No suppressed diagnostics.");

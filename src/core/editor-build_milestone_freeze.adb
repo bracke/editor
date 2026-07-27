@@ -41,7 +41,7 @@ package body Editor.Build_Milestone_Freeze is
          Display_Name => To_Unbounded_String ("current-project-root"),
          Error_Text => Null_Unbounded_String);
    begin
-      Editor.Project.Apply_Open_Result (State.Project, Project_Result);
+      Editor.Project.Apply_Open_Result (State.Project_Runtime.Project, Project_Result);
    end Open_Fake_Project;
 
    function Ready_Manual_UI return Editor.Build_UI.Public_Build_UI_State
@@ -308,7 +308,7 @@ package body Editor.Build_Milestone_Freeze is
          Editor.Build_Diagnostics.Build_Diagnostics_Ingestion_Disabled,
          Request_Show_Diagnostics => True);
       if Disabled.Ingestion.Parse_Input_Count /= 0
-        or else Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) /= 0
+        or else Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) /= 0
       then
          return False;
       end if;
@@ -320,7 +320,7 @@ package body Editor.Build_Milestone_Freeze is
 
       return Enabled.Ingestion.Parse_Input_Count = 1
         and then Enabled.Ingestion.Ingestion_Result.Accepted_Count = 1
-        and then Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1
+        and then Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1
         and then Editor.Build_Diagnostics.Assert_Build_Diagnostics_Not_Persisted;
    end Assert_Public_Build_Diagnostics_Boundary_Frozen;
 

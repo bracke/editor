@@ -101,7 +101,7 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
       Row     : Natural)
    is
    begin
-      for D of S.Diagnostics loop
+      for D of S.Panel.Diagnostics loop
          if Editor.State.Row_For_Index (S, D.Start_Index) = Row then
             case D.Severity is
                when Editor.Diagnostics.Error =>

@@ -398,7 +398,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       S.Buffer_Lifecycle.File_Target_Prompt_Active := True;
       S.Buffer_Lifecycle.File_Target_Prompt_Command := Editor.Command_Ids.Command_Save_File_As;
       Editor.Overlay_Focus.Activate_With_Previous
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.File_Target_Prompt_Overlay,
          Editor.Overlay_Focus.Previous_Editor_Text);
 
@@ -409,7 +409,7 @@ package body Editor.Core_Editing_Workflow.Tests is
               "matching target prompt overlay keeps editing workflow coherent");
 
       Editor.Overlay_Focus.Activate_With_Previous
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Command_Palette_Overlay,
          Editor.Overlay_Focus.Previous_Editor_Text);
       R := Editor.Core_Editing_Workflow.Audit_Core_Editing_Workflow (S);
@@ -966,7 +966,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Set_Buffer_Text (S, "alpha" & ASCII.LF & "beta");
 
       Editor.Feature_Messages.Add_Message
-        (S.Feature_Messages,
+        (S.Panel.Feature_Messages,
          Editor.Feature_Messages.Info_Message,
          "targeted message",
          Has_Target => True,
@@ -974,7 +974,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Line       => 1,
          Column     => 1);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "targeted diagnostic",
          Has_Target    => True,
@@ -982,7 +982,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          Target_Line   => 1,
          Target_Column => 1);
       Editor.Feature_Search_Results.Run_Active_Buffer_Search
-        (S.Feature_Search_Results,
+        (S.Panel.Feature_Search_Results,
          Query         => "alpha",
          Snapshot_Text => Buffer_Text (S),
          Source_Label  => "active",
@@ -1000,11 +1000,11 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Feature_Messages.Row_Count (S.Feature_Messages) = 0,
+      Assert (Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages) = 0,
               "targeted Messages rows for edited buffer must be removed");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "targeted Diagnostics rows for edited buffer must be removed");
-      Assert (Editor.Feature_Search_Results.Results_Stale (S.Feature_Search_Results),
+      Assert (Editor.Feature_Search_Results.Results_Stale (S.Panel.Feature_Search_Results),
               "Search Results must be generation-marked stale after edit");
       Assert (Editor.Outline.Filtered_Row_Count (S.Outline) = 0,
               "Outline rows must be cleared after buffer edit");

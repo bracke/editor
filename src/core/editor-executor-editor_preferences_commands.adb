@@ -66,7 +66,7 @@ package body Editor.Executor.Editor_Preferences_Commands is
       Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
-      Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
+      Before_Messages : constant Natural := Editor.Messages.Count (S.Panel.Messages);
 
       function Result_After_Command
         (Command : Editor.Command_Ids.Command_Id)
@@ -75,8 +75,8 @@ package body Editor.Executor.Editor_Preferences_Commands is
          Found : Boolean := False;
          Msg   : Editor.Messages.Editor_Message;
       begin
-         if Editor.Messages.Count (S.Messages) > Before_Messages then
-            Msg := Editor.Messages.Active_Message (S.Messages, Found);
+         if Editor.Messages.Count (S.Panel.Messages) > Before_Messages then
+            Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
             if Found then
                if Editor.Messages.Severity (Msg) =
                  Editor.Messages.Error_Message

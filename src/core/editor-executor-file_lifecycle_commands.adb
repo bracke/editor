@@ -38,8 +38,8 @@ package body Editor.Executor.File_Lifecycle_Commands is
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      if Editor.Messages.Count (S.Messages) > Before_Messages then
-         Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      if Editor.Messages.Count (S.Panel.Messages) > Before_Messages then
+         Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
          if Found then
             if Editor.Messages.Severity (Msg) =
               Editor.Messages.Error_Message
@@ -116,7 +116,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
                if S.Buffer_Lifecycle.Dirty_Close_Prompt_All_Buffers then
                   declare
                      Current : constant Editor.Dirty_Guards.Dirty_Buffer_Summary :=
-                       Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Buffer_Summary_For_All_Buffers (S.Project);
+                       Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Buffer_Summary_For_All_Buffers (S.Project_Runtime.Project);
                   begin
                      if Current.Dirty_Count = 0 then
                         if Editor.Executor.Buffer_Close_Prompt_Commands.Dirty_Close_All_Buffer_Identity_Current (S) then
@@ -607,7 +607,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
       Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
-      Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
+      Before_Messages : constant Natural := Editor.Messages.Count (S.Panel.Messages);
    begin
       case Id is
          when Command_Save_All =>
@@ -670,7 +670,7 @@ package body Editor.Executor.File_Lifecycle_Commands is
       Config : Editor.Messages.Message_Config;
    begin
       Editor.Messages.Push_Info
-        (S.Messages, Text, Editor.Executor.Shared_Services.Current_Message_Time_Ms, Config);
+        (S.Panel.Messages, Text, Editor.Executor.Shared_Services.Current_Message_Time_Ms, Config);
    end Report_Info_Raw;
 
    function Active_File_External_Status

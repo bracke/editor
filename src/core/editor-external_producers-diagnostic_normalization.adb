@@ -65,14 +65,14 @@ package body Editor.External_Producers.Diagnostic_Normalization is
       File_Label : String) return Boolean
    is
       Clean_Label : constant String := Ada.Strings.Fixed.Trim (File_Label, Both);
-      Project_Root : constant String := Editor.Project.Root_Path (S.Project);
+      Project_Root : constant String := Editor.Project.Root_Path (S.Project_Runtime.Project);
    begin
       if Clean_Label'Length = 0 or else Diagnostic_Path_Has_Parent_Traversal (Clean_Label) then
          return False;
-      elsif not Editor.Project.Has_Project (S.Project) then
+      elsif not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          return not Is_Diagnostic_Path_Absolute (Clean_Label);
       elsif Is_Diagnostic_Path_Absolute (Clean_Label) then
-         return Editor.Project.Is_Under_Project (S.Project, Clean_Label);
+         return Editor.Project.Is_Under_Project (S.Project_Runtime.Project, Clean_Label);
       else
          return Project_Root'Length > 0;
       end if;
@@ -92,7 +92,7 @@ package body Editor.External_Producers.Diagnostic_Normalization is
          Path         : String;
          Display_Name : String)
       is
-         Project_Root : constant String := Editor.Project.Root_Path (S.Project);
+         Project_Root : constant String := Editor.Project.Root_Path (S.Project_Runtime.Project);
          Project_Label : constant String :=
            (if Project_Root'Length > 0 and then Clean_Label'Length > 0
               and then not Is_Diagnostic_Path_Absolute (Clean_Label) then
@@ -100,8 +100,8 @@ package body Editor.External_Producers.Diagnostic_Normalization is
             else
                Clean_Label);
          Path_Project_Bounded : constant Boolean :=
-           not Editor.Project.Has_Project (S.Project)
-           or else (Has_Path and then Editor.Project.Is_Under_Project (S.Project, Path));
+           not Editor.Project.Has_Project (S.Project_Runtime.Project)
+           or else (Has_Path and then Editor.Project.Is_Under_Project (S.Project_Runtime.Project, Path));
          Label_Project_Bounded : constant Boolean :=
            Diagnostic_Label_Project_Bounded (S, Clean_Label);
          Is_Match : constant Boolean :=
@@ -413,7 +413,7 @@ package body Editor.External_Producers.Diagnostic_Normalization is
    begin
       Target_Kept := Target.Valid;
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Item.Severity,
          Message       => To_String (Item.Message),
          Source_Label   => To_String (Item.Source_Label),
@@ -468,7 +468,7 @@ package body Editor.External_Producers.Diagnostic_Normalization is
    is
       Result        : Editor.External_Producers.Diagnostics.Producer_Batch_Result;
       Before_Count  : constant Natural :=
-        Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Target_Kept   : Boolean := False;
       Normalized    : Editor.External_Producers.Diagnostics.Diagnostic_Record;
    begin
@@ -496,7 +496,7 @@ package body Editor.External_Producers.Diagnostic_Normalization is
 
       declare
          After_Count : constant Natural :=
-           Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+           Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       begin
          if Before_Count + Result.Accepted_Count > After_Count then
             Result.Evicted_Count := Before_Count + Result.Accepted_Count - After_Count;
@@ -505,9 +505,9 @@ package body Editor.External_Producers.Diagnostic_Normalization is
 
       if Result.Accepted_Count > 0 then
          Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Row_Change
-           (S.Feature_Diagnostics, S.Feature_Panel);
+           (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
          Result.Projection_Changed :=
-           Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+           Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
              Editor.Feature_Panel.Diagnostics_Feature;
       end if;
 

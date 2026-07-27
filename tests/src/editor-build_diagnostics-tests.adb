@@ -148,7 +148,7 @@ package body Editor.Build_Diagnostics.Tests is
         (Command.Ingestion.Parse_Input_Count = 0,
          "disabled policy does not parse build output");
       Assert
-        (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+        (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
          "disabled policy does not mutate Diagnostics");
    end Test_Ingestion_Disabled_Produces_No_Diagnostics_Mutation;
 
@@ -172,7 +172,7 @@ package body Editor.Build_Diagnostics.Tests is
         (Command.Ingestion.Ingestion_Result.Accepted_Count = 1,
          "diagnostic is accepted through the Diagnostics ingestion result");
       Assert
-        (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+        (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
          "Diagnostics owns the resulting row storage");
    end Test_On_Request_Ingests_Through_Diagnostics_Ownership;
 
@@ -226,7 +226,7 @@ package body Editor.Build_Diagnostics.Tests is
         (Command.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count = 1,
          "Diagnostic_Result owns the accepted diagnostics count");
       Assert
-        (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) =
+        (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) =
            Command.Diagnostic_Result.Ingestion.Ingestion_Result.Accepted_Count,
          "Diagnostics row storage matches the command Diagnostic_Result");
       Assert
@@ -245,7 +245,7 @@ package body Editor.Build_Diagnostics.Tests is
          "disabled command diagnostics policy skips parsing captured output");
       Assert
         (Editor.Feature_Diagnostics.Row_Count
-           (S_Disabled.Feature_Diagnostics) = 0,
+           (S_Disabled.Panel.Feature_Diagnostics) = 0,
          "disabled command diagnostics policy does not mutate Diagnostics");
    end Test_Build_Command_Routes_Output_Through_Diagnostic_Result;
 
@@ -268,7 +268,7 @@ package body Editor.Build_Diagnostics.Tests is
       Assert (Command.Should_Show_Diagnostics,
               "explicit request option can show Diagnostics");
       Assert
-        (Editor.Feature_Panel.Active_Feature (S.Feature_Panel) =
+        (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel) =
            Editor.Feature_Panel.Diagnostics_Feature,
          "show behavior remains owned by the existing Diagnostics feature");
    end Test_Show_Diagnostics_Remains_Request_Metadata;

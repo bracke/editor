@@ -125,7 +125,7 @@ package body Editor.Files.Operations_Tests is
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "move unavailable without active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No active buffer.",
         "no active buffer must emit deterministic message");
 
@@ -133,13 +133,13 @@ package body Editor.Files.Operations_Tests is
       Editor.State.Load_Text (S, "untitled move text");
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Move_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "move unavailable for untitled active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No file path for active buffer",
         "no path must emit deterministic message");
 
@@ -150,13 +150,13 @@ package body Editor.Files.Operations_Tests is
       Write_Bytes (Existing, "existing target");
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Move_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "move unavailable for dirty active associated buffer");
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then To_String (M.Text) = "Unsaved changes require confirmation."
         and then not Ada.Directories.Exists (Target)
@@ -168,16 +168,16 @@ package body Editor.Files.Operations_Tests is
         "dirty move must be blocked before target validation, filesystem move, or mutation");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, "   ");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Invalid move target"
         and then Ada.Directories.Exists (Path),
         "blank target must fail before filesystem move");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Existing);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then To_String (M.Text) = "Move target already exists"
         and then Read_Bytes (Existing) = "existing target"
@@ -229,9 +229,9 @@ package body Editor.Files.Operations_Tests is
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer file moved",
         "successful move must emit one deterministic success message");
       Assert ((not Ada.Directories.Exists (Path))
@@ -244,8 +244,8 @@ package body Editor.Files.Operations_Tests is
         and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then To_String (S.Active_Find_Query) = "source"
-        and then To_String (S.Active_Replace_Text) = "target"
+        and then To_String (S.Search.Active_Find_Query) = "source"
+        and then To_String (S.Search.Active_Replace_Text) = "target"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
         and then Editor.Buffers.Global_Count = 1
         and then Editor.Buffers.Global_Active_Buffer = Editor.Buffers.Buffer_Id (1),
@@ -296,9 +296,9 @@ package body Editor.Files.Operations_Tests is
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Could not move buffer file",
         "filesystem move failure must emit deterministic failure message");
       Assert (Ada.Directories.Exists (Path)
@@ -352,9 +352,9 @@ package body Editor.Files.Operations_Tests is
       Editor.State.Init (S);
       S.Buffer_Lifecycle.Active_Buffer_Token := 0;
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No active buffer."
         and then not Ada.Directories.Exists (Target),
         "no-active validation must precede all source, target, and filesystem work");
@@ -366,9 +366,9 @@ package body Editor.Files.Operations_Tests is
       S.Buffer_Lifecycle.File_Info.Path := Null_Unbounded_String;
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, "   ");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No file path for active buffer",
         "no-path validation must precede dirty state and target validation");
 
@@ -377,9 +377,9 @@ package body Editor.Files.Operations_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Active_Path);
       Active_Id := Editor.Buffers.Global_Active_Buffer;
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Existing);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Unsaved changes require confirmation."
         and then Read_Bytes (Existing) = "existing target"
         and then not Ada.Directories.Exists (Target)
@@ -389,9 +389,9 @@ package body Editor.Files.Operations_Tests is
         "dirty guard must precede target collision checks and filesystem move");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Active_Path);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Move target already exists"
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Active_Path,
         "source-equals-target must remain a deterministic no-overwrite collision");
@@ -406,9 +406,9 @@ package body Editor.Files.Operations_Tests is
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Active_Id);
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer file moved"
         and then not Ada.Directories.Exists (Active_Path)
         and then Ada.Directories.Exists (Target)
@@ -536,14 +536,14 @@ package body Editor.Files.Operations_Tests is
       Assert_Summary_Excludes ("file-watch");
 
       Remove_If_Exists (Path);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Workspace));
       Assert (Found and then To_String (M.Text) = "Could not move buffer file"
-        and then Editor.Messages.Count (S.Messages) = 1
+        and then Editor.Messages.Count (S.Panel.Messages) = 1
         and then not Ada.Directories.Exists (Target)
         and then Buffer_Text (S) = To_String (Before_Text)
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = To_String (Before_Path)
@@ -555,8 +555,8 @@ package body Editor.Files.Operations_Tests is
         and then S.Carets (0).Pos = Before_Caret.Pos
         and then S.Carets (0).Anchor = Before_Caret.Anchor
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
-        and then To_String (S.Active_Find_Query) = "boundary"
-        and then To_String (S.Active_Replace_Text) = "replacement"
+        and then To_String (S.Search.Active_Find_Query) = "boundary"
+        and then To_String (S.Search.Active_Replace_Text) = "replacement"
         and then S.Buffer_Lifecycle.Has_Reopen_Candidate
         and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path,
         "filesystem move failure must preserve association, text, baseline, dirty state, feature state, and reopen candidates");
@@ -605,9 +605,9 @@ package body Editor.Files.Operations_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source);
       Before_Count := Editor.Buffers.Global_Count;
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Moved);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer file moved"
         and then not Ada.Directories.Exists (Source)
         and then Ada.Directories.Exists (Moved)
@@ -696,9 +696,9 @@ package body Editor.Files.Operations_Tests is
 
       procedure Assert_Message (Text : String; Context : String) is
       begin
-         M := Editor.Messages.Active_Message (S.Messages, Found);
+         M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
          Assert (Found and then To_String (M.Text) = Text
-           and then Editor.Messages.Count (S.Messages) = 1,
+           and then Editor.Messages.Count (S.Panel.Messages) = 1,
            "message policy: " & Context);
       end Assert_Message;
    begin
@@ -735,7 +735,7 @@ package body Editor.Files.Operations_Tests is
       Count_0 := Editor.Buffers.Global_Count;
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, A1);
       Assert_Message ("Buffer file moved", "successful A -> A1 move");
       Assert (not Ada.Directories.Exists (A)
@@ -760,7 +760,7 @@ package body Editor.Files.Operations_Tests is
         "integrated: Reload after move reads moved target path");
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Temp_Path ("p459_a_dirty_move.txt"));
       Assert_Message ("Unsaved changes require confirmation.", "dirty A move blocked");
       Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = A1
@@ -773,14 +773,14 @@ package body Editor.Files.Operations_Tests is
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = A1,
         "integrated: Revert after blocked move still uses moved target");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, A_Exists);
       Assert_Message ("Move target already exists", "existing target collision");
       Assert (Read_Bytes (A_Exists) = "existing target"
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = A1,
         "integrated: target collision preserves association and target contents");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, A2);
       Assert_Message ("Buffer file moved", "A1 -> A2 move");
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, A_Copy);
@@ -795,7 +795,7 @@ package body Editor.Files.Operations_Tests is
         "integrated: Rename after move renames moved association");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, B2);
       Assert_Message ("No file path for active buffer", "dirty untitled B move reports no path first");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty and then not S.Buffer_Lifecycle.File_Info.Has_Path,
@@ -805,7 +805,7 @@ package body Editor.Files.Operations_Tests is
         and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = B1,
         "integrated: Save As remains the command that associates untitled text");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, B2);
       Assert_Message ("Buffer file moved", "B1 -> B2 move");
       Assert (not Ada.Directories.Exists (B1)
@@ -821,16 +821,16 @@ package body Editor.Files.Operations_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "cee");
       Editor.Executor.Selection_Commands.Execute_Select_All_Selection_Command (S);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard"));
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, "   ");
       Assert_Message ("Invalid move target", "invalid C target");
       Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = C
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
-        and then To_String (S.Active_Find_Query) = "C"
-        and then To_String (S.Active_Replace_Text) = "cee",
+        and then To_String (S.Search.Active_Find_Query) = "C"
+        and then To_String (S.Search.Active_Replace_Text) = "cee",
         "integrated: invalid target preserves feature state");
       Remove_If_Exists (C);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, C_Fail);
       Assert_Message ("Could not move buffer file", "missing-source C failure");
       Assert (To_String (S.Buffer_Lifecycle.File_Info.Path) = C
@@ -838,7 +838,7 @@ package body Editor.Files.Operations_Tests is
         and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "integrated: filesystem failure preserves old association and clean state");
       Write_Bytes (C, "C restored");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, C1);
       Assert_Message ("Buffer file moved", "C -> C1 move");
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
@@ -952,14 +952,14 @@ package body Editor.Files.Operations_Tests is
       Before_Fwd := S.Navigation_History.Forward_Stack.Length;
       Before_Caret := S.Carets (0);
       Before_Count := Editor.Buffers.Global_Count;
-      Before_Query := S.Active_Find_Query;
-      Before_Replace := S.Active_Replace_Text;
+      Before_Query := S.Search.Active_Find_Query;
+      Before_Replace := S.Search.Active_Replace_Text;
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer file moved"
-        and then Editor.Messages.Count (S.Messages) = 1
+        and then Editor.Messages.Count (S.Panel.Messages) = 1
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Target
         and then Buffer_Text (S) = To_String (Before_Text)
         and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Base
@@ -971,8 +971,8 @@ package body Editor.Files.Operations_Tests is
         and then S.Carets.Length = 1
         and then S.Carets (0).Pos = Before_Caret.Pos
         and then S.Carets (0).Anchor = Before_Caret.Anchor
-        and then To_String (S.Active_Find_Query) = To_String (Before_Query)
-        and then To_String (S.Active_Replace_Text) = To_String (Before_Replace)
+        and then To_String (S.Search.Active_Find_Query) = To_String (Before_Query)
+        and then To_String (S.Search.Active_Replace_Text) = To_String (Before_Replace)
         and then To_String (Editor.Clipboard.Get_Text) = "stable clipboard"
         and then S.Buffer_Lifecycle.Has_Reopen_Candidate
         and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Reopen_Path
@@ -1090,8 +1090,8 @@ package body Editor.Files.Operations_Tests is
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then To_String (Editor.Clipboard.Get_Text) = "readonly clipboard"
-        and then To_String (S.Active_Find_Query) = "read"
-        and then To_String (S.Active_Replace_Text) = "write",
+        and then To_String (S.Search.Active_Find_Query) = "read"
+        and then To_String (S.Search.Active_Replace_Text) = "write",
         "read-only: availability, palette projection, render snapshot, and workspace snapshot must not move, probe target, write text, or mutate editor state");
       Assert_Summary_Excludes ("last move");
       Assert_Summary_Excludes ("move target");
@@ -1294,7 +1294,7 @@ package body Editor.Files.Operations_Tests is
         "failed save should leave the buffer dirty and retryable");
       Assert (Buffer_Text (S) = "dirty text",
         "failed save should preserve in-memory edits");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Error_Message,
         "failed save should publish one error outcome");
       Assert (To_String (M.Text) =
@@ -1333,7 +1333,7 @@ package body Editor.Files.Operations_Tests is
         "blocked reload must not replace buffer content");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "blocked reload should keep dirty marker visible");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Warning_Message,
         "blocked reload should publish a warning outcome");
       Assert (To_String (M.Text) =
@@ -1374,7 +1374,7 @@ package body Editor.Files.Operations_Tests is
         "blocked close should preserve buffer content");
       Assert (S.Buffer_Lifecycle.Dirty_Close_Prompt_Active,
         "dirty close should open explicit review while keeping buffer open");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Warning_Message,
         "/575: dirty close should publish a warning outcome");
       Assert (To_String (M.Text) =
@@ -1414,7 +1414,7 @@ package body Editor.Files.Operations_Tests is
         "already-open focus must not reread disk content");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "already-open focus should preserve dirty marker");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Info_Message,
         "already-open focus should publish informational feedback");
       Assert (To_String (M.Text) =

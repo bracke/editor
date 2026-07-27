@@ -52,9 +52,9 @@ package body Editor.Focus_Management.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Quick_Open_Overlay,
-         S.Panel_Focus);
+         S.Panel.Panel_Focus);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -74,7 +74,7 @@ package body Editor.Focus_Management.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
    begin
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
          Editor.Focus_Management.Focus_File_Tree,
@@ -95,12 +95,12 @@ package body Editor.Focus_Management.Tests is
    begin
       declare
          Switched : constant Boolean := Editor.Feature_Panel.Set_Active_Feature
-           (S.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
+           (S.Panel.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
       begin
          Assert (Switched, "outline feature should be accepted");
       end;
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, True);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -124,9 +124,9 @@ package body Editor.Focus_Management.Tests is
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Summary);
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Quick_Open_Overlay,
-         S.Panel_Focus);
+         S.Panel.Panel_Focus);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -192,9 +192,9 @@ package body Editor.Focus_Management.Tests is
    begin
       Editor.Project_Search_Bar.Focus_Replace_Field (S.Project_Search_Bar);
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Project_Search_Bar_Overlay,
-         S.Panel_Focus);
+         S.Panel.Panel_Focus);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -420,7 +420,7 @@ package body Editor.Focus_Management.Tests is
          Editor.Focus_Management.Focus_Recent_Projects,
          "Recent Projects focus should use a transient focus marker");
       Assert
-        (S.Recent_Projects_Focused,
+        (S.Project_Runtime.Recent_Projects_Focused,
          "focusing Recent Projects should not rely on selected row persistence");
       Assert
         (Editor.Focus_Management.Navigation_Panel_Owner
@@ -438,7 +438,7 @@ package body Editor.Focus_Management.Tests is
          Editor.Focus_Management.Focus_Command_Palette,
          "overlay focus should replace stale Recent Projects focus");
       Assert
-        (not S.Recent_Projects_Focused,
+        (not S.Project_Runtime.Recent_Projects_Focused,
          "switching to an overlay should clear Recent Projects focus");
    end Test_Recent_Projects_Focus_Uses_Transient_State;
 
@@ -855,11 +855,11 @@ package body Editor.Focus_Management.Tests is
       Editor.Panels.Set_Visible
         (S.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Panel_Focus.Focus_Bottom_Panel
-        (S.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
+        (S.Panel.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Quick_Open_Overlay,
-         S.Panel_Focus);
+         S.Panel.Panel_Focus);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -877,14 +877,14 @@ package body Editor.Focus_Management.Tests is
          "restoring previous focus should clear overlay text ownership");
 
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Command_Palette_Overlay,
-         S.Panel_Focus);
+         S.Panel.Panel_Focus);
       Editor.Focus_Management.Restore_Focus_To_Editor (S);
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Quick_Open_Overlay,
-         S.Panel_Focus);
+         S.Panel.Panel_Focus);
       Editor.Focus_Management.Restore_Previous_Focus_Or_Editor (S);
 
       Assert
@@ -936,7 +936,7 @@ package body Editor.Focus_Management.Tests is
       Editor.Panels.Set_Visible
         (S.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Panel_Focus.Focus_Bottom_Panel
-        (S.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
+        (S.Panel.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
 
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Quick_Open);
@@ -1068,7 +1068,7 @@ package body Editor.Focus_Management.Tests is
       Editor.Panels.Set_Visible
         (S.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Panel_Focus.Focus_Bottom_Panel
-        (S.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
+        (S.Panel.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
 
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Quick_Open);
@@ -1166,9 +1166,9 @@ package body Editor.Focus_Management.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Quick_Open_Overlay,
-         S.Panel_Focus);
+         S.Panel.Panel_Focus);
 
       Assert
         (Editor.Focus_Management.Command_May_Run_In_Current_Focus
@@ -1227,9 +1227,9 @@ package body Editor.Focus_Management.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Go_To_Line_Overlay,
-         S.Panel_Focus);
+         S.Panel.Panel_Focus);
 
       Assert
         (Editor.Focus_Management.Command_Returns_Focus_To_Editor
@@ -1444,7 +1444,7 @@ package body Editor.Focus_Management.Tests is
         (Editor.Focus_Management.Focus_State_Has_No_Competing_Owners (S),
          "single Build UI owner marker should be coherent");
 
-      S.Recent_Projects_Focused := True;
+      S.Project_Runtime.Recent_Projects_Focused := True;
       Assert
         (not Editor.Focus_Management.Focus_State_Has_No_Competing_Owners (S),
          "Build UI and Recent Projects focus markers must not coexist silently");
@@ -1516,35 +1516,35 @@ package body Editor.Focus_Management.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Go_To_Line_Overlay,
-         S.Panel_Focus);
+         S.Panel.Panel_Focus);
       Editor.Focus_Management.Apply_Command_Focus_Result
         (S, Editor.Command_Ids.Command_Goto_Line);
 
       Assert
         (Editor.Overlay_Focus.Is_Active
-           (S.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay),
+           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay),
          "post-command focus policy must preserve Go To Line overlay identity");
       Assert
         (not Editor.Overlay_Focus.Is_Active
-           (S.Overlay_Focus, Editor.Overlay_Focus.File_Target_Prompt_Overlay),
+           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.File_Target_Prompt_Overlay),
          "Go To Line focus policy must not fabricate a file-target prompt");
 
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Active_Find_Prompt_Overlay,
-         S.Panel_Focus);
+         S.Panel.Panel_Focus);
       Editor.Focus_Management.Apply_Command_Focus_Result
         (S, Editor.Command_Ids.Command_Find_Show);
 
       Assert
         (Editor.Overlay_Focus.Is_Active
-           (S.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay),
+           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay),
          "post-command focus policy must preserve active Find/Replace overlay identity");
       Assert
         (not Editor.Overlay_Focus.Is_Active
-           (S.Overlay_Focus, Editor.Overlay_Focus.File_Target_Prompt_Overlay),
+           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.File_Target_Prompt_Overlay),
          "Find/Replace focus policy must not convert to file-target prompt");
 
       Editor.Focus_Management.Restore_Focus_To_Editor (S);
@@ -1646,17 +1646,17 @@ package body Editor.Focus_Management.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
    begin
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
       declare
          Switched : constant Boolean := Editor.Feature_Panel.Set_Active_Feature
-           (S.Feature_Panel, Editor.Feature_Panel.Search_Results_Feature);
+           (S.Panel.Feature_Panel, Editor.Feature_Panel.Search_Results_Feature);
       begin
          Assert (Switched, "search-results feature should be accepted");
       end;
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, True);
       Editor.Feature_Search_Results.Activate_Search_Query_Input
-        (S.Feature_Search_Results);
+        (S.Panel.Feature_Search_Results);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -1680,7 +1680,7 @@ package body Editor.Focus_Management.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
    begin
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
       Editor.Outline.Activate_Filter_Input (S.Outline);
 
       Assert
@@ -1709,14 +1709,14 @@ package body Editor.Focus_Management.Tests is
    begin
       declare
          Switched : constant Boolean := Editor.Feature_Panel.Set_Active_Feature
-           (S.Feature_Panel, Editor.Feature_Panel.Search_Results_Feature);
+           (S.Panel.Feature_Panel, Editor.Feature_Panel.Search_Results_Feature);
       begin
          Assert (Switched, "search-results feature should be accepted");
       end;
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, True);
       Editor.Feature_Search_Results.Activate_Search_Query_Input
-        (S.Feature_Search_Results);
+        (S.Panel.Feature_Search_Results);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -1727,7 +1727,7 @@ package body Editor.Focus_Management.Tests is
          "feature search input plus its parent Search Results panel should be coherent");
 
       Editor.Feature_Search_Results.Deactivate_Search_Query_Input
-        (S.Feature_Search_Results);
+        (S.Panel.Feature_Search_Results);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -1744,9 +1744,9 @@ package body Editor.Focus_Management.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
    begin
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
       Editor.Feature_Search_Results.Activate_Search_Query_Input
-        (S.Feature_Search_Results);
+        (S.Panel.Feature_Search_Results);
 
       Assert
         (not Editor.Focus_Management.Assert_Panel_Focus_Management_Coherent (S),
@@ -1790,15 +1790,15 @@ package body Editor.Focus_Management.Tests is
    begin
       declare
          Switched : constant Boolean := Editor.Feature_Panel.Set_Active_Feature
-           (S.Feature_Panel, Editor.Feature_Panel.Search_Results_Feature);
+           (S.Panel.Feature_Panel, Editor.Feature_Panel.Search_Results_Feature);
       begin
          Assert (Switched, "search-results feature should be accepted");
       end;
 
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, True);
       Editor.Feature_Search_Results.Activate_Search_Query_Input
-        (S.Feature_Search_Results);
+        (S.Panel.Feature_Search_Results);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -1864,21 +1864,21 @@ package body Editor.Focus_Management.Tests is
       S.Build.Build_UI.Build_UI_Focused := True;
       S.Build.Latest_Result_Focused := True;
       S.Build.Latest_Output_Details.Build_Output_Details_Focused := True;
-      S.Recent_Projects_Focused := True;
+      S.Project_Runtime.Recent_Projects_Focused := True;
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Quick_Open_Overlay,
-         S.Panel_Focus);
+         S.Panel.Panel_Focus);
 
       Editor.Focus_Management.Clear_Transient_Focus_Owners (S);
       declare
          Switched : constant Boolean := Editor.Feature_Panel.Set_Active_Feature
-           (S.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
+           (S.Panel.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
       begin
          Assert (Switched, "outline feature should be accepted");
       end;
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, True);
 
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -1888,13 +1888,13 @@ package body Editor.Focus_Management.Tests is
         (Editor.Focus_Management.Assert_Panel_Focus_Management_Coherent (S),
          "feature panel focus should be coherent after stale transient owners are cleared");
       Assert
-        (not Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus),
+        (not Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus),
          "clearing transient owners should dismiss stale overlays");
       Assert
         (not S.Build.Build_UI.Build_UI_Focused
          and then not S.Build.Latest_Result_Focused
          and then not S.Build.Latest_Output_Details.Build_Output_Details_Focused
-         and then not S.Recent_Projects_Focused,
+         and then not S.Project_Runtime.Recent_Projects_Focused,
          "clearing transient owners should remove stale build/recent focus markers");
    end Test_Clear_Transient_Focus_Allows_Feature_Panel_To_Take_Focus;
 
@@ -1907,10 +1907,10 @@ package body Editor.Focus_Management.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Quick_Open_Overlay,
-         S.Panel_Focus);
-      S.Recent_Projects_Focused := True;
+         S.Panel.Panel_Focus);
+      S.Project_Runtime.Recent_Projects_Focused := True;
       S.Build.Latest_Result_Focused := True;
       S.Build.Latest_Output_Details.Build_Output_Details_Focused := True;
 
@@ -1921,10 +1921,10 @@ package body Editor.Focus_Management.Tests is
          Editor.Focus_Management.Focus_Build_UI,
          "Build UI public focus action should use the unified focus owner path");
       Assert
-        (not Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus),
+        (not Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus),
          "Build UI public focus action should clear stale overlay focus");
       Assert
-        (not S.Recent_Projects_Focused
+        (not S.Project_Runtime.Recent_Projects_Focused
          and then not S.Build.Latest_Result_Focused
          and then not S.Build.Latest_Output_Details.Build_Output_Details_Focused,
          "Build UI public focus action should clear stale competing transient owners");
@@ -1969,12 +1969,12 @@ package body Editor.Focus_Management.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
    begin
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       S.Build.Build_UI.Build_UI_Visible := True;
       S.Build.Build_UI.Build_UI_Focused := True;
       S.Build.Latest_Result_Focused := True;
       S.Build.Latest_Output_Details.Build_Output_Details_Focused := True;
-      S.Recent_Projects_Focused := True;
+      S.Project_Runtime.Recent_Projects_Focused := True;
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Focus_Feature_Panel);
@@ -1983,10 +1983,10 @@ package body Editor.Focus_Management.Tests is
         (not S.Build.Build_UI.Build_UI_Focused
          and then not S.Build.Latest_Result_Focused
          and then not S.Build.Latest_Output_Details.Build_Output_Details_Focused
-         and then not S.Recent_Projects_Focused,
+         and then not S.Project_Runtime.Recent_Projects_Focused,
          "executor feature-panel focus should clear stale transient owners");
       Assert
-        (Editor.Feature_Panel.Is_Focused (S.Feature_Panel),
+        (Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel),
          "feature panel should own local navigation after focus command");
       Assert
         (Editor.Focus_Management.Focus_State_Has_No_Competing_Owners (S),
@@ -2005,17 +2005,17 @@ package body Editor.Focus_Management.Tests is
       Editor.Panels.Set_Visible
         (S.Panels, Editor.Panels.Bottom_Panel, True);
       Editor.Panel_Focus.Focus_Bottom_Panel
-        (S.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
+        (S.Panel.Panel_Focus, Editor.Panel_Focus.Search_Results_Focus);
 
       Editor.Overlay_Focus.Activate
-        (S.Overlay_Focus,
+        (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Quick_Open_Overlay,
-         S.Panel_Focus);
+         S.Panel.Panel_Focus);
 
       S.Build.Build_UI.Build_UI_Focused := True;
       S.Build.Latest_Result_Focused := True;
       S.Build.Latest_Output_Details.Build_Output_Details_Focused := True;
-      S.Recent_Projects_Focused := True;
+      S.Project_Runtime.Recent_Projects_Focused := True;
 
       Editor.Executor.Dismiss_Active_Overlay
         (S, Editor.Overlay_Focus.Dismiss_Escape);
@@ -2024,7 +2024,7 @@ package body Editor.Focus_Management.Tests is
         (not S.Build.Build_UI.Build_UI_Focused
          and then not S.Build.Latest_Result_Focused
          and then not S.Build.Latest_Output_Details.Build_Output_Details_Focused
-         and then not S.Recent_Projects_Focused,
+         and then not S.Project_Runtime.Recent_Projects_Focused,
          "overlay dismissal should clear stale transient owners before restoring previous focus");
       Assert
         (Editor.Focus_Management.Effective_Focus_Owner (S) =
@@ -2044,17 +2044,17 @@ package body Editor.Focus_Management.Tests is
    begin
       declare
          Switched : constant Boolean := Editor.Feature_Panel.Set_Active_Feature
-           (S.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
+           (S.Panel.Feature_Panel, Editor.Feature_Panel.Outline_Feature);
       begin
          Assert (Switched, "outline feature should be accepted");
       end;
 
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
+      Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, True);
       S.Build.Build_UI.Build_UI_Focused := True;
       S.Build.Latest_Result_Focused := True;
       S.Build.Latest_Output_Details.Build_Output_Details_Focused := True;
-      S.Recent_Projects_Focused := True;
+      S.Project_Runtime.Recent_Projects_Focused := True;
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Goto_Line);
 
@@ -2063,13 +2063,13 @@ package body Editor.Focus_Management.Tests is
          Editor.Focus_Management.Focus_Workspace_Prompt,
          "opening a prompt overlay should make the prompt the effective focus owner");
       Assert
-        (not Editor.Feature_Panel.Is_Focused (S.Feature_Panel),
+        (not Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel),
          "overlay activation should clear explicit Feature Panel focus");
       Assert
         (not S.Build.Build_UI.Build_UI_Focused
          and then not S.Build.Latest_Result_Focused
          and then not S.Build.Latest_Output_Details.Build_Output_Details_Focused
-         and then not S.Recent_Projects_Focused,
+         and then not S.Project_Runtime.Recent_Projects_Focused,
          "overlay activation should clear stale lower-priority transient owners");
       Assert
         (Editor.Focus_Management.Focus_State_Has_No_Competing_Owners (S),

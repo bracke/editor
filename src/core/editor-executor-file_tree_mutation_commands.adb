@@ -239,8 +239,8 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          --  an explicit project-relative target such as "src/new.adb", but a
          --  bare name must report "No target directory selected" instead of
          --  silently creating at the root.
-         if Editor.Project.Has_Project (S.Project) then
-            return Editor.Project.Root_Path (S.Project);
+         if Editor.Project.Has_Project (S.Project_Runtime.Project) then
+            return Editor.Project.Root_Path (S.Project_Runtime.Project);
          end if;
          return "";
       end if;
@@ -256,8 +256,8 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          --  input remains valid because Build_File_Tree_Target_Path composes
          --  such paths from the project root and ignores this base value.
          Found := False;
-         if Editor.Project.Has_Project (S.Project) then
-            return Editor.Project.Root_Path (S.Project);
+         if Editor.Project.Has_Project (S.Project_Runtime.Project) then
+            return Editor.Project.Root_Path (S.Project_Runtime.Project);
          else
             return "";
          end if;
@@ -280,7 +280,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       elsif Ada.Strings.Fixed.Index (Effective, "/") /= 0
         or else Ada.Strings.Fixed.Index (Effective, "\") /= 0
       then
-         return Editor.Project.Absolute_Project_File_Path (S.Project, Effective);
+         return Editor.Project.Absolute_Project_File_Path (S.Project_Runtime.Project, Effective);
       else
          return Ada.Directories.Compose (Base, Effective);
       end if;
@@ -381,7 +381,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          return False;
       elsif Contains_Parent_Traversal (Input) then
          return False;
-      elsif not Editor.Project.Is_Under_Project (S.Project, Candidate) then
+      elsif not Editor.Project.Is_Under_Project (S.Project_Runtime.Project, Candidate) then
          return False;
       else
          Target := To_Unbounded_String (Candidate);
@@ -412,7 +412,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       --  the active project root.
       Canonical_Parent := To_Unbounded_String (Ada.Directories.Full_Name (Parent));
       return Editor.Project.Is_Under_Project
-        (S.Project, To_String (Canonical_Parent));
+        (S.Project_Runtime.Project, To_String (Canonical_Parent));
    exception
       when others =>
          return False;
@@ -531,7 +531,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
    begin
       if Path'Length = 0
         or else not Ada.Directories.Exists (Path)
-        or else not Editor.Project.Is_Under_Project (S.Project, Path)
+        or else not Editor.Project.Is_Under_Project (S.Project_Runtime.Project, Path)
       then
          return False;
       end if;
@@ -545,7 +545,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       --  before any mutation is attempted.
       Canonical_Path := To_Unbounded_String (Ada.Directories.Full_Name (Path));
       return Editor.Project.Is_Under_Project
-        (S.Project, To_String (Canonical_Path));
+        (S.Project_Runtime.Project, To_String (Canonical_Path));
    exception
       when others =>
          return False;
@@ -699,7 +699,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
         Editor.File_Tree.No_File_Tree_Node;
       Selected_Path  : Unbounded_String := Null_Unbounded_String;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.File_Tree.Clear (S.File_Tree);
          Editor.File_Tree_View.Clear_View (S.File_Tree_View);
          return False;
@@ -714,7 +714,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
            (S.File_Tree, Selected_Node).Relative_Path;
       end if;
 
-      Tree := Editor.File_Tree.Scan_Project (Editor.Project.Root_Path (S.Project));
+      Tree := Editor.File_Tree.Scan_Project (Editor.Project.Root_Path (S.Project_Runtime.Project));
       Result := Editor.File_Tree.Scan_Status (Tree);
       if Result.Status = Editor.File_Tree.File_Tree_Scan_Ok then
          Editor.File_Tree.Preserve_Expanded_Paths_From
@@ -763,7 +763,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          --  mutation plus refresh failure to the user.
          Editor.File_Tree.Clear (S.File_Tree);
          Editor.File_Tree_View.Clear_View (S.File_Tree_View);
-         Editor.Project.Clear_Known_Files (S.Project);
+         Editor.Project.Clear_Known_Files (S.Project_Runtime.Project);
          Editor.Project_Search.Mark_Stale (S.Project_Search);
          Editor.Quick_Open.Mark_Stale (S.Quick_Open);
       end if;
@@ -859,15 +859,15 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
                  To_String (Candidate.Source_Path_If_Represented);
                Old_Relative : constant String :=
                  (if Old_Path'Length > 0
-                    and then Editor.Project.Has_Project (S.Project)
-                    and then Editor.Project.Is_Under_Project (S.Project, Old_Path)
-                  then Editor.Project.Relative_Path (S.Project, Old_Path)
+                    and then Editor.Project.Has_Project (S.Project_Runtime.Project)
+                    and then Editor.Project.Is_Under_Project (S.Project_Runtime.Project, Old_Path)
+                  then Editor.Project.Relative_Path (S.Project_Runtime.Project, Old_Path)
                   else "");
                New_Relative : constant String :=
                  (if New_Path'Length > 0
-                    and then Editor.Project.Has_Project (S.Project)
-                    and then Editor.Project.Is_Under_Project (S.Project, New_Path)
-                  then Editor.Project.Relative_Path (S.Project, New_Path)
+                    and then Editor.Project.Has_Project (S.Project_Runtime.Project)
+                    and then Editor.Project.Is_Under_Project (S.Project_Runtime.Project, New_Path)
+                  then Editor.Project.Relative_Path (S.Project_Runtime.Project, New_Path)
                   else "");
             begin
                --  completeness: selected build-candidate staleness
@@ -947,24 +947,24 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       if Affects_Active_File then
          Editor.Outline.Clear (S.Outline);
          S.Outline_Cursor_Key_Valid := False;
-         Editor.Diagnostics.Clear (S.Diagnostics);
-         Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
+         Editor.Diagnostics.Clear (S.Panel.Diagnostics);
+         Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
       end if;
 
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Source_Path_Stale
-        (S.Feature_Diagnostics, Old_Path, New_Path);
+        (S.Panel.Feature_Diagnostics, Old_Path, New_Path);
 
-      if Editor.Project.Has_Project (S.Project) then
+      if Editor.Project.Has_Project (S.Project_Runtime.Project) then
          declare
             Old_Relative : constant String :=
               (if Old_Path'Length > 0
-                 and then Editor.Project.Is_Under_Project (S.Project, Old_Path)
-               then Editor.Project.Relative_Path (S.Project, Old_Path)
+                 and then Editor.Project.Is_Under_Project (S.Project_Runtime.Project, Old_Path)
+               then Editor.Project.Relative_Path (S.Project_Runtime.Project, Old_Path)
                else "");
             New_Relative : constant String :=
               (if New_Path'Length > 0
-                 and then Editor.Project.Is_Under_Project (S.Project, New_Path)
-               then Editor.Project.Relative_Path (S.Project, New_Path)
+                 and then Editor.Project.Is_Under_Project (S.Project_Runtime.Project, New_Path)
+               then Editor.Project.Relative_Path (S.Project_Runtime.Project, New_Path)
                else "");
          begin
             --  completeness: diagnostics rows often store
@@ -975,7 +975,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
             --  stale diagnostics live merely because the source label used
             --  the UI-relative form.
             Editor.Feature_Diagnostics.Mark_Diagnostics_For_Source_Path_Stale
-              (S.Feature_Diagnostics, Old_Relative, New_Relative);
+              (S.Panel.Feature_Diagnostics, Old_Relative, New_Relative);
          end;
       end if;
 

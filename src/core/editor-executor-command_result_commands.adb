@@ -320,8 +320,8 @@ package body Editor.Executor.Command_Result_Commands is
          Found : Boolean := False;
          Msg   : Editor.Messages.Editor_Message;
       begin
-         if Editor.Messages.Count (S.Messages) > Before_Messages then
-            Msg := Editor.Messages.Active_Message (S.Messages, Found);
+         if Editor.Messages.Count (S.Panel.Messages) > Before_Messages then
+            Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
             if Found then
                if Editor.Messages.Severity (Msg) =
                  Editor.Messages.Error_Message
@@ -454,7 +454,7 @@ package body Editor.Executor.Command_Result_Commands is
          return Editor.Command_Execution.Executed (Id);
       end if;
 
-      Before_Messages := Editor.Messages.Count (S.Messages);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
 
       case Id is
          when Editor.Command_Ids.Command_Palette_Show_Command_Help

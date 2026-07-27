@@ -88,7 +88,7 @@ package body Editor.Executor.Navigation_Tests is
       Assert (Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher),
               "switcher open command must open switcher state");
       Assert (Editor.Overlay_Focus.Is_Active
-                (S.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay),
+                (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay),
               "switcher open command must own overlay focus");
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Insert_Text (S, "beta");
@@ -346,16 +346,16 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Buffers.Ensure_Global_Registry (S);
 
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Buffer_Navigation_Commands.Execute_Previous_Recent_Buffer (S);
 
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (Msg.Text) = "Buffer: previous",
               "recent previous must expose compact recent-buffer feedback, not generic switch feedback");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Buffer_Navigation_Commands.Execute_Next_Recent_Buffer (S);
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (Msg.Text) = "Buffer: next",
               "recent next must expose compact recent-buffer feedback, not generic switch feedback");
 
@@ -466,7 +466,7 @@ package body Editor.Executor.Navigation_Tests is
               "Go To Line input opens");
       Assert
         (Editor.Overlay_Focus.Is_Active
-           (S.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay),
+           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay),
          "Go To Line owns overlay focus while open");
 
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "3");
@@ -478,7 +478,7 @@ package body Editor.Executor.Navigation_Tests is
               "valid one-based line target moves caret to column 1");
       Assert (not Editor.Go_To_Line.Is_Open (S.Go_To_Line),
               "successful Go To Line closes the input");
-      Assert (not Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus),
+      Assert (not Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus),
               "successful Go To Line returns to normal editor focus");
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "Go To Line does not dirty the buffer");
@@ -539,18 +539,18 @@ package body Editor.Executor.Navigation_Tests is
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "alpha" & ASCII.LF & "beta" & ASCII.LF & "alpha");
-      S.Active_Find_Prompt := True;
-      Editor.Input_Field.Set_Text (S.Active_Find_Input, "alpha");
-      Editor.Feature_Panel.Clear (S.Feature_Panel);
-      Before_Feature_Rows := Editor.Feature_Panel.Row_Count (S.Feature_Panel);
+      S.Search.Active_Find_Prompt := True;
+      Editor.Input_Field.Set_Text (S.Search.Active_Find_Input, "alpha");
+      Editor.Feature_Panel.Clear (S.Panel.Feature_Panel);
+      Before_Feature_Rows := Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel);
 
       Editor.Executor.Navigation_Commands.Execute_Open_Goto_Line (S);
       Editor.Go_To_Line.Set_Text (S.Go_To_Line, "2");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
 
-      Assert (Editor.Input_Field.Text (S.Active_Find_Input) = "alpha",
+      Assert (Editor.Input_Field.Text (S.Search.Active_Find_Input) = "alpha",
               "Go To Line preserves find query");
-      Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = Before_Feature_Rows,
+      Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = Before_Feature_Rows,
               "Go To Line does not create Feature Panel rows");
    end Test_Goto_Line_Does_Not_Mutate_Find_Or_Feature_Rows;
 
@@ -602,9 +602,9 @@ package body Editor.Executor.Navigation_Tests is
 
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
               "find-next must record explicit navigation history");
-      Assert (Editor.Input_Field.Text (S.Active_Find_Input) = "alpha",
+      Assert (Editor.Input_Field.Text (S.Search.Active_Find_Input) = "alpha",
               "find-next must not mutate the find query");
-      Assert (Editor.Feature_Search_Results.Is_Empty (S.Feature_Search_Results),
+      Assert (Editor.Feature_Search_Results.Is_Empty (S.Panel.Feature_Search_Results),
               "find-next must not create Feature Panel Search Results");
    end Test_Find_Navigation_Pushes_History_And_Back_Preserves_Query;
 
@@ -825,10 +825,10 @@ package body Editor.Executor.Navigation_Tests is
          Root_Path    => To_Unbounded_String (Root),
          Display_Name => To_Unbounded_String (""),
          Error_Text   => Null_Unbounded_String);
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
-      Editor.Project.Add_Known_File (S.Project, "README.md", Doc_Path);
-      Editor.Project.Add_Known_File (S.Project, "src/executor.adb", Exec_Path);
-      Editor.Project.Add_Known_File (S.Project, "src/executor.ads", Ads_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "README.md", Doc_Path);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "src/executor.adb", Exec_Path);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "src/executor.ads", Ads_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Exec_Path);
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
@@ -887,10 +887,10 @@ package body Editor.Executor.Navigation_Tests is
          Root_Path    => To_Unbounded_String (Root),
          Display_Name => To_Unbounded_String (""),
          Error_Text   => Null_Unbounded_String);
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
-      Editor.Project.Add_Known_File (S.Project, "src/executor.adb", Exec_Path);
-      Editor.Project.Add_Known_File (S.Project, "src/executor.ads", Ads_Path);
-      Editor.Project.Add_Known_File (S.Project, "tests/test_executor.adb", Test_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "src/executor.adb", Exec_Path);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "src/executor.ads", Ads_Path);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "tests/test_executor.adb", Test_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Exec_Path);
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Active_Directory (S);
@@ -936,8 +936,8 @@ package body Editor.Executor.Navigation_Tests is
          Root_Path    => To_Unbounded_String (Root),
          Display_Name => To_Unbounded_String (""),
          Error_Text   => Null_Unbounded_String);
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
-      Editor.Project.Add_Known_File (S.Project, "known.adb", Known);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "known.adb", Known);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Unknown);
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Reveal_Active (S);
@@ -980,10 +980,10 @@ package body Editor.Executor.Navigation_Tests is
          Root_Path    => To_Unbounded_String (Root),
          Display_Name => To_Unbounded_String (""),
          Error_Text   => Null_Unbounded_String);
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
-      Editor.Project.Add_Known_File (S.Project, "src/executor.adb", Exec_Path);
-      Editor.Project.Add_Known_File (S.Project, "src/executor.ads", Ads_Path);
-      Editor.Project.Add_Known_File (S.Project, "docs/guide.md", Doc_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "src/executor.adb", Exec_Path);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "src/executor.ads", Ads_Path);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "docs/guide.md", Doc_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Exec_Path);
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
@@ -1059,8 +1059,8 @@ package body Editor.Executor.Navigation_Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "stale-open test project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
-      Editor.Project.Refresh_Known_Files (S.Project, Refresh);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
+      Editor.Project.Refresh_Known_Files (S.Project_Runtime.Project, Refresh);
       Assert (Refresh.Status = Editor.Project.Project_File_Refresh_Ok,
               "stale-open setup refresh must succeed");
 
@@ -1082,18 +1082,18 @@ package body Editor.Executor.Navigation_Tests is
       Assert (To_String (Snap.Query) = "stale"
               and then To_String (Snap.Selected_Path) = "src/stale.adb",
               "stale open failure must preserve query and selected known candidate");
-      Assert (Editor.Project.Has_Known_File (S.Project, "src/stale.adb"),
+      Assert (Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/stale.adb"),
               "stale open failure must not mutate known files before refresh");
       Assert (not Editor.State.Has_Active_Buffer (S),
               "stale open failure must not invent an active buffer");
 
-      Editor.Project.Refresh_Known_Files (S.Project, Refresh);
+      Editor.Project.Refresh_Known_Files (S.Project_Runtime.Project, Refresh);
       Assert (Refresh.Status = Editor.Project.Project_File_Refresh_Ok
               and then Refresh.Removed_Count = 1,
               "later refresh must remove the stale known path");
       Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.File_Tree, (others => <>));
       Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
-      Assert (not Editor.Project.Has_Known_File (S.Project, "src/stale.adb")
+      Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/stale.adb")
               and then Snap.Visible_Count = 0
               and then To_String (Snap.Selected_Path) = "",
               "refresh after stale failure must clear stale candidate selection");
@@ -1127,9 +1127,9 @@ package body Editor.Executor.Navigation_Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "Quick Open record setup project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
-      Editor.Project.Add_Known_File (S.Project, "alpha.adb", A_Path);
-      Editor.Project.Add_Known_File (S.Project, "beta.adb", B_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "alpha.adb", A_Path);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "beta.adb", B_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path);
       Editor.Navigation_History.Clear (S.Navigation_History);
@@ -1173,9 +1173,9 @@ package body Editor.Executor.Navigation_Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "Quick Open stale setup project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
-      Editor.Project.Add_Known_File (S.Project, "current.adb", Current);
-      Editor.Project.Add_Known_File (S.Project, "stale.adb", Stale_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "current.adb", Current);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "stale.adb", Stale_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Current);
       Editor.Navigation_History.Clear (S.Navigation_History);
@@ -1221,9 +1221,9 @@ package body Editor.Executor.Navigation_Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "Quick Open capture setup project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
-      Editor.Project.Add_Known_File (S.Project, "alpha.adb", A_Path);
-      Editor.Project.Add_Known_File (S.Project, "beta.adb", B_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "alpha.adb", A_Path);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "beta.adb", B_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path);
       Editor.Navigation_History.Clear (S.Navigation_History);
@@ -1281,8 +1281,8 @@ package body Editor.Executor.Navigation_Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "Project Search setup project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
-      Editor.Project.Add_Known_File (S.Project, "executor.adb", Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "executor.adb", Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Editor.Navigation_History.Clear (S.Navigation_History);
@@ -1410,12 +1410,12 @@ package body Editor.Executor.Navigation_Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "forward-clear setup project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
-      Editor.Project.Add_Known_File (S.Project, "alpha.adb", A_Path);
-      Editor.Project.Add_Known_File (S.Project, "beta.adb", B_Path);
-      Editor.Project.Add_Known_File (S.Project, "gamma.adb", C_Path);
-      Editor.Project.Add_Known_File (S.Project, "delta.adb", D_Path);
-      Editor.Project.Add_Known_File (S.Project, "stale.adb", Stale_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "alpha.adb", A_Path);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "beta.adb", B_Path);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "gamma.adb", C_Path);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "delta.adb", D_Path);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "stale.adb", Stale_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
       Editor.Navigation_History.Clear (S.Navigation_History);
@@ -1504,9 +1504,9 @@ package body Editor.Executor.Navigation_Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "non-recording setup project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
-      Editor.Project.Add_Known_File (S.Project, "alpha.adb", A_Path);
-      Editor.Project.Add_Known_File (S.Project, "beta.adb", B_Path);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "alpha.adb", A_Path);
+      Editor.Project.Add_Known_File (S.Project_Runtime.Project, "beta.adb", B_Path);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path);
       Editor.Navigation_History.Clear (S.Navigation_History);
@@ -1817,21 +1817,21 @@ package body Editor.Executor.Navigation_Tests is
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
 
       Editor.Executor.Bookmark_Commands.Execute_Next_Bookmark (S);
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert
         (Found and then To_String (Msg.Text) = "Bookmark: no bookmarks",
          "next bookmark with no bookmarks should report bookmark feedback");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Bookmark_Commands.Execute_Clear_Bookmarks (S);
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert
         (Found and then To_String (Msg.Text) = "No bookmarks to clear",
          "clear bookmarks with no bookmarks should report deterministic feedback");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Bookmark_Commands.Execute_Clear_All_Bookmarks (S);
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert
         (Found and then To_String (Msg.Text) = "No bookmarks to clear",
          "clear all bookmarks with no bookmarks should report deterministic feedback");
@@ -1894,13 +1894,13 @@ package body Editor.Executor.Navigation_Tests is
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
       Editor.Executor.Bookmark_Commands.Execute_Toggle_Bookmark (S);
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert
         (Found and then To_String (Msg.Text) = "Bookmark added",
          "toggle bookmark should report deterministic add feedback");
 
       Editor.Executor.Bookmark_Commands.Execute_Toggle_Bookmark (S);
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert
         (Found and then To_String (Msg.Text) = "Bookmark removed",
          "toggle bookmark should report deterministic remove feedback");
@@ -1929,7 +1929,7 @@ package body Editor.Executor.Navigation_Tests is
       Assert
         (Editor.Buffers.Global_Bookmark_Count = 0,
          "bookmark navigation should prune out-of-range registry bookmarks");
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert
         (Found and then To_String (Msg.Text) = "Bookmark: no bookmarks",
          "stale-only bookmark navigation should report no bookmarks after pruning");
@@ -1952,16 +1952,16 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Executor.Bookmark_Commands.Execute_Next_Bookmark (S);
       Assert (Editor.Executor.Safe_Caret (S) = Before,
               "next bookmark on an empty buffer must preserve the caret");
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert
         (Found and then To_String (Msg.Text) = "Bookmark: no bookmarks",
          "next bookmark on an empty buffer should report no bookmarks");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Bookmark_Commands.Execute_Previous_Bookmark (S);
       Assert (Editor.Executor.Safe_Caret (S) = Before,
               "previous bookmark on an empty buffer must preserve the caret");
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert
         (Found and then To_String (Msg.Text) = "Bookmark: no bookmarks",
          "previous bookmark on an empty buffer should report no bookmarks");

@@ -596,15 +596,15 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Status : Editor.External_Producers.Public_Build_Types.Public_Build_Consent_Validation_Status;
    begin
       Editor.State.Init (S);
-      Before_Messages := Editor.Messages.Count (S.Messages);
-      Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
+      Before_Focus := Editor.Panel_Focus.Target (S.Panel.Panel_Focus);
       Status := Editor.External_Producers.Public_Build.Validate_Public_Build_Consent
         (Valid_Test_Consent);
       Assert (Status = Editor.External_Producers.Public_Build_Types.Public_Build_Consent_Valid_For_Internal_Test,
               "valid test-context consent must validate without side effects");
-      Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Messages,
               "consent validation must not post messages");
-      Assert (Editor.Panel_Focus.Target (S.Panel_Focus) = Before_Focus,
+      Assert (Editor.Panel_Focus.Target (S.Panel.Panel_Focus) = Before_Focus,
               "consent validation must not switch feature focus");
    end Test_Public_Build_Consent_Validation_Is_Side_Effect_Free;
 
@@ -709,15 +709,15 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Status : Editor.External_Producers.Public_Build_Types.Public_Build_Input_Validation_Status;
    begin
       Editor.State.Init (S);
-      Before_Messages := Editor.Messages.Count (S.Messages);
-      Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
+      Before_Focus := Editor.Panel_Focus.Target (S.Panel.Panel_Focus);
       Status := Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input
         (Valid_Public_Input);
       Assert (Status = Editor.External_Producers.Public_Build_Types.Public_Build_Input_Valid,
               "valid public input DTO must validate without side effects");
-      Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Messages,
               "public input validation must not post messages");
-      Assert (Editor.Panel_Focus.Target (S.Panel_Focus) = Before_Focus,
+      Assert (Editor.Panel_Focus.Target (S.Panel.Panel_Focus) = Before_Focus,
               "public input validation must not switch feature focus");
    end Test_Public_Build_Input_Validation_Is_Side_Effect_Free;
 
@@ -1097,15 +1097,15 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Status : Editor.External_Producers.Public_Build_Types.Public_Build_Working_Context_Validation_Status;
    begin
       Editor.State.Init (S);
-      Before_Messages := Editor.Messages.Count (S.Messages);
-      Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
+      Before_Focus := Editor.Panel_Focus.Target (S.Panel.Panel_Focus);
       Status := Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context
         (Valid_Test_Working_Context);
       Assert (Status = Editor.External_Producers.Public_Build_Types.Public_Build_Working_Context_Valid_For_Internal_Test,
               "test working context must validate without side effects");
-      Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Messages,
               "working-context validation must not post messages");
-      Assert (Editor.Panel_Focus.Target (S.Panel_Focus) = Before_Focus,
+      Assert (Editor.Panel_Focus.Target (S.Panel.Panel_Focus) = Before_Focus,
               "working-context validation must not switch feature focus");
    end Test_Public_Build_Working_Context_Validation_Is_Side_Effect_Free;
 

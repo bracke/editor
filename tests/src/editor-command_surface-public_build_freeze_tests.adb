@@ -625,7 +625,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       A2 : Public_Build_Command_Hard_Freeze_Audit_Result;
    begin
       Editor.State.Init (S);
-      Before_Messages := Editor.Messages.Count (S.Messages);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
       Before_Has_Buffer := Editor.State.Has_Active_Buffer (S);
       A1 := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S);
       A2 := Editor.External_Producers.Public_Build.Run_Public_Build_Command_Hard_Freeze_Audit (S);
@@ -633,7 +633,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
               "repeated hard-freeze audits must return stable pass state");
       Assert (A1.Promotion_Blocked = A2.Promotion_Blocked,
               "repeated hard-freeze audits must return stable promotion state");
-      Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Messages,
               "hard-freeze audit must not post messages");
       Assert (Editor.State.Has_Active_Buffer (S) = Before_Has_Buffer,
               "hard-freeze audit must not create or close buffers");
@@ -820,7 +820,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       D2 : Public_Build_Hard_Freeze_Drift_Result;
    begin
       Editor.State.Init (S);
-      Before_Messages := Editor.Messages.Count (S.Messages);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
       Before_Has_Buffer := Editor.State.Has_Active_Buffer (S);
       D1 := Editor.External_Producers.Public_Build.Detect_Public_Build_Hard_Freeze_Drift
         (S, Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline);
@@ -828,7 +828,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
         (S, Editor.External_Producers.Public_Build.Build_Public_Build_Hard_Freeze_Baseline);
       Assert (D1.Any_Drift = D2.Any_Drift,
               "repeated drift scans must be deterministic");
-      Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Messages,
               "drift scan must not post messages");
       Assert (Editor.State.Has_Active_Buffer (S) = Before_Has_Buffer,
               "drift scan must not create buffers or switch context");
@@ -1222,7 +1222,7 @@ package body Editor.Command_Surface.Public_Build_Freeze_Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Editor.Messages.Push_Info (S.Messages, "unrelated status message");
+      Editor.Messages.Push_Info (S.Panel.Messages, "unrelated status message");
       Assert (Editor.External_Producers.Public_Build.Run_Public_Build_Guardrail_Audit (S).Status =
               Public_Build_Guardrail_Passed,
               "unrelated Messages rows must not affect public build guardrail");

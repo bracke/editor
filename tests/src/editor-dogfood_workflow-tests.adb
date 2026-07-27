@@ -158,7 +158,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (Msg);
       end if;
@@ -337,15 +337,15 @@ package body Editor.Dogfood_Workflow.Tests is
 
       --  Project open and project-scoped discovery.
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "dogfood project opens through the Executor project route");
-      Assert (Editor.Project.Root_Path (S.Project) = Root,
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Root,
               "canonical project root is retained");
 
-      Editor.Project.Refresh_Known_Files (S.Project, Project_Files);
+      Editor.Project.Refresh_Known_Files (S.Project_Runtime.Project, Project_Files);
       Assert (Project_Files.Status = Editor.Project.Project_File_Refresh_Ok,
               "known project files refresh from the opened project root");
-      Assert (Editor.Project.Has_Known_File (S.Project, "src/dogfood_demo.adb"),
+      Assert (Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/dogfood_demo.adb"),
               "known Ada source file is available to project-scoped surfaces");
 
       --  File Tree over real fixture files, then open through the file-tree route.
@@ -425,8 +425,8 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_File_Tree,
               "File Tree create keeps focus on File Tree for the next operation");
-      Editor.Project.Refresh_Known_Files (S.Project, Project_Files);
-      Assert (Editor.Project.Has_Known_File (S.Project, "src/new_widget.adb"),
+      Editor.Project.Refresh_Known_Files (S.Project_Runtime.Project, Project_Files);
+      Assert (Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/new_widget.adb"),
               "created file appears after explicit project-file refresh");
       Node := Editor.File_Tree.Find_By_Path
         (S.File_Tree, "src/new_widget.adb", Found);
@@ -457,7 +457,7 @@ package body Editor.Dogfood_Workflow.Tests is
                                    Field_Height_In_Rows => 1,
                                    Result_Padding_Columns => 1));
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "rename invalidates diagnostic target",
          Source_Label  => "src/new_widget.adb",
@@ -484,8 +484,8 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (not Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
               "real File Tree rename refreshes Quick Open candidates");
       Diagnostic_Row := 0;
-      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) loop
-         if Editor.Feature_Diagnostics.Item_Source_Label (S.Feature_Diagnostics, I) =
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) loop
+         if Editor.Feature_Diagnostics.Item_Source_Label (S.Panel.Feature_Diagnostics, I) =
            "src/new_widget.adb"
          then
             Diagnostic_Row := I;
@@ -494,11 +494,11 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Diagnostic_Row > 0,
               "real File Tree rename preserves the seeded Diagnostics source row");
       Assert (Editor.Feature_Diagnostics.Item_Is_Stale
-                (S.Feature_Diagnostics, Diagnostic_Row),
+                (S.Panel.Feature_Diagnostics, Diagnostic_Row),
               "real File Tree rename marks matching Diagnostics source rows stale");
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, Diagnostic_Row);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Diagnostic_Row);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available
                 (Editor.Executor.Command_Availability
                    (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected)),
@@ -508,10 +508,10 @@ package body Editor.Dogfood_Workflow.Tests is
                    (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected)) =
               Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "Diagnostic stale-target wording matches Search stale-target wording after rename");
-      Editor.Project.Refresh_Known_Files (S.Project, Project_Files);
-      Assert (not Editor.Project.Has_Known_File (S.Project, "src/new_widget.adb"),
+      Editor.Project.Refresh_Known_Files (S.Project_Runtime.Project, Project_Files);
+      Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/new_widget.adb"),
               "old file label disappears after explicit project-file refresh");
-      Assert (Editor.Project.Has_Known_File (S.Project, "src/renamed_widget.adb"),
+      Assert (Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/renamed_widget.adb"),
               "renamed file appears after explicit project-file refresh");
       Node := Editor.File_Tree.Find_By_Path
         (S.File_Tree, "src/renamed_widget.adb", Found);
@@ -543,7 +543,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_File_Tree,
               "File Tree delete keeps focus on File Tree after completion");
-      Editor.Project.Refresh_Known_Files (S.Project, Project_Files);
+      Editor.Project.Refresh_Known_Files (S.Project_Runtime.Project, Project_Files);
       Node := Editor.File_Tree.Find_By_Path
         (S.File_Tree, "src/renamed_widget.adb", Found);
       Assert (not Found and then Node = Editor.File_Tree.No_File_Tree_Node,
@@ -658,7 +658,7 @@ package body Editor.Dogfood_Workflow.Tests is
       --  Project Search finds and validates a real source target.
       Editor.Project_Search.Set_Query (S.Project_Search, "Dogfood_Known_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.File_Tree, S.Project,
+        (S.Project_Search, S.File_Tree, S.Project_Runtime.Project,
          (Case_Sensitive => True,
           Max_File_Count => 100,
           Max_Result_Count => 20,
@@ -693,7 +693,7 @@ package body Editor.Dogfood_Workflow.Tests is
                 Editor.Focus_Management.Focus_Project_Search_Results,
               "failed stale Search activation keeps focus on Search results for correction");
       Editor.Project_Search.Clear_Stale (S.Project_Search);
-      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
 
       --  Build UI candidate refresh, explicit command-route selection, consent,
       --  deterministic bounded run, Diagnostics ingestion, and diagnostic target open.
@@ -796,12 +796,12 @@ package body Editor.Dogfood_Workflow.Tests is
               "Build UI snapshot exposes bounded output details");
       Assert (Build_View.Diagnostics_View.Reveal_Available,
               "Build UI exposes Diagnostics reveal when diagnostics are represented");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) >= 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) >= 1,
               "Diagnostics surface owns the resulting diagnostic rows");
       Diagnostic_Row := 0;
-      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) loop
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) loop
          if Ada.Strings.Fixed.Index
-           (Editor.Feature_Diagnostics.Item_Message (S.Feature_Diagnostics, I),
+           (Editor.Feature_Diagnostics.Item_Message (S.Panel.Feature_Diagnostics, I),
             "dogfood diagnostic") > 0
          then
             Diagnostic_Row := I;
@@ -810,8 +810,8 @@ package body Editor.Dogfood_Workflow.Tests is
       end loop;
       Assert (Diagnostic_Row > 0,
               "Diagnostics surface includes the build diagnostic target");
-      Editor.Feature_Diagnostics.Project_Rows (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, Diagnostic_Row);
+      Editor.Feature_Diagnostics.Project_Rows (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, Diagnostic_Row);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Diagnostics);
       Diagnostic_Open := Editor.Executor.Execute_Command_With_Result
@@ -888,16 +888,16 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Editor.State.Init (S2);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S2, Root);
-      Assert (Editor.Project.Has_Project (S2.Project),
+      Assert (Editor.Project.Has_Project (S2.Project_Runtime.Project),
               "restart opens the same project before workspace restore");
-      Editor.Project.Refresh_Known_Files (S2.Project, Project_Files);
+      Editor.Project.Refresh_Known_Files (S2.Project_Runtime.Project, Project_Files);
       Assert (Project_Files.Status = Editor.Project.Project_File_Refresh_Ok,
               "restart project known files refresh before transient contamination");
 
       Editor.Quick_Open.Open (S2.Quick_Open);
       Editor.Quick_Open.Set_Query_Text (S2.Quick_Open, "dogfood");
       Editor.Quick_Open.Recompute_Results
-        (S2.Quick_Open, S2.Project, (Max_Visible_Results => 12,
+        (S2.Quick_Open, S2.Project_Runtime.Project, (Max_Visible_Results => 12,
                                      Max_Result_Count => 100,
                                      Query_Field_Min_Columns => 24,
                                      Overlay_Width_In_Columns => 72,
@@ -907,7 +907,7 @@ package body Editor.Dogfood_Workflow.Tests is
                                      Result_Padding_Columns => 1));
       Editor.Project_Search.Set_Query (S2.Project_Search, "Dogfood_Known_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S2.Project_Search, S2.File_Tree, S2.Project,
+        (S2.Project_Search, S2.File_Tree, S2.Project_Runtime.Project,
          (Case_Sensitive => True,
           Max_File_Count => 100,
           Max_Result_Count => 20,
@@ -919,7 +919,7 @@ package body Editor.Dogfood_Workflow.Tests is
         (S2.Outline, Editor.Outline_Extractor.Identity (Extracted));
       Editor.Outline_Extractor.Apply_To_Outline (Extracted, S2.Outline);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S2.Feature_Diagnostics,
+        (S2.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Warning,
          "pre-restore diagnostic",
          Source_Label => "pre-restore",
@@ -941,7 +941,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "restart precondition has transient Project Search results");
       Assert (Editor.Outline.Item_Count (S2.Outline) > 0,
               "restart precondition has transient Outline rows");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S2.Feature_Diagnostics) > 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S2.Panel.Feature_Diagnostics) > 0,
               "restart precondition has transient Diagnostics rows");
       Assert (S2.Build.Build_UI.Build_UI_Visible,
               "restart precondition has transient Build UI state");
@@ -956,8 +956,8 @@ package body Editor.Dogfood_Workflow.Tests is
         (S2, Editor.Command_Ids.Command_Restore_Workspace_State);
       Assert (Workspace_Restore.Status = Editor.Command_Execution.Command_Executed,
               "workspace restore executes through Executor");
-      Assert (Editor.Project.Has_Project (S2.Project)
-                and then Editor.Project.Root_Path (S2.Project) = Root,
+      Assert (Editor.Project.Has_Project (S2.Project_Runtime.Project)
+                and then Editor.Project.Root_Path (S2.Project_Runtime.Project) = Root,
               "workspace restore preserves the active project identity");
       Assert (S2.Buffer_Lifecycle.File_Info.Has_Path
                 and then To_String (S2.Buffer_Lifecycle.File_Info.Path) = Source_Path,
@@ -974,7 +974,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "workspace restore clears Project Search transient results");
       Assert (Editor.Outline.Item_Count (S2.Outline) = 0,
               "workspace restore clears Outline transient rows");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S2.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S2.Panel.Feature_Diagnostics) = 0,
               "workspace restore clears Diagnostics transient rows");
       Assert (not S2.Build.Build_UI.Build_UI_Visible
                 and then Editor.Build_UI.Candidate_Count (S2.Build.Build_UI) = 0,
@@ -1254,7 +1254,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "keep-buffer dismisses the conflict prompt");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty and then S.Buffer_Lifecycle.File_Info.External_Change_Surfaced,
               "keep-buffer preserves dirty state and exposes changed-on-disk state");
-      Metadata := Editor.Buffers.Global_Metadata_For (S.Project, Target);
+      Metadata := Editor.Buffers.Global_Metadata_For (S.Project_Runtime.Project, Target);
       Summary := Editor.Buffers.Global_Summary_For (Target);
       Assert (Metadata.External_Conflict and then Metadata.Stale_Backing_State,
               "Buffer List metadata exposes the same changed-on-disk conflict state");
@@ -1331,7 +1331,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "missing-file conflict cancel preserves dirty text");
       Metadata := Editor.Buffers.Global_Metadata_For
-        (S.Project, Editor.Buffers.Global_Active_Buffer);
+        (S.Project_Runtime.Project, Editor.Buffers.Global_Active_Buffer);
       Assert (Metadata.Missing_Backing_File and then Metadata.Stale_Backing_State,
               "Buffer List metadata exposes the same missing backing file state");
       Assert (Metadata.Dirty_Category = Editor.Buffers.Buffer_Dirty_Missing_File,
@@ -1377,7 +1377,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "conflicted save-and-close keeps dirty text selected");
       Assert (Editor.Buffers.Global_Active_Buffer = Target,
               "failed save-and-close keeps the conflicted buffer selected for correction");
-      Metadata := Editor.Buffers.Global_Metadata_For (S.Project, Target);
+      Metadata := Editor.Buffers.Global_Metadata_For (S.Project_Runtime.Project, Target);
       Assert (Metadata.Dirty_Category = Editor.Buffers.Buffer_Dirty_Conflicted_File,
               "dirty close review handoff preserves Buffer List conflict classification");
       Assert (Metadata.Close_Eligibility =
@@ -1437,10 +1437,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.State.Init (S);
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root_A);
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "switch setup opens Project A");
-      Project_A_Root := To_Unbounded_String (Editor.Project.Root_Path (S.Project));
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
+      Project_A_Root := To_Unbounded_String (Editor.Project.Root_Path (S.Project_Runtime.Project));
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "Project A is promoted to Recent Projects after successful open");
       Assert (not Ada.Directories.Exists (Session_A),
               "project open setup does not fabricate a workspace session file");
@@ -1459,7 +1459,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Quick_Open.Open (S.Quick_Open);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "dogfood_demo");
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.Project, (Max_Visible_Results => 12,
+        (S.Quick_Open, S.Project_Runtime.Project, (Max_Visible_Results => 12,
                                    Max_Result_Count => 100,
                                    Query_Field_Min_Columns => 24,
                                    Overlay_Width_In_Columns => 72,
@@ -1472,7 +1472,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Editor.Project_Search.Set_Query (S.Project_Search, "Dogfood_Known_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.File_Tree, S.Project,
+        (S.Project_Search, S.File_Tree, S.Project_Runtime.Project,
          (Case_Sensitive => True,
           Max_File_Count => 100,
           Max_Result_Count => 20,
@@ -1500,9 +1500,9 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Outline.Has_Items (S.Outline),
               "Project A Outline state is populated before switch");
 
-      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Warning,
          "Project A diagnostic",
          "src/dogfood_demo.adb",
@@ -1512,7 +1512,7 @@ package body Editor.Dogfood_Workflow.Tests is
          Target_Line => 1,
          Target_Column => 1,
          Build_Produced => True);
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "Project A Diagnostics state is populated before switch");
 
       Editor.Build_UI.Show (S.Build.Build_UI);
@@ -1532,11 +1532,11 @@ package body Editor.Dogfood_Workflow.Tests is
       Cmd.Path := To_Unbounded_String (Root_B);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Project.Root_Path (S.Project) = To_String (Project_A_Root),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = To_String (Project_A_Root),
               "dirty switch attempt preserves Project A");
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty switch attempt captures pending transition");
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "dirty blocked switch does not promote Project B to Recent Projects");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Project_A_Row_Count,
               "dirty blocked switch preserves Project A File Tree");
@@ -1544,18 +1544,18 @@ package body Editor.Dogfood_Workflow.Tests is
               "dirty blocked switch preserves Project A Search state");
       Assert (Editor.Outline.Has_Items (S.Outline),
               "dirty blocked switch preserves Project A Outline state");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "dirty blocked switch preserves Project A Diagnostics state");
       Assert (Editor.Build_UI.Candidate_Count (S.Build.Build_UI) > 0,
               "dirty blocked switch preserves Project A Build state");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
-      Assert (Editor.Project.Root_Path (S.Project) = To_String (Project_A_Root),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = To_String (Project_A_Root),
               "cancelled switch leaves Project A active");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "cancelled switch clears only pending transition state");
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "cancelled switch still does not promote Project B");
       Buffer := Editor.Buffers.Global_Find_By_Path (Source_A, Found);
       Assert (Found and then Editor.Buffers.Global_Summary_For (Buffer).Is_Dirty,
@@ -1571,9 +1571,9 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Discard_Pending_Transition);
 
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "confirmed switch leaves an active project");
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_B),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_B),
               "confirmed switch activates Project B");
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "confirmed switch clears pending transition state");
@@ -1585,8 +1585,8 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (not Editor.Outline.Has_Items (S.Outline),
               "confirmed switch clears Project A Outline state");
       Project_A_Diagnostic_Remains := False;
-      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) loop
-         if Editor.Feature_Diagnostics.Item_Message (S.Feature_Diagnostics, I) =
+      for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) loop
+         if Editor.Feature_Diagnostics.Item_Message (S.Panel.Feature_Diagnostics, I) =
            "Project A diagnostic"
          then
             Project_A_Diagnostic_Remains := True;
@@ -1596,9 +1596,9 @@ package body Editor.Dogfood_Workflow.Tests is
               "confirmed switch clears Project A Diagnostics rows");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) > 0,
               "confirmed switch installs Project B File Tree");
-      Assert (Editor.Project.Has_Known_File (S.Project, "src/dogfood_demo.adb"),
+      Assert (Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/dogfood_demo.adb"),
               "confirmed switch installs Project B known-file index");
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 2,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 2,
               "confirmed switch promotes Project B to Recent Projects after success");
       Assert (not Ada.Directories.Exists (Session_A),
               "confirmed switch does not auto-save Project A workspace");
@@ -2625,8 +2625,8 @@ package body Editor.Dogfood_Workflow.Tests is
               "invalid workspace restore fails through the product command path");
       Assert (Active_Message_Text (S) = "Workspace could not be restored.",
               "invalid workspace restore reports product wording");
-      Assert (Editor.Project.Has_Project (S.Project)
-                and then Editor.Project.Root_Path (S.Project) = Root,
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project)
+                and then Editor.Project.Root_Path (S.Project_Runtime.Project) = Root,
               "invalid workspace restore preserves the active project");
       Assert (S.Buffer_Lifecycle.File_Info.Has_Path
                 and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Source_Path,
@@ -2953,7 +2953,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.State.Init (S);
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "main workflow smoke opens a project");
       Expect_Active_Message_Contains
         ("Opened project",
@@ -2969,7 +2969,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "main.adb");
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.Project, (Max_Visible_Results => 12,
+        (S.Quick_Open, S.Project_Runtime.Project, (Max_Visible_Results => 12,
                                    Max_Result_Count => 100,
                                    Query_Field_Min_Columns => 24,
                                    Overlay_Width_In_Columns => 72,
@@ -2991,7 +2991,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Editor.Project_Search.Set_Query (S.Project_Search, "Dogfood_Known_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project,
+        (S.Project_Search, S.Project_Runtime.Project,
          (Case_Sensitive => True,
           Max_File_Count => 100,
           Max_Result_Count => 20,
@@ -3064,11 +3064,11 @@ package body Editor.Dogfood_Workflow.Tests is
               "main workflow smoke records the build result");
       Assert (Length (Build_Command_Result.Command_Message) > 0,
               "main workflow smoke build result carries user-facing command feedback");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) >= 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) >= 1,
               "main workflow smoke ingests build Diagnostics");
 
-      Editor.Feature_Diagnostics.Project_Rows (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Diagnostics.Project_Rows (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Show);
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Diagnostics,
@@ -3138,7 +3138,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.State.Init (S);
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "daily loop opens a project");
       Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
       Node := Editor.File_Tree.Find_By_Path
@@ -3173,7 +3173,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "main.adb");
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.Project, (Max_Visible_Results => 12,
+        (S.Quick_Open, S.Project_Runtime.Project, (Max_Visible_Results => 12,
                                    Max_Result_Count => 100,
                                    Query_Field_Min_Columns => 24,
                                    Overlay_Width_In_Columns => 72,
@@ -3199,7 +3199,7 @@ package body Editor.Dogfood_Workflow.Tests is
 
       Editor.Project_Search.Set_Query (S.Project_Search, "Dogfood_Known_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project,
+        (S.Project_Search, S.Project_Runtime.Project,
          (Case_Sensitive => True,
           Max_File_Count => 100,
           Max_Result_Count => 20,
@@ -3286,10 +3286,10 @@ package body Editor.Dogfood_Workflow.Tests is
               "daily loop records a deterministic build result");
       Assert (S.Build.Latest_Output_Details.Has_Output_Details,
               "daily loop captures Build Output details");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) >= 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) >= 1,
               "daily loop surfaces build diagnostics");
-      Editor.Feature_Diagnostics.Project_Rows (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Diagnostics.Project_Rows (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Diagnostics);
       Diagnostic_Open := Editor.Executor.Execute_Command_With_Result
@@ -3316,7 +3316,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "daily loop close-buffer keeps editor focus when another buffer remains");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
-      Assert (not Editor.Project.Has_Project (S.Project),
+      Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "daily loop closes the project after clean buffers are safe");
       Assert (Editor.Buffers.Global_Count = 0,
               "daily loop project close removes clean project-owned buffers");
@@ -3327,8 +3327,8 @@ package body Editor.Dogfood_Workflow.Tests is
         (S2, Editor.Command_Ids.Command_Restore_Workspace_State);
       Assert (Workspace_Restore.Status = Editor.Command_Execution.Command_Executed,
               "daily loop restores workspace after project reopen");
-      Assert (Editor.Project.Has_Project (S2.Project)
-                and then Editor.Project.Root_Path (S2.Project) = Root,
+      Assert (Editor.Project.Has_Project (S2.Project_Runtime.Project)
+                and then Editor.Project.Root_Path (S2.Project_Runtime.Project) = Root,
               "daily loop restore returns to the project");
       Assert (S2.Buffer_Lifecycle.File_Info.Has_Path,
               "daily loop restore returns to a valid active file");
@@ -4152,8 +4152,8 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty project close cancel clears only the pending decision");
-      Assert (Editor.Project.Has_Project (S.Project)
-                and then Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_A),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project)
+                and then Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "dirty project close cancel preserves the active project");
       Assert (Editor.Buffers.Global_Contains (Dirty_Id),
               "dirty project close cancel keeps the dirty buffer open");
@@ -4177,12 +4177,12 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty project switch captures pending decision");
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_A),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "dirty project switch does not activate the target before confirmation");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Assert (not Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
               "dirty project switch cancel clears the pending decision");
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root_A),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "dirty project switch cancel preserves the current project");
       Assert (Editor.Buffers.Global_Contains (Dirty_Id)
                 and then Editor.Buffers.Global_Active_Buffer = Dirty_Id,
@@ -4341,8 +4341,8 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Restore_Workspace_Snapshot (S, Snapshot, Status, Summary);
       Assert (Status = Editor.Workspace_Persistence.Workspace_Persistence_Invalid_Format,
               "workspace restore rejects a mismatched project root");
-      Assert (Editor.Project.Has_Project (S.Project)
-                and then Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project)
+                and then Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root),
               "invalid workspace restore preserves the active project");
       Assert (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Valid_Path,
               "invalid workspace restore preserves the active file path");

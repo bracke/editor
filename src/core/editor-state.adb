@@ -127,7 +127,7 @@ package body Editor.State is
    is
    begin
       Editor.Messages.Push_Info
-        (S.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
+        (S.Panel.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
    end Report_Info;
 
    function Has_Active_Buffer (S : State_Type) return Boolean is
@@ -336,33 +336,33 @@ package body Editor.State is
       S.Rect_Select_Active := False;
       S.Rect_Anchor_Row := 0;
       S.Rect_Anchor_Col := 0;
-      S.Active_Find_Query := Null_Unbounded_String;
-      S.Active_Find_Matches.Clear;
-      S.Active_Find_Match := Editor.Search.No_Match;
-      S.Active_Find_Stale := False;
-      S.Active_Find_Case_Sensitive := False;
-      S.Active_Find_Whole_Word := False;
-      S.Active_Find_Source_Buffer_Token := 0;
-      S.Active_Find_Prompt := False;
-      S.Active_Replace_Text := Null_Unbounded_String;
-      S.Active_Replace_Error_Message := Null_Unbounded_String;
-      S.Active_Replace_Prompt := False;
-      S.Diagnostics.Clear;
-      S.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
+      S.Search.Active_Find_Query := Null_Unbounded_String;
+      S.Search.Active_Find_Matches.Clear;
+      S.Search.Active_Find_Match := Editor.Search.No_Match;
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Find_Case_Sensitive := False;
+      S.Search.Active_Find_Whole_Word := False;
+      S.Search.Active_Find_Source_Buffer_Token := 0;
+      S.Search.Active_Find_Prompt := False;
+      S.Search.Active_Replace_Text := Null_Unbounded_String;
+      S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
+      S.Search.Active_Replace_Prompt := False;
+      S.Panel.Diagnostics.Clear;
+      S.Panel.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
       Editor.Gutter_Markers.Clear (S.Gutter_Markers);
       Editor.Dirty_Lines.Clear_Dirty_State_To_Current
         (S.Dirty_Lines, Text);
-      Editor.Messages.Clear (S.Messages);
-      Editor.Input_Field.Clear (S.Active_Find_Input);
+      Editor.Messages.Clear (S.Panel.Messages);
+      Editor.Input_Field.Clear (S.Search.Active_Find_Input);
       Editor.Quick_Open.Clear (S.Quick_Open);
       Editor.Buffer_Switcher.Clear (S.Buffer_Switcher);
       Editor.Recent_Buffers.Clear (S.Recent_Buffers);
       Editor.Go_To_Line.Clear (S.Go_To_Line);
       Editor.Project_Search.Clear (S.Project_Search);
       Editor.Bookmarks.Clear (S.Bookmarks);
-      S.Search_Results_View.Top_Row := 1;
-      Editor.Panel_Focus.Focus_Editor_Text (S.Panel_Focus);
-      Editor.Overlay_Focus.Clear (S.Overlay_Focus);
+      S.Panel.Search_Results_View.Top_Row := 1;
+      Editor.Panel_Focus.Focus_Editor_Text (S.Panel.Panel_Focus);
+      Editor.Overlay_Focus.Clear (S.Panel.Overlay_Focus);
       Clear_Gutter_Marker_Hover (S);
       Editor.Folding.Clear (S.Folding);
       S.Buffer_Lifecycle.File_Info.Has_Path := False;
@@ -435,12 +435,12 @@ package body Editor.State is
       Replace_Document (S, Contents);
       S.Buffer_Lifecycle.File_Info := File_Info;
       Editor.Feature_Search_Results.Mark_Stale_For_Buffer_Change
-        (S.Feature_Search_Results, S.Buffer_Lifecycle.Active_Buffer_Token, S.Buffer_Lifecycle.Buffer_Revision);
+        (S.Panel.Feature_Search_Results, S.Buffer_Lifecycle.Active_Buffer_Token, S.Buffer_Lifecycle.Buffer_Revision);
       if S.Buffer_Lifecycle.Registry_Token /= 0
         and then S.Buffer_Lifecycle.Registry_Token /= S.Buffer_Lifecycle.Active_Buffer_Token
       then
          Editor.Feature_Search_Results.Mark_Stale_For_Buffer_Change
-           (S.Feature_Search_Results, S.Buffer_Lifecycle.Registry_Token, S.Buffer_Lifecycle.Buffer_Revision);
+           (S.Panel.Feature_Search_Results, S.Buffer_Lifecycle.Registry_Token, S.Buffer_Lifecycle.Buffer_Revision);
       end if;
    end Replace_Buffer_Contents;
 
@@ -556,25 +556,25 @@ package body Editor.State is
       S.Rect_Select_Active := False;
       S.Rect_Anchor_Row := 0;
       S.Rect_Anchor_Col := 0;
-      S.Active_Find_Query := Null_Unbounded_String;
-      S.Active_Find_Matches.Clear;
-      S.Active_Find_Match := Editor.Search.No_Match;
-      S.Active_Find_Stale := False;
-      S.Active_Find_Case_Sensitive := False;
-      S.Active_Find_Whole_Word := False;
-      S.Active_Find_Source_Buffer_Token := 0;
-      S.Active_Find_Prompt := False;
-      S.Active_Replace_Text := Null_Unbounded_String;
-      S.Active_Replace_Error_Message := Null_Unbounded_String;
-      S.Active_Replace_Prompt := False;
-      S.Diagnostics.Clear;
-      S.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
+      S.Search.Active_Find_Query := Null_Unbounded_String;
+      S.Search.Active_Find_Matches.Clear;
+      S.Search.Active_Find_Match := Editor.Search.No_Match;
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Find_Case_Sensitive := False;
+      S.Search.Active_Find_Whole_Word := False;
+      S.Search.Active_Find_Source_Buffer_Token := 0;
+      S.Search.Active_Find_Prompt := False;
+      S.Search.Active_Replace_Text := Null_Unbounded_String;
+      S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
+      S.Search.Active_Replace_Prompt := False;
+      S.Panel.Diagnostics.Clear;
+      S.Panel.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
       Editor.Gutter_Markers.Clear (S.Gutter_Markers);
       Reset_Dirty_Line_Baseline (S);
-      Editor.Project.Clear (S.Project);
-      Editor.Feature_Panel.Clear (S.Feature_Panel);
-      Editor.Feature_Messages.Reset_For_Workspace_Close (S.Feature_Messages);
-      Editor.Feature_Search_Results.Reset_For_Workspace_Close (S.Feature_Search_Results);
+      Editor.Project.Clear (S.Project_Runtime.Project);
+      Editor.Feature_Panel.Clear (S.Panel.Feature_Panel);
+      Editor.Feature_Messages.Reset_For_Workspace_Close (S.Panel.Feature_Messages);
+      Editor.Feature_Search_Results.Reset_For_Workspace_Close (S.Panel.Feature_Search_Results);
       Editor.Outline.Clear (S.Outline);
       S.Outline_Cursor_Key_Valid := False;
       S.Outline_Cursor_Buffer_Token := 0;
@@ -616,18 +616,18 @@ package body Editor.State is
       end if;
       Editor.Recent_Projects.Load_From_File
         (Editor.Recent_Projects.Recent_Projects_File_Path,
-         S.Recent_Projects,
+         S.Project_Runtime.Recent_Projects,
          Startup_Recent_Status);
       if Startup_Recent_Status = Editor.Recent_Projects.Recent_Project_Not_Found
         or else Startup_Recent_Status = Editor.Recent_Projects.Recent_Project_Invalid_Format
         or else Startup_Recent_Status = Editor.Recent_Projects.Recent_Project_Read_Error
       then
-         Editor.Recent_Projects.Clear (S.Recent_Projects);
-         S.Recent_Project_Selected_Index := 0;
-      elsif Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
-         S.Recent_Project_Selected_Index := 0;
+         Editor.Recent_Projects.Clear (S.Project_Runtime.Recent_Projects);
+         S.Project_Runtime.Recent_Project_Selected_Index := 0;
+      elsif Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0 then
+         S.Project_Runtime.Recent_Project_Selected_Index := 0;
       else
-         S.Recent_Project_Selected_Index := 1;
+         S.Project_Runtime.Recent_Project_Selected_Index := 1;
       end if;
       Editor.Workspace_Persistence.Clear (Startup_Workspace);
 
@@ -635,30 +635,30 @@ package body Editor.State is
       Editor.File_Tree_View.Clear_View (S.File_Tree_View);
       Editor.Panels.Initialize_Defaults (S.Panels);
       Editor.Panels.Set_Current (S.Panels);
-      Editor.Messages.Clear (S.Messages);
-      Editor.Input_Field.Clear (S.Active_Find_Input);
+      Editor.Messages.Clear (S.Panel.Messages);
+      Editor.Input_Field.Clear (S.Search.Active_Find_Input);
       Editor.Quick_Open.Clear (S.Quick_Open);
       Editor.Buffer_Switcher.Clear (S.Buffer_Switcher);
       Editor.Recent_Buffers.Clear (S.Recent_Buffers);
       Editor.Go_To_Line.Clear (S.Go_To_Line);
-      Editor.Input_Field.Clear (S.Active_Find_Input);
-      S.Active_Find_Query := Null_Unbounded_String;
-      S.Active_Find_Matches.Clear;
-      S.Active_Find_Match := Editor.Search.No_Match;
-      S.Active_Find_Stale := False;
-      S.Active_Find_Case_Sensitive := False;
-      S.Active_Find_Whole_Word := False;
-      S.Active_Find_Source_Buffer_Token := 0;
-      S.Active_Find_Prompt := False;
-      S.Active_Replace_Text := Null_Unbounded_String;
-      S.Active_Replace_Error_Message := Null_Unbounded_String;
-      S.Active_Replace_Prompt := False;
+      Editor.Input_Field.Clear (S.Search.Active_Find_Input);
+      S.Search.Active_Find_Query := Null_Unbounded_String;
+      S.Search.Active_Find_Matches.Clear;
+      S.Search.Active_Find_Match := Editor.Search.No_Match;
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Find_Case_Sensitive := False;
+      S.Search.Active_Find_Whole_Word := False;
+      S.Search.Active_Find_Source_Buffer_Token := 0;
+      S.Search.Active_Find_Prompt := False;
+      S.Search.Active_Replace_Text := Null_Unbounded_String;
+      S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
+      S.Search.Active_Replace_Prompt := False;
       Editor.Navigation_History.Clear (S.Navigation_History);
       Editor.Project_Search.Clear (S.Project_Search);
       Editor.Bookmarks.Clear (S.Bookmarks);
-      S.Search_Results_View.Top_Row := 1;
-      Editor.Panel_Focus.Focus_Editor_Text (S.Panel_Focus);
-      Editor.Overlay_Focus.Clear (S.Overlay_Focus);
+      S.Panel.Search_Results_View.Top_Row := 1;
+      Editor.Panel_Focus.Focus_Editor_Text (S.Panel.Panel_Focus);
+      Editor.Overlay_Focus.Clear (S.Panel.Overlay_Focus);
       Clear_Gutter_Marker_Hover (S);
       Editor.Folding.Clear (S.Folding);
       S.Buffer_Lifecycle.File_Info.Has_Path := False;
@@ -809,19 +809,19 @@ package body Editor.State is
       S.Line_Starts.Clear;
       S.Line_Starts.Append (0);
 
-      S.Active_Find_Matches.Clear;
-      S.Active_Find_Match := Editor.Search.No_Match;
-      if Length (S.Active_Find_Query) > 0 then
-         S.Active_Find_Stale := True;
-         S.Active_Find_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
+      S.Search.Active_Find_Matches.Clear;
+      S.Search.Active_Find_Match := Editor.Search.No_Match;
+      if Length (S.Search.Active_Find_Query) > 0 then
+         S.Search.Active_Find_Stale := True;
+         S.Search.Active_Find_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
       else
-         S.Active_Find_Stale := False;
-         S.Active_Find_Source_Buffer_Token := 0;
+         S.Search.Active_Find_Stale := False;
+         S.Search.Active_Find_Source_Buffer_Token := 0;
       end if;
-      S.Diagnostics.Clear;
-      S.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
+      S.Panel.Diagnostics.Clear;
+      S.Panel.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
-        (S.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
+        (S.Panel.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
       --  ordinary edits make retained feature Diagnostics for the
       --  active buffer stale instead of deleting them through the buffer-close
       --  lifecycle path.  The stale marker is transient Diagnostics-owned
@@ -833,15 +833,15 @@ package body Editor.State is
          --  Rows captured before the global buffer registry assigned a real
          --  buffer id used the registry owner token as an active-buffer alias.
          Editor.Feature_Diagnostics.Reset_Diagnostics_For_Buffer_Close
-           (S.Feature_Diagnostics, S.Buffer_Lifecycle.Registry_Token);
+           (S.Panel.Feature_Diagnostics, S.Buffer_Lifecycle.Registry_Token);
       end if;
       Editor.Feature_Messages.Reset_For_Buffer_Close
-        (S.Feature_Messages, S.Buffer_Lifecycle.Active_Buffer_Token);
+        (S.Panel.Feature_Messages, S.Buffer_Lifecycle.Active_Buffer_Token);
       if S.Buffer_Lifecycle.Registry_Token /= 0
         and then S.Buffer_Lifecycle.Registry_Token /= S.Buffer_Lifecycle.Active_Buffer_Token
       then
          Editor.Feature_Messages.Reset_For_Buffer_Close
-           (S.Feature_Messages, S.Buffer_Lifecycle.Registry_Token);
+           (S.Panel.Feature_Messages, S.Buffer_Lifecycle.Registry_Token);
       end if;
       --  Keep visible Messages rows passive during ordinary editing; source
       --  cleanup above is enough to make later explicit feature use valid.
@@ -861,12 +861,12 @@ package body Editor.State is
       Editor.Folding.Clear (S.Folding);
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Feature_Search_Results.Mark_Stale_For_Buffer_Change
-        (S.Feature_Search_Results, S.Buffer_Lifecycle.Active_Buffer_Token, S.Buffer_Lifecycle.Buffer_Revision);
+        (S.Panel.Feature_Search_Results, S.Buffer_Lifecycle.Active_Buffer_Token, S.Buffer_Lifecycle.Buffer_Revision);
       if S.Buffer_Lifecycle.Registry_Token /= 0
         and then S.Buffer_Lifecycle.Registry_Token /= S.Buffer_Lifecycle.Active_Buffer_Token
       then
          Editor.Feature_Search_Results.Mark_Stale_For_Buffer_Change
-           (S.Feature_Search_Results, S.Buffer_Lifecycle.Registry_Token, S.Buffer_Lifecycle.Buffer_Revision);
+           (S.Panel.Feature_Search_Results, S.Buffer_Lifecycle.Registry_Token, S.Buffer_Lifecycle.Buffer_Revision);
       end if;
       --  Mark visible Search Results stale, but do not rerun Search or mutate
       --  the visible Feature Panel rows from ordinary text editing.
@@ -1110,7 +1110,7 @@ package body Editor.State is
       begin
          Row_Col_For_Index (S, Start_Index, Row, Col);
          Editor.Diagnostics.Add
-           (S.Diagnostics, Start_Index, End_Index, Row, Col, Severity, Message);
+           (S.Panel.Diagnostics, Start_Index, End_Index, Row, Col, Severity, Message);
       end;
       Editor.Render_Cache.Invalidate_All;
    end Add_Diagnostic;
@@ -1119,8 +1119,8 @@ package body Editor.State is
      (S : in out State_Type)
    is
    begin
-      Editor.Diagnostics.Clear (S.Diagnostics);
-      S.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
+      Editor.Diagnostics.Clear (S.Panel.Diagnostics);
+      S.Panel.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
       Editor.Render_Cache.Invalidate_All;
    end Clear_Diagnostics;
 
@@ -1146,13 +1146,13 @@ package body Editor.State is
       end if;
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Severity,
          Message      => Clean_Message,
          Source_Label => Clean_Source,
          Source_Kind  => Editor.Feature_Diagnostics.Editor_Diagnostic_Source);
       Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Row_Change
-        (S.Feature_Diagnostics, S.Feature_Panel);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
       Editor.Render_Cache.Invalidate_All;
       return Editor.Producer_Contracts.Accepted_Untargeted;
    end Post_Diagnostic_With_Result;
@@ -1197,7 +1197,7 @@ package body Editor.State is
       end if;
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Severity,
          Message       => Clean_Message,
          Source_Label  => Clean_Source,
@@ -1212,7 +1212,7 @@ package body Editor.State is
          Target_Line   => Line,
          Target_Column => Column);
       Editor.Feature_Diagnostics.Reconcile_Diagnostics_After_Row_Change
-        (S.Feature_Diagnostics, S.Feature_Panel);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
       Editor.Render_Cache.Invalidate_All;
       if Keep_Target then
          return Editor.Producer_Contracts.Accepted;
@@ -1286,10 +1286,10 @@ package body Editor.State is
       Pending_Kind : constant Editor.Pending_Transitions.Pending_Transition_Kind :=
         Editor.Pending_Transitions.Target_Kind (S.Pending_Transitions);
       Panel_Summary : constant Editor.Feature_Panel.Feature_Panel_Summary :=
-        Editor.Feature_Panel.Summary (S.Feature_Panel);
+        Editor.Feature_Panel.Summary (S.Panel.Feature_Panel);
    begin
       return
-        (Has_Project_Root            => Editor.Project.Has_Project (S.Project),
+        (Has_Project_Root            => Editor.Project.Has_Project (S.Project_Runtime.Project),
          File_Tree_Node_Count        => Editor.File_Tree.Node_Count (S.File_Tree),
          File_Tree_Expansion_Count   => Editor.File_Tree.Expanded_Node_Count (S.File_Tree),
          Quick_Open_Result_Count     => Editor.Quick_Open.Result_Count (S.Quick_Open),
@@ -1306,7 +1306,7 @@ package body Editor.State is
          Feature_Panel_Visible       => Panel_Summary.Visible,
          Feature_Panel_Focused       => Panel_Summary.Focused,
          Feature_Panel_Fingerprint   =>
-           Editor.Feature_Panel.Fingerprint (S.Feature_Panel),
+           Editor.Feature_Panel.Fingerprint (S.Panel.Feature_Panel),
          Outline_Item_Count          =>
            Editor.Outline.Item_Count (S.Outline),
          Outline_Has_Items           =>
@@ -1314,11 +1314,11 @@ package body Editor.State is
          Outline_Fingerprint         =>
            Editor.Outline.Fingerprint (S.Outline),
          Feature_Message_Row_Count   =>
-           Editor.Feature_Messages.Row_Count (S.Feature_Messages),
+           Editor.Feature_Messages.Row_Count (S.Panel.Feature_Messages),
          Feature_Search_Result_Count =>
-           Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results),
+           Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results),
          Feature_Diagnostic_Row_Count =>
-           Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics),
+           Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics),
          Has_Pending_Project_Target  =>
            Pending_Kind in Editor.Pending_Transitions.Pending_Close_Project
               | Editor.Pending_Transitions.Pending_Open_Project
@@ -1332,9 +1332,9 @@ package body Editor.State is
      (S : in out State_Type)
    is
       Active : constant Editor.Overlay_Focus.Overlay_Target :=
-        Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus);
+        Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus);
    begin
-      Editor.Project.Clear (S.Project);
+      Editor.Project.Clear (S.Project_Runtime.Project);
       S.Buffer_Lifecycle.Reopen_Candidate_Count := 0;
       S.Buffer_Lifecycle.Reopen_Candidate_Paths := (others => Null_Unbounded_String);
       S.Buffer_Lifecycle.Reopen_Candidate_Labels := (others => Null_Unbounded_String);
@@ -1347,24 +1347,24 @@ package body Editor.State is
       Editor.Buffer_Switcher.Clear (S.Buffer_Switcher);
       Editor.Recent_Buffers.Clear (S.Recent_Buffers);
       Editor.Go_To_Line.Clear (S.Go_To_Line);
-      Editor.Input_Field.Clear (S.Active_Find_Input);
-      S.Active_Find_Query := Null_Unbounded_String;
-      S.Active_Find_Matches.Clear;
-      S.Active_Find_Match := Editor.Search.No_Match;
-      S.Active_Find_Stale := False;
-      S.Active_Find_Case_Sensitive := False;
-      S.Active_Find_Whole_Word := False;
-      S.Active_Find_Source_Buffer_Token := 0;
-      S.Active_Find_Prompt := False;
-      S.Active_Replace_Text := Null_Unbounded_String;
-      S.Active_Replace_Error_Message := Null_Unbounded_String;
-      S.Active_Replace_Prompt := False;
+      Editor.Input_Field.Clear (S.Search.Active_Find_Input);
+      S.Search.Active_Find_Query := Null_Unbounded_String;
+      S.Search.Active_Find_Matches.Clear;
+      S.Search.Active_Find_Match := Editor.Search.No_Match;
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Find_Case_Sensitive := False;
+      S.Search.Active_Find_Whole_Word := False;
+      S.Search.Active_Find_Source_Buffer_Token := 0;
+      S.Search.Active_Find_Prompt := False;
+      S.Search.Active_Replace_Text := Null_Unbounded_String;
+      S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
+      S.Search.Active_Replace_Prompt := False;
       Editor.Navigation_History.Clear (S.Navigation_History);
       Editor.Project_Search.Clear (S.Project_Search);
       Editor.Bookmarks.Clear (S.Bookmarks);
       Editor.Project_Search_Bar.Clear (S.Project_Search_Bar);
-      S.Search_Results_View.Top_Row := 1;
-      Editor.Problems.Clear_View (S.Problems_View);
+      S.Panel.Search_Results_View.Top_Row := 1;
+      Editor.Problems.Clear_View (S.Panel.Problems_View);
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Project_Close (S);
       --  the Ada project language index is
       --  project-scoped transient analysis state.  Closing, clearing, or
@@ -1385,7 +1385,7 @@ package body Editor.State is
       S.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Empty_Output_Details;
       Editor.Terminal_Tasks.Clear (S.Build.Terminal_Tasks);
-      S.Recent_Projects_Focused := False;
+      S.Project_Runtime.Recent_Projects_Focused := False;
 
       Clear_File_Target_Prompt (S);
       Editor.Guided_Prompts.Clear (S.Guided_Prompt);
@@ -1398,14 +1398,14 @@ package body Editor.State is
         or else Active = Editor.Overlay_Focus.Active_Find_Prompt_Overlay
       then
          Editor.Overlay_Focus.Dismiss
-           (S.Overlay_Focus, Editor.Overlay_Focus.Dismiss_Command);
+           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Dismiss_Command);
       end if;
 
-      if Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus)
-        or else Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) =
+      if Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel.Panel_Focus)
+        or else Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) =
           Editor.Panel_Focus.Search_Results_Focus
       then
-         Editor.Panel_Focus.Focus_Editor_Text (S.Panel_Focus);
+         Editor.Panel_Focus.Focus_Editor_Text (S.Panel.Panel_Focus);
       end if;
 
       Editor.Pending_Transitions.Clear (S.Pending_Transitions);
@@ -1468,9 +1468,9 @@ package body Editor.State is
    begin
       Editor.Workspace_Persistence.Clear (Snapshot);
 
-      if Editor.Project.Has_Project (S.Project) then
+      if Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Workspace_Persistence.Set_Project_Root
-           (Snapshot, Editor.Project.Root_Path (S.Project));
+           (Snapshot, Editor.Project.Root_Path (S.Project_Runtime.Project));
       end if;
 
       Editor.Workspace_Persistence.Set_File_Tree_Panel
@@ -1487,23 +1487,23 @@ package body Editor.State is
           then Editor.Workspace_Persistence.Workspace_Search_Results_Content
           else Editor.Workspace_Persistence.Workspace_Problems_Content));
 
-      if Editor.Project.Has_Project (S.Project) then
+      if Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Workspace_Persistence.Set_Recent_Project_Path
-           (Snapshot, Editor.Project.Root_Path (S.Project));
-      elsif S.Recent_Project_Selected_Index in
-        1 .. Editor.Recent_Projects.Count (S.Recent_Projects)
+           (Snapshot, Editor.Project.Root_Path (S.Project_Runtime.Project));
+      elsif S.Project_Runtime.Recent_Project_Selected_Index in
+        1 .. Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects)
       then
          Editor.Workspace_Persistence.Set_Recent_Project_Path
            (Snapshot,
             To_String
               (Editor.Recent_Projects.Item
-                 (S.Recent_Projects,
-                  S.Recent_Project_Selected_Index).Root_Path));
-      elsif Editor.Recent_Projects.Count (S.Recent_Projects) > 0 then
+                 (S.Project_Runtime.Recent_Projects,
+                  S.Project_Runtime.Recent_Project_Selected_Index).Root_Path));
+      elsif Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) > 0 then
          Editor.Workspace_Persistence.Set_Recent_Project_Path
            (Snapshot,
             To_String
-              (Editor.Recent_Projects.Item (S.Recent_Projects, 1).Root_Path));
+              (Editor.Recent_Projects.Item (S.Project_Runtime.Recent_Projects, 1).Root_Path));
       end if;
 
       Editor.Workspace_Persistence.Set_Quick_Open_Path_Scope
@@ -1514,8 +1514,8 @@ package body Editor.State is
            (Editor.Quick_Open.File_Kind_Filter (S.Quick_Open)));
       Editor.Workspace_Persistence.Set_Feature_Panel
         (Snapshot,
-         Editor.Feature_Panel.Is_Visible (S.Feature_Panel),
-         Workspace_Feature (Editor.Feature_Panel.Active_Feature (S.Feature_Panel)));
+         Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel),
+         Workspace_Feature (Editor.Feature_Panel.Active_Feature (S.Panel.Feature_Panel)));
 
       Registry := Editor.Buffers.Global_Registry_For_UI;
       for I in 1 .. Editor.Buffers.Count (Registry) loop
@@ -1524,11 +1524,11 @@ package body Editor.State is
             Buffer := Editor.Buffers.Buffer (Registry, Summary.Id);
             if Buffer.Buffer_Lifecycle.File_Info.Has_Path and then Length (Buffer.Buffer_Lifecycle.File_Info.Path) > 0 then
                Path := Buffer.Buffer_Lifecycle.File_Info.Path;
-               if Editor.Project.Has_Project (S.Project)
-                 and then Editor.Project.Is_Under_Project (S.Project, To_String (Path))
+               if Editor.Project.Has_Project (S.Project_Runtime.Project)
+                 and then Editor.Project.Is_Under_Project (S.Project_Runtime.Project, To_String (Path))
                then
                   Rel_Path := To_Unbounded_String
-                    (Editor.Project.Relative_Path (S.Project, To_String (Path)));
+                    (Editor.Project.Relative_Path (S.Project_Runtime.Project, To_String (Path)));
                else
                   Rel_Path := Null_Unbounded_String;
                end if;
@@ -1580,13 +1580,13 @@ package body Editor.State is
 
       if not Editor.Workspace_Persistence.Has_Active_File_Path (Snapshot)
         and then S.Buffer_Lifecycle.File_Info.Has_Path
-        and then Editor.Project.Has_Project (S.Project)
+        and then Editor.Project.Has_Project (S.Project_Runtime.Project)
         and then Editor.Project.Is_Under_Project
-          (S.Project, To_String (S.Buffer_Lifecycle.File_Info.Path))
+          (S.Project_Runtime.Project, To_String (S.Buffer_Lifecycle.File_Info.Path))
       then
          Editor.Workspace_Persistence.Set_Active_File_Path
            (Snapshot,
-            Editor.Project.Relative_Path (S.Project, To_String (S.Buffer_Lifecycle.File_Info.Path)),
+            Editor.Project.Relative_Path (S.Project_Runtime.Project, To_String (S.Buffer_Lifecycle.File_Info.Path)),
             True);
       end if;
 

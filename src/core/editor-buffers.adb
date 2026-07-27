@@ -88,30 +88,30 @@ package body Editor.Buffers is
    is
    begin
       Clear_Buffer_Messages (State);
-      Editor.Project.Clear (State.Project);
+      Editor.Project.Clear (State.Project_Runtime.Project);
       Editor.File_Tree.Clear (State.File_Tree);
       Editor.File_Tree_View.Clear_View (State.File_Tree_View);
-      Editor.Input_Field.Clear (State.Active_Find_Input);
-      State.Active_Replace_Prompt := False;
-      State.Active_Replace_Text := Null_Unbounded_String;
-      State.Active_Replace_Error_Message := Null_Unbounded_String;
+      Editor.Input_Field.Clear (State.Search.Active_Find_Input);
+      State.Search.Active_Replace_Prompt := False;
+      State.Search.Active_Replace_Text := Null_Unbounded_String;
+      State.Search.Active_Replace_Error_Message := Null_Unbounded_String;
       Editor.Quick_Open.Clear (State.Quick_Open);
       Editor.Buffer_Switcher.Clear (State.Buffer_Switcher);
       Editor.Recent_Buffers.Clear (State.Recent_Buffers);
       Editor.Project_Search.Clear (State.Project_Search);
       Editor.Project_Search_Bar.Clear (State.Project_Search_Bar);
-      State.Search_Results_View := (Top_Row => 1);
-      Editor.Problems.Clear_View (State.Problems_View);
+      State.Panel.Search_Results_View := (Top_Row => 1);
+      Editor.Problems.Clear_View (State.Panel.Problems_View);
       Editor.Panels.Initialize_Defaults (State.Panels);
-      Editor.Panel_Focus.Clear (State.Panel_Focus);
-      Editor.Overlay_Focus.Clear (State.Overlay_Focus);
+      Editor.Panel_Focus.Clear (State.Panel.Panel_Focus);
+      Editor.Overlay_Focus.Clear (State.Panel.Overlay_Focus);
       Editor.Pending_Transitions.Clear (State.Pending_Transitions);
       Editor.Navigation_History.Clear (State.Navigation_History);
-      Editor.Feature_Panel.Clear (State.Feature_Panel);
+      Editor.Feature_Panel.Clear (State.Panel.Feature_Panel);
       Editor.Outline.Clear (State.Outline);
-      Editor.Feature_Messages.Clear (State.Feature_Messages);
-      Editor.Feature_Search_Results.Clear (State.Feature_Search_Results);
-      Editor.Feature_Diagnostics.Clear (State.Feature_Diagnostics);
+      Editor.Feature_Messages.Clear (State.Panel.Feature_Messages);
+      Editor.Feature_Search_Results.Clear (State.Panel.Feature_Search_Results);
+      Editor.Feature_Diagnostics.Clear (State.Panel.Feature_Diagnostics);
       State.Buffer_Lifecycle.Has_Reopen_Candidate := False;
       State.Buffer_Lifecycle.Reopen_Candidate_Path := Null_Unbounded_String;
       State.Buffer_Lifecycle.Reopen_Candidate_Label := Null_Unbounded_String;
@@ -137,7 +137,7 @@ package body Editor.Buffers is
 
    procedure Clear_Buffer_Messages (State : in out Buffer_State) is
    begin
-      Editor.Messages.Clear (State.Messages);
+      Editor.Messages.Clear (State.Panel.Messages);
    end Clear_Buffer_Messages;
 
    function Name_In_Use
@@ -975,32 +975,32 @@ package body Editor.Buffers is
      (State : in out Editor.State.State_Type)
    is
       I        : constant Natural := Index_Of (Global_Registry, Global_Registry.Active);
-      Messages : constant Editor.Messages.Message_State := State.Messages;
-      Feature_Panel : constant Editor.Feature_Panel.Feature_Panel_State := State.Feature_Panel;
+      Messages : constant Editor.Messages.Message_State := State.Panel.Messages;
+      Feature_Panel : constant Editor.Feature_Panel.Feature_Panel_State := State.Panel.Feature_Panel;
       Outline : constant Editor.Outline.Outline_State := State.Outline;
-      Feature_Messages : constant Editor.Feature_Messages.Message_Feature_State := State.Feature_Messages;
-      Feature_Search_Results : constant Editor.Feature_Search_Results.Search_Results_Feature_State := State.Feature_Search_Results;
-      Feature_Diagnostics : constant Editor.Feature_Diagnostics.Diagnostics_Feature_State := State.Feature_Diagnostics;
-      Project  : constant Editor.Project.Project_State := State.Project;
+      Feature_Messages : constant Editor.Feature_Messages.Message_Feature_State := State.Panel.Feature_Messages;
+      Feature_Search_Results : constant Editor.Feature_Search_Results.Search_Results_Feature_State := State.Panel.Feature_Search_Results;
+      Feature_Diagnostics : constant Editor.Feature_Diagnostics.Diagnostics_Feature_State := State.Panel.Feature_Diagnostics;
+      Project  : constant Editor.Project.Project_State := State.Project_Runtime.Project;
       File_Tree : constant Editor.File_Tree.File_Tree_State := State.File_Tree;
       File_Tree_View : constant Editor.File_Tree_View.File_Tree_View_State := State.File_Tree_View;
       Panels   : constant Editor.Panels.Panel_Set := State.Panels;
-      Active_Find_Input : constant Editor.Input_Field.Input_Field_State := State.Active_Find_Input;
-      Active_Find_Prompt : constant Boolean := State.Active_Find_Prompt;
-      Active_Find_Query  : constant Unbounded_String := State.Active_Find_Query;
-      Active_Find_Case_Sensitive : constant Boolean := State.Active_Find_Case_Sensitive;
-      Active_Find_Whole_Word : constant Boolean := State.Active_Find_Whole_Word;
-      Active_Replace_Prompt : constant Boolean := State.Active_Replace_Prompt;
-      Active_Replace_Text : constant Unbounded_String := State.Active_Replace_Text;
+      Active_Find_Input : constant Editor.Input_Field.Input_Field_State := State.Search.Active_Find_Input;
+      Active_Find_Prompt : constant Boolean := State.Search.Active_Find_Prompt;
+      Active_Find_Query  : constant Unbounded_String := State.Search.Active_Find_Query;
+      Active_Find_Case_Sensitive : constant Boolean := State.Search.Active_Find_Case_Sensitive;
+      Active_Find_Whole_Word : constant Boolean := State.Search.Active_Find_Whole_Word;
+      Active_Replace_Prompt : constant Boolean := State.Search.Active_Replace_Prompt;
+      Active_Replace_Text : constant Unbounded_String := State.Search.Active_Replace_Text;
       Quick_Open : constant Editor.Quick_Open.Quick_Open_State := State.Quick_Open;
       Buffer_Switcher : constant Editor.Buffer_Switcher.Buffer_Switcher_State := State.Buffer_Switcher;
       Recent_Buffers : constant Editor.Recent_Buffers.Recent_Buffer_State := State.Recent_Buffers;
       Project_Search : constant Editor.Project_Search.Project_Search_State := State.Project_Search;
       Project_Search_Bar : constant Editor.Project_Search_Bar.Project_Search_Bar_State := State.Project_Search_Bar;
-      Search_Results_View : constant Editor.Search_Results.Search_Results_View_State := State.Search_Results_View;
-      Problems_View : constant Editor.Problems.Problems_View_State := State.Problems_View;
-      Panel_Focus : constant Editor.Panel_Focus.Panel_Focus_State := State.Panel_Focus;
-      Overlay_Focus : constant Editor.Overlay_Focus.Overlay_Focus_State := State.Overlay_Focus;
+      Search_Results_View : constant Editor.Search_Results.Search_Results_View_State := State.Panel.Search_Results_View;
+      Problems_View : constant Editor.Problems.Problems_View_State := State.Panel.Problems_View;
+      Panel_Focus : constant Editor.Panel_Focus.Panel_Focus_State := State.Panel.Panel_Focus;
+      Overlay_Focus : constant Editor.Overlay_Focus.Overlay_Focus_State := State.Panel.Overlay_Focus;
       Navigation_History : constant Editor.Navigation_History.Navigation_History_State := State.Navigation_History;
       Reopen_Candidate_Count : constant Natural := State.Buffer_Lifecycle.Reopen_Candidate_Count;
       Reopen_Candidate_Paths : constant Editor.State_Buffer.Reopen_Candidate_Array := State.Buffer_Lifecycle.Reopen_Candidate_Paths;
@@ -1059,27 +1059,27 @@ package body Editor.Buffers is
       State := Global_Registry.Items (I).State.all;
       State.Buffer_Lifecycle.Registry_Token := Owner_Token;
       State.Buffer_Lifecycle.Active_Buffer_Token := Natural (Global_Registry.Active);
-      State.Project := Project;
+      State.Project_Runtime.Project := Project;
       State.File_Tree := File_Tree;
       State.File_Tree_View := File_Tree_View;
       State.Panels := Panels;
-      State.Messages := Messages;
-      State.Feature_Panel := Feature_Panel;
+      State.Panel.Messages := Messages;
+      State.Panel.Feature_Panel := Feature_Panel;
       State.Outline := Outline;
-      State.Feature_Messages := Feature_Messages;
-      State.Feature_Search_Results := Feature_Search_Results;
-      State.Feature_Diagnostics := Feature_Diagnostics;
-      State.Active_Find_Input := Active_Find_Input;
-      State.Active_Find_Prompt := Active_Find_Prompt;
+      State.Panel.Feature_Messages := Feature_Messages;
+      State.Panel.Feature_Search_Results := Feature_Search_Results;
+      State.Panel.Feature_Diagnostics := Feature_Diagnostics;
+      State.Search.Active_Find_Input := Active_Find_Input;
+      State.Search.Active_Find_Prompt := Active_Find_Prompt;
       State.Quick_Open := Quick_Open;
       State.Buffer_Switcher := Buffer_Switcher;
       State.Recent_Buffers := Recent_Buffers;
       State.Project_Search := Project_Search;
       State.Project_Search_Bar := Project_Search_Bar;
-      State.Search_Results_View := Search_Results_View;
-      State.Problems_View := Problems_View;
-      State.Panel_Focus := Panel_Focus;
-      State.Overlay_Focus := Overlay_Focus;
+      State.Panel.Search_Results_View := Search_Results_View;
+      State.Panel.Problems_View := Problems_View;
+      State.Panel.Panel_Focus := Panel_Focus;
+      State.Panel.Overlay_Focus := Overlay_Focus;
       State.Navigation_History := Navigation_History;
       State.Buffer_Lifecycle.Reopen_Candidate_Count := Reopen_Candidate_Count;
       State.Buffer_Lifecycle.Reopen_Candidate_Paths := Reopen_Candidate_Paths;
@@ -1119,33 +1119,33 @@ package body Editor.Buffers is
       --  buffer switches; no inactive Active Find prompt state is preserved.
       --  Replace is a transient overlay extension of Find, not buffer-local
       --  search state restored from the activated buffer snapshot.
-      if State.Active_Find_Prompt then
-         State.Active_Find_Query := Active_Find_Query;
+      if State.Search.Active_Find_Prompt then
+         State.Search.Active_Find_Query := Active_Find_Query;
          Editor.Input_Field.Set_Text
-           (State.Active_Find_Input, To_String (State.Active_Find_Query));
-         State.Active_Find_Matches.Clear;
-         State.Active_Find_Match := Editor.Search.No_Match;
-         State.Active_Find_Stale := Length (State.Active_Find_Query) > 0;
-         State.Active_Find_Case_Sensitive := Active_Find_Case_Sensitive;
-         State.Active_Find_Whole_Word := Active_Find_Whole_Word;
-         State.Active_Find_Source_Buffer_Token := 0;
-         State.Active_Replace_Prompt := Active_Replace_Prompt;
+           (State.Search.Active_Find_Input, To_String (State.Search.Active_Find_Query));
+         State.Search.Active_Find_Matches.Clear;
+         State.Search.Active_Find_Match := Editor.Search.No_Match;
+         State.Search.Active_Find_Stale := Length (State.Search.Active_Find_Query) > 0;
+         State.Search.Active_Find_Case_Sensitive := Active_Find_Case_Sensitive;
+         State.Search.Active_Find_Whole_Word := Active_Find_Whole_Word;
+         State.Search.Active_Find_Source_Buffer_Token := 0;
+         State.Search.Active_Replace_Prompt := Active_Replace_Prompt;
          if Active_Replace_Prompt then
-            State.Active_Replace_Text := Active_Replace_Text;
+            State.Search.Active_Replace_Text := Active_Replace_Text;
          else
-            State.Active_Replace_Text := Null_Unbounded_String;
+            State.Search.Active_Replace_Text := Null_Unbounded_String;
          end if;
-         State.Active_Replace_Error_Message := Null_Unbounded_String;
+         State.Search.Active_Replace_Error_Message := Null_Unbounded_String;
       else
-         Editor.Input_Field.Clear (State.Active_Find_Input);
-         State.Active_Find_Query := Null_Unbounded_String;
-         State.Active_Find_Matches.Clear;
-         State.Active_Find_Match := Editor.Search.No_Match;
-         State.Active_Find_Stale := False;
-         State.Active_Find_Source_Buffer_Token := 0;
-         State.Active_Replace_Prompt := False;
-         State.Active_Replace_Text := Null_Unbounded_String;
-         State.Active_Replace_Error_Message := Null_Unbounded_String;
+         Editor.Input_Field.Clear (State.Search.Active_Find_Input);
+         State.Search.Active_Find_Query := Null_Unbounded_String;
+         State.Search.Active_Find_Matches.Clear;
+         State.Search.Active_Find_Match := Editor.Search.No_Match;
+         State.Search.Active_Find_Stale := False;
+         State.Search.Active_Find_Source_Buffer_Token := 0;
+         State.Search.Active_Replace_Prompt := False;
+         State.Search.Active_Replace_Text := Null_Unbounded_String;
+         State.Search.Active_Replace_Error_Message := Null_Unbounded_String;
       end if;
 
       Editor.History.Undo_Stack := Global_Registry.Items (I).Undo;

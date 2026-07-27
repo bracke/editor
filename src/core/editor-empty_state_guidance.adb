@@ -1057,12 +1057,12 @@ package body Editor.Empty_State_Guidance is
       After  : Editor.State.State_Type) return Boolean
    is
    begin
-      return Editor.Project.Has_Project (Before.Project) =
-        Editor.Project.Has_Project (After.Project)
+      return Editor.Project.Has_Project (Before.Project_Runtime.Project) =
+        Editor.Project.Has_Project (After.Project_Runtime.Project)
         and then Before.Buffer_Lifecycle.Active_Buffer_Token = After.Buffer_Lifecycle.Active_Buffer_Token
         and then Before.Buffer_Lifecycle.File_Info.Has_Path = After.Buffer_Lifecycle.File_Info.Has_Path
-        and then Editor.Recent_Projects.Count (Before.Recent_Projects) =
-          Editor.Recent_Projects.Count (After.Recent_Projects);
+        and then Editor.Recent_Projects.Count (Before.Project_Runtime.Recent_Projects) =
+          Editor.Recent_Projects.Count (After.Project_Runtime.Recent_Projects);
    end Assert_First_Run_Guidance_Fabricates_No_Project;
 
    function Assert_Render_Empty_State_Construction_Is_Observational

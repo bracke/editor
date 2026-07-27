@@ -600,7 +600,7 @@ package body Editor.Core_Editing_Workflow is
 
    function Input_Bridge_Boundary_Coherent (S : Editor.State.State_Type) return Boolean is
       Active : constant Editor.Overlay_Focus.Overlay_Target :=
-        Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus);
+        Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus);
    begin
       --  A file target prompt owns typed path input while it is active.  It may
       --  be inspected without an active overlay in unit-level state fixtures,

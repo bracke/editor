@@ -364,14 +364,14 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    is
    begin
       Editor.Messages.Push_Info
-        (The_Editor.State.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
+        (The_Editor.State.Panel.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
    end Report_Info;
 
    procedure Report_Warning (Text : String)
    is
    begin
       Editor.Messages.Push_Warning
-        (The_Editor.State.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
+        (The_Editor.State.Panel.Messages, Text, Current_Message_Time_Ms, Default_Message_Config);
    end Report_Warning;
 
    function Guided_Prompt_Cancel_Message
@@ -878,7 +878,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                Editor.Executor.Execute_Command
                  (The_Editor.State, Editor.Command_Ids.Command_Cancel_Pending_Transition);
             elsif Editor.Overlay_Focus.Has_Active_Overlay
-              (The_Editor.State.Overlay_Focus)
+              (The_Editor.State.Panel.Overlay_Focus)
             then
                Editor.Executor.Dismiss_Active_Overlay
                  (The_Editor.State, Editor.Overlay_Focus.Dismiss_Escape);
@@ -1148,11 +1148,11 @@ use type Editor.Guided_Prompts.Prompt_Kind;
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Command_Ids.Command_Dismiss_Latest_Message =>
-            Editor.Messages.Dismiss_Latest (The_Editor.State.Messages);
+            Editor.Messages.Dismiss_Latest (The_Editor.State.Panel.Messages);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Command_Ids.Command_Dismiss_All_Messages =>
-            Editor.Messages.Dismiss_All (The_Editor.State.Messages);
+            Editor.Messages.Dismiss_All (The_Editor.State.Panel.Messages);
             Editor.Render_Cache.Invalidate_All;
 
          when Editor.Command_Ids.Command_Toggle_Theme =>

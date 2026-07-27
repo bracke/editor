@@ -344,8 +344,8 @@ package body Editor.Executor.Line_Edit_Commands is
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      if Editor.Messages.Count (S.Messages) > Before then
-         Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      if Editor.Messages.Count (S.Panel.Messages) > Before then
+         Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
          if Found then
             if Editor.Messages.Severity (Msg) = Editor.Messages.Error_Message then
                return Editor.Command_Execution.Failed (Command);
@@ -897,7 +897,7 @@ package body Editor.Executor.Line_Edit_Commands is
       Shift : Boolean := False)
       return Editor.Command_Execution.Command_Execution_Result
    is
-      Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
+      Before_Messages : constant Natural := Editor.Messages.Count (S.Panel.Messages);
       Cmd             : Editor.Commands.Payloads.Command;
       Line_Status     : Editor.Executor.Edits.Line_Edit_Status;
    begin

@@ -257,7 +257,7 @@ package body Editor.Recent_Projects.Tests is
       Editor.State.Init (S);
 
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Editor.Test_Temp.Base & "/editor-project", "editor-", 576);
+        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/editor-project", "editor-", 576);
 
       --  Recent Projects persistence owns only project recency
       --  entries.  It must not serialize any transient Buffer List state even
@@ -270,7 +270,7 @@ package body Editor.Recent_Projects.Tests is
         (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Show_Marked_Review (S.Buffer_Switcher);
 
-      Editor.Recent_Projects.Save_To_File (S.Recent_Projects, Path, Status);
+      Editor.Recent_Projects.Save_To_File (S.Project_Runtime.Recent_Projects, Path, Status);
       Assert (Status = Editor.Recent_Projects.Recent_Project_Ok,
               "recent projects save should succeed with Buffer List runtime state present");
 
@@ -508,46 +508,46 @@ package body Editor.Recent_Projects.Tests is
       Ada.Directories.Create_Path (Root_B);
 
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Root_A, "recent-a", 1);
+        (S.Project_Runtime.Recent_Projects, Root_A, "recent-a", 1);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Root_B, "recent-b", 2);
-      S.Recent_Projects_Focused := True;
-      S.Recent_Project_Selected_Index := 1;
+        (S.Project_Runtime.Recent_Projects, Root_B, "recent-b", 2);
+      S.Project_Runtime.Recent_Projects_Focused := True;
+      S.Project_Runtime.Recent_Project_Selected_Index := 1;
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Key (Editor.Keybindings.Key_Down));
       After := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (After.Recent_Project_Selected_Index = 2,
+      Assert (After.Project_Runtime.Recent_Project_Selected_Index = 2,
               "Down selects next focused recent project through Input_Bridge");
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Key (Editor.Keybindings.Key_Up));
       After := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (After.Recent_Project_Selected_Index = 1,
+      Assert (After.Project_Runtime.Recent_Project_Selected_Index = 1,
               "Up selects previous focused recent project through Input_Bridge");
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Key (Editor.Keybindings.Key_Enter));
       After := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (Editor.Project.Has_Project (After.Project),
+      Assert (Editor.Project.Has_Project (After.Project_Runtime.Project),
               "Enter opens the selected recent project through Input_Bridge");
 
-      After.Recent_Projects_Focused := True;
-      After.Recent_Project_Selected_Index := 1;
+      After.Project_Runtime.Recent_Projects_Focused := True;
+      After.Project_Runtime.Recent_Project_Selected_Index := 1;
       Editor.Input_Bridge.Set_State_For_Test (After);
       Editor.Input_Bridge.Handle_Key_Chord
         (Key (Editor.Keybindings.Key_Delete));
       After := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (Editor.Recent_Projects.Count (After.Recent_Projects) = 1,
+      Assert (Editor.Recent_Projects.Count (After.Project_Runtime.Recent_Projects) = 1,
               "Delete removes the selected focused recent project");
 
-      After.Recent_Projects_Focused := True;
+      After.Project_Runtime.Recent_Projects_Focused := True;
       Editor.Input_Bridge.Set_State_For_Test (After);
       Editor.Input_Bridge.Handle_Key_Chord
         (Key (Editor.Keybindings.Key_Escape));
       After := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (not After.Recent_Projects_Focused,
+      Assert (not After.Project_Runtime.Recent_Projects_Focused,
               "Escape returns focused recent projects to editor text");
 
       Remove_If_Exists (Root_A);

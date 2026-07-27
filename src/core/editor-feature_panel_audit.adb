@@ -428,7 +428,7 @@ package body Editor.Feature_Panel_Audit is
           Editor.External_Producers.Public_Build
             .Build_Public_Build_Guardrail_Regression_Manifest (State);
       Audit : constant Feature_Panel_Audit_Result := Run_Feature_Panel_Audit;
-      Panel : constant Editor.Feature_Panel.Feature_Panel_State := State.Feature_Panel;
+      Panel : constant Editor.Feature_Panel.Feature_Panel_State := State.Panel.Feature_Panel;
       Summary : constant Editor.Feature_Panel.Feature_Panel_Summary :=
         Editor.Feature_Panel.Summary (Panel);
       Review : Feature_Panel_Contract_Review;

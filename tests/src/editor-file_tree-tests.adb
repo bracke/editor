@@ -378,9 +378,9 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       --  Row 2 is a real directory in the deterministic fixture.        --  keeps directory expansion on the directory commands only; open-selected
       --  must not silently treat a directory/status row as a file activation.
@@ -534,9 +534,9 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Cmd.Text := To_Unbounded_String ("confirm");
 
@@ -587,9 +587,9 @@ package body Editor.File_Tree.Tests is
       Write_Bytes (Hidden, "hidden");
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "b_dir", Found);
       Assert (Found, "hidden-file delete setup must find directory row");
@@ -599,7 +599,7 @@ package body Editor.File_Tree.Tests is
 
       Cmd.Text := To_Unbounded_String ("confirm");
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "Directory is not empty",
               "directory delete must reject hidden-file-only directories as non-empty");
       Assert (Ada.Directories.Exists (Hidden),
@@ -640,9 +640,9 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
       Assert (Found, "setup must find stale file row");
@@ -711,21 +711,21 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Delete_Cmd.Text := To_Unbounded_String ("confirm");
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
       Editor.Executor.Execute_No_Log (S, Delete_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Ada.Directories.Exists (Root)
               and then Ada.Directories.Kind (Root) = Ada.Directories.Directory,
               "must never delete the project root");
       Assert (Msg_Found and then To_String (Msg.Text) = "Cannot delete project root",
               "project-root delete must report the explicit root guard");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
       Assert (Found, "setup must find same-name rename file row");
       Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
@@ -733,7 +733,7 @@ package body Editor.File_Tree.Tests is
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
       Rename_Cmd.Text := To_Unbounded_String ("a.txt");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Ada.Directories.Exists (File_Path),
               "same-name rename must leave the source file in place");
       Assert (Msg_Found and then To_String (Msg.Text) = "Rename target is unchanged",
@@ -772,9 +772,9 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
       Assert (Found, "setup must find missing-source file row");
@@ -785,14 +785,14 @@ package body Editor.File_Tree.Tests is
 
       Rename_Cmd.Text := To_Unbounded_String ("renamed.txt");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "rename must report missing selected source before canonical boundary checks");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Delete_Cmd.Text := To_Unbounded_String ("confirm");
       Editor.Executor.Execute_No_Log (S, Delete_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "delete must report missing selected source before canonical boundary checks");
 
@@ -825,23 +825,23 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
 
       Create_File_Cmd.Text := To_Unbounded_String ("C:tmp.txt");
       Editor.Executor.Execute_No_Log (S, Create_File_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "Invalid file name",
               "create-file execution must reject drive-relative text as invalid syntax");
       Assert (not Ada.Directories.Exists (File_Path),
               "drive-relative create-file text must not become an in-project filename");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Create_Dir_Cmd.Text := To_Unbounded_String ("D:generated");
       Editor.Executor.Execute_No_Log (S, Create_Dir_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "Invalid directory name",
               "create-directory execution must reject drive-relative text as invalid syntax");
       Assert (not Ada.Directories.Exists (Dir_Path),
@@ -884,14 +884,14 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
 
       Create_File_Cmd.Text := To_Unbounded_String (Outside_File);
       Editor.Executor.Execute_No_Log (S, Create_File_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert
         (Msg_Found
          and then To_String (Msg.Text) = "Target path must be project-relative",
@@ -899,10 +899,10 @@ package body Editor.File_Tree.Tests is
       Assert (not Ada.Directories.Exists (Outside_File),
               "absolute create-file text must not create an outside file");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Create_Dir_Cmd.Text := To_Unbounded_String (Outside_Dir);
       Editor.Executor.Execute_No_Log (S, Create_Dir_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert
         (Msg_Found
          and then To_String (Msg.Text) = "Target path must be project-relative",
@@ -942,23 +942,23 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
 
       Create_File_Cmd.Text := To_Unbounded_String ("a_dir/../blocked.txt");
       Editor.Executor.Execute_No_Log (S, Create_File_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "Invalid file name",
               "create-file traversal must be invalid input, not a boundary-only fallback");
       Assert (not Ada.Directories.Exists (File_Path),
               "traversal create-file text must not create the normalized target");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Create_Dir_Cmd.Text := To_Unbounded_String ("a_dir/../blocked_dir");
       Editor.Executor.Execute_No_Log (S, Create_Dir_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "Invalid directory name",
               "create-directory traversal must be invalid input, not a boundary-only fallback");
       Assert (not Ada.Directories.Exists (Dir_Path),
@@ -1004,9 +1004,9 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a_dir", Found);
       Assert (Found, "setup must find selected directory row");
@@ -1019,16 +1019,16 @@ package body Editor.File_Tree.Tests is
 
       Create_File_Cmd.Text := To_Unbounded_String ("new_from_stale.adb");
       Editor.Executor.Execute_No_Log (S, Create_File_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "File Tree item is stale.",
               "create-file must reject a missing selected directory as stale");
       Assert (not Ada.Directories.Exists (Ada.Directories.Compose (Root, "new_from_stale.adb")),
               "stale selected directory create-file must not fall back to project root");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Create_File_Cmd.Text := To_Unbounded_String ("b_dir/explicit_from_stale.adb");
       Editor.Executor.Execute_No_Log (S, Create_File_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Ada.Directories.Exists (Explicit_File),
               "explicit project-relative create-file must not be blocked by an unrelated stale selected directory");
       Assert (Msg_Found and then To_String (Msg.Text) = "File created.",
@@ -1046,10 +1046,10 @@ package body Editor.File_Tree.Tests is
       Ada.Directories.Delete_Directory (A_Dir);
       Write_Bytes (Replacement_File, "replacement");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Create_Dir_Cmd.Text := To_Unbounded_String ("child");
       Editor.Executor.Execute_No_Log (S, Create_Dir_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "File Tree item is stale.",
               "create-directory must reject a selected directory row replaced by a file");
       Assert (Ada.Directories.Exists (Replacement_File)
@@ -1058,10 +1058,10 @@ package body Editor.File_Tree.Tests is
       Assert (not Ada.Directories.Exists (Child_Dir),
               "stale-kind create-directory rejection must not create below the stale target");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Create_Dir_Cmd.Text := To_Unbounded_String ("b_dir/explicit_child");
       Editor.Executor.Execute_No_Log (S, Create_Dir_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Ada.Directories.Exists (Explicit_Dir)
               and then Ada.Directories.Kind (Explicit_Dir) = Ada.Directories.Directory,
               "explicit project-relative create-directory must not be blocked by an unrelated stale selected directory");
@@ -1111,31 +1111,31 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
       Create_File_Cmd.Text := To_Unbounded_String ("created.adb");
       Editor.Executor.Execute_No_Log (S, Create_File_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Ada.Directories.Exists (Created),
               "create-file outcome setup must create the file");
       Assert (Msg_Found and then To_String (Msg.Text) = "File created.",
               "create-file should use the concise expected outcome message");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
       Create_Dir_Cmd.Text := To_Unbounded_String ("created_dir");
       Editor.Executor.Execute_No_Log (S, Create_Dir_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Ada.Directories.Exists (Created_Dir)
               and then Ada.Directories.Kind (Created_Dir) = Ada.Directories.Directory,
               "create-directory outcome setup must create the directory");
       Assert (Msg_Found and then To_String (Msg.Text) = "Directory created.",
               "create-directory should use the concise expected outcome message");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
       Assert (Found, "outcome setup must find file to rename");
       Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
@@ -1143,13 +1143,13 @@ package body Editor.File_Tree.Tests is
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
       Rename_Cmd.Text := To_Unbounded_String ("renamed.txt");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Ada.Directories.Exists (Renamed),
               "rename outcome setup must rename the file");
       Assert (Msg_Found and then To_String (Msg.Text) = "File renamed.",
               "rename should use the concise expected outcome message");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "renamed.txt", Found);
       Assert (Found, "outcome setup must find renamed file");
       Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
@@ -1157,7 +1157,7 @@ package body Editor.File_Tree.Tests is
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
       Delete_Cmd.Text := To_Unbounded_String ("confirm");
       Editor.Executor.Execute_No_Log (S, Delete_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (not Ada.Directories.Exists (Renamed),
               "delete outcome setup must delete the file");
       Assert (Msg_Found and then To_String (Msg.Text) = "File deleted.",
@@ -1196,9 +1196,9 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, File_Path);
       Text_Buffer.Set_Text (S.Buffer, "a dirty edit");
@@ -1213,7 +1213,7 @@ package body Editor.File_Tree.Tests is
 
       Rename_Cmd.Text := To_Unbounded_String ("renamed.txt");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "Dirty buffer preserved.",
               "rename dirty-buffer guard should report preserved dirty buffer text");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "a dirty edit",
@@ -1223,19 +1223,19 @@ package body Editor.File_Tree.Tests is
       Assert (Ada.Directories.Exists (File_Path),
               "dirty-blocked rename must leave the source file in place");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Delete_Cmd.Text := Null_Unbounded_String;
       Editor.Executor.Execute_No_Log (S, Delete_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "Delete cancelled.",
               "unconfirmed delete must stop at confirmation before dirty-buffer impact checks");
       Assert (Ada.Directories.Exists (File_Path),
               "unconfirmed dirty delete must leave the source file in place");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Delete_Cmd.Text := To_Unbounded_String ("confirm");
       Editor.Executor.Execute_No_Log (S, Delete_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "Dirty buffer preserved.",
               "confirmed delete dirty-buffer guard should report preserved dirty buffer text");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "a dirty edit",
@@ -1274,18 +1274,18 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "old path diagnostic",
          File_Path,
          Source_Kind => Editor.Feature_Diagnostics.File_Diagnostic_Source);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Warning,
          "unaffected diagnostic",
          Other_Path,
@@ -1300,11 +1300,11 @@ package body Editor.File_Tree.Tests is
       Rename_Cmd.Text := To_Unbounded_String ("renamed_diag.txt");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
 
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 2,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 2,
               "path-stale diagnostics should preserve diagnostic rows");
-      Assert (Editor.Feature_Diagnostics.Item_Is_Stale (S.Feature_Diagnostics, 1),
+      Assert (Editor.Feature_Diagnostics.Item_Is_Stale (S.Panel.Feature_Diagnostics, 1),
               "rename/delete should mark diagnostics targeting the old path stale");
-      Assert (not Editor.Feature_Diagnostics.Item_Is_Stale (S.Feature_Diagnostics, 2),
+      Assert (not Editor.Feature_Diagnostics.Item_Is_Stale (S.Panel.Feature_Diagnostics, 2),
               "rename/delete should not stale diagnostics for unrelated paths");
 
       Remove_Any_If_Exists (Root);
@@ -1342,20 +1342,20 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Create_File_Cmd.Text := Null_Unbounded_String;
       Editor.Executor.Execute_No_Log (S, Create_File_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "Enter a name.",
               "empty create-file execution must use name guidance");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Create_Dir_Cmd.Text := Null_Unbounded_String;
       Editor.Executor.Execute_No_Log (S, Create_Dir_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "Enter a name.",
               "empty create-directory execution must use name guidance");
 
@@ -1365,10 +1365,10 @@ package body Editor.File_Tree.Tests is
       Assert (Row_Found, "empty rename setup must map file row");
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Rename_Cmd.Text := Null_Unbounded_String;
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "Enter a name.",
               "empty rename execution must use name guidance");
       Assert (Ada.Directories.Exists (Ada.Directories.Compose (Root, "a.txt")),
@@ -1404,9 +1404,9 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
       Assert (Found, "rename fragment setup must find file node");
@@ -1416,7 +1416,7 @@ package body Editor.File_Tree.Tests is
 
       Rename_Cmd.Text := To_Unbounded_String ("src/renamed.adb");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
-      Msg := Editor.Messages.Active_Message (S.Messages, Msg_Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
 
       Assert (Msg_Found
               and then To_String (Msg.Text) = "Rename expects a single new name",
@@ -1464,9 +1464,9 @@ package body Editor.File_Tree.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
-      Editor.Project.Apply_Open_Result (S.Project, Opened);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
 
       Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "quick");

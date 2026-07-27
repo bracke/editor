@@ -63,7 +63,7 @@ package body Editor.Executor.File_Tree_Commands is
 
       function Has_Project return Boolean is
       begin
-         return Editor.Project.Has_Project (S.Project);
+         return Editor.Project.Has_Project (S.Project_Runtime.Project);
       end Has_Project;
 
       function File_Tree_Has_Selected_Row return Boolean is
@@ -109,7 +109,7 @@ package body Editor.Executor.File_Tree_Commands is
             elsif not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif not Editor.Project.Is_Under_Project
-              (S.Project, To_String (S.Buffer_Lifecycle.File_Info.Path))
+              (S.Project_Runtime.Project, To_String (S.Buffer_Lifecycle.File_Info.Path))
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("Active file is outside the current project");
@@ -124,7 +124,7 @@ package body Editor.Executor.File_Tree_Commands is
             | Command_File_Tree_Page_Down =>
             if not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
-            elsif not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus) then
+            elsif not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel.Panel_Focus) then
                return Editor.Commands.Availability_Metadata.Unavailable ("Command not available here");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -132,7 +132,7 @@ package body Editor.Executor.File_Tree_Commands is
          when Command_File_Tree_Open_Selected =>
             if not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
-            elsif not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus) then
+            elsif not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel.Panel_Focus) then
                return Editor.Commands.Availability_Metadata.Unavailable ("Command not available here");
             elsif not File_Tree_Has_Selected_Row then
                return Editor.Commands.Availability_Metadata.Unavailable ("No File Tree node selected");
@@ -148,7 +148,7 @@ package body Editor.Executor.File_Tree_Commands is
                      return Editor.Commands.Availability_Metadata.Unavailable
                        ("Selected row is not a file");
                   elsif not Editor.Project.Is_Under_Project
-                    (S.Project, To_String (Node.Absolute_Path))
+                    (S.Project_Runtime.Project, To_String (Node.Absolute_Path))
                   then
                      return Editor.Commands.Availability_Metadata.Unavailable
                        ("Target path is outside the project");
@@ -180,7 +180,7 @@ package body Editor.Executor.File_Tree_Commands is
                      return Editor.Commands.Availability_Metadata.Unavailable
                        ("No File Tree node selected");
                   elsif not Editor.Project.Is_Under_Project
-                    (S.Project, To_String (Node.Absolute_Path))
+                    (S.Project_Runtime.Project, To_String (Node.Absolute_Path))
                   then
                      return Editor.Commands.Availability_Metadata.Unavailable
                        ("Target path is outside the project");
@@ -202,7 +202,7 @@ package body Editor.Executor.File_Tree_Commands is
             | Command_File_Tree_Toggle_Selected =>
             if not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
-            elsif not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus) then
+            elsif not Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel.Panel_Focus) then
                return Editor.Commands.Availability_Metadata.Unavailable ("Command not available here");
             elsif not File_Tree_Has_Selected_Row then
                return Editor.Commands.Availability_Metadata.Unavailable ("No File Tree node selected");
@@ -215,7 +215,7 @@ package body Editor.Executor.File_Tree_Commands is
                   if not Found then
                      return Editor.Commands.Availability_Metadata.Unavailable ("No File Tree node selected");
                   elsif not Editor.Project.Is_Under_Project
-                    (S.Project, To_String (Node.Absolute_Path))
+                    (S.Project_Runtime.Project, To_String (Node.Absolute_Path))
                   then
                      return Editor.Commands.Availability_Metadata.Unavailable
                        ("Target path is outside the project");
@@ -250,8 +250,8 @@ package body Editor.Executor.File_Tree_Commands is
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      if Editor.Messages.Count (S.Messages) > Before_Messages then
-         Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      if Editor.Messages.Count (S.Panel.Messages) > Before_Messages then
+         Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
          if Found then
             if Editor.Messages.Severity (Msg) =
               Editor.Messages.Error_Message
@@ -273,7 +273,7 @@ package body Editor.Executor.File_Tree_Commands is
       Id : Editor.Command_Ids.Command_Id)
       return Editor.Command_Execution.Command_Execution_Result
    is
-      Before_Messages : constant Natural := Editor.Messages.Count (S.Messages);
+      Before_Messages : constant Natural := Editor.Messages.Count (S.Panel.Messages);
    begin
       case Id is
          when Command_Refresh_Project_Files =>

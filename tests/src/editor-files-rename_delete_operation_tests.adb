@@ -103,8 +103,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
 
       procedure Assert_Message (Text : String; Severity : Editor.Messages.Message_Severity) is
       begin
-         M := Editor.Messages.Active_Message (S.Messages, Found);
-         Assert (Found and then Editor.Messages.Count (S.Messages) = 1
+         M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
+         Assert (Found and then Editor.Messages.Count (S.Panel.Messages) = 1
            and then M.Severity = Severity
            and then To_String (M.Text) = Text,
            "expected one message '" & Text & "'");
@@ -168,7 +168,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.State.Load_Text (S, "untitled clean");
       S.Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Target);
       Assert_Message ("No file path for active buffer", Editor.Messages.Info_Message);
       Assert (not Ada.Directories.Exists (Target),
@@ -177,13 +177,13 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, "");
       Assert_Message ("Invalid rename target", Editor.Messages.Error_Message);
       Assert (Ada.Directories.Exists (Path) and then not Ada.Directories.Exists (Target),
         "missing target must not rename source");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Existing);
       Assert_Message ("Rename target already exists", Editor.Messages.Error_Message);
       Assert (Ada.Directories.Exists (Path)
@@ -236,15 +236,15 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Valid := S.Buffer_Lifecycle.File_Info.Baseline_Valid;
       Before_Caret := S.Carets (0);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
         (Editor.Command_Ids.Command_Rename_Buffer_File);
       Cmd.Path := To_Unbounded_String (Target);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then Editor.Messages.Count (S.Messages) = 1
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
+      Assert (Found and then Editor.Messages.Count (S.Panel.Messages) = 1
         and then M.Severity = Editor.Messages.Success_Message
         and then To_String (M.Text) = "Buffer file renamed",
         "successful rename must emit one success message");
@@ -264,7 +264,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         "success must preserve caret/selection state");
 
       Write_Bytes (Target, "disk after rename");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Buffer_Text (S) = "disk after rename",
         "subsequent reload must read the renamed target path");
@@ -304,11 +304,11 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Path := S.Buffer_Lifecycle.File_Info.Path;
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
 
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then Editor.Messages.Count (S.Messages) = 1
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
+      Assert (Found and then Editor.Messages.Count (S.Panel.Messages) = 1
         and then M.Severity = Editor.Messages.Info_Message
         and then To_String (M.Text) = "Dirty buffer preserved.",
         "dirty rename must emit one blocked message");
@@ -325,10 +325,10 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Path := S.Buffer_Lifecycle.File_Info.Path;
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then Editor.Messages.Count (S.Messages) = 1
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
+      Assert (Found and then Editor.Messages.Count (S.Panel.Messages) = 1
         and then M.Severity = Editor.Messages.Error_Message
         and then To_String (M.Text) = "Could not rename buffer file",
         "filesystem rename failure must emit one failure message");
@@ -391,8 +391,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
          Before_Undo := Editor.History.Undo_Stack.Length;
          Before_Redo := Editor.History.Redo_Stack.Length;
          Before_Caret := S.Carets (0);
-         Before_Query := S.Active_Find_Query;
-         Before_Replace := S.Active_Replace_Text;
+         Before_Query := S.Search.Active_Find_Query;
+         Before_Replace := S.Search.Active_Replace_Text;
          Before_Clip := Editor.Clipboard.Get_Text;
          Before_Has_Clip := Editor.Clipboard.Has_Text;
          Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
@@ -413,8 +413,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
          Assert (S.Carets (0).Pos = Before_Caret.Pos
            and then S.Carets (0).Anchor = Before_Caret.Anchor,
            Label & ": caret/selection changed");
-         Assert (S.Active_Find_Query = Before_Query
-           and then S.Active_Replace_Text = Before_Replace,
+         Assert (S.Search.Active_Find_Query = Before_Query
+           and then S.Search.Active_Replace_Text = Before_Replace,
            Label & ": Find/Replace changed");
          Assert (Editor.Clipboard.Has_Text = Before_Has_Clip
            and then Editor.Clipboard.Get_Text = Before_Clip,
@@ -452,8 +452,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       S.Carets.Clear;
       S.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 4, Anchor => 2, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      S.Active_Find_Query := To_Unbounded_String ("B");
-      S.Active_Replace_Text := To_Unbounded_String ("bee");
+      S.Search.Active_Find_Query := To_Unbounded_String ("B");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("bee");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard survives rename"));
       S.Buffer_Lifecycle.Has_Reopen_Candidate := True;
       S.Buffer_Lifecycle.Reopen_Candidate_Path := To_Unbounded_String (A_Path);
@@ -470,10 +470,10 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
           Reason => Editor.Navigation_History.Navigation_Reason_Go_To_Line));
 
       Capture_Active_B_State;
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, B_Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then Editor.Messages.Count (S.Messages) = 1
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
+      Assert (Found and then Editor.Messages.Count (S.Panel.Messages) = 1
         and then M.Severity = Editor.Messages.Success_Message
         and then To_String (M.Text) = "Buffer file renamed",
         "completeness: active rename must emit exactly one success message");
@@ -496,20 +496,20 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         "completeness: renaming B must not mutate inactive buffer A or its file");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Assert (Read_Bytes (B_Target) = "B original"
         and then not Ada.Directories.Exists (B_Path),
         "completeness: subsequent save must use renamed target and not resurrect old path");
 
       Write_Bytes (B_Target, "B disk update after rename");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Assert (Buffer_Text (S) = "B disk update after rename",
         "completeness: subsequent reload must use renamed target");
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Execute_Revert_And_Confirm (S);
       Assert (Buffer_Text (S) = "B disk update after rename"
         and then not S.Buffer_Lifecycle.File_Info.Dirty,
@@ -518,7 +518,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate
         and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = A_Path,
         "completeness: rename must not consume or replace existing reopen candidates");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
       Assert (S.Buffer_Lifecycle.Has_Reopen_Candidate
         and then To_String (S.Buffer_Lifecycle.Reopen_Candidate_Path) = Ada.Directories.Full_Name (B_Target),
@@ -580,8 +580,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
 
       procedure Assert_Message (Text : String; Severity : Editor.Messages.Message_Severity) is
       begin
-         M := Editor.Messages.Active_Message (S.Messages, Found);
-         Assert (Found and then Editor.Messages.Count (S.Messages) = 1
+         M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
+         Assert (Found and then Editor.Messages.Count (S.Panel.Messages) = 1
            and then M.Severity = Severity
            and then To_String (M.Text) = Text,
            "expected one message '" & Text & "'");
@@ -601,7 +601,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.State.Load_Text (S, "dirty untitled");
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, B_Target);
       Assert_Message ("No file path for active buffer", Editor.Messages.Info_Message);
       Assert (not Ada.Directories.Exists (B_Target),
@@ -610,14 +610,14 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, "   ");
       Assert_Message ("Invalid rename target", Editor.Messages.Error_Message);
       Assert (Ada.Directories.Exists (A_Path),
         "blank target must be rejected before any filesystem rename");
 
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Existing);
       Assert_Message ("Dirty buffer preserved.", Editor.Messages.Info_Message);
       Assert (Ada.Directories.Exists (A_Path)
@@ -632,7 +632,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, A_Target);
       Assert_Message ("Buffer file renamed", Editor.Messages.Success_Message);
       Assert (Editor.Buffers.Global_Active_Buffer = A_Id
@@ -691,7 +691,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
       S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced := True;
       S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced := True;
-      S.Post_Restore_Feedback_Current := True;
+      S.Project_Runtime.Post_Restore_Feedback_Current := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
@@ -699,10 +699,10 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then Editor.Messages.Count (S.Messages) = 1
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
+      Assert (Found and then Editor.Messages.Count (S.Panel.Messages) = 1
         and then M.Severity = Editor.Messages.Success_Message
         and then To_String (M.Text) = "Buffer file renamed",
         "success must emit exactly one rename success message");
@@ -715,7 +715,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         and then S.Buffer_Lifecycle.File_Info.Last_Save_Failed
         and then S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced
         and then S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced
-        and then S.Post_Restore_Feedback_Current
+        and then S.Project_Runtime.Post_Restore_Feedback_Current
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "success must update only association/display path and preserve retained state");
@@ -723,10 +723,10 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Remove_If_Exists (Target);
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Missing_Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then Editor.Messages.Count (S.Messages) = 1
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
+      Assert (Found and then Editor.Messages.Count (S.Panel.Messages) = 1
         and then M.Severity = Editor.Messages.Error_Message
         and then To_String (M.Text) = "Could not rename buffer file",
         "filesystem failure must emit exactly one rename failure message");
@@ -738,7 +738,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         and then S.Buffer_Lifecycle.File_Info.Last_Save_Failed
         and then S.Buffer_Lifecycle.File_Info.Missing_Target_Surfaced
         and then S.Buffer_Lifecycle.File_Info.Blocked_Close_Surfaced
-        and then S.Post_Restore_Feedback_Current,
+        and then S.Project_Runtime.Post_Restore_Feedback_Current,
         "filesystem failure must not publish target association or clear retained state");
 
       Remove_If_Exists (Path);
@@ -775,7 +775,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Path := S.Buffer_Lifecycle.File_Info.Path;
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
@@ -802,7 +802,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         and then Buffer_Text (S) = To_String (Before_Text)
         and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen
         and then not S.Buffer_Lifecycle.File_Info.Dirty
-        and then Editor.Messages.Count (S.Messages) = 0,
+        and then Editor.Messages.Count (S.Panel.Messages) = 0,
         "render, availability, and palette projection must not rename, validate target, or mutate state");
 
       Remove_If_Exists (Path);
@@ -846,8 +846,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
          Context  : String)
       is
       begin
-         M := Editor.Messages.Active_Message (S.Messages, Found);
-         Assert (Found and then Editor.Messages.Count (S.Messages) = 1
+         M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
+         Assert (Found and then Editor.Messages.Count (S.Panel.Messages) = 1
            and then M.Severity = Severity
            and then To_String (M.Text) = Text,
            "validation matrix: expected one " & Context
@@ -876,7 +876,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.State.Load_Text (S, "untitled dirty text");
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Target);
       Assert_Message ("No file path for active buffer", Editor.Messages.Info_Message, "no-path before dirty");
       Assert (Buffer_Text (S) = "untitled dirty text"
@@ -888,7 +888,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source);
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, "   ");
       Assert_Message ("Dirty buffer preserved.", Editor.Messages.Info_Message, "dirty before target");
       Assert (Ada.Directories.Exists (Source)
@@ -900,21 +900,21 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, "");
       Assert_Message ("Invalid rename target", Editor.Messages.Error_Message, "empty target");
       Assert (Ada.Directories.Exists (Source)
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Ada.Directories.Full_Name (Source),
         "validation matrix: invalid target must not rename or reassociate");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Source);
       Assert_Message ("Rename target already exists", Editor.Messages.Error_Message, "same path collision");
       Assert (Ada.Directories.Exists (Source)
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Ada.Directories.Full_Name (Source),
         "validation matrix: same/equivalent target follows deterministic collision policy");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Existing);
       Assert_Message ("Rename target already exists", Editor.Messages.Error_Message, "existing target");
       Assert (Ada.Directories.Exists (Source)
@@ -922,7 +922,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Ada.Directories.Full_Name (Source),
         "validation matrix: target collision must not overwrite or update association");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Missing_Target);
       Assert_Message ("Could not rename buffer file", Editor.Messages.Error_Message, "filesystem failure");
       Assert (Ada.Directories.Exists (Source)
@@ -931,7 +931,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "validation matrix: filesystem failure must preserve old association and clean state");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Target);
       Assert_Message ("Buffer file renamed", Editor.Messages.Success_Message, "success");
       Assert (not Ada.Directories.Exists (Source)
@@ -1019,10 +1019,10 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then Editor.Messages.Count (S.Messages) = 1
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
+      Assert (Found and then Editor.Messages.Count (S.Panel.Messages) = 1
         and then M.Severity = Editor.Messages.Info_Message
         and then To_String (M.Text) = "Dirty buffer preserved.",
         "dirty workflow: dirty rename must emit one blocked message");
@@ -1036,8 +1036,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then S.Carets (0).Pos = Before_Caret.Pos
         and then S.Carets (0).Anchor = Before_Caret.Anchor
-        and then To_String (S.Active_Find_Query) = "alpha"
-        and then To_String (S.Active_Replace_Text) = "omega"
+        and then To_String (S.Search.Active_Find_Query) = "alpha"
+        and then To_String (S.Search.Active_Replace_Text) = "omega"
         and then Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard payload"
         and then Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
@@ -1049,10 +1049,10 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         "dirty workflow: canonical save must be the only dirty-cleaning path before rename");
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Target);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
-      Assert (Found and then Editor.Messages.Count (S.Messages) = 1
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
+      Assert (Found and then Editor.Messages.Count (S.Panel.Messages) = 1
         and then To_String (M.Text) = "Buffer file renamed",
         "dirty workflow: saved clean buffer can then be renamed");
       Assert (Ada.Directories.Exists (Target)
@@ -1061,8 +1061,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard payload"
-        and then To_String (S.Active_Find_Query) = "alpha"
-        and then To_String (S.Active_Replace_Text) = "omega",
+        and then To_String (S.Search.Active_Find_Query) = "alpha"
+        and then To_String (S.Search.Active_Replace_Text) = "omega",
         "dirty workflow: successful rename after save must not write via save-as or mutate transient state");
 
       Editor.Clipboard.Clear;
@@ -1121,9 +1121,9 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       C_Id := Editor.Buffers.Global_Active_Buffer;
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, A1_Path);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer file renamed"
         and then Editor.Buffers.Global_Active_Buffer = A_Id
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Ada.Directories.Full_Name (A1_Path),
@@ -1137,9 +1137,9 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Assert (Buffer_Text (S) = "A disk after rename",
         "integrated: reload after rename reads renamed A1 path");
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, A2_Path);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Dirty buffer preserved."
         and then not Ada.Directories.Exists (A2_Path)
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Ada.Directories.Full_Name (A1_Path),
@@ -1154,9 +1154,9 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         "integrated: revert restores clean baseline and allows second rename");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, B2_Path);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No file path for active buffer"
         and then not Ada.Directories.Exists (B2_Path),
         "integrated: untitled B cannot be renamed before save-as");
@@ -1174,14 +1174,14 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "C");
       Editor.Executor.Selection_Commands.Execute_Select_All_Selection_Command (S);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Existing);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Rename target already exists"
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Ada.Directories.Full_Name (C_Path)
         and then Read_Bytes (Existing) = "existing target"
         and then To_String (Editor.Clipboard.Get_Text) = "C clipboard"
-        and then To_String (S.Active_Find_Query) = "C",
+        and then To_String (S.Search.Active_Find_Query) = "C",
         "integrated: target collision on C preserves old association and feature state");
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, C1_Path);
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
@@ -1362,7 +1362,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
           Column => 0,
           Viewport_Row => 0,
           Reason => Editor.Navigation_History.Navigation_Reason_Find_Next));
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Path := S.Buffer_Lifecycle.File_Info.Path;
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
@@ -1392,10 +1392,10 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         and then Buffer_Text (S) = To_String (Before_Text)
         and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen
         and then Editor.History.Undo_Stack.Length = Before_Undo
-        and then To_String (S.Active_Find_Query) = "boundary"
-        and then To_String (S.Active_Replace_Text) = "replacement"
+        and then To_String (S.Search.Active_Find_Query) = "boundary"
+        and then To_String (S.Search.Active_Replace_Text) = "replacement"
         and then To_String (Editor.Clipboard.Get_Text) = "boundary clipboard"
-        and then Editor.Messages.Count (S.Messages) = 0,
+        and then Editor.Messages.Count (S.Panel.Messages) = 0,
         "boundaries: read-only paths must not probe target, rename, write, repair, or mutate feature state");
       Assert (Ada.Strings.Fixed.Index (To_String (Summary), "rename") = 0
         and then Ada.Strings.Fixed.Index (To_String (Summary), "Buffer file renamed") = 0
@@ -1408,8 +1408,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Assert (Ada.Directories.Exists (Target)
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Ada.Directories.Full_Name (Target)
         and then Buffer_Text (S) = "boundary source"
-        and then To_String (S.Active_Find_Query) = "boundary"
-        and then To_String (S.Active_Replace_Text) = "replacement"
+        and then To_String (S.Search.Active_Find_Query) = "boundary"
+        and then To_String (S.Search.Active_Replace_Text) = "replacement"
         and then To_String (Editor.Clipboard.Get_Text) = "boundary clipboard"
         and then Ada.Strings.Fixed.Index (To_String (Summary), "Buffer file renamed") = 0
         and then Ada.Strings.Fixed.Index (To_String (Summary), "rename") = 0,
@@ -1474,7 +1474,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Before_Redo := Editor.History.Redo_Stack.Length;
       Baseline_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Target);
       Assert (Ada.Directories.Exists (Target)
         and then not Ada.Directories.Exists (Path)
@@ -1541,7 +1541,7 @@ procedure Test_Delete_Command_Surface_And_Validation
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "delete unavailable without active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No active buffer.",
         "no active buffer must emit deterministic message");
 
@@ -1549,13 +1549,13 @@ procedure Test_Delete_Command_Surface_And_Validation
       Editor.State.Load_Text (S, "untitled text");
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "delete unavailable for untitled active buffer");
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No file path for active buffer",
         "no path must emit deterministic message");
 
@@ -1563,13 +1563,13 @@ procedure Test_Delete_Command_Surface_And_Validation
       Write_Bytes (Path, "delete dirty guard");
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "delete unavailable for dirty active associated buffer");
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then To_String (M.Text) = "Dirty buffer preserved."
         and then Ada.Directories.Exists (Path)
@@ -1612,9 +1612,9 @@ procedure Test_Delete_Command_Surface_And_Validation
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer file deleted",
         "successful delete must emit one deterministic success message");
       Assert (not Ada.Directories.Exists (Path)
@@ -1632,9 +1632,9 @@ procedure Test_Delete_Command_Surface_And_Validation
         and then To_String (Editor.Clipboard.Get_Text) = "delete clipboard",
         "success must delete disk file, preserve text/features/history, and leave dirty unsaved buffer open");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then To_String (M.Text) = "No file path for active buffer"
         and then not Ada.Directories.Exists (Path)
@@ -1642,22 +1642,22 @@ procedure Test_Delete_Command_Surface_And_Validation
         and then not S.Buffer_Lifecycle.File_Info.Has_Path
         and then S.Buffer_Lifecycle.File_Info.Dirty,
         "save after delete must follow no-associated-path behavior without writing text");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No file path for active buffer",
         "reload after delete must observe no associated path");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Execute_Revert_And_Confirm (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No file path for active buffer",
         "revert after delete must observe no associated path");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Save_As);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No file path for active buffer",
         "rename after delete must observe no associated path");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
       Assert (Editor.Buffers.Global_Count = 1,
         "close after delete follows dirty-buffer close blocking policy");
@@ -1666,7 +1666,7 @@ procedure Test_Delete_Command_Surface_And_Validation
            (S, Editor.Command_Ids.Command_Cancel_Close);
       end if;
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Save_As);
       Assert (Ada.Directories.Exists (Save_As)
         and then Read_Bytes (Save_As) = To_String (Before_Text)
@@ -1720,9 +1720,9 @@ procedure Test_Delete_Command_Surface_And_Validation
       Before_Path := S.Buffer_Lifecycle.File_Info.Path;
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "Buffer file deleted"
         and then not Ada.Directories.Exists (A_Path)
         and then Ada.Directories.Exists (B_Path)
@@ -1739,9 +1739,9 @@ procedure Test_Delete_Command_Surface_And_Validation
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Path := S.Buffer_Lifecycle.File_Info.Path;
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then To_String (M.Text) = "Could not delete buffer file"
         and then Buffer_Text (S) = To_String (Before_Text)
@@ -1783,7 +1783,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       S.Buffer_Lifecycle.Active_Buffer_Token := 0;
 
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then To_String (M.Text) = "No active buffer.",
         "delete validation must report no active buffer first");
 
@@ -1792,11 +1792,11 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Found
         and then To_String (M.Text) = "No file path for active buffer"
@@ -1811,11 +1811,11 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer
         (S, Editor.Buffers.Buffer_Id (1));
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Delete_Buffer_File);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Availability)
         and then Found
         and then To_String (M.Text) = "Buffer file deleted"
@@ -1887,9 +1887,9 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Before_Back := S.Navigation_History.Back_Stack.Length;
       Before_Fwd := S.Navigation_History.Forward_Stack.Length;
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then To_String (M.Text) = "Dirty buffer preserved."
         and then Ada.Directories.Exists (Path)
@@ -1903,8 +1903,8 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then S.Navigation_History.Back_Stack.Length = Before_Back
         and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
-        and then To_String (S.Active_Find_Query) = "delete"
-        and then To_String (S.Active_Replace_Text) = "replace"
+        and then To_String (S.Search.Active_Find_Query) = "delete"
+        and then To_String (S.Search.Active_Replace_Text) = "replace"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard",
         "dirty-blocked delete must attempt no filesystem operation and preserve editor state");
 
@@ -1918,9 +1918,9 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Before_Back := S.Navigation_History.Back_Stack.Length;
       Before_Fwd := S.Navigation_History.Forward_Stack.Length;
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then To_String (M.Text) = "Could not delete buffer file"
         and then S.Buffer_Lifecycle.File_Info.Has_Path
@@ -1933,8 +1933,8 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then S.Navigation_History.Back_Stack.Length = Before_Back
         and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
-        and then To_String (S.Active_Find_Query) = "delete"
-        and then To_String (S.Active_Replace_Text) = "replace"
+        and then To_String (S.Search.Active_Find_Query) = "delete"
+        and then To_String (S.Search.Active_Replace_Text) = "replace"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
         and then not S.Buffer_Lifecycle.Has_Reopen_Candidate,
         "filesystem failure must preserve association, baseline, dirty state, history, and feature state");
@@ -1988,9 +1988,9 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Workspace));
@@ -2007,7 +2007,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         and then Editor.Buffers.Global_Active_Buffer /= Editor.Buffers.No_Buffer
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then To_String (S.Active_Find_Query) = "preserved"
+        and then To_String (S.Search.Active_Find_Query) = "preserved"
         and then To_String (Editor.Clipboard.Get_Text) = "success clipboard"
         and then not S.Buffer_Lifecycle.Has_Reopen_Candidate,
         "success must clear association only after delete, preserve text/features/history, and leave an unsaved open active buffer");
@@ -2025,9 +2025,9 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Availability),
         "post-success availability must observe no path without filesystem repair");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found
         and then To_String (M.Text) = "No file path for active buffer"
         and then not Ada.Directories.Exists (Path)
@@ -2035,7 +2035,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         and then S.Buffer_Lifecycle.File_Info.Dirty,
         "save after delete must not recreate or write the deleted path");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Save_As_Path);
       Assert (Ada.Directories.Exists (Save_As_Path)
         and then Read_Bytes (Save_As_Path) = To_String (Before_Text)
@@ -2077,7 +2077,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
 
       procedure Expect_Message (Text : String) is
       begin
-         M := Editor.Messages.Active_Message (S.Messages, Found);
+         M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
          Assert (Found and then To_String (M.Text) = Text,
            "integrated: expected message '" & Text & "'");
       end Expect_Message;
@@ -2113,7 +2113,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id, Emit_Feedback => False);
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Expect_Message ("Buffer file deleted");
       Assert (not Ada.Directories.Exists (A_Path)
@@ -2128,16 +2128,16 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "integrated: successful delete must preserve A text/history, clear only A association, and keep A open/active");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
       Expect_Message ("No file path for active buffer");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Execute_Revert_And_Confirm (S);
       Expect_Message ("No file path for active buffer");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, A1_Path);
       Expect_Message ("No file path for active buffer");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Buffer_Close_Commands.Execute_Close_Active_Buffer (S);
       Assert (Editor.Buffers.Global_Count = 3
         and then Editor.Buffers.Global_Active_Buffer = A_Id,
@@ -2147,7 +2147,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
            (S, Editor.Command_Ids.Command_Cancel_Close);
       end if;
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, A1_Path);
       Assert (Ada.Directories.Exists (A1_Path)
         and then Read_Bytes (A1_Path) = "A original"
@@ -2160,7 +2160,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Assert (Buffer_Text (S) = "A reload text" and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "integrated: reload after Save As uses the new association only");
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Expect_Message ("Dirty buffer preserved.");
       Assert (Ada.Directories.Exists (A1_Path)
@@ -2168,7 +2168,7 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         and then S.Buffer_Lifecycle.File_Info.Dirty,
         "integrated: dirty associated A1 delete is blocked and non-mutating");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Expect_Message ("Buffer file deleted");
       Assert (not Ada.Directories.Exists (A1_Path)
@@ -2178,13 +2178,13 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         "integrated: saved A1 can be deleted and returns to unsaved no-path state");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id, Emit_Feedback => False);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Expect_Message ("No file path for active buffer");
       Assert (Buffer_Text (S) = "B untitled" and then S.Buffer_Lifecycle.File_Info.Dirty,
         "integrated: dirty untitled B stops at no-path and preserves text");
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, B1_Path);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Expect_Message ("Buffer file deleted");
       Assert (not Ada.Directories.Exists (B1_Path)
@@ -2213,30 +2213,30 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Before_Back := S.Navigation_History.Back_Stack.Length;
       Before_Fwd := S.Navigation_History.Forward_Stack.Length;
       Remove_If_Exists (C_Path);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Expect_Message ("Could not delete buffer file");
       Assert (S.Buffer_Lifecycle.File_Info.Has_Path
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Ada.Directories.Full_Name (C_Path)
         and then Buffer_Text (S) = "C original"
         and then not S.Buffer_Lifecycle.File_Info.Dirty
-        and then To_String (S.Active_Find_Query) = "C"
-        and then To_String (S.Active_Replace_Text) = "see"
+        and then To_String (S.Search.Active_Find_Query) = "C"
+        and then To_String (S.Search.Active_Replace_Text) = "see"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
         and then S.Navigation_History.Back_Stack.Length = Before_Back
         and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
         and then not S.Buffer_Lifecycle.Has_Reopen_Candidate,
         "integrated: filesystem failure preserves C association, feature state, and reopen candidates");
       Write_Bytes (C_Path, "C original");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Expect_Message ("Buffer file deleted");
       Assert (not Ada.Directories.Exists (C_Path)
         and then Buffer_Text (S) = "C original"
         and then not S.Buffer_Lifecycle.File_Info.Has_Path
         and then S.Buffer_Lifecycle.File_Info.Dirty
-        and then To_String (S.Active_Find_Query) = "C"
-        and then To_String (S.Active_Replace_Text) = "see"
+        and then To_String (S.Search.Active_Find_Query) = "C"
+        and then To_String (S.Search.Active_Replace_Text) = "see"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
         and then S.Navigation_History.Back_Stack.Length = Before_Back
         and then S.Navigation_History.Forward_Stack.Length = Before_Fwd,
@@ -2370,8 +2370,8 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then S.Navigation_History.Back_Stack.Length = Before_Back
         and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
-        and then To_String (S.Active_Find_Query) = "delete"
-        and then To_String (S.Active_Replace_Text) = "remove"
+        and then To_String (S.Search.Active_Find_Query) = "delete"
+        and then To_String (S.Search.Active_Replace_Text) = "remove"
         and then To_String (Editor.Clipboard.Get_Text) = "read only clipboard",
         "read-only: availability, palette, quick-open/palette visibility, and workspace snapshot must not delete, probe-repair, or mutate state");
 
@@ -2394,9 +2394,9 @@ procedure Test_Delete_Validation_Order_And_Active_Source
       Assert_Absent ("workspace.delete-buffer-file");
       Assert_Absent ("project.delete-files");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Workspace));
@@ -2412,8 +2412,8 @@ procedure Test_Delete_Validation_Order_And_Active_Source
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then S.Navigation_History.Back_Stack.Length = Before_Back
         and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
-        and then To_String (S.Active_Find_Query) = "delete"
-        and then To_String (S.Active_Replace_Text) = "remove"
+        and then To_String (S.Search.Active_Find_Query) = "delete"
+        and then To_String (S.Search.Active_Replace_Text) = "remove"
         and then To_String (Editor.Clipboard.Get_Text) = "read only clipboard"
         and then not S.Buffer_Lifecycle.Has_Reopen_Candidate,
         "read-only: execution mutates only filesystem path association/baseline/dirty state and one message");
@@ -2521,9 +2521,9 @@ procedure Test_Delete_Cleanup_Preserves_Source_State_And_Persistence
       Assert_Summary_Excludes ("file-watch");
       Assert_Summary_Excludes ("project-delete");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Workspace := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Workspace));
@@ -2547,8 +2547,8 @@ procedure Test_Delete_Cleanup_Preserves_Source_State_And_Persistence
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then S.Navigation_History.Back_Stack.Length = Before_Back
         and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
-        and then To_String (S.Active_Find_Query) = ""
-        and then To_String (S.Active_Replace_Text) = "canonical"
+        and then To_String (S.Search.Active_Find_Query) = ""
+        and then To_String (S.Search.Active_Replace_Text) = "canonical"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard",
         "cleanup must preserve the canonical active-buffer-only delete behavior and retained lifecycle boundaries");
 

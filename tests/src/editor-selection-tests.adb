@@ -55,7 +55,7 @@ package body Editor.Selection.Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (M);
       else
@@ -420,7 +420,7 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Find_From_Selection);
 
-      Assert (To_String (S.Active_Find_Query) = "Beta_2",
+      Assert (To_String (S.Search.Active_Find_Query) = "Beta_2",
               "find-from-selection must consume exact current-word selection text");
    end Test_Current_Word_Feeds_Find_From_Selection;
 
@@ -696,25 +696,25 @@ package body Editor.Selection.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha Beta Beta Gamma");
-      S.Active_Replace_Text := To_Unbounded_String ("Gamma");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Gamma");
       S.Carets.Clear;
       S.Carets.Append (Caret_State'(Pos => 8, Anchor => 8, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
-      Assert (To_String (S.Active_Find_Query) = "",
+      Assert (To_String (S.Search.Active_Find_Query) = "",
               "select-word must not mutate Find state directly");
-      Assert (To_String (S.Active_Replace_Text) = "Gamma",
+      Assert (To_String (S.Search.Active_Replace_Text) = "Gamma",
               "select-word must not mutate Replace text");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Find_From_Selection);
-      Assert (To_String (S.Active_Find_Query) = "Beta",
+      Assert (To_String (S.Search.Active_Find_Query) = "Beta",
               "find-from-selection must consume canonical current selection");
-      Assert (To_String (S.Active_Replace_Text) = "Gamma",
+      Assert (To_String (S.Search.Active_Replace_Text) = "Gamma",
               "find-from-selection must not disturb Replace text");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Clear);
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Find_From_Selection);
-      Assert (To_String (S.Active_Find_Query) = "Beta",
+      Assert (To_String (S.Search.Active_Find_Query) = "Beta",
               "failed find-from-selection after clear must preserve Find query");
       Assert (Last_Message_Text (S) = "No selected text",
               "failed find-from-selection after clear must report no selected text");
@@ -735,9 +735,9 @@ package body Editor.Selection.Tests is
         (S, Command_With_Text (Editor.Command_Kinds.Active_Replace_Text_Set, "Delta"));
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
-      Assert (To_String (S.Active_Find_Query) = "Beta",
+      Assert (To_String (S.Search.Active_Find_Query) = "Beta",
               "select-all must not mutate Find query before Replace");
-      Assert (To_String (S.Active_Replace_Text) = "Delta",
+      Assert (To_String (S.Search.Active_Replace_Text) = "Delta",
               "select-all must not mutate Replace text before Replace");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Replace_All);
       Assert (Editor.State.Current_Text (S) = "Alpha Delta Delta Gamma",
@@ -953,19 +953,19 @@ package body Editor.Selection.Tests is
       Assert (To_String (Editor.Clipboard.Get_Text) = "Beta",
               "copy must consume canonical normalized active selection");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Find_From_Selection);
-      Assert (To_String (S.Active_Find_Query) = "Beta",
+      Assert (To_String (S.Search.Active_Find_Query) = "Beta",
               "find-from-selection must consume canonical selected text");
 
       S.Carets.Replace_Element
         (S.Carets.First_Index,
          (Pos => 99, Anchor => 6, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Clipboard.Set_Text (To_Unbounded_String ("old"));
-      S.Active_Find_Query := To_Unbounded_String ("old-query");
+      S.Search.Active_Find_Query := To_Unbounded_String ("old-query");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "old",
               "invalid canonical selection must not replace clipboard text");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Find_From_Selection);
-      Assert (To_String (S.Active_Find_Query) = "old-query",
+      Assert (To_String (S.Search.Active_Find_Query) = "old-query",
               "invalid canonical selection must not replace Find query");
    end Test_Clipboard_And_Find_Consume_Canonical_Selection;
 

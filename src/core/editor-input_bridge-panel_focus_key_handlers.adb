@@ -41,7 +41,7 @@ package body Editor.Input_Bridge.Panel_Focus_Key_Handlers is
          end case;
          Notify_Input;
          return True;
-      elsif S.Recent_Projects_Focused then
+      elsif S.Project_Runtime.Recent_Projects_Focused then
          case Chord.Key is
             when Editor.Keybindings.Key_Up =>
                Execute (Editor.Command_Ids.Command_Select_Previous_Recent_Project);
@@ -58,8 +58,8 @@ package body Editor.Input_Bridge.Panel_Focus_Key_Handlers is
          end case;
          Notify_Input;
          return True;
-      elsif Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
-         if Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) =
+      elsif Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
+         if Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) =
            Editor.Panel_Focus.Search_Results_Focus
          then
             case Chord.Key is
@@ -80,7 +80,7 @@ package body Editor.Input_Bridge.Panel_Focus_Key_Handlers is
             end case;
             Notify_Input;
             return True;
-         elsif Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) =
+         elsif Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) =
            Editor.Panel_Focus.Problems_Focus
          then
             case Chord.Key is

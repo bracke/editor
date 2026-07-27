@@ -85,7 +85,7 @@ package body Editor.Project.Tests is
    function Last_Message_Text (S : Editor.State.State_Type) return String is
       Found : Boolean;
       Msg   : constant Editor.Messages.Editor_Message :=
-        Editor.Messages.Active_Message (S.Messages, Found);
+        Editor.Messages.Active_Message (S.Panel.Messages, Found);
    begin
       if Found then
          return To_String (Msg.Text);
@@ -308,9 +308,9 @@ package body Editor.Project.Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
 
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "Execute_Open_Project must set editor-global project state");
-      Assert (Editor.Project.Display_Name (S.Project) = "exec_project",
+      Assert (Editor.Project.Display_Name (S.Project_Runtime.Project) = "exec_project",
               "Execute_Open_Project must store the project display name");
       Assert (Last_Message_Text (S) = "Opened project exec_project",
               "Execute_Open_Project must publish a success message");
@@ -331,11 +331,11 @@ package body Editor.Project.Tests is
       Ada.Directories.Create_Directory (Root);
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Before := To_Unbounded_String (Editor.Project.Root_Path (S.Project));
+      Before := To_Unbounded_String (Editor.Project.Root_Path (S.Project_Runtime.Project));
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Missing);
 
-      Assert (Editor.Project.Root_Path (S.Project) = To_String (Before),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = To_String (Before),
               "Failed project open must preserve previous project state");
       Assert (Last_Message_Text (S) = "Open project failed: not found",
               "Failed project open must publish a deterministic failure message");
@@ -503,7 +503,7 @@ package body Editor.Project.Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Save_As_Target);
       Assert_Project_File_State ("src/save_as.adb", True, "save-as keeps source");
       Assert_Project_File_State ("src/save_as_new.adb", True, "save-as adds target");
-      Assert (not Editor.Project.Has_Known_File (S.Project, "src/save_as_new.adb"),
+      Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/save_as_new.adb"),
               "save-as target must not be promoted to retained project search source");
       Assert (Project_Search_Has_Result_Path (S.Project_Search, "src/save_as_new.adb"),
               "save-as target should appear in refreshed project search results");
@@ -514,7 +514,7 @@ package body Editor.Project.Tests is
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Rename_Target);
       Assert_Project_File_State ("src/rename.adb", False, "rename removes source");
       Assert_Project_File_State ("src/rename_new.adb", True, "rename adds target");
-      Assert (not Editor.Project.Has_Known_File (S.Project, "src/rename_new.adb"),
+      Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/rename_new.adb"),
               "rename target must not be promoted to retained project search source");
       Assert (not Project_Search_Has_Result_Path (S.Project_Search, "src/rename.adb"),
               "rename should remove the old search result path");
@@ -527,7 +527,7 @@ package body Editor.Project.Tests is
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Copy_Target);
       Assert_Project_File_State ("src/copy.adb", True, "copy keeps source");
       Assert_Project_File_State ("src/copy_new.adb", True, "copy adds target");
-      Assert (not Editor.Project.Has_Known_File (S.Project, "src/copy_new.adb"),
+      Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/copy_new.adb"),
               "copy target must not be promoted to retained project search source");
       Assert (Project_Search_Has_Result_Path (S.Project_Search, "src/copy_new.adb"),
               "copy target should appear in refreshed project search results");
@@ -538,7 +538,7 @@ package body Editor.Project.Tests is
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Move_Target);
       Assert_Project_File_State ("src/move.adb", False, "move removes source");
       Assert_Project_File_State ("src/move_new.adb", True, "move adds target");
-      Assert (not Editor.Project.Has_Known_File (S.Project, "src/move_new.adb"),
+      Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/move_new.adb"),
               "move target must not be promoted to retained project search source");
       Assert (not Project_Search_Has_Result_Path (S.Project_Search, "src/move.adb"),
               "move should remove the old search result path");
@@ -622,7 +622,7 @@ package body Editor.Project.Tests is
       Second := Editor.Buffers.Global_Active_Buffer;
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Before := To_Unbounded_String (Editor.Project.Root_Path (S.Project));
+      Before := To_Unbounded_String (Editor.Project.Root_Path (S.Project_Runtime.Project));
       Folder_Id := Editor.File_Tree.Find_By_Path (S.File_Tree, "folder", Found);
       Assert (Found,
               "Test setup must scan the project folder into the file tree");
@@ -630,7 +630,7 @@ package body Editor.Project.Tests is
       Rows_Before := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, First);
-      Assert (Editor.Project.Root_Path (S.Project) = To_String (Before),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = To_String (Before),
               "Switching to another buffer must preserve editor-global project");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Rows_Before,
               "Switching to another buffer must preserve editor-global file tree rows");
@@ -638,7 +638,7 @@ package body Editor.Project.Tests is
               "Switching to another buffer must preserve file tree expansion state");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Second);
-      Assert (Editor.Project.Root_Path (S.Project) = To_String (Before),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = To_String (Before),
               "Switching back must preserve editor-global project");
       Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Rows_Before,
               "Switching back must preserve editor-global file tree rows");
@@ -668,11 +668,11 @@ package body Editor.Project.Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
 
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "successful project open must add a recent-project entry");
       Assert
-        (To_String (Editor.Recent_Projects.Item (S.Recent_Projects, 1).Display_Name) =
-           Editor.Project.Display_Name (S.Project),
+        (To_String (Editor.Recent_Projects.Item (S.Project_Runtime.Recent_Projects, 1).Display_Name) =
+           Editor.Project.Display_Name (S.Project_Runtime.Project),
          "recent-project entry must use the project display name");
       Assert (Ada.Directories.Exists (Editor.Recent_Projects.Recent_Projects_File_Path),
               "successful project open must persist the global recent-projects file best-effort");
@@ -698,7 +698,7 @@ package body Editor.Project.Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Missing);
 
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 0,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0,
               "failed project open must not add a recent-project entry");
 
       Editor.Recent_Projects.Clear_Config_Directory_Override;
@@ -717,12 +717,12 @@ package body Editor.Project.Tests is
       Editor.Recent_Projects.Set_Config_Directory_For_Tests (Config_Dir);
       Editor.State.Init (S);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Editor.Test_Temp.Base & "/editor", "editor", 1);
+        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/editor", "editor", 1);
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Clear_Recent_Projects);
 
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 0,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0,
               "Clear Recent Projects command must clear the in-memory list");
       Assert (Last_Message_Text (S) = "Cleared recent projects",
               "Clear Recent Projects command must publish deterministic feedback");
@@ -743,7 +743,7 @@ package body Editor.Project.Tests is
 
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (not Editor.Project.Has_Project (S.Project),
+      Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "Open Project command without path must not set project state");
       Assert (Last_Message_Text (S) = "Open Project requires a path",
               "Open Project command without path must publish deterministic message");
@@ -1024,9 +1024,9 @@ package body Editor.Project.Tests is
               "create-with-parents must create the missing parent directory");
       Assert (Ada.Directories.Exists (File_Path),
               "create-with-parents must create the target file");
-      Assert (Editor.Project.Has_Known_File (S.Project, "src/panels/view.adb"),
+      Assert (Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/panels/view.adb"),
               "create-with-parents must insert only the created file into known project files");
-      Assert (not Editor.Project.Has_Known_File (S.Project, "src/panels"),
+      Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/panels"),
               "create-with-parents must not add created directories as known files");
       Assert (Last_Message_Text (S) = "Created src/panels/view.adb",
               "create-with-parents must emit one concise create message");
@@ -1063,11 +1063,11 @@ package body Editor.Project.Tests is
               "create-with-parents must create the deepest missing nested parent");
       Assert (Ada.Directories.Exists (File_Path),
               "create-with-parents must create the nested target file");
-      Assert (Editor.Project.Has_Known_File (S.Project, "src/panels/sidebar/view.adb"),
+      Assert (Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/panels/sidebar/view.adb"),
               "create-with-parents must insert the nested file path into known project files");
-      Assert (not Editor.Project.Has_Known_File (S.Project, "src/panels"),
+      Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/panels"),
               "create-with-parents must not insert the first created directory");
-      Assert (not Editor.Project.Has_Known_File (S.Project, "src/panels/sidebar"),
+      Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/panels/sidebar"),
               "create-with-parents must not insert the deepest created directory");
       Assert (Last_Message_Text (S) = "Created src/panels/sidebar/view.adb",
               "nested create-with-parents must emit one concise create message");
@@ -1097,7 +1097,7 @@ package body Editor.Project.Tests is
 
       Assert (Last_Message_Text (S) = "Parent path is not a directory: src/panels",
               "file parent conflict must emit deterministic parent-not-directory message");
-      Assert (not Editor.Project.Has_Known_File (S.Project, "src/panels/sidebar/view.adb"),
+      Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/panels/sidebar/view.adb"),
               "file parent conflict must not insert the target into known project files");
       Assert (Editor.Quick_Open.Is_Open (S.Quick_Open),
               "failed create-with-parents must preserve Quick Open visibility");
@@ -1131,7 +1131,7 @@ package body Editor.Project.Tests is
               "ignored parent directory must not be created");
       Assert (not Ada.Directories.Exists (Target_File),
               "ignored target file must not be created");
-      Assert (not Editor.Project.Has_Known_File (S.Project, "generated/view.adb"),
+      Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "generated/view.adb"),
               "ignored target must not be inserted into known project files");
       Remove_If_Exists (Root);
    end Test_Quick_Open_Create_With_Parents_Rejects_Ignored_Parent_Before_Create;
@@ -1163,7 +1163,7 @@ package body Editor.Project.Tests is
               "create-from-query must reject ignored targets before file creation");
       Assert (not Ada.Directories.Exists (Target_File),
               "ignored create-from-query target must not be created");
-      Assert (not Editor.Project.Has_Known_File (S.Project, "generated/view.adb"),
+      Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "generated/view.adb"),
               "ignored create-from-query target must not be inserted into known files");
       Assert (Editor.Quick_Open.Is_Open (S.Quick_Open)
               and then Editor.Quick_Open.Query_Text (S.Quick_Open) = "generated/view.adb",
@@ -1202,7 +1202,7 @@ package body Editor.Project.Tests is
               "create-from-query must not create the target when the parent is missing");
       Assert (Last_Message_Text (S) = "Parent directory is unavailable.",
               "create-from-query must preserve its missing-parent failure message");
-      Assert (not Editor.Project.Has_Known_File (S.Project, "src/panels/view.adb"),
+      Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/panels/view.adb"),
               "failed narrow create must not insert the target into known project files");
       Remove_If_Exists (Root);
    end Test_Quick_Open_Create_From_Query_Remains_Narrow;
@@ -1234,16 +1234,16 @@ package body Editor.Project.Tests is
 
       Assert (Ada.Directories.Exists (File_Path),
               "create-from-query must create the requested file");
-      Assert (Editor.Project.Has_Known_File (S.Project, "src/editor/new_panel.adb"),
+      Assert (Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/editor/new_panel.adb"),
               "create-from-query must insert the created file into known files");
-      Assert (Editor.Project.Known_File_Count (S.Project) = 1,
+      Assert (Editor.Project.Known_File_Count (S.Project_Runtime.Project) = 1,
               "create-from-query must insert exactly one known file");
       Assert (Last_Message_Text (S) = "Created src/editor/new_panel.adb",
               "create-from-query success must emit one create message");
       Assert (not Editor.Quick_Open.Is_Open (S.Quick_Open),
               "create/open success must hide Quick Open under existing policy");
 
-      Editor.Project.Refresh_Known_Files (S.Project, Refresh);
+      Editor.Project.Refresh_Known_Files (S.Project_Runtime.Project, Refresh);
       Assert (Refresh.Status = Editor.Project.Project_File_Refresh_Ok,
               "refresh after create must succeed");
       Assert (Refresh.Total_Count = 1
@@ -1252,7 +1252,7 @@ package body Editor.Project.Tests is
               and then Refresh.Removed_Count = 0
               and then Refresh.Unchanged_Count = 1,
               "refresh after create must discover no duplicate or added copy");
-      Assert (Editor.Project.Known_File_Count (S.Project) = 1,
+      Assert (Editor.Project.Known_File_Count (S.Project_Runtime.Project) = 1,
               "known file list must remain de-duplicated after refresh");
 
       Remove_If_Exists (Root);
@@ -1296,7 +1296,7 @@ package body Editor.Project.Tests is
               and then Editor.Quick_Open.Query_Text (S.Quick_Open) = "panels/sidebar/view.adb"
               and then Editor.Quick_Open.Priority_Mode (S.Quick_Open) = Editor.Quick_Open.Open_Recent,
               "narrow create failure must preserve Quick Open transient state");
-      Assert (Editor.Project.Known_File_Count (S.Project) = 0,
+      Assert (Editor.Project.Known_File_Count (S.Project_Runtime.Project) = 0,
               "narrow create failure must not mutate known files");
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
@@ -1305,24 +1305,24 @@ package body Editor.Project.Tests is
               and then Ada.Directories.Exists (Sidebar)
               and then Ada.Directories.Exists (File_Path),
               "create-with-parents must create parents and target after narrow failure");
-      Assert (Editor.Project.Has_Known_File (S.Project, "src/panels/sidebar/view.adb"),
+      Assert (Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/panels/sidebar/view.adb"),
               "create-with-parents must insert the created target file");
-      Assert (not Editor.Project.Has_Known_File (S.Project, "src/panels")
-              and then not Editor.Project.Has_Known_File (S.Project, "src/panels/sidebar"),
+      Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/panels")
+              and then not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/panels/sidebar"),
               "create-with-parents must not insert created directories");
-      Assert (Editor.Project.Known_File_Count (S.Project) = 1,
+      Assert (Editor.Project.Known_File_Count (S.Project_Runtime.Project) = 1,
               "create-with-parents must insert exactly one known file");
       Assert (Last_Message_Text (S) = "Created src/panels/sidebar/view.adb",
               "create-with-parents success must emit one create message");
 
-      Editor.Project.Refresh_Known_Files (S.Project, Refresh);
+      Editor.Project.Refresh_Known_Files (S.Project_Runtime.Project, Refresh);
       Assert (Refresh.Status = Editor.Project.Project_File_Refresh_Ok
               and then Refresh.Total_Count = 1
               and then Refresh.Added_Count = 0
               and then Refresh.Removed_Count = 0
               and then Refresh.Unchanged_Count = 1,
               "refresh after create-with-parents must not duplicate the created file");
-      Assert (Editor.Project.Known_File_Count (S.Project) = 1,
+      Assert (Editor.Project.Known_File_Count (S.Project_Runtime.Project) = 1,
               "known files must remain one file after create-with-parents refresh");
 
       Remove_If_Exists (Root);
@@ -1343,10 +1343,10 @@ package body Editor.Project.Tests is
       Remove_If_Exists (Root);
       Ada.Directories.Create_Directory (Root);
       Editor.State.Init (S);
-      Editor.Recent_Projects.Clear (S.Recent_Projects);
-      S.Recent_Project_Selected_Index := 0;
+      Editor.Recent_Projects.Clear (S.Project_Runtime.Recent_Projects);
+      S.Project_Runtime.Recent_Project_Selected_Index := 0;
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Root, "stale-recent-root", 559);
+        (S.Project_Runtime.Recent_Projects, Root, "stale-recent-root", 559);
 
       Remove_If_Exists (Root);
       Editor.Executor.Execute_Command
@@ -1354,12 +1354,12 @@ package body Editor.Project.Tests is
 
       Assert (Last_Message_Text (S) = Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "opening a stale recent project must fail with the shared missing-target message");
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "failed recent-project open must not remove the entry implicitly");
       Assert (not Editor.Recent_Projects.Is_Available
-                (Editor.Recent_Projects.Item (S.Recent_Projects, 1)),
+                (Editor.Recent_Projects.Item (S.Project_Runtime.Recent_Projects, 1)),
               "failed recent-project open must refresh the cached unavailable marker");
-      Assert (not Editor.Project.Has_Project (S.Project),
+      Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "failed recent-project open must not fabricate project context");
    exception
       when others =>

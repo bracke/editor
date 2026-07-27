@@ -114,7 +114,7 @@ package body Editor.Product_Surface_Cleanup.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Initialize (S);
-      Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Feature_Panel);
+      Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Panel.Feature_Panel);
       Assert (Editor.Product_Surface_Cleanup.Feature_Panel_Has_Demo_Rows (S),
               "audit detects explicit test fixture feature-panel rows");
 
@@ -140,7 +140,7 @@ package body Editor.Product_Surface_Cleanup.Tests is
       Editor.State.Initialize (S);
 
       Editor.Diagnostics.Add
-        (S.Diagnostics, 0, 1, Editor.Diagnostics.Warning,
+        (S.Panel.Diagnostics, 0, 1, Editor.Diagnostics.Warning,
          "fake diagnostic should never be normal product data");
       Assert (Editor.Product_Surface_Cleanup.Diagnostics_Has_Demo_Rows (S),
               "audit detects fake Diagnostics rows");
@@ -153,7 +153,7 @@ package body Editor.Product_Surface_Cleanup.Tests is
               "audit detects fake Build UI candidate state");
 
       Editor.Feature_Search_Results.Add_Search_Result
-        (S.Feature_Search_Results,
+        (S.Panel.Feature_Search_Results,
          Label        => "demo search result",
          Source_Label => "placeholder source",
          Has_Target   => False);
@@ -205,9 +205,9 @@ package body Editor.Product_Surface_Cleanup.Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Focus_File_Tree);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Project_Search_Bar);
 
-      Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0,
+      Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0,
               "Feature Panel show/focus/toggle/clear do not create placeholder rows");
-      Assert (Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) = 0,
+      Assert (Editor.Diagnostics.Diagnostic_Count (S.Panel.Diagnostics) = 0,
               "Problems show/focus commands do not create fake diagnostics");
       Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) = 0,
               "Quick Open show command does not create fake files");
@@ -226,16 +226,16 @@ package body Editor.Product_Surface_Cleanup.Tests is
    begin
       Editor.State.Initialize (S);
 
-      Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0,
+      Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0,
               "Feature Panel empty state has no data rows");
       Assert (Editor.Outline.Item_Count (S.Outline) = 0,
               "Outline empty state has no target rows");
-      Assert (Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) = 0,
+      Assert (Editor.Diagnostics.Diagnostic_Count (S.Panel.Diagnostics) = 0,
               "Diagnostics empty state has no diagnostics rows");
       Assert (Editor.Build_UI.Candidate_Count (S.Build.Build_UI) = 0,
               "Build UI empty state has no candidates");
       Assert (Editor.Feature_Search_Results.Row_Count
-                (S.Feature_Search_Results) = 0,
+                (S.Panel.Feature_Search_Results) = 0,
               "Search empty state has no search rows");
       Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) = 0,
               "Quick Open empty state has no file rows");

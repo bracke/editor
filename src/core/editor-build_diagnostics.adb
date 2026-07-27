@@ -178,7 +178,7 @@ package body Editor.Build_Diagnostics is
          Build_Diagnostics_Ingestion_Always_For_Build_Run);
 
       return Command.Ingestion.Ingestion_Result.Accepted_Count = 1
-        and then Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1;
+        and then Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1;
    end Assert_Build_Diagnostics_Uses_Diagnostics_API;
 
    function Assert_Build_Diagnostics_Not_Persisted return Boolean

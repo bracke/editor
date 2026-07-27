@@ -179,12 +179,12 @@ package body Editor.Render_Packet.Panel_Surfaces is
          if not Editor.State.Has_Active_Buffer (S) then
             return "No active buffer.";
          elsif S.Buffer_Lifecycle.File_Info.Has_Path then
-            if Editor.Project.Has_Project (S.Project)
+            if Editor.Project.Has_Project (S.Project_Runtime.Project)
               and then Editor.Project.Is_Under_Project
-                (S.Project, To_String (S.Buffer_Lifecycle.File_Info.Path))
+                (S.Project_Runtime.Project, To_String (S.Buffer_Lifecycle.File_Info.Path))
             then
                return Editor.Project.Relative_Path
-                 (S.Project, To_String (S.Buffer_Lifecycle.File_Info.Path));
+                 (S.Project_Runtime.Project, To_String (S.Buffer_Lifecycle.File_Info.Path));
             else
                return To_String (S.Buffer_Lifecycle.File_Info.Display_Name);
             end if;
@@ -201,9 +201,9 @@ package body Editor.Render_Packet.Panel_Surfaces is
          if not Editor.State.Has_Active_Buffer (S) then
             return "No buffer";
          elsif S.Buffer_Lifecycle.File_Info.Has_Path then
-            if Editor.Project.Has_Project (S.Project)
+            if Editor.Project.Has_Project (S.Project_Runtime.Project)
               and then not Editor.Project.Is_Under_Project
-                (S.Project, To_String (S.Buffer_Lifecycle.File_Info.Path))
+                (S.Project_Runtime.Project, To_String (S.Buffer_Lifecycle.File_Info.Path))
             then
                return "File-backed, outside project";
             else
@@ -373,7 +373,7 @@ package body Editor.Render_Packet.Panel_Surfaces is
          Errors   : Natural := 0;
          Warnings : Natural := 0;
       begin
-         for D of S.Diagnostics loop
+         for D of S.Panel.Diagnostics loop
             case D.Severity is
                when Editor.Diagnostics.Error =>
                   Errors := Errors + 1;
@@ -633,13 +633,13 @@ package body Editor.Render_Packet.Panel_Surfaces is
       function Workspace_Status_Label return String
       is
       begin
-         if S.Post_Restore_Feedback_Current
-           and then S.Last_Restore_Summary_Available
+         if S.Project_Runtime.Post_Restore_Feedback_Current
+           and then S.Project_Runtime.Last_Restore_Summary_Available
          then
             return "Workspace: "
               & Editor.Workspace_Persistence.Restore_Details_Label
-                (S.Last_Restore_Summary);
-         elsif S.Post_Restore_Feedback_Current then
+                (S.Project_Runtime.Last_Restore_Summary);
+         elsif S.Project_Runtime.Post_Restore_Feedback_Current then
             return "Workspace: restore feedback";
          else
             return "";
@@ -648,9 +648,9 @@ package body Editor.Render_Packet.Panel_Surfaces is
 
       function Recent_Projects_Status_Label return String
       is
-         Count : constant Natural := Editor.Recent_Projects.Count (S.Recent_Projects);
+         Count : constant Natural := Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects);
          Missing : constant Natural :=
-           Editor.Recent_Projects.Unavailable_Count (S.Recent_Projects);
+           Editor.Recent_Projects.Unavailable_Count (S.Project_Runtime.Recent_Projects);
       begin
          if Count = 0 then
             return "";

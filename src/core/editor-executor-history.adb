@@ -76,34 +76,34 @@ package body Editor.Executor.History is
    procedure Recompute_Active_Find_After_Restore
      (S : in out Editor.State.State_Type)
    is
-      Query      : constant String := To_String (S.Active_Find_Query);
+      Query      : constant String := To_String (S.Search.Active_Find_Query);
       Options    : constant Editor.Search.Search_Options :=
-        (Case_Sensitive => S.Active_Find_Case_Sensitive, Wrap => True);
+        (Case_Sensitive => S.Search.Active_Find_Case_Sensitive, Wrap => True);
       Candidates : Editor.Search.Search_Match_Vectors.Vector;
    begin
-      S.Active_Find_Matches.Clear;
-      S.Active_Find_Match := Editor.Search.No_Match;
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Matches.Clear;
+      S.Search.Active_Find_Match := Editor.Search.No_Match;
+      S.Search.Active_Find_Stale := False;
 
       if Query'Length = 0 then
-         S.Active_Find_Source_Buffer_Token := 0;
+         S.Search.Active_Find_Source_Buffer_Token := 0;
          return;
       end if;
 
       for Ch of Query loop
          if Ch = Character'Val (10) or else Ch = Character'Val (13) then
-            S.Active_Find_Stale := True;
-            S.Active_Find_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
+            S.Search.Active_Find_Stale := True;
+            S.Search.Active_Find_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
             return;
          end if;
       end loop;
 
-      S.Active_Find_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
+      S.Search.Active_Find_Source_Buffer_Token := S.Buffer_Lifecycle.Active_Buffer_Token;
       Editor.Search.Find_All (S.Buffer, Query, Options, Candidates);
-      S.Active_Find_Matches := Candidates;
+      S.Search.Active_Find_Matches := Candidates;
 
-      if not S.Active_Find_Matches.Is_Empty then
-         S.Active_Find_Match := S.Active_Find_Matches (S.Active_Find_Matches.First_Index);
+      if not S.Search.Active_Find_Matches.Is_Empty then
+         S.Search.Active_Find_Match := S.Search.Active_Find_Matches (S.Search.Active_Find_Matches.First_Index);
       end if;
    end Recompute_Active_Find_After_Restore;
 

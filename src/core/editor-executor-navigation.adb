@@ -281,7 +281,7 @@ package body Editor.Executor.Navigation is
    begin
       Keep_Only_Primary_Caret (S);
       S.Rect_Select_Active := False;
-      S.Active_Find_Match := Editor.Search.No_Match;
+      S.Search.Active_Find_Match := Editor.Search.No_Match;
       S.Carets.Clear;
 
       if Target.Found then
@@ -517,7 +517,7 @@ package body Editor.Executor.Navigation is
    begin
       New_Caret := Safe_Caret (S);
       New_Preferred_Column := S.Preferred_Column;
-      S.Active_Find_Match := Editor.Search.No_Match;
+      S.Search.Active_Find_Match := Editor.Search.No_Match;
 
       if Had_Selection and then Collapses_Active_Selection (Cmd) then
          Collapse_Selection_For_Move

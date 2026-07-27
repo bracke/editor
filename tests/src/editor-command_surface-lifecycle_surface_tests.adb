@@ -620,20 +620,20 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
         (S, Editor.Command_Ids.Command_Reload_Settings);
       Assert (R.Status = Editor.Executor.Command_Failed,
               "invalid settings reload must report Command_Failed");
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Severity (Msg) = Editor.Messages.Error_Message,
               "invalid settings reload must emit one error message");
       Assert (Editor.Messages.Text (Msg) = "Settings file is invalid.",
               "invalid settings reload must use canonical domain-specific message");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Keybinding_Management.Reset_Transient_State;
       Found := False;
       R := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Reload_Keybindings);
       Assert (R.Status = Editor.Executor.Command_Failed,
               "invalid keybindings reload must report Command_Failed");
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Severity (Msg) = Editor.Messages.Error_Message,
               "invalid keybindings reload must emit one error message");
       Assert (Editor.Messages.Text (Msg) = "Default keybindings active.",
@@ -735,7 +735,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
               "lifecycle hint projection must not mutate buffer text");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty,
               "lifecycle hint projection must not mutate dirty state");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
               "lifecycle hint projection must not post messages");
    end Test_Status_Bar_Lifecycle_Hint_Is_Projection;
 
@@ -840,7 +840,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node.Id, Found);
       Assert (Found, "fixture must map scanned file to visible row");
       Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
-      Editor.Panel_Focus.Focus_File_Tree (S.Panel_Focus);
+      Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := Path;
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("a.txt");
@@ -852,7 +852,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
               "Status Bar File Tree lifecycle hint should mirror selected file focus action");
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "reload") = 0,
               "Status Bar already-open file hint must not imply reload");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
               "Status Bar lifecycle hint must remain projection-only");
    end Test_Status_Bar_File_Tree_Focus_Hint;
 
@@ -887,7 +887,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       Hint := To_Unbounded_String (Editor.Lifecycle_Guidance.Status_Bar_Hint (S));
       Assert (Ada.Strings.Fixed.Index (To_String (Hint), "retry save available") > 0,
               "failed-save state should remain visibly retryable while the buffer is dirty and saveable");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
               "lifecycle hint projection must not post messages");
    end Test_Status_Bar_Clean_Dirty_And_Retry_State;
 

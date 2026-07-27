@@ -297,11 +297,11 @@ package body Editor.Command_Surface.Tests is
       A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
-      Before_Messages := Editor.Messages.Count (S.Messages);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
       Before_Has_Buffer := Editor.State.Has_Active_Buffer (S);
-      Before_Overlay := Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus);
-      Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
-      Before_Bottom := Editor.Panel_Focus.Bottom_Content (S.Panel_Focus);
+      Before_Overlay := Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus);
+      Before_Focus := Editor.Panel_Focus.Target (S.Panel.Panel_Focus);
+      Before_Bottom := Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus);
 
       for I in 1 .. Editor.Command_Ids.Command_Count loop
          A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_At (I));
@@ -314,15 +314,15 @@ package body Editor.Command_Surface.Tests is
          end if;
       end loop;
 
-      Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Messages,
               "availability checks must not push messages");
       Assert (Editor.State.Has_Active_Buffer (S) = Before_Has_Buffer,
               "availability checks must not change active-buffer status");
-      Assert (Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus) = Before_Overlay,
+      Assert (Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus) = Before_Overlay,
               "availability checks must not change overlay focus");
-      Assert (Editor.Panel_Focus.Target (S.Panel_Focus) = Before_Focus,
+      Assert (Editor.Panel_Focus.Target (S.Panel.Panel_Focus) = Before_Focus,
               "availability checks must not change panel focus target");
-      Assert (Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) = Before_Bottom,
+      Assert (Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) = Before_Bottom,
               "availability checks must not change bottom panel focus content");
    end Test_Availability_Is_Read_Only_On_Empty_State;
 
@@ -425,15 +425,15 @@ package body Editor.Command_Surface.Tests is
       Before_Focus : Editor.Panel_Focus.Focus_Target;
    begin
       Editor.State.Init (S);
-      Before_Overlay := Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus);
-      Before_Focus := Editor.Panel_Focus.Target (S.Panel_Focus);
+      Before_Overlay := Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus);
+      Before_Focus := Editor.Panel_Focus.Target (S.Panel.Panel_Focus);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
               "guarded unavailable Save File must emit exactly one message");
-      Assert (Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus) = Before_Overlay,
+      Assert (Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus) = Before_Overlay,
               "guarded unavailable command must not change overlay focus");
-      Assert (Editor.Panel_Focus.Target (S.Panel_Focus) = Before_Focus,
+      Assert (Editor.Panel_Focus.Target (S.Panel.Panel_Focus) = Before_Focus,
               "guarded unavailable command must not change panel focus");
    end Test_Guarded_Execute_Command_Unavailable_Message;
 
@@ -640,7 +640,7 @@ package body Editor.Command_Surface.Tests is
       R := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.No_Command);
       Assert (R.Status = Editor.Executor.Command_No_Op,
               "No_Command execution result must be no-op");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
               "No_Command must not emit user-facing feedback");
 
       R := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.Command_Save_File);
@@ -648,7 +648,7 @@ package body Editor.Command_Surface.Tests is
               "unavailable command execution result must be Command_Unavailable");
       Assert (R.Command = Editor.Command_Ids.Command_Save_File,
               "execution result must preserve command id");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
               "unavailable command must emit one message");
    end Test_Execution_Result_For_No_Op_And_Unavailable;
 
@@ -664,7 +664,7 @@ package body Editor.Command_Surface.Tests is
       end Reason;
    begin
       Editor.State.Init (S);
-      Editor.Recent_Projects.Clear (S.Recent_Projects);
+      Editor.Recent_Projects.Clear (S.Project_Runtime.Recent_Projects);
 
       Assert (Reason (Editor.Command_Ids.Command_Close_Project) = "No project open.",
               "Close Project must be disabled without a project");
@@ -744,7 +744,7 @@ package body Editor.Command_Surface.Tests is
          R       : Editor.Executor.Command_Execution_Result;
       begin
          Editor.State.Init (S);
-         Before_Project := Editor.Project.Has_Project (S.Project);
+         Before_Project := Editor.Project.Has_Project (S.Project_Runtime.Project);
          Before_Dirty   := S.Buffer_Lifecycle.File_Info.Dirty;
          Before_Pending := Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions);
 
@@ -757,9 +757,9 @@ package body Editor.Command_Surface.Tests is
                  Label & " must report Command_Unavailable");
          Assert (R.Command = Id,
                  Label & " result must preserve command id");
-         Assert (Editor.Messages.Count (S.Messages) = 1,
+         Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
                  Label & " must emit exactly one unavailable message");
-         Assert (Editor.Project.Has_Project (S.Project) = Before_Project,
+         Assert (Editor.Project.Has_Project (S.Project_Runtime.Project) = Before_Project,
                  Label & " must not change project root when unavailable");
          Assert (S.Buffer_Lifecycle.File_Info.Dirty = Before_Dirty,
                  Label & " must not change dirty state when unavailable");
@@ -806,7 +806,7 @@ package body Editor.Command_Surface.Tests is
             Assert (R.Status = Editor.Executor.Command_Unavailable,
                     "unavailable command must execute as unavailable: " &
                     Editor.Command_Ids.Command_Id'Image (Id));
-            Assert (Editor.Messages.Count (S.Messages) = 1,
+            Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
                     "unavailable command must emit one primary message: " &
                     Editor.Command_Ids.Command_Id'Image (Id));
          end if;
@@ -891,8 +891,8 @@ package body Editor.Command_Surface.Tests is
 
       Assert (Direct_Result.Status = Palette_Result.Status,
               "palette-equivalent Save All route must observe the executor result");
-      Assert (Editor.Messages.Count (Direct_State.Messages) =
-              Editor.Messages.Count (Palette_State.Messages),
+      Assert (Editor.Messages.Count (Direct_State.Panel.Messages) =
+              Editor.Messages.Count (Palette_State.Panel.Messages),
               "palette-equivalent Save All route must not add wrapper messages");
    end Test_Command_Palette_Dispatch_Uses_Executor_Result;
 
@@ -1089,10 +1089,10 @@ package body Editor.Command_Surface.Tests is
               "Retry Pending Transition without pending state must be unavailable");
       Assert (Editor.Command_Execution.Is_User_Blocking (R),
               "unavailable retry must be a user-blocking command result");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
               "unavailable retry must emit exactly one primary message");
 
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found,
               "unavailable retry must produce an active message");
       Assert (Editor.Messages.Text (Msg) = "No pending transition",
@@ -1113,7 +1113,7 @@ package body Editor.Command_Surface.Tests is
       R := Editor.Executor.Execute_Command_With_Result (S, Editor.Command_Ids.No_Command);
       Assert (R.Status = Editor.Executor.Command_No_Op,
               "No_Command must remain the sentinel no-op");
-      Assert (Editor.Messages.Count (S.Messages) = 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 0,
               "No_Command must not emit messages");
 
       for I in 1 .. Editor.Command_Ids.Command_Count loop
@@ -1744,7 +1744,7 @@ package body Editor.Command_Surface.Tests is
    begin
       Editor.State.Init (S);
       Editor.Keybindings.Reset_To_Defaults;
-      Before_Messages := Editor.Messages.Count (S.Messages);
+      Before_Messages := Editor.Messages.Count (S.Panel.Messages);
       Before_Has_Buffer := Editor.State.Has_Active_Buffer (S);
       Before_Palette_Count := Editor.Commands.Registry.Palette_Command_Count;
       Before_Build_Manifest := Editor.External_Producers.Public_Build.Build_Public_Build_Guardrail_Regression_Manifest (S);
@@ -1755,7 +1755,7 @@ package body Editor.Command_Surface.Tests is
 
       Assert (Review_A = Review_B,
               "command surface review must be deterministic across repeated reads");
-      Assert (Editor.Messages.Count (S.Messages) = Before_Messages,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Messages,
               "command surface review must not emit messages");
       Assert (Editor.State.Has_Active_Buffer (S) = Before_Has_Buffer,
               "command surface review must not create or alter active buffers");

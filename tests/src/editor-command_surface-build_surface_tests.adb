@@ -942,7 +942,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
       Cleanup_Candidate_File;
       Prepare_Candidate_File;
       Editor.State.Init (S);
-      Editor.Project.Apply_Open_Result (S.Project, Project_Result);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Project_Result);
       Assert (Editor.Build_Command.Build_Run_Readiness (S) =
               Editor.Build_Command.Build_Run_Readiness_Request_Incomplete,
               "hidden build UI reports incomplete public build request");

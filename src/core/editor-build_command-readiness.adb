@@ -29,7 +29,7 @@ package body Editor.Build_Command.Readiness is
         or else State.Build.Public_Async_Job_Queued
       then
          return Build_Run_Readiness_Job_Already_Active;
-      elsif not Editor.Project.Has_Project (State.Project) then
+      elsif not Editor.Project.Has_Project (State.Project_Runtime.Project) then
          return Build_Run_Readiness_No_Project_Open;
       end if;
 
@@ -171,7 +171,7 @@ package body Editor.Build_Command.Readiness is
         or else State.Build.Public_Async_Job_Queued
       then
          return Build_Run_Readiness_Job_Already_Active;
-      elsif not Editor.Project.Has_Project (State.Project) then
+      elsif not Editor.Project.Has_Project (State.Project_Runtime.Project) then
          return Build_Run_Readiness_No_Project_Open;
       end if;
 

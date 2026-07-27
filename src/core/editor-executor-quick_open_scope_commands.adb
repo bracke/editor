@@ -40,7 +40,7 @@ package body Editor.Executor.Quick_Open_Scope_Commands is
       Scope : constant String := Editor.Quick_Open.Normalize_Quick_Open_Scope (Text);
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
-         if not Editor.Project.Has_Project (S.Project) then
+         if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          elsif Quick_Open_Scope_Has_Parent_Traversal (Text) then
             Editor.Executor.Shared_Services.Report_Info (S, "Invalid Quick Open scope");
@@ -61,7 +61,7 @@ package body Editor.Executor.Quick_Open_Scope_Commands is
    is
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
-         if not Editor.Project.Has_Project (S.Project) then
+         if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
@@ -83,7 +83,7 @@ package body Editor.Executor.Quick_Open_Scope_Commands is
         Editor.Quick_Open.Selected_Directory_Scope (S.Quick_Open, Found);
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
-         if not Editor.Project.Has_Project (S.Project) then
+         if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
@@ -110,7 +110,7 @@ package body Editor.Executor.Quick_Open_Scope_Commands is
           (Editor.Quick_Open.Path_Scope (S.Quick_Open), Found);
    begin
       if Editor.Quick_Open.Is_Open (S.Quick_Open) then
-         if not Editor.Project.Has_Project (S.Project) then
+         if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;

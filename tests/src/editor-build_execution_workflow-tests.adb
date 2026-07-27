@@ -110,7 +110,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
         (Root, "demo.gpr");
       S.Build.Public_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Bounded_Process;
-      Editor.Project.Apply_Open_Result (S.Project, Project_Result);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Project_Result);
       Editor.Build_UI.Show (S.Build.Build_UI);
       Candidates.Append (Candidate);
       Editor.Build_UI.Set_Build_Candidates
@@ -127,7 +127,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
    begin
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (Msg);
       end if;
@@ -386,7 +386,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       S : Editor.State.State_Type := Ready_State;
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
-      Editor.Project.Clear (S.Project);
+      Editor.Project.Clear (S.Project_Runtime.Project);
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation (S) =
                 Editor.Build_Command.Build_Run_Readiness_No_Project_Open,
               "build.run is unavailable when no project is open");
@@ -682,7 +682,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
       S : Editor.State.State_Type := Ready_State;
       Result : Editor.Command_Execution.Command_Execution_Result;
-      Before_Count : constant Natural := Editor.Messages.Count (S.Messages);
+      Before_Count : constant Natural := Editor.Messages.Count (S.Panel.Messages);
    begin
       Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build.Build_UI);
       Result := Editor.Executor.Execute_Command_With_Result
@@ -691,7 +691,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Assert (Result.Status = Editor.Command_Execution.Command_Unavailable
               and then Result.Command = Editor.Command_Ids.Command_Build_Run,
               "Executor route returns unavailable for pre-run build.run rejection");
-      Assert (Editor.Messages.Count (S.Messages) = Before_Count + 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Count + 1,
               "Executor route emits exactly one primary command outcome message");
       Assert (Latest_Message_Text (S) = "No build candidate selected.",
               "Executor route surfaces the pre-run validation reason, not runner text");
@@ -848,7 +848,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
               "coherence helper rejects confirmed gate consent for stale consent identity");
 
       S := Ready_State;
-      Editor.Project.Clear (S.Project);
+      Editor.Project.Clear (S.Project_Runtime.Project);
       Gate := Editor.Build_Command.Build_Run_Execution_Gate (S);
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation (S) =
                 Editor.Build_Command.Build_Run_Readiness_No_Project_Open,
@@ -1224,13 +1224,13 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Second_Exec : Editor.Command_Execution.Command_Execution_Result;
       First_Result : Editor.Build_Result_Summary.Latest_Build_Result_Summary;
       First_Message_Count : Natural;
-      Before_Count : constant Natural := Editor.Messages.Count (S.Messages);
+      Before_Count : constant Natural := Editor.Messages.Count (S.Panel.Messages);
    begin
       Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build.Build_UI);
       First_Exec := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Build_Run);
       First_Result := S.Build.Latest_Result;
-      First_Message_Count := Editor.Messages.Count (S.Messages);
+      First_Message_Count := Editor.Messages.Count (S.Panel.Messages);
 
       Assert (First_Exec.Status = Editor.Command_Execution.Command_Unavailable,
               "first preflight rejection returns through Executor as unavailable");
@@ -1239,13 +1239,13 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Assert (First_Message_Count = Before_Count + 1,
               "first preflight rejection emits exactly one command outcome");
 
-      Editor.Project.Clear (S.Project);
+      Editor.Project.Clear (S.Project_Runtime.Project);
       Second_Exec := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Build_Run);
 
       Assert (Second_Exec.Status = Editor.Command_Execution.Command_Unavailable,
               "second preflight rejection also returns through Executor as unavailable");
-      Assert (Editor.Messages.Count (S.Messages) = First_Message_Count + 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = First_Message_Count + 1,
               "second preflight rejection emits exactly one additional command outcome");
       Assert (Latest_Message_Text (S) = "No project open.",
               "latest visible command outcome is replaced by the newest preflight reason");

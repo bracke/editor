@@ -92,7 +92,7 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (M);
       else
@@ -951,8 +951,8 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Editor.Clipboard.Set_Text (Before_Clip);
       Editor.State.Load_Text (S, "Alpha Beta Gamma");
       Editor.State.Set_Dirty (S, False);
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Find_Stale := False;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
@@ -962,9 +962,9 @@ package body Editor.Line_Edit.Text_Delete_Tests is
                           "selection delete must remove selected Find text");
       Assert (Editor.State.Is_Dirty (S),
               "text-changing selection delete must dirty clean buffer");
-      Assert (S.Active_Find_Stale,
+      Assert (S.Search.Active_Find_Stale,
               "text-changing selection delete must invalidate active Find state");
-      Assert (To_String (S.Active_Find_Query) = "Beta",
+      Assert (To_String (S.Search.Active_Find_Query) = "Beta",
               "selection delete must not mutate Find query");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
               "selection delete must not mutate Clipboard_Text");
@@ -985,10 +985,10 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Assert_Buffer_Text (S, "Alpha Beta Gamma",
                           "undo selection delete restores exact text");
 
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Stale := False;
       Set_Caret (S, 0);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
-      Assert (not S.Active_Find_Stale,
+      Assert (not S.Search.Active_Find_Stale,
               "no-op selection delete must not invalidate Find state");
    end Test_Selection_Delete_Find_Dirty_Clipboard_And_Navigation;
 
@@ -1275,11 +1275,11 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Editor.Clipboard.Set_Text (Before_Clip);
       Editor.State.Load_Text (S, "Alpha Beta Gamma");
       Editor.State.Set_Dirty (S, False);
-      S.Active_Find_Prompt := True;
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Find_Stale := False;
-      S.Active_Replace_Prompt := True;
-      S.Active_Replace_Text := To_Unbounded_String ("DELTA");
+      S.Search.Active_Find_Prompt := True;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Find_Stale := False;
+      S.Search.Active_Replace_Prompt := True;
+      S.Search.Active_Replace_Text := To_Unbounded_String ("DELTA");
       Set_Primary_Selection (S, 6, 10);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -1287,10 +1287,10 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert_Buffer_Text (S, "Alpha  Gamma", "find workflow delete");
       Assert (Editor.State.Is_Dirty (S), "delete must dirty clean buffer");
-      Assert (S.Active_Find_Stale, "delete must stale active Find");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("Beta"),
+      Assert (S.Search.Active_Find_Stale, "delete must stale active Find");
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("Beta"),
               "delete must not mutate Find query");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("DELTA"),
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("DELTA"),
               "delete must not mutate Replace text");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
               "delete must not mutate Clipboard");
@@ -1307,11 +1307,11 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
       Set_Caret (S, 0);
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Stale := False;
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Delete);
       Assert (Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
               "no-op delete preserves redo after undo");
-      Assert (not S.Active_Find_Stale,
+      Assert (not S.Search.Active_Find_Stale,
               "no-op delete must not stale Find");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
@@ -1413,10 +1413,10 @@ package body Editor.Line_Edit.Text_Delete_Tests is
       Editor.History.Redo_Stack.Clear;
       Editor.Clipboard.Set_Text (Before_Clip);
       Editor.State.Load_Text (S, "Alpha Beta");
-      S.Active_Find_Query := To_Unbounded_String ("Alpha");
-      S.Active_Replace_Text := To_Unbounded_String ("Omega");
-      S.Active_Find_Prompt := True;
-      S.Active_Replace_Prompt := True;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Omega");
+      S.Search.Active_Find_Prompt := True;
+      S.Search.Active_Replace_Prompt := True;
       Set_Primary_Selection (S, 0, 5);
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Caret := S.Carets (S.Carets.First_Index).Pos;
@@ -1456,9 +1456,9 @@ package body Editor.Line_Edit.Text_Delete_Tests is
          and then Index (Summary, "kill-ring") = 0
          and then Index (Summary, "clipboard mirror") = 0,
          "workspace persistence must exclude Selection Delete transient state");
-      Assert (S.Active_Find_Query = To_Unbounded_String ("Alpha"),
+      Assert (S.Search.Active_Find_Query = To_Unbounded_String ("Alpha"),
               "delete must not mutate Find query");
-      Assert (S.Active_Replace_Text = To_Unbounded_String ("Omega"),
+      Assert (S.Search.Active_Replace_Text = To_Unbounded_String ("Omega"),
               "delete must not mutate Replace text");
 
       Assert_Not_Exposed ("edit.selection.cut");
@@ -1490,8 +1490,8 @@ procedure Test_Selection_Delete_Canonical_State_Only_Workflow
       Editor.Keybindings.Reset_To_Defaults;
       Editor.Clipboard.Set_Text (Before_Clip);
       Editor.State.Load_Text (S, "Alpha Beta Gamma");
-      S.Active_Find_Query := To_Unbounded_String ("Beta");
-      S.Active_Replace_Text := To_Unbounded_String ("Delta");
+      S.Search.Active_Find_Query := To_Unbounded_String ("Beta");
+      S.Search.Active_Replace_Text := To_Unbounded_String ("Delta");
       Set_Primary_Selection (S, 6, 10);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -1516,9 +1516,9 @@ procedure Test_Selection_Delete_Canonical_State_Only_Workflow
               "Selection Delete must not mutate Clipboard text");
       Assert (Editor.Clipboard.Has_Text,
               "Selection Delete must not clear Clipboard state");
-      Assert (After.Active_Find_Query = To_Unbounded_String ("Beta"),
+      Assert (After.Search.Active_Find_Query = To_Unbounded_String ("Beta"),
               "Selection Delete must not mutate Find query");
-      Assert (After.Active_Replace_Text = To_Unbounded_String ("Delta"),
+      Assert (After.Search.Active_Replace_Text = To_Unbounded_String ("Delta"),
               "Selection Delete must not mutate Replace text");
       Assert_Navigation_Counts
         (After, Before_Back, Before_Fwd,

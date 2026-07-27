@@ -143,7 +143,7 @@ package body Editor.Command_Palette.Surface_Rendering is
          Clip_Height   => Viewport_Height,
          Focused       =>
            Editor.Overlay_Focus.Is_Active
-             (State.Overlay_Focus, Editor.Overlay_Focus.Command_Palette_Overlay),
+             (State.Panel.Overlay_Focus, Editor.Overlay_Focus.Command_Palette_Overlay),
          Hover_X       => -1,
          Hover_Y       => -1,
          Rectangles    => Rectangles,

@@ -348,14 +348,14 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Editor.Recent_Projects.Set_Config_Directory_For_Tests (Config_Dir);
       Init_Executor_Test_State (S);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Root, "recent_project", 213);
+        (S.Project_Runtime.Recent_Projects, Root, "recent_project", 213);
 
       Cmd.Kind := Editor.Command_Kinds.Open_Selected_Recent_Project;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "open selected recent project should open the first recent entry");
-      Assert (Editor.Project.Root_Path (S.Project) = Ada.Directories.Full_Name (Root),
+      Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root),
               "recent project activation should use the approved project-open path");
 
       Use_Executor_Recent_Config;
@@ -374,14 +374,14 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Remove_Tree_If_Exists (Missing);
       Init_Executor_Test_State (S);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Missing, "missing", 213);
+        (S.Project_Runtime.Recent_Projects, Missing, "missing", 213);
 
       Cmd.Kind := Editor.Command_Kinds.Open_Selected_Recent_Project;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (not Editor.Project.Has_Project (S.Project),
+      Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "missing recent project activation must not install a project");
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 1,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "failed recent project activation must not rewrite recent projects");
    end Test_Open_Selected_Recent_Project_Missing_Path_Fails_Safely;
 
@@ -393,34 +393,34 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
    begin
       Init_Executor_Test_State (S);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Editor.Test_Temp.Base & "/a", "a", 1);
+        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/a", "a", 1);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Editor.Test_Temp.Base & "/b", "b", 2);
+        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/b", "b", 2);
 
-      S.Recent_Project_Selected_Index := 0;
+      S.Project_Runtime.Recent_Project_Selected_Index := 0;
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Select_Next_Recent_Project);
-      Assert (S.Recent_Project_Selected_Index = 1,
+      Assert (S.Project_Runtime.Recent_Project_Selected_Index = 1,
               "select next must initialize transient selection to the first recent row");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Select_Next_Recent_Project);
-      Assert (S.Recent_Project_Selected_Index = 2,
+      Assert (S.Project_Runtime.Recent_Project_Selected_Index = 2,
               "select next must move to the next recent row");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Select_Next_Recent_Project);
-      Assert (S.Recent_Project_Selected_Index = 1,
+      Assert (S.Project_Runtime.Recent_Project_Selected_Index = 1,
               "select next must wrap deterministically to the first recent row");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Select_Previous_Recent_Project);
-      Assert (S.Recent_Project_Selected_Index = 2,
+      Assert (S.Project_Runtime.Recent_Project_Selected_Index = 2,
               "select previous must wrap deterministically to the last recent row");
 
-      Assert (not Editor.Project.Has_Project (S.Project),
+      Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "selecting recent rows must not open or mutate project context");
-      Assert (Editor.Recent_Projects.Count (S.Recent_Projects) = 2,
+      Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 2,
               "selecting recent rows must not remove or persist recent entries");
    end Test_Recent_Project_Selection_Commands_Are_Transient;
 
@@ -437,9 +437,9 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Remove_Tree_If_Exists (Missing2);
       Init_Executor_Test_State (S);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Missing1, "missing-a", 1);
+        (S.Project_Runtime.Recent_Projects, Missing1, "missing-a", 1);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Recent_Projects, Missing2, "missing-b", 2);
+        (S.Project_Runtime.Recent_Projects, Missing2, "missing-b", 2);
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Show_Recent_Projects);
@@ -449,7 +449,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
               "Recent Projects projection must expose the all-unavailable empty state");
       Assert (Ada.Strings.Fixed.Index (To_String (Msg), "project path no longer exists") > 0,
               "Recent Projects projection must still show removable unavailable rows");
-      Assert (not Editor.Project.Has_Project (S.Project),
+      Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "showing Recent Projects must not open a project");
    end Test_Show_Recent_Projects_Reports_No_Available;
 
@@ -611,7 +611,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "rename setup project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Old_Path);
       Ignored := Editor.Ada_Language_Model.Add_Symbol
@@ -639,9 +639,9 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
             "synthetic outline fixture refresh succeeds");
       end;
       Editor.Diagnostics.Add
-        (S.Diagnostics, 1, 1, Editor.Diagnostics.Error, "before rename");
+        (S.Panel.Diagnostics, 1, 1, Editor.Diagnostics.Error, "before rename");
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "before rename",
          Source_Label => "a.txt");
@@ -658,9 +658,9 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
               "clean active buffer path must be rebased");
       Assert (not Editor.Outline.Has_Items (S.Outline),
               "rename of active file must clear stale outline rows");
-      Assert (Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) = 0,
+      Assert (Editor.Diagnostics.Diagnostic_Count (S.Panel.Diagnostics) = 0,
               "rename of active file must clear stale active diagnostics");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "rename of active file must clear stale diagnostics feature rows");
       Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
               "rename must refresh project search state");
@@ -702,7 +702,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "build-config setup project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
       Candidates.Append (Editor.Build_Candidates.Alire_Candidate (Root));
@@ -762,7 +762,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "directory build-config setup project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
       Candidates.Append (Editor.Build_Candidates.Gprbuild_Candidate
@@ -821,16 +821,16 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "relative diagnostics setup project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "old file diagnostic",
          Source_Label => "a.txt");
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Info,
          "unrelated diagnostic",
          Source_Label => "other.txt");
@@ -843,11 +843,11 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
               "relative diagnostics rename must create renamed target");
       Assert (not Ada.Directories.Exists (Old_Path),
               "relative diagnostics rename must remove old target");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 2,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 2,
               "relative diagnostics rename must preserve diagnostic rows");
-      Assert (Editor.Feature_Diagnostics.Item_Is_Stale (S.Feature_Diagnostics, 1),
+      Assert (Editor.Feature_Diagnostics.Item_Is_Stale (S.Panel.Feature_Diagnostics, 1),
               "relative source-label diagnostic must be marked stale");
-      Assert (not Editor.Feature_Diagnostics.Item_Is_Stale (S.Feature_Diagnostics, 2),
+      Assert (not Editor.Feature_Diagnostics.Item_Is_Stale (S.Panel.Feature_Diagnostics, 2),
               "unrelated relative diagnostic must remain live");
 
       Remove_Tree_If_Exists (Root);
@@ -889,7 +889,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Open_Res := Editor.Project.Open_Project (Root);
       Assert (Editor.Project.Is_Success (Open_Res),
               "relative build-source setup project must open");
-      Editor.Project.Apply_Open_Result (S.Project, Open_Res);
+      Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
       Candidate.Candidate_Id := To_Unbounded_String ("relative-source-candidate");

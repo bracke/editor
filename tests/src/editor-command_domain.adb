@@ -120,20 +120,20 @@ package body Editor.Command_Domain is
       return
         (Buffer_Count              => Editor.Buffers.Global_Count,
          Dirty_Buffer_Count        => Editor.Buffers.Global_Dirty_Buffer_Count,
-         Has_Project               => Editor.Project.Has_Project (S.Project),
-         Recent_Project_Count      => Editor.Recent_Projects.Count (S.Recent_Projects),
-         Recent_Project_Selection  => S.Recent_Project_Selected_Index,
+         Has_Project               => Editor.Project.Has_Project (S.Project_Runtime.Project),
+         Recent_Project_Count      => Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects),
+         Recent_Project_Selection  => S.Project_Runtime.Recent_Project_Selected_Index,
          Has_Pending_Transition    =>
            Editor.Pending_Transitions.Has_Pending (S.Pending_Transitions),
          Settings_Fingerprint      => Settings_Fingerprint (S),
          Keybindings_Fingerprint   => Active_Keybindings_Fingerprint,
-         Message_Count             => Editor.Messages.Count (S.Messages),
+         Message_Count             => Editor.Messages.Count (S.Panel.Messages),
          Search_Fingerprint        =>
-           Hash_String (To_String (S.Active_Find_Query)),
+           Hash_String (To_String (S.Search.Active_Find_Query)),
          Panel_Fingerprint         =>
            Hash_String
-             (Editor.Panel_Focus.Focus_Target'Image (Editor.Panel_Focus.Target (S.Panel_Focus)) & ":" &
-              Editor.Overlay_Focus.Overlay_Target'Image (Editor.Overlay_Focus.Active_Overlay (S.Overlay_Focus))));
+             (Editor.Panel_Focus.Focus_Target'Image (Editor.Panel_Focus.Target (S.Panel.Panel_Focus)) & ":" &
+              Editor.Overlay_Focus.Overlay_Target'Image (Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus))));
    end Summary;
 
    procedure Check

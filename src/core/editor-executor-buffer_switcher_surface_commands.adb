@@ -34,7 +34,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
    is
    begin
       return Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
         and then Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher);
    end Active_Buffer_Switcher_Overlay;
 
@@ -225,7 +225,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
    is
    begin
       if Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
       then
          Editor.Executor.Dismiss_Active_Overlay
            (S, Editor.Overlay_Focus.Dismiss_Command);
@@ -254,7 +254,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
       end if;
 
       if Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
       then
          Editor.Executor.Dismiss_Active_Overlay
            (S, Editor.Overlay_Focus.Dismiss_Accept);

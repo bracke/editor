@@ -26,7 +26,7 @@ package body Editor.Executor.Terminal_Commands is
       case Id is
          when Editor.Command_Ids.Command_Run_Project
             | Editor.Command_Ids.Command_Run_Tests =>
-            if not Editor.Project.Has_Project (S.Project) then
+            if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project is open.");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -74,9 +74,9 @@ package body Editor.Executor.Terminal_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project.Has_Project (S.Project) then
+      if Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Terminal_Tasks.Ensure_Project_Default_Tasks
-           (S.Build.Terminal_Tasks, Editor.Project.Root_Path (S.Project));
+           (S.Build.Terminal_Tasks, Editor.Project.Root_Path (S.Project_Runtime.Project));
       end if;
    end Ensure_Terminal_Project_Tasks;
 

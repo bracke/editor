@@ -31,7 +31,7 @@ package body Editor.Input_Bridge.Goto_Line_Handlers is
       end if;
 
       if not Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay)
       then
          return False;
       end if;

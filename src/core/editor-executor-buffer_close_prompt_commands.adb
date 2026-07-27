@@ -69,9 +69,9 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
         (S, Natural (Id));
       if Was_Active then
          Editor.Feature_Messages.Reset_For_Buffer_Close
-           (S.Feature_Messages, Editor.Executor.Active_Feature_Buffer_Token (S));
+           (S.Panel.Feature_Messages, Editor.Executor.Active_Feature_Buffer_Token (S));
          Editor.Feature_Search_Results.Reset_For_Buffer_Close
-           (S.Feature_Search_Results, Editor.Executor.Active_Feature_Buffer_Token (S));
+           (S.Panel.Feature_Search_Results, Editor.Executor.Active_Feature_Buffer_Token (S));
          Editor.Feature_Panel_Controller.Rebuild_Active_Feature_Projection (S);
       end if;
       if Editor.Buffers.Global_Count = 0
@@ -97,9 +97,9 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
       then
          declare
             Snapshot : constant Editor.Problems.Problems_Snapshot :=
-              Editor.Problems.Build_Snapshot (S.Diagnostics);
+              Editor.Problems.Build_Snapshot (S.Panel.Diagnostics);
          begin
-            Editor.Problems.Ensure_Valid_Selection (S.Problems_View, Snapshot);
+            Editor.Problems.Ensure_Valid_Selection (S.Panel.Problems_View, Snapshot);
          end;
       end if;
    end Finalize_Cleanup_Buffer_Close;
@@ -871,7 +871,7 @@ package body Editor.Executor.Buffer_Close_Prompt_Commands is
          if Was_All then
             declare
                Remaining : constant Editor.Dirty_Guards.Dirty_Buffer_Summary :=
-                 Dirty_Buffer_Summary_For_All_Buffers (S.Project);
+                 Dirty_Buffer_Summary_For_All_Buffers (S.Project_Runtime.Project);
             begin
                if Remaining.Dirty_Count > 0 then
                   Start_Dirty_Close_Prompt

@@ -50,7 +50,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
    is
    begin
       return Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
         and then Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher);
    end Active_Buffer_Switcher_Overlay;
 

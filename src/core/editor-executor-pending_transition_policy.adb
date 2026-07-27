@@ -26,7 +26,7 @@ package body Editor.Executor.Pending_Transition_Policy is
       return Editor.Dirty_Guards.Dirty_Transition_Result
    is
       Summary : Editor.Dirty_Guards.Dirty_Buffer_Summary :=
-        Editor.Buffers.Global_Categorized_Dirty_Buffer_Summary (State.Project);
+        Editor.Buffers.Global_Categorized_Dirty_Buffer_Summary (State.Project_Runtime.Project);
    begin
       if Editor.Buffers.Global_Count = 0 then
          Summary :=
@@ -139,12 +139,12 @@ package body Editor.Executor.Pending_Transition_Policy is
           | Editor.Pending_Transitions.Pending_Close_Project
           | Editor.Pending_Transitions.Pending_Clear_Project
           | Editor.Pending_Transitions.Pending_Clear_Workspace_State
-        and then Editor.Project.Has_Project (S.Project)
+        and then Editor.Project.Has_Project (S.Project_Runtime.Project)
       then
          Captured_Target.Source_Path :=
            To_Unbounded_String
              (Editor.Recent_Projects.Normalized_Root_Path
-                (Editor.Project.Root_Path (S.Project)));
+                (Editor.Project.Root_Path (S.Project_Runtime.Project)));
          Captured_Target.Has_Source_Path := True;
       end if;
 
@@ -164,10 +164,10 @@ package body Editor.Executor.Pending_Transition_Policy is
          return False;
       end if;
 
-      for Index in 1 .. Editor.Recent_Projects.Count (S.Recent_Projects) loop
+      for Index in 1 .. Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) loop
          declare
             Item : constant Editor.Recent_Projects.Recent_Project_Entry :=
-              Editor.Recent_Projects.Item (S.Recent_Projects, Index);
+              Editor.Recent_Projects.Item (S.Project_Runtime.Recent_Projects, Index);
          begin
             if Editor.Recent_Projects.Normalized_Root_Path
                  (To_String (Item.Root_Path)) = Normalized
@@ -262,9 +262,9 @@ package body Editor.Executor.Pending_Transition_Policy is
             return Target.Has_Path
               and then Path'Length > 0
               and then (not Target.Has_Source_Path
-                or else (Editor.Project.Has_Project (S.Project)
+                or else (Editor.Project.Has_Project (S.Project_Runtime.Project)
                   and then Editor.Recent_Projects.Normalized_Root_Path
-                    (Editor.Project.Root_Path (S.Project)) =
+                    (Editor.Project.Root_Path (S.Project_Runtime.Project)) =
                       To_String (Target.Source_Path)))
               and then Project_Switch_Target_Is_Usable (Path);
          when Editor.Pending_Transitions.Pending_Open_Recent_Project =>
@@ -276,35 +276,35 @@ package body Editor.Executor.Pending_Transition_Policy is
          when Editor.Pending_Transitions.Pending_Restore_Workspace =>
             return Target.Has_Path
               and then Path'Length > 0
-              and then Editor.Project.Has_Project (S.Project)
+              and then Editor.Project.Has_Project (S.Project_Runtime.Project)
               and then Editor.Recent_Projects.Normalized_Root_Path
-                (Editor.Project.Root_Path (S.Project)) =
+                (Editor.Project.Root_Path (S.Project_Runtime.Project)) =
                   Editor.Recent_Projects.Normalized_Root_Path (Path)
               and then Ada.Directories.Exists
                (Editor.Workspace_Persistence.Session_File_Path (Path));
          when Editor.Pending_Transitions.Pending_Clear_Workspace_State =>
             return Target.Has_Path
               and then Path'Length > 0
-              and then Editor.Project.Has_Project (S.Project)
+              and then Editor.Project.Has_Project (S.Project_Runtime.Project)
               and then (not Target.Has_Source_Path
                 or else Editor.Recent_Projects.Normalized_Root_Path
-                  (Editor.Project.Root_Path (S.Project)) =
+                  (Editor.Project.Root_Path (S.Project_Runtime.Project)) =
                     To_String (Target.Source_Path))
               and then Editor.Recent_Projects.Normalized_Root_Path
-                (Editor.Project.Root_Path (S.Project)) =
+                (Editor.Project.Root_Path (S.Project_Runtime.Project)) =
                   Editor.Recent_Projects.Normalized_Root_Path (Path)
               and then Ada.Directories.Exists
                 (Editor.Workspace_Persistence.Session_File_Path (Path));
          when Editor.Pending_Transitions.Pending_Close_Project
             | Editor.Pending_Transitions.Pending_Clear_Project =>
-            if not Editor.Project.Has_Project (S.Project) then
+            if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
                return False;
             elsif Target.Has_Source_Path then
                return Editor.Recent_Projects.Normalized_Root_Path
-                   (Editor.Project.Root_Path (S.Project)) = To_String (Target.Source_Path);
+                   (Editor.Project.Root_Path (S.Project_Runtime.Project)) = To_String (Target.Source_Path);
             elsif Target.Has_Path then
                return Editor.Recent_Projects.Normalized_Root_Path
-                   (Editor.Project.Root_Path (S.Project)) =
+                   (Editor.Project.Root_Path (S.Project_Runtime.Project)) =
                  Editor.Recent_Projects.Normalized_Root_Path (Path);
             else
                return True;

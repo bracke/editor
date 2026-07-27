@@ -97,7 +97,7 @@ package body Editor.Lifecycle_Guidance is
       Found : Boolean := False;
       Node_Id : Editor.File_Tree.File_Tree_Node_Id;
    begin
-      if Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel_Focus)
+      if Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel.Panel_Focus)
         and then Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View) /= 0
       then
          Node_Id := Editor.File_Tree_View.Node_For_Row

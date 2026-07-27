@@ -29,7 +29,7 @@ package body Editor.Executor.File_Tree_Create_Commands is
       Target     : Unbounded_String := Null_Unbounded_String;
       File       : Ada.Text_IO.File_Type;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif Input'Length = 0 then
@@ -172,7 +172,7 @@ package body Editor.Executor.File_Tree_Create_Commands is
         Editor.Executor.File_Tree_Mutation_Commands.File_Tree_Input_Text (Cmd);
       Target     : Unbounded_String := Null_Unbounded_String;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif Input'Length = 0 then

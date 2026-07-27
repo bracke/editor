@@ -47,7 +47,7 @@ package body Editor.Executor.Build_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Build_Refresh_Candidates =>
-            if not Editor.Project.Has_Project (S.Project) then
+            if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -137,7 +137,7 @@ package body Editor.Executor.Build_Commands is
             declare
                Context : constant Editor.Build_Working_Context.Build_Working_Context_Record :=
                  Editor.Build_Working_Context.Current_Project_Root
-                   (Editor.Project.Root_Path (S.Project));
+                   (Editor.Project.Root_Path (S.Project_Runtime.Project));
                Refresh_Result : constant Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Result :=
                  Editor.Build_UI_Actions.Build_UI_Refresh_Candidates (S, Context);
                Count_Text : constant String :=

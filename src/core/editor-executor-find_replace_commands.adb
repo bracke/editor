@@ -25,7 +25,7 @@ package body Editor.Executor.Find_Replace_Commands is
      (S       : Editor.State.State_Type;
       Overlay : Editor.Overlay_Focus.Overlay_Target) return Boolean is
    begin
-      return Editor.Overlay_Focus.Is_Active (S.Overlay_Focus, Overlay);
+      return Editor.Overlay_Focus.Is_Active (S.Panel.Overlay_Focus, Overlay);
    end Active_Overlay_Is;
 
    function Find_Replace_Command_Availability
@@ -71,29 +71,29 @@ package body Editor.Executor.Find_Replace_Commands is
          when Command_Find_Hide =>
             if not Active_Overlay_Is
               (S, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
-              or else not S.Active_Find_Prompt
+              or else not S.Search.Active_Find_Prompt
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Replace_Hide =>
-            if not S.Active_Replace_Prompt then
+            if not S.Search.Active_Replace_Prompt then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Replace_Text_Set =>
-            if not S.Active_Replace_Prompt then
+            if not S.Search.Active_Replace_Prompt then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Replace_Text_Clear =>
-            if not S.Active_Replace_Prompt then
+            if not S.Search.Active_Replace_Prompt then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
-            elsif Length (S.Active_Replace_Text) = 0
-              and then Length (S.Active_Replace_Error_Message) = 0
+            elsif Length (S.Search.Active_Replace_Text) = 0
+              and then Length (S.Search.Active_Replace_Error_Message) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No replacement text to clear");
@@ -103,7 +103,7 @@ package body Editor.Executor.Find_Replace_Commands is
          when Command_Find_Query_Set =>
             if not Active_Overlay_Is
               (S, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
-              or else not S.Active_Find_Prompt
+              or else not S.Search.Active_Find_Prompt
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
@@ -112,10 +112,10 @@ package body Editor.Executor.Find_Replace_Commands is
          when Command_Find_Query_Clear =>
             if not Active_Overlay_Is
               (S, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
-              or else not S.Active_Find_Prompt
+              or else not S.Search.Active_Find_Prompt
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
-            elsif Length (S.Active_Find_Query) = 0 then
+            elsif Length (S.Search.Active_Find_Query) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No find query");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -131,7 +131,7 @@ package body Editor.Executor.Find_Replace_Commands is
               (S)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
-            elsif Length (S.Active_Find_Query) = 0 then
+            elsif Length (S.Search.Active_Find_Query) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No find query");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -295,7 +295,7 @@ package body Editor.Executor.Find_Replace_Commands is
    procedure Report_Invalid_Replace_Text
      (S : in out Editor.State.State_Type) is
    begin
-      S.Active_Replace_Error_Message :=
+      S.Search.Active_Replace_Error_Message :=
         To_Unbounded_String ("Replacement text must be single-line");
       Editor.Executor.Shared_Services.Report_Warning
         (S, "Replacement text must be single-line");
@@ -335,12 +335,12 @@ package body Editor.Executor.Find_Replace_Commands is
       Prior : Editor.Search.Search_Match) return Natural is
    begin
       if not Editor.Search.Has_Match (Prior)
-        or else S.Active_Find_Matches.Is_Empty
+        or else S.Search.Active_Find_Matches.Is_Empty
       then
          return 0;
       end if;
 
-      for M of S.Active_Find_Matches loop
+      for M of S.Search.Active_Find_Matches loop
          if M.Start_Index = Prior.Start_Index
            and then M.End_Index = Prior.End_Index
          then
@@ -355,18 +355,18 @@ package body Editor.Executor.Find_Replace_Commands is
      (S      : Editor.State.State_Type;
       Origin : Natural) return Natural is
    begin
-      if S.Active_Find_Matches.Is_Empty then
+      if S.Search.Active_Find_Matches.Is_Empty then
          return 0;
       end if;
 
-      for M of S.Active_Find_Matches loop
+      for M of S.Search.Active_Find_Matches loop
          if Natural (M.Start_Index) >= Origin then
             return Natural (M.Index);
          end if;
       end loop;
 
       return Natural
-        (S.Active_Find_Matches (S.Active_Find_Matches.First_Index).Index);
+        (S.Search.Active_Find_Matches (S.Search.Active_Find_Matches.First_Index).Index);
    end First_Find_Ordinal_At_Or_After_Index;
 
    procedure Select_Active_Find_At_Or_After_Index
@@ -375,7 +375,7 @@ package body Editor.Executor.Find_Replace_Commands is
       Ordinal : constant Natural :=
         First_Find_Ordinal_At_Or_After_Index (S, Origin);
    begin
-      S.Active_Find_Match :=
+      S.Search.Active_Find_Match :=
         Editor.Executor.Active_Find_Commands.Find_Match_By_Ordinal
           (S, Ordinal);
    end Select_Active_Find_At_Or_After_Index;
@@ -387,11 +387,11 @@ package body Editor.Executor.Find_Replace_Commands is
       Stop_Index : constant Natural := Start_Index + Length;
       Filtered   : Editor.Search.Search_Match_Vectors.Vector;
    begin
-      if Length = 0 or else S.Active_Find_Matches.Is_Empty then
+      if Length = 0 or else S.Search.Active_Find_Matches.Is_Empty then
          return;
       end if;
 
-      for Match of S.Active_Find_Matches loop
+      for Match of S.Search.Active_Find_Matches loop
          if Natural (Match.End_Index) <= Start_Index
            or else Natural (Match.Start_Index) >= Stop_Index
          then
@@ -399,8 +399,8 @@ package body Editor.Executor.Find_Replace_Commands is
          end if;
       end loop;
 
-      S.Active_Find_Matches := Filtered;
-      S.Active_Find_Match := Editor.Search.No_Match;
+      S.Search.Active_Find_Matches := Filtered;
+      S.Search.Active_Find_Match := Editor.Search.No_Match;
    end Remove_Active_Find_Matches_Overlapping;
 
    procedure Recompute_Find_After_Replace
@@ -415,9 +415,9 @@ package body Editor.Executor.Find_Replace_Commands is
      (S : in out Editor.State.State_Type) is
       Before : Editor.State.State_Type := S;
       Before_Text : constant String := Editor.State.Current_Text (S);
-      Query : constant String := To_String (S.Active_Find_Query);
-      Replacement : constant String := To_String (S.Active_Replace_Text);
-      Prior_Selected : constant Editor.Search.Search_Match := S.Active_Find_Match;
+      Query : constant String := To_String (S.Search.Active_Find_Query);
+      Replacement : constant String := To_String (S.Search.Active_Replace_Text);
+      Prior_Selected : constant Editor.Search.Search_Match := S.Search.Active_Find_Match;
       Count : Natural := 0;
       Ordinal : Natural := 0;
       Match : Editor.Search.Search_Match := Editor.Search.No_Match;
@@ -435,7 +435,7 @@ package body Editor.Executor.Find_Replace_Commands is
          Report_Info (S, "No find query");
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif Length (S.Active_Replace_Error_Message) > 0 then
+      elsif Length (S.Search.Active_Replace_Error_Message) > 0 then
          Report_Invalid_Replace_Text (S);
          return;
       elsif not Is_Valid_Replace_Text (Replacement) then
@@ -443,9 +443,9 @@ package body Editor.Executor.Find_Replace_Commands is
          return;
       end if;
 
-      if not S.Active_Find_Stale
-        and then S.Active_Find_Matches.Is_Empty
-        and then S.Active_Find_Source_Buffer_Token =
+      if not S.Search.Active_Find_Stale
+        and then S.Search.Active_Find_Matches.Is_Empty
+        and then S.Search.Active_Find_Source_Buffer_Token =
           Editor.Executor.Active_Feature_Buffer_Token (S)
       then
          Report_Info (S, "No matches");
@@ -454,7 +454,7 @@ package body Editor.Executor.Find_Replace_Commands is
       end if;
 
       Editor.Executor.Active_Find_Commands.Recompute_Active_Find_Matches (S);
-      Count := Natural (S.Active_Find_Matches.Length);
+      Count := Natural (S.Search.Active_Find_Matches.Length);
       if Count = 0 then
          Report_Info (S, "No matches");
          Editor.Render_Cache.Invalidate_All;
@@ -478,21 +478,21 @@ package body Editor.Executor.Find_Replace_Commands is
 
       Edit_Origin := Natural (Match.Start_Index);
       Cmd.Kind := Apply_Replace_Batch;
-      Append_Find_Replacement_Op (Cmd, Match, S.Active_Replace_Text);
+      Append_Find_Replacement_Op (Cmd, Match, S.Search.Active_Replace_Text);
       Editor.Executor.History.Apply_Replace_Batch_Command (S, Cmd);
       if Editor.State.Current_Text (S) /= Before_Text then
          Editor.Executor.History.Log_Edit (Before, S, Cmd);
          Editor.Buffers.Ensure_Global_Registry (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
       end if;
-      S.Active_Replace_Error_Message := Null_Unbounded_String;
+      S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
       Recompute_Find_After_Replace (S, Edit_Origin);
       if Replacement /= Query then
          Remove_Active_Find_Matches_Overlapping
            (S, Edit_Origin, Replacement'Length);
          Select_Active_Find_At_Or_After_Index (S, Edit_Origin);
       end if;
-      if S.Active_Find_Matches.Is_Empty then
+      if S.Search.Active_Find_Matches.Is_Empty then
          Report_Success (S, "Replaced current match; no more matches");
       else
          Report_Success (S, "Replaced current match");
@@ -504,8 +504,8 @@ package body Editor.Executor.Find_Replace_Commands is
      (S : in out Editor.State.State_Type) is
       Before : Editor.State.State_Type := S;
       Before_Text : constant String := Editor.State.Current_Text (S);
-      Query : constant String := To_String (S.Active_Find_Query);
-      Replacement : constant String := To_String (S.Active_Replace_Text);
+      Query : constant String := To_String (S.Search.Active_Find_Query);
+      Replacement : constant String := To_String (S.Search.Active_Replace_Text);
       Count : Natural := 0;
       Edit_Origin : Natural := 0;
       Cmd : Editor.Commands.Payloads.Command;
@@ -521,7 +521,7 @@ package body Editor.Executor.Find_Replace_Commands is
          Report_Info (S, "No find query");
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif Length (S.Active_Replace_Error_Message) > 0 then
+      elsif Length (S.Search.Active_Replace_Error_Message) > 0 then
          Report_Invalid_Replace_Text (S);
          return;
       elsif not Is_Valid_Replace_Text (Replacement) then
@@ -530,7 +530,7 @@ package body Editor.Executor.Find_Replace_Commands is
       end if;
 
       Editor.Executor.Active_Find_Commands.Recompute_Active_Find_Matches (S);
-      Count := Natural (S.Active_Find_Matches.Length);
+      Count := Natural (S.Search.Active_Find_Matches.Length);
       if Count = 0 then
          Report_Info (S, "No matches");
          Editor.Render_Cache.Invalidate_All;
@@ -538,10 +538,10 @@ package body Editor.Executor.Find_Replace_Commands is
       end if;
 
       Edit_Origin :=
-        Natural (S.Active_Find_Matches (S.Active_Find_Matches.First_Index).Start_Index);
+        Natural (S.Search.Active_Find_Matches (S.Search.Active_Find_Matches.First_Index).Start_Index);
       Cmd.Kind := Apply_Replace_Batch;
-      for Match of S.Active_Find_Matches loop
-         Append_Find_Replacement_Op (Cmd, Match, S.Active_Replace_Text);
+      for Match of S.Search.Active_Find_Matches loop
+         Append_Find_Replacement_Op (Cmd, Match, S.Search.Active_Replace_Text);
       end loop;
       Editor.Executor.History.Apply_Replace_Batch_Command (S, Cmd);
       if Editor.State.Current_Text (S) /= Before_Text then
@@ -549,7 +549,7 @@ package body Editor.Executor.Find_Replace_Commands is
          Editor.Buffers.Ensure_Global_Registry (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
       end if;
-      S.Active_Replace_Error_Message := Null_Unbounded_String;
+      S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
       Recompute_Find_After_Replace (S, Edit_Origin);
       if Count = 1 then
          Report_Success (S, "Replaced 1 match");

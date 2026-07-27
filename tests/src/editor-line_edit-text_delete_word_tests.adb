@@ -93,7 +93,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Found : Boolean := False;
       M     : Editor.Messages.Editor_Message;
    begin
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       if Found then
          return Editor.Messages.Text (M);
       else
@@ -1097,8 +1097,8 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("CLIP"));
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Beta");
-      S.Active_Replace_Prompt := True;
-      S.Active_Replace_Text := To_Unbounded_String ("REPL");
+      S.Search.Active_Replace_Prompt := True;
+      S.Search.Active_Replace_Text := To_Unbounded_String ("REPL");
       Set_Primary_Selection (S, 0, 5);
 
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
@@ -1106,7 +1106,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Before_Dirty := Editor.State.Is_Dirty (S);
-      Before_Stale := S.Active_Find_Stale;
+      Before_Stale := S.Search.Active_Find_Stale;
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
@@ -1130,9 +1130,9 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
               "render/availability must not mutate undo/redo stacks");
       Assert (Editor.State.Is_Dirty (S) = Before_Dirty,
               "render/availability must not mutate dirty state");
-      Assert (S.Active_Find_Stale = Before_Stale
-              and then To_String (S.Active_Find_Query) = "Beta"
-              and then To_String (S.Active_Replace_Text) = "REPL",
+      Assert (S.Search.Active_Find_Stale = Before_Stale
+              and then To_String (S.Search.Active_Find_Query) = "Beta"
+              and then To_String (S.Search.Active_Replace_Text) = "REPL",
               "render/availability must not mutate Find/Replace state");
       Assert_Navigation_Counts
         (S, Before_Back, Before_Fwd,
@@ -1143,11 +1143,11 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
         (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "Alpha ",
                           "delete-next must remove exact active Find match text");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "text-changing word delete must invalidate Find ranges");
-      Assert (To_String (S.Active_Find_Query) = "Beta"
-              and then To_String (S.Active_Replace_Text) = "REPL"
-              and then S.Active_Replace_Prompt,
+      Assert (To_String (S.Search.Active_Find_Query) = "Beta"
+              and then To_String (S.Search.Active_Replace_Text) = "REPL"
+              and then S.Search.Active_Replace_Prompt,
               "word delete must preserve Find query and Replace text");
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
@@ -1311,11 +1311,11 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
         (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "Alpha  Gamma",
                           "delete-next removes exact Find match word");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "text-changing Word Delete must invalidate computed Find ranges");
-      Assert (To_String (S.Active_Find_Query) = "Beta"
-              and then To_String (S.Active_Replace_Text) = "REPL"
-              and then S.Active_Replace_Prompt,
+      Assert (To_String (S.Search.Active_Find_Query) = "Beta"
+              and then To_String (S.Search.Active_Replace_Text) = "REPL"
+              and then S.Search.Active_Replace_Prompt,
               "Word Delete must preserve Find query and Replace text");
       Assert (not Editor.Selection.Has_Selection (S),
               "successful Word Delete must collapse active selection");
@@ -1340,10 +1340,10 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
                           "redo restores exact Find workflow text");
 
       Set_Caret (S, 0);
-      S.Active_Find_Stale := False;
+      S.Search.Active_Find_Stale := False;
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Word_Delete_Previous);
-      Assert (not S.Active_Find_Stale,
+      Assert (not S.Search.Active_Find_Stale,
               "no-op Word Delete must not invalidate Find/Replace state");
    end Test_Word_Delete_Cross_Line_Selection_Find_Clipboard;
 
@@ -1782,7 +1782,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
                           "canonical delete-next smoke text mismatch");
       Assert (not Editor.Selection.Has_Selection (S),
               "successful Word Delete must collapse stale active selection");
-      Assert (S.Active_Find_Stale and then S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Stale and then S.Search.Active_Find_Matches.Is_Empty,
               "text-changing Word Delete must use canonical Find invalidation");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
               "canonical Word Delete must preserve Clipboard text");

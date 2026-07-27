@@ -37,9 +37,9 @@ package body Editor.Quick_Open.Surface_Rendering is
    begin
       if Length (Snapshot.Empty_Message) > 0 then
          return To_String (Snapshot.Empty_Message);
-      elsif not Editor.Project.Has_Project (S.Project) then
+      elsif not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          return "No project open";
-      elsif Editor.Project.Known_File_Count (S.Project) = 0 then
+      elsif Editor.Project.Known_File_Count (S.Project_Runtime.Project) = 0 then
          return "No project files";
       elsif Length (Snapshot.Query) > 0
         or else Snapshot.File_Kind_Filter /= Editor.Quick_Open.All_Files
@@ -141,7 +141,7 @@ package body Editor.Quick_Open.Surface_Rendering is
         Editor.Quick_Open_Markers.Build_Snapshot
           (State    => State.Quick_Open,
            Tree     => State.File_Tree,
-           Project  => State.Project,
+           Project  => State.Project_Runtime.Project,
            Registry => Editor.Buffers.Global_Registry_For_UI,
            Recent   => State.Recent_Buffers);
       Text_Cols : constant Natural :=
@@ -154,7 +154,7 @@ package body Editor.Quick_Open.Surface_Rendering is
         Editor.Quick_Open.Query_Snapshot (State.Quick_Open, Text_Cols);
       Active : constant Boolean :=
         Editor.Overlay_Focus.Is_Active
-          (State.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay);
+          (State.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay);
       Rows_Height : constant Natural :=
         (if G.Height >
            (Config.Header_Height_In_Rows + Config.Field_Height_In_Rows) * Cell_H

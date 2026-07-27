@@ -240,8 +240,8 @@ package body Editor.Executor.File_Save_As_Commands is
          Clear_Dirty_Close_Prompt (S);
          File_Lifecycle_Invalidate_Derived_State
            (S, "Derived state is stale after save as");
-         if Editor.Project.Has_Project (S.Project)
-           and then Editor.Project.Is_Under_Project (S.Project, Path)
+         if Editor.Project.Has_Project (S.Project_Runtime.Project)
+           and then Editor.Project.Is_Under_Project (S.Project_Runtime.Project, Path)
          then
             declare
                Tree_Result : Editor.File_Tree.File_Tree_Scan_Result;

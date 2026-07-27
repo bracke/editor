@@ -69,11 +69,11 @@ package body Editor.Product_Surface_Cleanup is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      for I in 1 .. Editor.Feature_Panel.Row_Count (S.Feature_Panel) loop
+      for I in 1 .. Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) loop
          if Looks_Like_Demo_Text
-           (Editor.Feature_Panel.Row_Label (S.Feature_Panel, I))
+           (Editor.Feature_Panel.Row_Label (S.Panel.Feature_Panel, I))
            or else Looks_Like_Demo_Text
-             (Editor.Feature_Panel.Row_Detail (S.Feature_Panel, I))
+             (Editor.Feature_Panel.Row_Detail (S.Panel.Feature_Panel, I))
          then
             return True;
          end if;
@@ -102,9 +102,9 @@ package body Editor.Product_Surface_Cleanup is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      for I in 1 .. Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) loop
+      for I in 1 .. Editor.Diagnostics.Diagnostic_Count (S.Panel.Diagnostics) loop
          if Looks_Like_Demo_Text
-           (US (Editor.Diagnostics.Diagnostic_At (S.Diagnostics, I).Message))
+           (US (Editor.Diagnostics.Diagnostic_At (S.Panel.Diagnostics, I).Message))
          then
             return True;
          end if;
@@ -146,17 +146,17 @@ package body Editor.Product_Surface_Cleanup is
    is
    begin
       for I in 1 .. Editor.Feature_Search_Results.Row_Count
-        (S.Feature_Search_Results)
+        (S.Panel.Feature_Search_Results)
       loop
          if Looks_Like_Demo_Text
            (Editor.Feature_Search_Results.Item_Label
-              (S.Feature_Search_Results, I))
+              (S.Panel.Feature_Search_Results, I))
            or else Looks_Like_Demo_Text
              (Editor.Feature_Search_Results.Item_Source_Label
-                (S.Feature_Search_Results, I))
+                (S.Panel.Feature_Search_Results, I))
            or else Looks_Like_Demo_Text
              (Editor.Feature_Search_Results.Item_Line_Text
-                (S.Feature_Search_Results, I))
+                (S.Panel.Feature_Search_Results, I))
          then
             return True;
          end if;

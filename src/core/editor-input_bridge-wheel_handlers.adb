@@ -224,7 +224,7 @@ package body Editor.Input_Bridge.Wheel_Handlers is
         or else Hit.Zone = Editor.Build_UI_Panel_Layout.Build_UI_Panel_Suppressed_Header
       then
          Editor.Feature_Diagnostics.Scroll_Suppressed_Diagnostics
-           (S.Feature_Diagnostics,
+           (S.Panel.Feature_Diagnostics,
             Projection.Displayed_Suppressed_Count,
             Wheel_Row_Delta (Delta_Y));
       else
@@ -314,7 +314,7 @@ package body Editor.Input_Bridge.Wheel_Handlers is
       end if;
 
       if Point_In_Rect (X, Y, Feature_Rect)
-        and then Editor.Feature_Panel.Is_Visible (S.Feature_Panel)
+        and then Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel)
       then
          declare
             Rows : Natural :=
@@ -325,10 +325,10 @@ package body Editor.Input_Bridge.Wheel_Handlers is
                Rows := Rows - 1;
             end if;
             Editor.Feature_Panel.Set_Visible_Row_Count
-              (S.Feature_Panel, Rows);
+              (S.Panel.Feature_Panel, Rows);
          end;
          Editor.Feature_Panel.Scroll_By
-           (S.Feature_Panel, Wheel_Row_Delta (Delta_Y));
+           (S.Panel.Feature_Panel, Wheel_Row_Delta (Delta_Y));
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
@@ -356,7 +356,7 @@ package body Editor.Input_Bridge.Wheel_Handlers is
                        Editor.Buffers.Global_Registry_For_UI);
                begin
                   Editor.Search_Results.Scroll_By
-                    (S.Search_Results_View, Full, Rows,
+                    (S.Panel.Search_Results_View, Full, Rows,
                      Wheel_Row_Delta (Delta_Y));
                end;
                Editor.Render_Cache.Invalidate_All;
@@ -366,10 +366,10 @@ package body Editor.Input_Bridge.Wheel_Handlers is
             then
                declare
                   Full : constant Editor.Problems.Problems_Snapshot :=
-                    Editor.Problems.Build_Snapshot (S.Diagnostics);
+                    Editor.Problems.Build_Snapshot (S.Panel.Diagnostics);
                begin
                   Editor.Problems.Scroll_By
-                    (S.Problems_View, Full, Rows,
+                    (S.Panel.Problems_View, Full, Rows,
                      Wheel_Row_Delta (Delta_Y));
                end;
                Editor.Render_Cache.Invalidate_All;

@@ -57,7 +57,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Move_Caret_To_Line (S, 1);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "semantic action target",
          Source_Label  => "semantic",
@@ -69,7 +69,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostics feature is shown for selected action test");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
@@ -100,7 +100,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Move_Caret_To_Line (S, 1);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "semantic explain action",
          Source_Label  => "semantic",
@@ -114,10 +114,10 @@ package body Editor.Executor.Diagnostics_Tests is
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostics feature is shown for selected explain action test");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Expected_Message := To_Unbounded_String
         ("Diagnostic action: " &
-         Editor.Feature_Diagnostics.Item_Display_Label (S.Feature_Diagnostics, 1));
+         Editor.Feature_Diagnostics.Item_Display_Label (S.Panel.Feature_Diagnostics, 1));
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
@@ -128,16 +128,16 @@ package body Editor.Executor.Diagnostics_Tests is
               "selected diagnostic explain action must not navigate");
       Assert (Latest_Message_Text (S) = To_String (Expected_Message),
               "selected diagnostic explain action reports projected action label");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 1,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 1,
               "selected diagnostic explain action projects a review row");
-      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Panel.Feature_Search_Results) =
               "diagnostic action: explain",
               "selected diagnostic explain action labels Search Results");
       Assert (Editor.Feature_Search_Results.Item_Has_Target
-                (S.Feature_Search_Results, 1),
+                (S.Panel.Feature_Search_Results, 1),
               "selected diagnostic explain action row is source-navigable");
       Assert (Editor.Feature_Search_Results.Item_Target_Buffer
-                (S.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
+                (S.Panel.Feature_Search_Results, 1) = S.Buffer_Lifecycle.Active_Buffer_Token,
               "selected diagnostic explain action row targets the live buffer");
       Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
               and then Editor.Panels.Active_Bottom_Content (S.Panels) =
@@ -166,7 +166,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Move_Caret_To_Line (S, 1);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "missing semicolon",
          Source_Label  => "semantic",
@@ -186,7 +186,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostics feature is shown for selected edit action test");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
@@ -244,7 +244,7 @@ package body Editor.Executor.Diagnostics_Tests is
          "end Demo;" & ASCII.LF);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "missing semicolon",
          Source_Label  => "semantic",
@@ -262,20 +262,20 @@ package body Editor.Executor.Diagnostics_Tests is
          Quick_Fix_Label   => "Insert semicolon",
          Quick_Fix_Detail  => "Append statement delimiter");
       Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Command
-        (S.Feature_Diagnostics, 1,
+        (S.Panel.Feature_Diagnostics, 1,
          Label  => "Explain missing semicolon",
          Detail => "Open diagnostic explanation",
          Primary_Action_Kind =>
            Editor.Ada_Diagnostic_Command_Projection.Diagnostic_Command_Explain_Diagnostic);
       Assert
         (Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Count
-           (S.Feature_Diagnostics, 1) = 2,
+           (S.Panel.Feature_Diagnostics, 1) = 2,
          "fixture diagnostic should expose two quick-fix actions");
 
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostics feature is shown for quick-fix picker test");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix);
@@ -291,13 +291,13 @@ package body Editor.Executor.Diagnostics_Tests is
          "multi-action quick-fix picker must not apply the first edit immediately");
       Assert (Latest_Message_Text (S) = "Choose a diagnostic quick fix",
               "multi-action quick-fix picker reports selection flow");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 2,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 2,
               "quick-fix picker projects one row per action");
-      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Panel.Feature_Search_Results) =
               Editor.Feature_Diagnostics.Diagnostic_Quick_Fix_Picker_Query_Text,
               "quick-fix picker labels Search Results");
       Assert
-        (Editor.Feature_Search_Results.External_Kind (S.Feature_Search_Results) =
+        (Editor.Feature_Search_Results.External_Kind (S.Panel.Feature_Search_Results) =
          Editor.Feature_Search_Results.Diagnostic_Quick_Fix_Action_List,
          "quick-fix picker exposes typed Search Results action-list kind");
 
@@ -340,7 +340,7 @@ package body Editor.Executor.Diagnostics_Tests is
          "end Demo;" & ASCII.LF);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "missing semicolon",
          Source_Label  => "semantic",
@@ -358,11 +358,11 @@ package body Editor.Executor.Diagnostics_Tests is
          Quick_Fix_Label   => "Insert semicolon",
          Quick_Fix_Detail  => "Append statement delimiter");
       Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Unavailable
-        (S.Feature_Diagnostics, 1,
+        (S.Panel.Feature_Diagnostics, 1,
          Label  => "Unavailable quick fix",
          Detail => "No edit or command");
       Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Command
-        (S.Feature_Diagnostics, 1,
+        (S.Panel.Feature_Diagnostics, 1,
          Label  => "Explain missing semicolon",
          Detail => "Open diagnostic explanation",
          Primary_Action_Kind =>
@@ -371,42 +371,42 @@ package body Editor.Executor.Diagnostics_Tests is
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostics feature is shown for non-edit quick-fix picker test");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Diagnostic_Apply_Quick_Fix);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "multi-action quick fix opens picker for non-edit action test");
       Assert
-        (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 2,
+        (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 2,
          "quick-fix picker skips inert actions");
       Assert
         (Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Model
-           (S.Feature_Diagnostics, 1, 2) =
+           (S.Panel.Feature_Diagnostics, 1, 2) =
          Editor.Feature_Diagnostics.Quick_Fix_Action_Unavailable,
          "inert quick-fix action is explicitly modelled unavailable");
       Assert
         (Editor.Feature_Diagnostics.Item_Quick_Fix_Action_Model
-           (S.Feature_Diagnostics, 1, 3) =
+           (S.Panel.Feature_Diagnostics, 1, 3) =
          Editor.Feature_Diagnostics.Quick_Fix_Action_Command,
          "non-edit quick-fix action is explicitly modelled as a command");
       Assert
         (Editor.Feature_Search_Results.Item_External_Payload
-           (S.Feature_Search_Results, 2) =
+           (S.Panel.Feature_Search_Results, 2) =
          Editor.Feature_Search_Results.Quick_Fix_Action_Result_Payload (3),
          "quick-fix picker preserves the original action index after filtering");
       Assert
         (Editor.Feature_Search_Results.Item_External_Payload
-           (S.Feature_Search_Results, 2).Kind =
+           (S.Panel.Feature_Search_Results, 2).Kind =
          Editor.Feature_Search_Results.Quick_Fix_Action_Payload,
          "quick-fix picker uses typed external payload metadata");
 
       Editor.Executor.Panel_Focus_Commands.Execute_Focus_Search_Results (S);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 2);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 2);
       Editor.Executor.Search_Results_Commands.Execute_Search_Results_Open_Selected (S);
 
       Assert
-        (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+        (Editor.Feature_Search_Results.Query_Text (S.Panel.Feature_Search_Results) =
          "diagnostic action: explain",
          "opening focused Search Results quick-fix row executes the typed payload action");
       Assert
@@ -417,7 +417,7 @@ package body Editor.Executor.Diagnostics_Tests is
          "end Demo;" & ASCII.LF,
          "non-edit quick-fix picker action does not mutate buffer text");
       Assert
-        (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel_Focus),
+        (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus),
          "Search Results quick-fix activation returns focus to editor text");
       Assert
         (not Editor.State.Has_Pending_Quick_Fix_Workflow (S)
@@ -448,7 +448,7 @@ package body Editor.Executor.Diagnostics_Tests is
             "end Demo;" & ASCII.LF);
 
          Editor.Feature_Diagnostics.Add_Diagnostic
-           (S.Feature_Diagnostics,
+           (S.Panel.Feature_Diagnostics,
             Editor.Feature_Diagnostics.Diagnostic_Error,
             "missing semicolon",
             Source_Label  => "semantic",
@@ -466,7 +466,7 @@ package body Editor.Executor.Diagnostics_Tests is
             Quick_Fix_Label   => "Insert semicolon",
             Quick_Fix_Detail  => "Append statement delimiter");
          Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Unavailable
-           (S.Feature_Diagnostics, 1,
+           (S.Panel.Feature_Diagnostics, 1,
             Label  => "Unavailable quick fix",
             Detail => "No edit or command");
 
@@ -520,7 +520,7 @@ package body Editor.Executor.Diagnostics_Tests is
       is
       begin
          Editor.Feature_Diagnostics.Add_Diagnostic
-           (S.Feature_Diagnostics,
+           (S.Panel.Feature_Diagnostics,
             Editor.Feature_Diagnostics.Diagnostic_Error,
             Message,
             Source_Label  => "semantic",
@@ -563,23 +563,23 @@ package body Editor.Executor.Diagnostics_Tests is
          "line 2" & ASCII.LF);
 
       Add_Edit_Quick_Fix ("stale quick fix", S.Buffer_Lifecycle.Active_Buffer_Token, 1, 1);
-      Stale_Index := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+      Stale_Index := Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
-        (S.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
+        (S.Panel.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
 
       Add_Edit_Quick_Fix ("missing buffer quick fix", 9999, 1, 1);
       Missing_Buffer_Index :=
-        Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Add_Edit_Quick_Fix ("invalid line quick fix", S.Buffer_Lifecycle.Active_Buffer_Token, 99, 1);
       Invalid_Line_Index :=
-        Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Add_Edit_Quick_Fix ("invalid column quick fix", S.Buffer_Lifecycle.Active_Buffer_Token, 1, 99);
       Invalid_Column_Index :=
-        Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+        Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Add_Edit_Quick_Fix ("inert quick fix", S.Buffer_Lifecycle.Active_Buffer_Token, 1, 1);
-      Inert_Index := Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics);
+      Inert_Index := Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics);
       Editor.Feature_Diagnostics.Append_Diagnostic_Quick_Fix_Unavailable
-        (S.Feature_Diagnostics, Positive (Inert_Index),
+        (S.Panel.Feature_Diagnostics, Positive (Inert_Index),
          Label  => "Unavailable quick fix",
          Detail => "No edit or command");
 
@@ -626,7 +626,7 @@ package body Editor.Executor.Diagnostics_Tests is
          "line 2" & ASCII.LF);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Warning,
          "semantic diagnostic with no action",
          Source_Label  => "semantic",
@@ -640,7 +640,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostics feature is shown for no-action test");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Open_Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
@@ -662,7 +662,7 @@ package body Editor.Executor.Diagnostics_Tests is
               "no-action diagnostic execution is classified unavailable");
       Assert (Latest_Message_Text (S) = "Diagnostic action unavailable",
               "no-action diagnostic execution reports availability reason");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 0,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 0,
               "no-action diagnostic must not project stale Search Results");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -680,7 +680,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Editor.State.Load_Text (S, "line 1" & ASCII.LF);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Warning,
          "semantic action without target",
          Source_Label => "semantic",
@@ -689,7 +689,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostics feature is shown for missing-target action test");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
@@ -719,7 +719,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Move_Caret_To_Line (S, 1);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "stale semantic action target",
          Source_Label  => "semantic",
@@ -729,11 +729,11 @@ package body Editor.Executor.Diagnostics_Tests is
          Target_Line   => 3,
          Target_Column => 1);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
-        (S.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
+        (S.Panel.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostics feature is shown for stale selected action test");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
@@ -768,7 +768,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Move_Caret_To_Line (S, 1);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Warning,
          "expand null statement",
          Source_Label  => "semantic",
@@ -793,7 +793,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostics feature is shown for selected multi-line edit action test");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
@@ -875,7 +875,7 @@ package body Editor.Executor.Diagnostics_Tests is
         (S.Semantic.Language_Service, S.Semantic.Language_Index);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "missing semicolon",
          Source_Label  => "semantic",
@@ -895,7 +895,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostics feature is shown for inactive-buffer edit action test");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Available := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
@@ -950,7 +950,7 @@ package body Editor.Executor.Diagnostics_Tests is
          "end Demo;" & ASCII.LF);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Error,
          "replace statement",
          Source_Label  => "semantic",
@@ -970,7 +970,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostics feature is shown for invalid edit-end test");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
@@ -1014,7 +1014,7 @@ package body Editor.Executor.Diagnostics_Tests is
       Move_Caret_To_Line (S, 1);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Editor.Feature_Diagnostics.Diagnostic_Warning,
          "semantic cross-unit review",
          Source_Label  => "semantic",
@@ -1028,10 +1028,10 @@ package body Editor.Executor.Diagnostics_Tests is
       Shown := Editor.Feature_Panel_Controller.Show_Feature
         (S, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Shown, "diagnostics feature is shown for selected review action test");
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Expected_Message := To_Unbounded_String
         ("Diagnostic action: " &
-         Editor.Feature_Diagnostics.Item_Display_Label (S.Feature_Diagnostics, 1));
+         Editor.Feature_Diagnostics.Item_Display_Label (S.Panel.Feature_Diagnostics, 1));
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Diagnostics_Execute_Selected_Action);
@@ -1042,19 +1042,19 @@ package body Editor.Executor.Diagnostics_Tests is
               "selected diagnostic review action must not navigate");
       Assert (Latest_Message_Text (S) = To_String (Expected_Message),
               "selected diagnostic review action reports projected action label");
-      Assert (Editor.Feature_Search_Results.Row_Count (S.Feature_Search_Results) = 1,
+      Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 1,
               "selected diagnostic review action projects a review row");
-      Assert (Editor.Feature_Search_Results.Query_Text (S.Feature_Search_Results) =
+      Assert (Editor.Feature_Search_Results.Query_Text (S.Panel.Feature_Search_Results) =
               "diagnostic action: review cross-unit",
               "selected diagnostic review action labels Search Results");
       Assert (Editor.Feature_Search_Results.Item_Target_Line
-                (S.Feature_Search_Results, 1) = 2,
+                (S.Panel.Feature_Search_Results, 1) = 2,
               "selected diagnostic review action row preserves target line");
       Assert (Editor.Feature_Search_Results.Item_Target_Column
-                (S.Feature_Search_Results, 1) = 11,
+                (S.Panel.Feature_Search_Results, 1) = 11,
               "selected diagnostic review action row preserves target column");
       Assert (Editor.Feature_Search_Results.Item_Match_Length
-                (S.Feature_Search_Results, 1) = 1,
+                (S.Panel.Feature_Search_Results, 1) = 1,
               "selected diagnostic review action row carries action span");
       Assert (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel)
               and then Editor.Panels.Active_Bottom_Content (S.Panels) =
@@ -1130,7 +1130,7 @@ package body Editor.Executor.Diagnostics_Tests is
         (Editor.Executor.Safe_Caret (S) = 5,
          "jump-to-diagnostic should move the primary caret to the diagnostic start");
       Assert
-        (S.Active_Diagnostic.Has_Active and then S.Active_Diagnostic.Index = 1,
+        (S.Panel.Active_Diagnostic.Has_Active and then S.Panel.Active_Diagnostic.Index = 1,
          "jump-to-diagnostic should record the active diagnostic");
       Assert
         (not S.Buffer_Lifecycle.File_Info.Dirty,

@@ -35,7 +35,7 @@ package body Editor.Executor.Project_Search_Replace_Preview_Commands is
       Editor.Panels.Set_Bottom_Content
         (S.Panels, Editor.Panels.Search_Results_Content);
       Editor.Panels.Set_Visible (S.Panels, Editor.Panels.Bottom_Panel, True);
-      if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel_Focus) then
+      if Editor.Panel_Focus.Bottom_Panel_Has_Focus (S.Panel.Panel_Focus) then
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_Project_Search_Results);
       end if;
@@ -85,7 +85,7 @@ package body Editor.Executor.Project_Search_Replace_Preview_Commands is
    is
       Status : Editor.Project_Search.Project_Replace_Preview_Status;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Warning (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -129,7 +129,7 @@ package body Editor.Executor.Project_Search_Replace_Preview_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Warning (S, "No project open");
       elsif Project_Search_Replace_Pending_Blocked (S) then
          Report_Warning (S, "Command unavailable while confirmation is pending");
@@ -168,7 +168,7 @@ package body Editor.Executor.Project_Search_Replace_Preview_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Warning (S, "No project open");
       elsif Project_Search_Replace_Pending_Blocked (S) then
          Report_Warning (S, "Command unavailable while confirmation is pending");
@@ -207,7 +207,7 @@ package body Editor.Executor.Project_Search_Replace_Preview_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Warning (S, "No project open");
       elsif Project_Search_Replace_Pending_Blocked (S) then
          Report_Warning (S, "Command unavailable while confirmation is pending");
@@ -248,7 +248,7 @@ package body Editor.Executor.Project_Search_Replace_Preview_Commands is
       Index : constant Natural :=
         Editor.Project_Search.Selected_Replace_Preview_Index (S.Project_Search);
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Warning (S, "No project open");
       elsif Project_Search_Replace_Pending_Blocked (S) then
          Report_Warning (S, "Command unavailable while confirmation is pending");
@@ -287,7 +287,7 @@ package body Editor.Executor.Project_Search_Replace_Preview_Commands is
       Index : constant Natural :=
         Editor.Project_Search.Selected_Replace_Preview_Index (S.Project_Search);
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Warning (S, "No project open");
       elsif Project_Search_Replace_Pending_Blocked (S) then
          Report_Warning (S, "Command unavailable while confirmation is pending");
@@ -324,7 +324,7 @@ package body Editor.Executor.Project_Search_Replace_Preview_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Warning (S, "No project open");
       elsif Project_Search_Replace_Pending_Blocked (S) then
          Report_Warning (S, "Command unavailable while confirmation is pending");
@@ -347,7 +347,7 @@ package body Editor.Executor.Project_Search_Replace_Preview_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Report_Warning (S, "No project open");
       elsif Project_Search_Replace_Pending_Blocked (S) then
          Report_Warning (S, "Command unavailable while confirmation is pending");

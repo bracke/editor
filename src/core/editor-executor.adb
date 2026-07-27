@@ -253,7 +253,7 @@ package body Editor.Executor is
       if Mapped = 0 then
          return "Selected diagnostic is no longer available.";
       elsif not Editor.Feature_Diagnostics.Item_Has_Target
-        (S.Feature_Diagnostics, Positive (Mapped))
+        (S.Panel.Feature_Diagnostics, Positive (Mapped))
       then
          return "Selected diagnostic has no source target.";
       elsif Target_Buffer = 0
@@ -264,7 +264,7 @@ package body Editor.Executor is
          return Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Line_Unavailable;
       elsif Line_Count = 0 or else Line > Line_Count then
          if Editor.Feature_Diagnostics.Item_Is_Stale
-           (S.Feature_Diagnostics, Positive (Mapped))
+           (S.Panel.Feature_Diagnostics, Positive (Mapped))
          then
             return Editor.Commands.Workflow_Messages.Reason_Target_Stale;
          else
@@ -274,7 +274,7 @@ package body Editor.Executor is
          return Editor.Commands.Workflow_Messages.Reason_Diagnostic_Target_Column_Unavailable;
       elsif Column - 1 > Feature_Target_Line_Length (S, Target_Buffer, Line) then
          if Editor.Feature_Diagnostics.Item_Is_Stale
-           (S.Feature_Diagnostics, Positive (Mapped))
+           (S.Panel.Feature_Diagnostics, Positive (Mapped))
          then
             return Editor.Commands.Workflow_Messages.Reason_Target_Stale;
          else
@@ -442,7 +442,7 @@ package body Editor.Executor is
    begin
       Found := False;
 
-      if not Editor.Project.Has_Project (S.Project)
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project)
         or else not Editor.State.Has_Active_Buffer (S)
         or else not File.Has_Path
       then
@@ -465,23 +465,23 @@ package body Editor.Executor is
          end;
       end if;
 
-      if Editor.Project.Known_File_Count (S.Project) = 0 then
+      if Editor.Project.Known_File_Count (S.Project_Runtime.Project) = 0 then
          return "";
       end if;
 
-      if Editor.Project.Is_Under_Project (S.Project, Raw_Path) then
+      if Editor.Project.Is_Under_Project (S.Project_Runtime.Project, Raw_Path) then
          Candidate := To_Unbounded_String
            (Normalize_Project_Path_For_Command
-              (Editor.Project.Relative_Path (S.Project, Raw_Path)));
+              (Editor.Project.Relative_Path (S.Project_Runtime.Project, Raw_Path)));
       else
          Candidate := To_Unbounded_String
            (Normalize_Project_Path_For_Command (Raw_Path));
       end if;
 
-      for I in 1 .. Editor.Project.Known_File_Count (S.Project) loop
+      for I in 1 .. Editor.Project.Known_File_Count (S.Project_Runtime.Project) loop
          declare
             File_Item : constant Editor.Project.Project_File_Entry :=
-              Editor.Project.Known_File_At (S.Project, I);
+              Editor.Project.Known_File_At (S.Project_Runtime.Project, I);
             Rel   : constant String :=
               Normalize_Project_Path_For_Command (To_String (File_Item.Relative_Path));
             Abs_Path   : constant String :=
@@ -526,7 +526,7 @@ package body Editor.Executor is
    function Has_Selected_Outline_Activation_Target
      (S : Editor.State.State_Type) return Boolean
    is
-      Panel       : Editor.Feature_Panel.Feature_Panel_State := S.Feature_Panel;
+      Panel       : Editor.Feature_Panel.Feature_Panel_State := S.Panel.Feature_Panel;
       Row         : Natural := 0;
       Outline_Row : Natural := 0;
    begin
@@ -821,7 +821,7 @@ package body Editor.Executor is
          S.Outline_Cursor_Key_Valid := False;
          if Editor.Outline.Has_Current_Symbol (S.Outline) then
             Editor.Outline.Clear_Current_Symbol (S.Outline);
-            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
             Editor.Render_Cache.Invalidate_All;
          end if;
          return;
@@ -838,7 +838,7 @@ package body Editor.Executor is
            and then Editor.Outline.Has_Current_Symbol (S.Outline)
          then
             Editor.Outline.Clear_Current_Symbol (S.Outline);
-            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
             Editor.Render_Cache.Invalidate_All;
          end if;
          return;
@@ -852,7 +852,7 @@ package body Editor.Executor is
       if Editor.Outline.Source_Class (S.Outline) /= Editor.Outline.Extracted_Outline then
          if Editor.Outline.Has_Current_Symbol (S.Outline) then
             Editor.Outline.Clear_Current_Symbol (S.Outline);
-            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+            Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
             Editor.Render_Cache.Invalidate_All;
          end if;
          return;
@@ -860,7 +860,7 @@ package body Editor.Executor is
 
       Editor.Outline.Update_Current_Symbol_For_Cursor
         (S.Outline, Active_Feature_Buffer_Token (S), Row + 1, Col + 1);
-      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Feature_Panel);
+      Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
       Editor.Render_Cache.Invalidate_All;
    end Sync_Current_Outline_Symbol_From_Caret;
    function Safe_Anchor
@@ -1160,16 +1160,16 @@ package body Editor.Executor is
    function Format_Project_File_Summary_Message
      (S : Editor.State.State_Type) return String
    is
-      Count : constant Natural := Editor.Project.Known_File_Count (S.Project);
+      Count : constant Natural := Editor.Project.Known_File_Count (S.Project_Runtime.Project);
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          return "No project open";
       elsif Count = 0 then
          return "No project open.";
-      elsif Editor.Project.Has_Last_Refresh_Summary (S.Project) then
+      elsif Editor.Project.Has_Last_Refresh_Summary (S.Project_Runtime.Project) then
          declare
             Summary : constant Editor.Project.Project_File_Refresh_Result :=
-              Editor.Project.Last_Refresh_Summary (S.Project);
+              Editor.Project.Last_Refresh_Summary (S.Project_Runtime.Project);
             Text : Unbounded_String := To_Unbounded_String
               ("Project files: " & Natural_Image_Trimmed (Count) & " known files");
          begin
@@ -1320,10 +1320,10 @@ package body Editor.Executor is
    is
       Snapshot : constant Editor.Problems.Problems_Snapshot :=
         Editor.Problems.Filtered_Snapshot
-          (Editor.Problems.Build_Snapshot (S.Diagnostics), S.Problems_View);
+          (Editor.Problems.Build_Snapshot (S.Panel.Diagnostics), S.Panel.Problems_View);
    begin
       Editor.Problems.Ensure_Selected_Row_Visible
-        (S.Problems_View, Snapshot, Problems_Visible_Row_Count);
+        (S.Panel.Problems_View, Snapshot, Problems_Visible_Row_Count);
    end Ensure_Problems_Selection_Visible;
    function File_Tree_Visible_Row_Count_For_View return Natural
    is
@@ -1616,12 +1616,12 @@ package body Editor.Executor is
       Visible_Count      : Natural := 1;
       Layout             : constant Editor.Layout.Layout_Config := Editor.Layout.Current;
    begin
-      if not Editor.Search.Has_Match (S.Active_Find_Match) then
+      if not Editor.Search.Has_Match (S.Search.Active_Find_Match) then
          return;
       end if;
 
       Editor.State.Row_Col_For_Index
-        (S, S.Active_Find_Match.Start_Index, Row, Col);
+        (S, S.Search.Active_Find_Match.Start_Index, Row, Col);
       pragma Unreferenced (Col);
 
       Editor.Folding.Expand_To_Reveal_Row (S.Folding, Row);

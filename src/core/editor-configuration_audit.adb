@@ -241,7 +241,7 @@ package body Editor.Configuration_Audit is
           (State.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI);
       Buffer_Audit : constant Editor.Buffers.Buffer_Audit_Summary :=
         Editor.Buffers.Global_Audit_Buffers
-          (State.Project, Selected_Audit.Selected_Buffer_Id);
+          (State.Project_Runtime.Project, Selected_Audit.Selected_Buffer_Id);
       Workspace_Audit : constant Editor.Workspace_Persistence.Workspace_Buffer_Persistence_Audit :=
         Editor.Workspace_Persistence.Audit_Serialized_Buffer_Persistence
           (Serialized_Workspace);
@@ -673,11 +673,11 @@ package body Editor.Configuration_Audit is
            To_Unbounded_String
              (Binding_Display (Editor.Command_Ids.Command_Open_Command_Palette)),
          Command_Palette_Show_Keybindings => Editor.Command_Palette.Current_Config.Show_Keybindings,
-         Has_Project                      => Editor.Project.Has_Project (State.Project),
-         Recent_Project_Count             => Editor.Recent_Projects.Count (State.Recent_Projects),
+         Has_Project                      => Editor.Project.Has_Project (State.Project_Runtime.Project),
+         Recent_Project_Count             => Editor.Recent_Projects.Count (State.Project_Runtime.Recent_Projects),
          Dirty_Buffer_Count               => Dirty_Count,
          Has_Pending_Transition           => Editor.Pending_Transitions.Has_Pending (State.Pending_Transitions),
-         Message_Count                    => Editor.Messages.Count (State.Messages));
+         Message_Count                    => Editor.Messages.Count (State.Panel.Messages));
    end Configuration_State_Summary_For;
 
    procedure Check_Equal

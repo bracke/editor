@@ -23,12 +23,12 @@ package body Editor.Input_Bridge.Active_Find_Handlers is
    is
       Cmd2 : Editor.Commands.Payloads.Command;
    begin
-      if not S.Active_Find_Prompt then
+      if not S.Search.Active_Find_Prompt then
          return False;
       end if;
 
       if not Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Active_Find_Prompt_Overlay)
       then
          return False;
       end if;
@@ -36,7 +36,7 @@ package body Editor.Input_Bridge.Active_Find_Handlers is
       case Cmd.Kind is
          when Editor.Command_Kinds.Insert_Text_Input =>
             if Cmd.Ctrl and then (Cmd.Ch = 'a' or else Cmd.Ch = 'A') then
-               Editor.Input_Field.Select_All (S.Active_Find_Input);
+               Editor.Input_Field.Select_All (S.Search.Active_Find_Input);
                Editor.Render_Cache.Invalidate_All;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                Execute (Editor.Command_Ids.Command_Active_Find_Next);

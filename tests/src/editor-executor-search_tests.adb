@@ -83,9 +83,9 @@ package body Editor.Executor.Search_Tests is
            Editor.Panels.Search_Results_Content,
          "focus Search Results should select Search Results bottom content");
       Assert
-        (Editor.Panel_Focus.Target (S.Panel_Focus) =
+        (Editor.Panel_Focus.Target (S.Panel.Panel_Focus) =
            Editor.Panel_Focus.Bottom_Panel_Focus
-         and then Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) =
+         and then Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) =
            Editor.Panel_Focus.Search_Results_Focus,
          "focus Search Results should move keyboard ownership to Search Results");
 
@@ -250,7 +250,7 @@ package body Editor.Executor.Search_Tests is
         (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "Untitled",
          "focused Down must not open the selected result");
       Assert
-        (Editor.Panel_Focus.Bottom_Content (S.Panel_Focus) =
+        (Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) =
            Editor.Panel_Focus.Search_Results_Focus,
          "focused movement should keep Search Results focus");
 
@@ -297,7 +297,7 @@ package body Editor.Executor.Search_Tests is
         (not Editor.State.Has_Pending_Quick_Fix_Workflow (S),
          "ordinary Search Results Enter does not require quick-fix workflow payloads");
       Assert
-        (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel_Focus),
+        (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus),
          "Enter should return focus to editor text after opening a result");
       Assert
         (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
@@ -329,7 +329,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Search_Results_Commands.Execute_Search_Results_Close_Or_Hide (S);
 
       Assert
-        (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel_Focus),
+        (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus),
          "Escape should return focus to editor text");
       Assert
         (Editor.Panels.Is_Visible (S.Panels, Editor.Panels.Bottom_Panel),
@@ -813,7 +813,7 @@ package body Editor.Executor.Search_Tests is
       Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 4,
               "first/last fixture should expose four stored results");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Project_Search_Result_Commands.Execute_Last_Project_Search_Result (S);
       Assert (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 4,
               "last command should select the final stored result");
@@ -822,7 +822,7 @@ package body Editor.Executor.Search_Tests is
       Assert (S.Buffer_Lifecycle.File_Info.Display_Name = Before_Display,
               "last command must not open or activate files");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Project_Search_Result_Commands.Execute_First_Project_Search_Result (S);
       Assert (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 1,
               "first command should select the first stored result");
@@ -866,7 +866,7 @@ package body Editor.Executor.Search_Tests is
       Assert (Found,
               "setup should select a result outside the active file");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Project_Search_Result_Commands.Execute_Reveal_Active_Project_Search_Result (S);
       Result := Editor.Project_Search.Result_At
         (S.Project_Search,
@@ -880,7 +880,7 @@ package body Editor.Executor.Search_Tests is
                 "Selected project search result in active file: src/editor/executor.adb:1",
               "reveal-active should report the concrete active-file result location");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Project_Search_Result_Commands.Execute_Reveal_Active_Project_Search_Result (S);
       Assert (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 1,
               "reveal-active should preserve a selection already in the active file");
@@ -913,7 +913,7 @@ package body Editor.Executor.Search_Tests is
 
       Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 4,
               "scope setup should have current results before scoping");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Search_Commands.Execute_Project_Search_Scope_Selected_Directory (S);
 
       Assert (Editor.Project_Search.Path_Scope (S.Project_Search) = "src/editor/",
@@ -955,17 +955,17 @@ package body Editor.Executor.Search_Tests is
       Assert (Latest_Message_Text (S) = "No project search results",
               "first on empty results should report no results");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Project_Search_Result_Commands.Execute_Last_Project_Search_Result (S);
       Assert (Latest_Message_Text (S) = "No project search results",
               "last on empty results should report no results");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Project_Search_Result_Commands.Execute_Reveal_Active_Project_Search_Result (S);
       Assert (Latest_Message_Text (S) = "No active buffer.",
               "reveal-active without active buffer should report no active buffer");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Search_Commands.Execute_Project_Search_Scope_Selected_Directory (S);
       Assert (Latest_Message_Text (S) = "No search result selected.",
               "scope-selected without selection should report no selected result");
@@ -987,13 +987,13 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
 
       Editor.Executor.Project_Search_Result_Commands.Execute_Open_Selected_Project_Search_Result (S);
 
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
               "open-selected should emit exactly one primary message");
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (Msg) = "Opened needle.txt:2",
               "open-selected should report the concrete result location");
       Assert (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "needle.txt",
@@ -1023,16 +1023,16 @@ package body Editor.Executor.Search_Tests is
       Before_Count := Editor.Project_Search.Result_Count (S.Project_Search);
       Before_Selected := Editor.Project_Search.Selected_Result_Index (S.Project_Search);
       Remove_File_If_Exists (Ada.Directories.Compose (Root, "needle.txt"));
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
 
       Editor.Executor.Project_Search_Result_Commands.Execute_Open_Selected_Project_Search_Result (S);
 
       Assert (Editor.Project_Search.Result_Count (S.Project_Search) = Before_Count
               and then Editor.Project_Search.Selected_Result_Index (S.Project_Search) = Before_Selected,
               "stale open failure should preserve search results and selection");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
               "stale open failure should emit exactly one primary message");
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (Msg) = "Could not open needle.txt: file not found",
               "stale open failure should be deterministic and path-relative");
 
@@ -1065,16 +1065,16 @@ package body Editor.Executor.Search_Tests is
       --  file present but removes the retained result row.  Activation must not
       --  clamp the stale location to a different line.
       Write_Text_File (Ada.Directories.Compose (Root, "needle.txt"), "short" & ASCII.LF);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
 
       Editor.Executor.Project_Search_Result_Commands.Execute_Open_Selected_Project_Search_Result (S);
 
       Assert (Editor.Project_Search.Result_Count (S.Project_Search) = Before_Count
               and then Editor.Project_Search.Selected_Result_Index (S.Project_Search) = Before_Selected,
               "out-of-range activation should preserve search results and selection");
-      Assert (Editor.Messages.Count (S.Messages) = 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
               "out-of-range activation should emit exactly one primary message");
-      Msg := Editor.Messages.Active_Message (S.Messages, Found);
+      Msg := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (Msg) =
                 "Search result target unavailable: line 2 is no longer available in needle.txt",
               "out-of-range activation should report unavailable target without clamping");
@@ -1221,14 +1221,14 @@ package body Editor.Executor.Search_Tests is
       Cmd.Kind := Editor.Command_Kinds.Active_Find_Next;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Search.Has_Match (S.Active_Find_Match),
+      Assert (Editor.Search.Has_Match (S.Search.Active_Find_Match),
               "find-next must activate an active-buffer match");
       Assert (Natural (S.Carets (0).Anchor) = 11
                 and then Natural (S.Carets (0).Pos) = 11,
               "find-next must reveal the next literal match start");
-      Assert (Editor.Feature_Search_Results.Is_Empty (S.Feature_Search_Results),
+      Assert (Editor.Feature_Search_Results.Is_Empty (S.Panel.Feature_Search_Results),
               "find-next must not populate Feature Panel Search Results");
-      Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0,
+      Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0,
               "find-next must not create Feature Panel rows");
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "find navigation must not dirty the buffer");
@@ -1248,7 +1248,7 @@ package body Editor.Executor.Search_Tests is
       Cmd.Kind := Editor.Command_Kinds.Active_Find_Previous;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (Editor.Search.Has_Match (S.Active_Find_Match),
+      Assert (Editor.Search.Has_Match (S.Search.Active_Find_Match),
               "find-previous must activate a match");
       Assert (Natural (S.Carets (0).Anchor) = 8
                 and then Natural (S.Carets (0).Pos) = 8,
@@ -1280,21 +1280,21 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
       Cmd.Kind := Editor.Command_Kinds.Active_Find_Next;
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Search.Has_Match (S.Active_Find_Match),
+      Assert (Editor.Search.Has_Match (S.Search.Active_Find_Match),
               "setup should find a match in the first buffer");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, B_Path);
       B_Id := Editor.Buffers.Global_Active_Buffer;
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
 
-      Assert (Editor.Input_Field.Text (S.Active_Find_Input) = "alpha",
+      Assert (Editor.Input_Field.Text (S.Search.Active_Find_Input) = "alpha",
               "find query must persist across buffer switches");
-      Assert (not Editor.Search.Has_Match (S.Active_Find_Match),
+      Assert (not Editor.Search.Has_Match (S.Search.Active_Find_Match),
               "active match must clear after switching buffers");
 
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (Editor.Search.Has_Match (S.Active_Find_Match)
-                and then Natural (S.Active_Find_Match.Start_Index) = 5,
+      Assert (Editor.Search.Has_Match (S.Search.Active_Find_Match)
+                and then Natural (S.Search.Active_Find_Match.Start_Index) = 5,
               "find-next after switch must search the newly active buffer");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
@@ -1339,7 +1339,7 @@ package body Editor.Executor.Search_Tests is
       end;
       Assert (Snap.Active_Find_Match_Count = 0,
               "closing find must clear projected highlights");
-      Assert (S.Active_Find_Matches.Is_Empty,
+      Assert (S.Search.Active_Find_Matches.Is_Empty,
               "closing find must clear transient session-local query results");
    end Test_Find_Highlights_Clear_When_Find_Closes;
 
@@ -1360,9 +1360,9 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
 
-      Assert (Editor.Search.Has_Match (S.Active_Find_Match),
+      Assert (Editor.Search.Has_Match (S.Search.Active_Find_Match),
               "query edit must compute a current match");
-      Assert (Natural (S.Active_Find_Match.Start_Index) = 11,
+      Assert (Natural (S.Search.Active_Find_Match.Start_Index) = 11,
               "current match after query edit must be at or after cursor");
       Assert (Natural (S.Carets (0).Pos) = 6,
               "query editing must preserve editor cursor");
@@ -1381,9 +1381,9 @@ package body Editor.Executor.Search_Tests is
       Cmd.Kind := Editor.Command_Kinds.Active_Find_Previous;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (S.Active_Find_Wrapped,
+      Assert (S.Search.Active_Find_Wrapped,
               "wrapped find navigation must mark wrapped status");
-      Assert (Natural (S.Active_Find_Match.Start_Index) = 11,
+      Assert (Natural (S.Search.Active_Find_Match.Start_Index) = 11,
               "previous from first current match wraps to final match");
    end Test_Wrap_Status_Is_Deterministic;
 
@@ -1425,9 +1425,9 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Show (S);
       Editor.Executor.Find_Replace_Input_Commands.Execute_Active_Find_Input_Insert_Text (S, "alpha");
 
-      Assert (Editor.Feature_Search_Results.Is_Empty (S.Feature_Search_Results),
+      Assert (Editor.Feature_Search_Results.Is_Empty (S.Panel.Feature_Search_Results),
               "find query edits must not populate Feature Search Results");
-      Assert (Editor.Feature_Panel.Row_Count (S.Feature_Panel) = 0,
+      Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = 0,
               "find query edits must not create Feature Panel rows");
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "find query edits must not dirty the active buffer");
@@ -1444,32 +1444,32 @@ package body Editor.Executor.Search_Tests is
       Set_Buffer_Text (S, "Run Run");
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
-      Assert (S.Active_Find_Prompt,
+      Assert (S.Search.Active_Find_Prompt,
               "replace.show must make canonical Find visible");
-      Assert (S.Active_Replace_Prompt,
+      Assert (S.Search.Active_Replace_Prompt,
               "replace.show must make Replace visible");
       Assert (Latest_Message_Text (S) = "Replace shown",
               "replace.show must emit one primary message");
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Execute");
-      Assert (To_String (S.Active_Replace_Text) = "Execute",
+      Assert (To_String (S.Search.Active_Replace_Text) = "Execute",
               "replace.text.set must store literal transient text");
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Hide (S);
-      Assert (not S.Active_Replace_Prompt,
+      Assert (not S.Search.Active_Replace_Prompt,
               "replace.hide must hide Replace");
-      Assert (S.Active_Find_Prompt,
+      Assert (S.Search.Active_Find_Prompt,
               "replace.hide must preserve Find visibility");
-      Assert (Length (S.Active_Replace_Text) = 0,
+      Assert (Length (S.Search.Active_Replace_Text) = 0,
               "replace.hide must clear replacement text");
-      Assert (Length (S.Active_Replace_Error_Message) = 0,
+      Assert (Length (S.Search.Active_Replace_Error_Message) = 0,
               "replace.hide must clear replacement errors");
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Again");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Hide (S);
-      Assert (not S.Active_Find_Prompt and then not S.Active_Replace_Prompt,
+      Assert (not S.Search.Active_Find_Prompt and then not S.Search.Active_Replace_Prompt,
               "find.hide must hide Replace with Find");
-      Assert (Length (S.Active_Replace_Text) = 0,
+      Assert (Length (S.Search.Active_Replace_Text) = 0,
               "find.hide must clear replacement text");
    end Test_Replace_Show_Hide_Clears_Transient_Text;
 
@@ -1494,7 +1494,7 @@ package body Editor.Executor.Search_Tests is
               "replace.current must replace exactly the selected canonical Find match");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "replace.current must dirty the active buffer through the edit path");
-      Assert (Natural (S.Active_Find_Matches.Length) = 1,
+      Assert (Natural (S.Search.Active_Find_Matches.Length) = 1,
               "replace.current must recompute post-edit Find matches");
       Assert (Latest_Message_Text (S) = "Replaced current match",
               "replace.current must emit one primary success message");
@@ -1533,7 +1533,7 @@ package body Editor.Executor.Search_Tests is
               "replace.all must insert backslash/capture-like text literally");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "replace.all must dirty the active buffer");
-      Assert (Natural (S.Active_Find_Matches.Length) = 0,
+      Assert (Natural (S.Search.Active_Find_Matches.Length) = 0,
               "replace.all must recompute Find matches after replacement");
       Assert (Latest_Message_Text (S) = "Replaced 3 matches",
               "replace.all must report the original canonical replacement count");
@@ -1612,15 +1612,15 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Execute");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Line" & ASCII.LF & "Break");
 
-      Assert (To_String (S.Active_Replace_Text) = "Execute",
+      Assert (To_String (S.Search.Active_Replace_Text) = "Execute",
               "invalid multiline replacement text must not replace prior text");
-      Assert (To_String (S.Active_Replace_Error_Message) = "Replacement text must be single-line",
+      Assert (To_String (S.Search.Active_Replace_Error_Message) = "Replacement text must be single-line",
               "invalid multiline replacement text must set renderable Replace error");
       Assert (Latest_Message_Text (S) = "Replacement text must be single-line.",
               "invalid multiline replacement text must emit one primary message");
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Clear_Text (S);
-      Assert (Length (S.Active_Replace_Error_Message) = 0,
+      Assert (Length (S.Search.Active_Replace_Error_Message) = 0,
               "replace.text.clear must clear validation error");
    end Test_Replace_Text_Newline_Is_Rejected;
 
@@ -1638,8 +1638,8 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
-      Assert (Editor.Search.Has_Match (S.Active_Find_Match)
-              and then Natural (S.Active_Find_Match.Start_Index) = 8,
+      Assert (Editor.Search.Has_Match (S.Search.Active_Find_Match)
+              and then Natural (S.Search.Active_Find_Match.Start_Index) = 8,
               "precondition: second Find match selected");
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -1649,10 +1649,10 @@ package body Editor.Executor.Search_Tests is
 
       Assert (Editor.State.Current_Text (S) = "Run one Execute",
               "replace.current must keep the still-valid selected match across recompute");
-      Assert (Natural (S.Active_Find_Matches.Length) = 1,
+      Assert (Natural (S.Search.Active_Find_Matches.Length) = 1,
               "replace.current must recompute post-replacement matches");
-      Assert (Editor.Search.Has_Match (S.Active_Find_Match)
-              and then Natural (S.Active_Find_Match.Start_Index) = 0,
+      Assert (Editor.Search.Has_Match (S.Search.Active_Find_Match)
+              and then Natural (S.Search.Active_Find_Match.Start_Index) = 0,
               "post-replace selection must wrap to the first remaining match");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Back_Before
               and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Forward_Before,
@@ -1671,15 +1671,15 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
-      Assert (Natural (S.Active_Find_Match.Start_Index) = 8,
+      Assert (Natural (S.Search.Active_Find_Match.Start_Index) = 8,
               "precondition: stale selected range points at second Run");
 
       Set_Buffer_Text (S, "Run one done");
-      S.Active_Find_Query := To_Unbounded_String ("Run");
-      S.Active_Find_Stale := True;
-      S.Active_Find_Match.Start_Index := 8;
-      S.Active_Find_Match.End_Index := 11;
-      S.Active_Find_Match.Index := 2;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Run");
+      S.Search.Active_Find_Stale := True;
+      S.Search.Active_Find_Match.Start_Index := 8;
+      S.Search.Active_Find_Match.End_Index := 11;
+      S.Search.Active_Find_Match.Index := 2;
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Execute");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Current (S);
@@ -1708,7 +1708,7 @@ package body Editor.Executor.Search_Tests is
               "replace.all must replace only the original canonical match set");
       Assert (Latest_Message_Text (S) = "Replaced 2 matches",
               "replace.all must report the original canonical count");
-      Assert (Natural (S.Active_Find_Matches.Length) = 4,
+      Assert (Natural (S.Search.Active_Find_Matches.Length) = 4,
               "post-replacement Find matches must reflect current text after non-recursive replace-all");
    end Test_Replace_All_Does_Not_Recursively_Replace_New_Text;
 
@@ -1731,31 +1731,31 @@ package body Editor.Executor.Search_Tests is
       Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
-      Assert (S.Active_Find_Prompt and then S.Active_Replace_Prompt,
+      Assert (S.Search.Active_Find_Prompt and then S.Search.Active_Replace_Prompt,
               "replace.show must keep canonical Find visible and show Replace");
-      Assert (To_String (S.Active_Find_Query) = "Run"
-              and then Natural (S.Active_Find_Matches.Length) = 2,
+      Assert (To_String (S.Search.Active_Find_Query) = "Run"
+              and then Natural (S.Search.Active_Find_Matches.Length) = 2,
               "replace.show must not clear Find query/options/matches");
       Assert (Latest_Message_Text (S) = "Replace shown",
               "replace.show must emit exactly its primary shown message");
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Execute");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Hide (S);
-      Assert ((not S.Active_Replace_Prompt) and then S.Active_Find_Prompt,
+      Assert ((not S.Search.Active_Replace_Prompt) and then S.Search.Active_Find_Prompt,
               "replace.hide must hide only Replace under the policy");
-      Assert (Length (S.Active_Replace_Text) = 0
-              and then Length (S.Active_Replace_Error_Message) = 0,
+      Assert (Length (S.Search.Active_Replace_Text) = 0
+              and then Length (S.Search.Active_Replace_Error_Message) = 0,
               "replace.hide must clear replacement text and error");
-      Assert (To_String (S.Active_Find_Query) = "Run"
-              and then Natural (S.Active_Find_Matches.Length) = 2,
+      Assert (To_String (S.Search.Active_Find_Query) = "Run"
+              and then Natural (S.Search.Active_Find_Matches.Length) = 2,
               "replace.hide must not clear canonical Find state");
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Toggle (S);
-      Assert (not S.Active_Replace_Prompt,
+      Assert (not S.Search.Active_Replace_Prompt,
               "replace.toggle must hide when Replace is visible");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Toggle (S);
-      Assert (S.Active_Replace_Prompt and then S.Active_Find_Prompt,
+      Assert (S.Search.Active_Replace_Prompt and then S.Search.Active_Find_Prompt,
               "replace.toggle must show Replace and compatible Find when hidden");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
               and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
@@ -1763,12 +1763,12 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Hide (S);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
-      Assert ((not S.Active_Find_Prompt) and then (not S.Active_Replace_Prompt),
+      Assert ((not S.Search.Active_Find_Prompt) and then (not S.Search.Active_Replace_Prompt),
               "find.hide must clear Replace so it cannot remain orphaned");
-      Assert (Length (S.Active_Find_Query) = 0
-              and then S.Active_Find_Matches.Is_Empty
-              and then Length (S.Active_Replace_Text) = 0
-              and then Length (S.Active_Replace_Error_Message) = 0,
+      Assert (Length (S.Search.Active_Find_Query) = 0
+              and then S.Search.Active_Find_Matches.Is_Empty
+              and then Length (S.Search.Active_Replace_Text) = 0
+              and then Length (S.Search.Active_Replace_Error_Message) = 0,
               "find.hide must clear Find and Replace transient state together");
       Assert ((not Snap.Find_Visible) and then (not Snap.Replace_Visible)
               and then Snap.Active_Find_Match_Count = 0,
@@ -1787,42 +1787,42 @@ package body Editor.Executor.Search_Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "Run Run");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
-      Before_Matches := Natural (S.Active_Find_Matches.Length);
-      Before_Query := S.Active_Find_Query;
+      Before_Matches := Natural (S.Search.Active_Find_Matches.Length);
+      Before_Query := S.Search.Active_Find_Query;
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Dispatch_Command");
-      Assert (To_String (S.Active_Replace_Text) = "Dispatch_Command",
+      Assert (To_String (S.Search.Active_Replace_Text) = "Dispatch_Command",
               "ordinary replacement text must be stored literally");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "");
-      Assert (Length (S.Active_Replace_Text) = 0,
+      Assert (Length (S.Search.Active_Replace_Text) = 0,
               "empty replacement text must be stored and later delete matches");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "  spaced value  ");
-      Assert (To_String (S.Active_Replace_Text) = "  spaced value  ",
+      Assert (To_String (S.Search.Active_Replace_Text) = "  spaced value  ",
               "replacement text must preserve surrounding spaces literally");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "\1");
-      Assert (To_String (S.Active_Replace_Text) = "\1",
+      Assert (To_String (S.Search.Active_Replace_Text) = "\1",
               "backslash capture-like text must be literal replacement text");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "$1");
-      Assert (To_String (S.Active_Replace_Text) = "$1",
+      Assert (To_String (S.Search.Active_Replace_Text) = "$1",
               "dollar capture-like text must be literal replacement text");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Run.Run");
-      Assert (To_String (S.Active_Replace_Text) = "Run.Run",
+      Assert (To_String (S.Search.Active_Replace_Text) = "Run.Run",
               "punctuation must be literal replacement text");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "tab" & ASCII.HT & "value");
-      Assert (To_String (S.Active_Replace_Text) = "tab" & ASCII.HT & "value",
+      Assert (To_String (S.Search.Active_Replace_Text) = "tab" & ASCII.HT & "value",
               "tab replacement text must follow the current single-line field policy");
-      Assert (To_String (S.Active_Find_Query) = To_String (Before_Query)
-              and then Natural (S.Active_Find_Matches.Length) = Before_Matches,
+      Assert (To_String (S.Search.Active_Find_Query) = To_String (Before_Query)
+              and then Natural (S.Search.Active_Find_Matches.Length) = Before_Matches,
               "replace.text.set must not recompute or mutate canonical Find matches");
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Line" & ASCII.LF & "Break");
-      Assert (To_String (S.Active_Replace_Text) = "tab" & ASCII.HT & "value"
-              and then To_String (S.Active_Replace_Error_Message) = "Replacement text must be single-line"
+      Assert (To_String (S.Search.Active_Replace_Text) = "tab" & ASCII.HT & "value"
+              and then To_String (S.Search.Active_Replace_Error_Message) = "Replacement text must be single-line"
               and then Latest_Message_Text (S) = "Replacement text must be single-line.",
               "newline replacement text must be rejected atomically with one primary message");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Clear_Text (S);
-      Assert (Length (S.Active_Replace_Text) = 0
-              and then Length (S.Active_Replace_Error_Message) = 0,
+      Assert (Length (S.Search.Active_Replace_Text) = 0
+              and then Length (S.Search.Active_Replace_Error_Message) = 0,
               "replace.text.clear must clear text and prior validation error");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0
               and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
@@ -1843,7 +1843,7 @@ package body Editor.Executor.Search_Tests is
       Set_Buffer_Text (S, "Run;" & ASCII.LF & "Run;" & ASCII.LF & "Run;");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
-      Assert (Natural (S.Active_Find_Match.Start_Row) = 1,
+      Assert (Natural (S.Search.Active_Find_Match.Start_Row) = 1,
               "precondition: second match selected");
       Back_Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Forward_Before := Editor.Navigation_History.Forward_Count (S.Navigation_History);
@@ -1851,7 +1851,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Current (S);
       Assert (Buffer_Text (S) = "Run;" & ASCII.LF & "Execute;" & ASCII.LF & "Run;",
               "replace.current must replace only the selected canonical match");
-      Assert (S.Buffer_Lifecycle.File_Info.Dirty and then Natural (S.Active_Find_Matches.Length) = 2,
+      Assert (S.Buffer_Lifecycle.File_Info.Dirty and then Natural (S.Search.Active_Find_Matches.Length) = 2,
               "replace.current must dirty and recompute post-replacement Find matches");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Active_Find_Match_Count = 2
@@ -1864,7 +1864,7 @@ package body Editor.Executor.Search_Tests is
 
       Set_Buffer_Text (S, "xx Run yy Run");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
-      S.Active_Find_Match := Editor.Search.No_Match;
+      S.Search.Active_Find_Match := Editor.Search.No_Match;
       S.Carets.Replace_Element
         (S.Carets.First_Index,
          Editor.Cursors.Caret_State'
@@ -1878,11 +1878,11 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Next (S);
       Set_Buffer_Text (S, "Run one done");
-      S.Active_Find_Query := To_Unbounded_String ("Run");
-      S.Active_Find_Stale := True;
-      S.Active_Find_Match.Start_Index := 8;
-      S.Active_Find_Match.End_Index := 11;
-      S.Active_Find_Match.Index := 2;
+      S.Search.Active_Find_Query := To_Unbounded_String ("Run");
+      S.Search.Active_Find_Stale := True;
+      S.Search.Active_Find_Match.Start_Index := 8;
+      S.Search.Active_Find_Match.End_Index := 11;
+      S.Search.Active_Find_Match.Index := 2;
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Execute");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Current (S);
       Assert (Buffer_Text (S) = "Execute one done",
@@ -1966,7 +1966,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_All (S);
       Assert (Buffer_Text (S) = "Execute run Runner runner PreRun preRun Run_One run_one Execute.Execute",
               "replace.all must respect current case-sensitive whole-word canonical Find options");
-      Assert (S.Active_Find_Case_Sensitive and then S.Active_Find_Whole_Word,
+      Assert (S.Search.Active_Find_Case_Sensitive and then S.Search.Active_Find_Whole_Word,
               "replace.all must not reset Find options");
 
       Set_Buffer_Text (S, "aaa");
@@ -1984,7 +1984,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_All (S);
       Assert (Buffer_Text (S) = "  "
-              and then Natural (S.Active_Find_Matches.Length) = 0,
+              and then Natural (S.Search.Active_Find_Matches.Length) = 0,
               "empty replacement replace.all must delete all original canonical matches and recompute no ranges");
 
       Set_Buffer_Text (S, "Run Run");
@@ -2079,11 +2079,11 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Dispatch_Command");
-      S.Active_Replace_Error_Message := To_Unbounded_String ("synthetic replace error");
+      S.Search.Active_Replace_Error_Message := To_Unbounded_String ("synthetic replace error");
       Editor.State.Reset_Project_Scoped_State (S);
-      Assert ((not S.Active_Replace_Prompt)
-              and then Length (S.Active_Replace_Text) = 0
-              and then Length (S.Active_Replace_Error_Message) = 0,
+      Assert ((not S.Search.Active_Replace_Prompt)
+              and then Length (S.Search.Active_Replace_Text) = 0
+              and then Length (S.Search.Active_Replace_Error_Message) = 0,
               "project lifecycle cleanup must clear all transient Replace state");
    end Test_Feature_Independence_Navigation_And_Lifecycle_Cleanup;
 
@@ -2135,11 +2135,11 @@ package body Editor.Executor.Search_Tests is
       Assert (Availability.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "replace.all availability must report available for current active-buffer Replace state");
       Assert (Buffer_Text (S) = "Run Run"
-              and then To_String (S.Active_Replace_Text) = "Dispatch_Command"
-              and then Natural (S.Active_Find_Matches.Length) = 2,
+              and then To_String (S.Search.Active_Replace_Text) = "Dispatch_Command"
+              and then Natural (S.Search.Active_Find_Matches.Length) = 2,
               "replace availability must be side-effect-free over buffer, Replace, and Find state");
 
-      S.Active_Replace_Error_Message := To_Unbounded_String ("Replacement text must be single-line");
+      S.Search.Active_Replace_Error_Message := To_Unbounded_String ("Replacement text must be single-line");
       Snapshot := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String (Editor.Workspace_Persistence.Debug_Summary (Snapshot));
       Assert (Ada.Strings.Fixed.Index (To_String (Summary), "Dispatch_Command") = 0
@@ -2159,10 +2159,10 @@ package body Editor.Executor.Search_Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "Run Run");
 
-      S.Active_Find_Prompt := False;
-      S.Active_Replace_Prompt := True;
-      S.Active_Replace_Text := To_Unbounded_String ("removed-visible-text");
-      S.Active_Replace_Error_Message := To_Unbounded_String ("removed-visible-error");
+      S.Search.Active_Find_Prompt := False;
+      S.Search.Active_Replace_Prompt := True;
+      S.Search.Active_Replace_Text := To_Unbounded_String ("removed-visible-text");
+      S.Search.Active_Replace_Error_Message := To_Unbounded_String ("removed-visible-error");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert ((not Snap.Replace_Visible)
               and then Length (Snap.Replace_Text) = 0
@@ -2172,7 +2172,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Execute");
-      S.Active_Replace_Error_Message := To_Unbounded_String ("canonical replace error");
+      S.Search.Active_Replace_Error_Message := To_Unbounded_String ("canonical replace error");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Replace_Visible
               and then To_String (Snap.Replace_Text) = "Execute"
@@ -2218,9 +2218,9 @@ package body Editor.Executor.Search_Tests is
               "replace.all must not mutate Quick Open state");
       Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = "42",
               "replace.all must not mutate Go To Line state");
-      Assert (Natural (S.Active_Find_Matches.Length) = 0
-              and then S.Active_Find_Case_Sensitive
-              and then S.Active_Find_Whole_Word,
+      Assert (Natural (S.Search.Active_Find_Matches.Length) = 0
+              and then S.Search.Active_Find_Case_Sensitive
+              and then S.Search.Active_Find_Whole_Word,
               "post-replace Find state must be recomputed with the same canonical options");
    end Test_Replace_Operations_Use_Only_Canonical_Find_State;
 
@@ -2238,7 +2238,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "alpha");
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "OMEGA");
-      S.Active_Replace_Error_Message := To_Unbounded_String ("synthetic replace error");
+      S.Search.Active_Replace_Error_Message := To_Unbounded_String ("synthetic replace error");
       Snapshot := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String (Editor.Workspace_Persistence.Debug_Summary (Snapshot));
       Assert (Ada.Strings.Fixed.Index (To_String (Summary), "OMEGA") = 0
@@ -2248,9 +2248,9 @@ package body Editor.Executor.Search_Tests is
               "workspace snapshot must exclude canonical and removed-name-like Replace/Find transient state");
 
       Editor.State.Reset_Project_Scoped_State (S);
-      Assert ((not S.Active_Replace_Prompt)
-              and then Length (S.Active_Replace_Text) = 0
-              and then Length (S.Active_Replace_Error_Message) = 0,
+      Assert ((not S.Search.Active_Replace_Prompt)
+              and then Length (S.Search.Active_Replace_Text) = 0
+              and then Length (S.Search.Active_Replace_Error_Message) = 0,
               "project lifecycle reset must clear the single canonical Replace state owner");
    end Test_Replace_Lifecycle_And_Persistence_Exclude_State;
 

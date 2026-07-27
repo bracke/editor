@@ -47,14 +47,14 @@ package body Editor.Diagnostics_Review_UX.Tests is
    procedure Seed_Rows (S : in out Editor.State.State_Type) is
    begin
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "compile failure",
          Source_Label  => "src/main.adb",
          Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target    => False);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Warning,
          Message       => "manual warning",
          Source_Label  => "notes.adb",
@@ -70,15 +70,15 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Counts : Editor.Feature_Diagnostics.Diagnostics_Severity_Counts;
    begin
       Seed_Rows (S);
-      Counts := Editor.Feature_Diagnostics.Count_By_Severity (S.Feature_Diagnostics);
+      Counts := Editor.Feature_Diagnostics.Count_By_Severity (S.Panel.Feature_Diagnostics);
 
       Assert (Counts.Errors = 1 and then Counts.Warnings = 1,
               "severity counts classify Diagnostics-owned rows");
-      Assert (Contains (Editor.Feature_Diagnostics.Header_Text (S.Feature_Diagnostics),
+      Assert (Contains (Editor.Feature_Diagnostics.Header_Text (S.Panel.Feature_Diagnostics),
                         "Errors: 1"),
               "header exposes Problems-style severity totals");
       Assert (Contains (Editor.Feature_Diagnostics.Item_Display_Label
-                          (S.Feature_Diagnostics, 1),
+                          (S.Panel.Feature_Diagnostics, 1),
                         "External Producer"),
               "row label includes producer label");
       Assert (Editor.Diagnostics_Review_UX.
@@ -95,7 +95,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Seed_Rows (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "build failure",
          Source_Label  => "Build / gprbuild",
@@ -103,7 +103,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Has_Target     => False,
          Build_Produced => True);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Info,
          Message       => "manual build note",
          Source_Label  => "build notes",
@@ -114,10 +114,10 @@ package body Editor.Diagnostics_Review_UX.Tests is
                 Assert_Diagnostics_Filter_Does_Not_Delete_Rows (S),
               "filtering is projection-only and does not delete rows");
       Removed := Editor.Feature_Diagnostics.Clear_Build_Diagnostics
-        (S.Feature_Diagnostics);
+        (S.Panel.Feature_Diagnostics);
       Assert (Removed = 1,
               "clear-build helper removes only rows classified as build-produced");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 3,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 3,
               "non-build Diagnostics rows remain after clear-build even when labels mention build");
    end Test_Filters_Do_Not_Delete_And_Clear_Build_Is_Targeted;
 
@@ -129,21 +129,21 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Seed_Rows (S);
       Assert (Editor.Feature_Diagnostics.Item_Target_Unavailable_Label
-                (S.Feature_Diagnostics, 1) = "Target file missing or unavailable",
+                (S.Panel.Feature_Diagnostics, 1) = "Target file missing or unavailable",
               "diagnostics with a source label but no target expose a missing/unavailable target label");
       Assert (Contains (Editor.Feature_Diagnostics.Item_Source_Display_Label
-                          (S.Feature_Diagnostics, 1),
+                          (S.Panel.Feature_Diagnostics, 1),
                         "Target file missing or unavailable"),
               "source display labels distinguish missing/unavailable targets from true source-less rows");
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Info,
          Message       => "general diagnostic",
          Source_Label  => "",
          Source_Kind   => Editor.Feature_Diagnostics.Unknown_Diagnostic_Source,
          Has_Target    => False);
       Assert (Editor.Feature_Diagnostics.Item_Target_Unavailable_Label
-                (S.Feature_Diagnostics, 3) = "No source target",
+                (S.Panel.Feature_Diagnostics, 3) = "No source target",
               "true source-less diagnostics keep the explicit no-source-target label");
       Assert (Editor.Diagnostics_Review_UX.
                 Assert_Diagnostics_Source_Less_Rows_Do_Not_Navigate_Silently (S),
@@ -160,7 +160,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Seed_Rows (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "build failure",
          Source_Label  => "Build / gprbuild",
@@ -168,17 +168,17 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Has_Target    => False,
          Build_Produced => True);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Info,
          Message       => "manual build note",
          Source_Label  => "build notes",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => False);
 
-      Assert (Editor.Feature_Diagnostics.File_Group_Count (S.Feature_Diagnostics) >= 2,
+      Assert (Editor.Feature_Diagnostics.File_Group_Count (S.Panel.Feature_Diagnostics) >= 2,
               "diagnostics expose projection-only source/file groups");
       Assert (Contains (Editor.Feature_Diagnostics.File_Group_Label
-                          (S.Feature_Diagnostics, 1),
+                          (S.Panel.Feature_Diagnostics, 1),
                         "diagnostics"),
               "diagnostic file group labels include counts");
       Assert (Editor.Diagnostics_Review_UX.
@@ -187,14 +187,14 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (Editor.Diagnostics_Review_UX.
                 Assert_Diagnostics_File_Grouping_Is_Projection_Only (S),
               "file grouping is derived projection state only");
-      Editor.Feature_Diagnostics.Filter_Build_Produced (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Filter_Build_Produced (S.Panel.Feature_Diagnostics);
       declare
-         Text : constant String := Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics);
+         Text : constant String := Editor.Feature_Diagnostics.Filter_Text (S.Panel.Feature_Diagnostics);
       begin
          Assert (Text'Length = 0,
                  "build producer filtering does not rely on source/message text");
       end;
-      Assert (Editor.Feature_Diagnostics.Visible_Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Visible_Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "build producer filtering uses explicit producer classification and ignores manual labels mentioning build");
    end Test_Source_Filter_Grouping_And_Build_Filter_Are_Projection_Only;
 
@@ -208,24 +208,24 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Saw_Source_Less_Group    : Boolean := False;
    begin
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message      => "missing source file",
          Source_Label => "src/missing.adb",
          Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target   => False);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Warning,
          Message      => "tool-level warning",
          Source_Label => "",
          Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target   => False);
 
-      for I in 1 .. Editor.Feature_Diagnostics.File_Group_Count (S.Feature_Diagnostics) loop
+      for I in 1 .. Editor.Feature_Diagnostics.File_Group_Count (S.Panel.Feature_Diagnostics) loop
          declare
             Label : constant String :=
-              Editor.Feature_Diagnostics.File_Group_Label (S.Feature_Diagnostics, I);
+              Editor.Feature_Diagnostics.File_Group_Label (S.Panel.Feature_Diagnostics, I);
          begin
             if Contains (Label, "src/missing.adb") then
                Assert (Contains (Label, "Target file missing or unavailable"),
@@ -256,21 +256,21 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Saw_Source_Less_Group    : Boolean := False;
    begin
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message      => "missing source file",
          Source_Label => "src/missing.adb",
          Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target   => False);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Warning,
          Message      => "tool-level warning",
          Source_Label => "",
          Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target   => False);
 
-      Groups := Editor.Feature_Diagnostics.Visible_File_Groups (S.Feature_Diagnostics);
+      Groups := Editor.Feature_Diagnostics.Visible_File_Groups (S.Panel.Feature_Diagnostics);
 
       Assert (Natural (Groups.Length) = 2,
               "test precondition: missing-target and source-less rows produce two groups");
@@ -737,13 +737,13 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (Result.Target_Kept,
               "line-only target metadata is kept as navigable line-start metadata");
       Assert (Editor.Feature_Diagnostics.Item_Has_Target
-                (S.Feature_Diagnostics, 1),
+                (S.Panel.Feature_Diagnostics, 1),
               "line-only external target remains navigable through Diagnostics");
       Assert (Editor.Feature_Diagnostics.Item_Source_Display_Label
-                (S.Feature_Diagnostics, 1) = "src/main.adb:1",
+                (S.Panel.Feature_Diagnostics, 1) = "src/main.adb:1",
               "line-only external target displays without a fake column zero");
 
-      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
       Item :=
         (Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => To_Unbounded_String ("missing-line external diagnostic"),
@@ -770,13 +770,13 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (not Result.Target_Kept,
               "missing-line external target is retained but not reported as navigable");
       Assert (not Editor.Feature_Diagnostics.Item_Has_Target
-                (S.Feature_Diagnostics, 1),
+                (S.Panel.Feature_Diagnostics, 1),
               "missing-line external target remains non-navigable");
       Assert (Editor.Feature_Diagnostics.Item_Target_Buffer
-                (S.Feature_Diagnostics, 1) = Token,
+                (S.Panel.Feature_Diagnostics, 1) = Token,
               "missing-line external target preserves known buffer metadata");
       Assert (Editor.Feature_Diagnostics.Item_Target_Unavailable_Label
-                (S.Feature_Diagnostics, 1) = "Target line unavailable",
+                (S.Panel.Feature_Diagnostics, 1) = "Target line unavailable",
               "missing-line external target exposes the precise review failure");
    end Test_External_Producer_Preserves_Line_Only_And_Partial_Target_Metadata;
 
@@ -820,21 +820,21 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (not Result.Target_Kept,
               "out-of-range external target is not reported as navigable by ingestion");
       Assert (Editor.Feature_Diagnostics.Item_Has_Target
-                (S.Feature_Diagnostics, 1),
+                (S.Panel.Feature_Diagnostics, 1),
               "invalid source positions retain target metadata for open-selected validation");
       Assert (Editor.Feature_Diagnostics.Item_Target_Buffer
-                (S.Feature_Diagnostics, 1) = Token,
+                (S.Panel.Feature_Diagnostics, 1) = Token,
               "invalid external target preserves the original buffer token");
       Assert (Editor.Feature_Diagnostics.Item_Target_Line
-                (S.Feature_Diagnostics, 1) = 999,
+                (S.Panel.Feature_Diagnostics, 1) = 999,
               "invalid external target preserves the original out-of-range line");
       Assert (Editor.Feature_Diagnostics.Item_Source_Display_Label
-                (S.Feature_Diagnostics, 1) = "src/main.adb:999:1",
+                (S.Panel.Feature_Diagnostics, 1) = "src/main.adb:999:1",
               "invalid external target remains source-positioned in the review label");
 
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
 
@@ -857,7 +857,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Token := S.Buffer_Lifecycle.Active_Buffer_Token;
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "compile failure before edit",
          Source_Label  => "src/main.adb",
@@ -869,9 +869,9 @@ package body Editor.Diagnostics_Review_UX.Tests is
 
       Editor.State.Rebuild_After_Buffer_Change (S);
 
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "ordinary edits retain Diagnostics-owned rows for review");
-      Assert (Editor.Feature_Diagnostics.Item_Is_Stale (S.Feature_Diagnostics, 1),
+      Assert (Editor.Feature_Diagnostics.Item_Is_Stale (S.Panel.Feature_Diagnostics, 1),
               "ordinary edits mark targeted diagnostics stale instead of clearing them");
       Assert (Editor.Diagnostics_Review_UX.
                 Assert_Diagnostics_Edit_Marks_Stale_Rather_Than_Clears (S),
@@ -889,15 +889,15 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Editor.State.Init (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "source-less build failure",
          Source_Label  => "",
          Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target    => False);
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Open_Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
@@ -926,15 +926,15 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Editor.State.Init (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "missing target file",
          Source_Label  => "src/missing.adb",
          Source_Kind   => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target    => False);
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
@@ -944,14 +944,14 @@ package body Editor.Diagnostics_Review_UX.Tests is
               Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "source-labelled missing target uses shared missing-target wording");
 
-      Before_Count := Editor.Messages.Count (S.Messages);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Before_Count := Editor.Messages.Count (S.Panel.Messages);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
 
-      Assert (Editor.Messages.Count (S.Messages) = Before_Count + 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Count + 1,
               "missing target activation emits one precise primary message");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
               Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "missing target activation reports shared missing-target wording");
@@ -969,7 +969,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Editor.State.Init (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "stale target buffer",
          Source_Label  => "src/stale.adb",
@@ -979,8 +979,8 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Target_Line   => 1,
          Target_Column => 1);
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
@@ -1004,7 +1004,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Editor.State.Init (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Info,
          Message       => "manual build note",
          Source_Label  => "build notes",
@@ -1019,7 +1019,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               "clear-build exposes a precise no-build-diagnostics reason");
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "build failure",
          Source_Label   => "Build / gprbuild",
@@ -1064,13 +1064,13 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (Result.Row_Accepted,
               "build producer diagnostic is accepted into Diagnostics");
       Assert (Editor.Feature_Diagnostics.Item_Is_Build_Produced
-                (S.Feature_Diagnostics, 1),
+                (S.Panel.Feature_Diagnostics, 1),
               "build producer identity marks the row as build-produced even without a build label");
       Assert (Editor.Feature_Diagnostics.Producer_Label_For_Display
-                (S.Feature_Diagnostics, 1) = "Build",
+                (S.Panel.Feature_Diagnostics, 1) = "Build",
               "build-produced rows display the Build producer label");
 
-      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
       Item.Source_Label := To_Unbounded_String ("build-looking compiler label");
       Result := Editor.External_Producers.Diagnostics.Ingest_Diagnostic_Record
         (S,
@@ -1079,7 +1079,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (Result.Row_Accepted,
               "compiler producer diagnostic is accepted into Diagnostics");
       Assert (not Editor.Feature_Diagnostics.Item_Is_Build_Produced
-                (S.Feature_Diagnostics, 1),
+                (S.Panel.Feature_Diagnostics, 1),
               "compiler producer rows are not build-produced merely because a label mentions build");
    end Test_External_Build_Producer_Classifies_Explicitly;
 
@@ -1193,34 +1193,34 @@ package body Editor.Diagnostics_Review_UX.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message      => "first source",
          Source_Label => "src/main.adb",
          Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target   => False);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Warning,
          Message      => "second source",
          Source_Label => "src/other.adb",
          Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target   => False);
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
 
       Assert (Editor.Feature_Diagnostics.Selected_Diagnostic_Source_Filter_Label
-                (S.Feature_Diagnostics, S.Feature_Panel) = "src/main.adb",
+                (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel) = "src/main.adb",
               "selected-row source filter label is derived from Diagnostics row identity");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Diagnostics_Filter_Source);
 
-      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Feature_Diagnostics) = "",
+      Assert (Editor.Feature_Diagnostics.Filter_Text (S.Panel.Feature_Diagnostics) = "",
               "source filter command does not smuggle a general text payload");
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 2,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 2,
               "selected-source filter does not delete Diagnostics rows");
-      Assert (Editor.Feature_Diagnostics.Visible_Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Visible_Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "selected-source filter narrows projection to the selected source label");
    end Test_Selected_Source_Filter_Uses_Selected_Row_Without_Command_Payload;
 
@@ -1250,7 +1250,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               "clear-filter is unavailable when no Diagnostics filter is active");
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Warning,
          Message      => "manual warning",
          Source_Label => "notes.adb",
@@ -1268,7 +1268,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
               "severity filters become available once Diagnostics rows exist");
 
-      Editor.Feature_Diagnostics.Filter_Warnings_Only (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Filter_Warnings_Only (S.Panel.Feature_Diagnostics);
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Diagnostics_Clear_Filter);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
@@ -1287,37 +1287,37 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Editor.State.Init (S);
 
-      Before_Count := Editor.Messages.Count (S.Messages);
+      Before_Count := Editor.Messages.Count (S.Panel.Messages);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Diagnostics_Clear_Filter);
-      Assert (Editor.Messages.Count (S.Messages) = Before_Count + 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Count + 1,
               "clear-filter execution reports one unavailable outcome when no filter is active");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
               Editor.Feature_Diagnostics.Message_No_Filter_Active,
               "clear-filter execution mirrors the no-filter availability reason");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Info,
          Message       => "manual build note",
          Source_Label  => "build notes",
          Source_Kind   => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target    => False);
-      Before_Count := Editor.Messages.Count (S.Messages);
+      Before_Count := Editor.Messages.Count (S.Panel.Messages);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Diagnostics_Filter_Build);
 
-      Assert (Editor.Messages.Count (S.Messages) = Before_Count + 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Count + 1,
               "build-filter execution reports one unavailable outcome without build-produced rows");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
               Editor.Feature_Diagnostics.Message_No_Build_Diagnostics,
               "build-filter execution mirrors the no-build-diagnostics availability reason");
-      Assert (not Editor.Feature_Diagnostics.Filter_Active (S.Feature_Diagnostics),
+      Assert (not Editor.Feature_Diagnostics.Filter_Active (S.Panel.Feature_Diagnostics),
               "failed build-filter execution does not leave a hidden build-only predicate active");
-      Assert (Editor.Feature_Diagnostics.Visible_Row_Count (S.Feature_Diagnostics) = 1,
+      Assert (Editor.Feature_Diagnostics.Visible_Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "manual rows whose labels mention build remain visible after rejected build filtering");
    end Test_Filter_Command_Execution_Guards_Mirror_Availability;
 
@@ -1332,17 +1332,17 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Editor.State.Init (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Warning,
          Message      => "manual warning",
          Source_Label => "notes.adb",
          Source_Kind  => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target   => False);
 
-      Editor.Feature_Diagnostics.Filter_Errors_Only (S.Feature_Diagnostics);
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
+      Editor.Feature_Diagnostics.Filter_Errors_Only (S.Panel.Feature_Diagnostics);
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "the hidden warning remains Diagnostics-owned data");
-      Assert (Editor.Feature_Diagnostics.Visible_Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Visible_Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "errors-only projection hides all rows when only warnings exist");
 
       A := Editor.Executor.Command_Availability
@@ -1357,7 +1357,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               and then Editor.Commands.Availability_Metadata.Unavailable_Reason (A) = "No visible diagnostics",
               "previous diagnostic is unavailable when filters hide every diagnostic");
 
-      Editor.Feature_Diagnostics.Clear_Filter (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Clear_Filter (S.Panel.Feature_Diagnostics);
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Diagnostics_Select_Next);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
@@ -1376,32 +1376,32 @@ package body Editor.Diagnostics_Review_UX.Tests is
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Diagnostics_Select_Next);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
               Editor.Feature_Diagnostics.Message_No_Diagnostics,
               "next diagnostic execution reports no diagnostics when row storage is empty");
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Diagnostics_Select_Previous);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
               Editor.Feature_Diagnostics.Message_No_Diagnostics,
               "previous diagnostic execution reports no diagnostics when row storage is empty");
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Warning,
          Message      => "hidden warning",
          Source_Label => "notes.adb",
          Source_Kind  => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target   => False);
-      Editor.Feature_Diagnostics.Filter_Errors_Only (S.Feature_Diagnostics);
+      Editor.Feature_Diagnostics.Filter_Errors_Only (S.Panel.Feature_Diagnostics);
 
-      Editor.Messages.Clear (S.Messages);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Diagnostics_Select_Next);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
               Editor.Feature_Diagnostics.Message_No_Visible_Diagnostic,
               "next diagnostic execution reports no visible diagnostics when filters hide stored rows");
@@ -1418,24 +1418,24 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Editor.State.Init (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message      => "source-less diagnostic",
          Source_Label => "",
          Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target   => False);
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
-      Before_Count := Editor.Messages.Count (S.Messages);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+      Before_Count := Editor.Messages.Count (S.Panel.Messages);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
 
-      Assert (Editor.Messages.Count (S.Messages) = Before_Count + 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before_Count + 1,
               "failed Diagnostics row activation emits exactly one primary message");
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
               Editor.Feature_Diagnostics.Message_No_Target,
               "the single failure message keeps the precise source-less target reason");
@@ -1452,7 +1452,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Editor.State.Init (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "line omitted by producer",
          Source_Label  => "src/main.adb",
@@ -1462,21 +1462,21 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Target_Line   => 0,
          Target_Column => 0);
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
                 Editor.Commands.Workflow_Messages.Reason_Target_Line_Unavailable,
               "missing-line Diagnostics activation uses the shared target-line sentence");
 
-      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Feature_Diagnostics);
-      Editor.Messages.Clear (S.Messages);
+      Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
+      Editor.Messages.Clear (S.Panel.Messages);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "file missing",
          Source_Label  => "src/missing.adb",
@@ -1486,13 +1486,13 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Target_Line   => 15,
          Target_Column => 0);
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
                 Editor.Commands.Workflow_Messages.Reason_Target_Missing,
               "missing-file Diagnostics activation normalizes retained target labels into the shared missing-target sentence");
@@ -1610,8 +1610,8 @@ package body Editor.Diagnostics_Review_UX.Tests is
       Summary  : Unbounded_String;
    begin
       Seed_Rows (S);
-      Editor.Feature_Diagnostics.Filter_Errors_Only (S.Feature_Diagnostics);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Diagnostics.Filter_Errors_Only (S.Panel.Feature_Diagnostics);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Snapshot := Editor.State.Build_Workspace_Snapshot (S);
       Summary := To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Snapshot));
@@ -1636,23 +1636,23 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Editor.State.Init (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message      => "compile failure",
          Source_Label => "src/main.adb",
          Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target   => False);
-      Editor.Feature_Diagnostics.Filter_Errors_Only (S.Feature_Diagnostics);
-      Assert (Editor.Feature_Diagnostics.Filter_Active (S.Feature_Diagnostics),
+      Editor.Feature_Diagnostics.Filter_Errors_Only (S.Panel.Feature_Diagnostics);
+      Assert (Editor.Feature_Diagnostics.Filter_Active (S.Panel.Feature_Diagnostics),
               "test precondition: Diagnostics filter is active before clear");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Clear);
 
-      Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 0,
+      Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "clear diagnostics removes Diagnostics-owned rows");
-      Assert (not Editor.Feature_Diagnostics.Filter_Active (S.Feature_Diagnostics),
+      Assert (not Editor.Feature_Diagnostics.Filter_Active (S.Panel.Feature_Diagnostics),
               "clear diagnostics also resets transient review filter state");
-      Assert (Editor.Feature_Diagnostics.Header_Text (S.Feature_Diagnostics) = "No diagnostics.",
+      Assert (Editor.Feature_Diagnostics.Header_Text (S.Panel.Feature_Diagnostics) = "No diagnostics.",
               "clear diagnostics returns the panel to the unfiltered no-diagnostics state");
    end Test_Clear_Diagnostics_Resets_Transient_Filter_State;
 
@@ -2079,21 +2079,21 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Editor.State.Init (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message      => "suppressed command diagnostic",
          Source_Label => "src/main.adb",
          Source_Kind  => Editor.Feature_Diagnostics.External_Diagnostic_Source,
          Has_Target   => False);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Show);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Diagnostic_Suppress_Selected);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Diagnostic_Show_Suppressed);
 
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert
         (Found
          and then Contains (Editor.Messages.Text (M), "Suppressed diagnostics: 1")
@@ -2369,7 +2369,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               "clear-errors reports no diagnostics when Diagnostics storage is empty");
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Warning,
          Message      => "warning only",
          Source_Label => "src/main.adb",
@@ -2394,7 +2394,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
               "clear-info distinguishes absent info/note rows from an empty Diagnostics model");
 
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Note,
          Message      => "note only",
          Source_Label => "src/main.adb",
@@ -2408,15 +2408,15 @@ package body Editor.Diagnostics_Review_UX.Tests is
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Diagnostics_Clear_Info);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
               Editor.Feature_Diagnostics.Message_Info_Cleared,
               "clear-info reports the info/note clear outcome");
       Assert (not Editor.Feature_Diagnostics.Has_Info_Or_Note_Diagnostic
-                (S.Feature_Diagnostics),
+                (S.Panel.Feature_Diagnostics),
               "clear-info removes note diagnostics as informational diagnostics");
       Assert (Editor.Feature_Diagnostics.Has_Diagnostic_With_Severity
-                (S.Feature_Diagnostics,
+                (S.Panel.Feature_Diagnostics,
                  Editor.Feature_Diagnostics.Diagnostic_Warning),
               "clear-info does not remove warning diagnostics");
    end Test_Severity_Clear_Availability_And_Outcomes_Are_Precise;
@@ -2430,14 +2430,14 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Editor.State.Init (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Info,
          Message      => "info row",
          Source_Label => "src/info.adb",
          Source_Kind  => Editor.Feature_Diagnostics.Editor_Diagnostic_Source,
          Has_Target   => False);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity     => Editor.Feature_Diagnostics.Diagnostic_Note,
          Message      => "note row",
          Source_Label => "src/note.adb",
@@ -2445,34 +2445,34 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Has_Target   => False);
 
       Assert (Editor.Feature_Diagnostics.Visible_Row_Count
-                (S.Feature_Diagnostics) = 2,
+                (S.Panel.Feature_Diagnostics) = 2,
               "test precondition: info and note diagnostics are both visible");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Diagnostics_Toggle_Info);
       Assert (not Editor.Feature_Diagnostics.Severity_Is_Visible
-                (S.Feature_Diagnostics,
+                (S.Panel.Feature_Diagnostics,
                  Editor.Feature_Diagnostics.Diagnostic_Info),
               "toggle-info hides info diagnostics");
       Assert (not Editor.Feature_Diagnostics.Severity_Is_Visible
-                (S.Feature_Diagnostics,
+                (S.Panel.Feature_Diagnostics,
                  Editor.Feature_Diagnostics.Diagnostic_Note),
               "toggle-info also hides note diagnostics as part of the info/notes triage bucket");
       Assert (Editor.Feature_Diagnostics.Visible_Row_Count
-                (S.Feature_Diagnostics) = 0,
+                (S.Panel.Feature_Diagnostics) = 0,
               "notes are not left visible after informational diagnostics are hidden");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Diagnostics_Toggle_Info);
       Assert (Editor.Feature_Diagnostics.Severity_Is_Visible
-                (S.Feature_Diagnostics,
+                (S.Panel.Feature_Diagnostics,
                  Editor.Feature_Diagnostics.Diagnostic_Info)
               and then Editor.Feature_Diagnostics.Severity_Is_Visible
-                (S.Feature_Diagnostics,
+                (S.Panel.Feature_Diagnostics,
                  Editor.Feature_Diagnostics.Diagnostic_Note),
               "toggle-info restores the full info/notes triage bucket");
       Assert (Editor.Feature_Diagnostics.Visible_Row_Count
-                (S.Feature_Diagnostics) = 2,
+                (S.Panel.Feature_Diagnostics) = 2,
               "info and note rows become visible together again");
    end Test_Info_Toggle_Hides_Notes_As_Informational_Diagnostics;
 
@@ -2531,7 +2531,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
    begin
       Editor.State.Init (S);
       Editor.Feature_Diagnostics.Add_Diagnostic
-        (S.Feature_Diagnostics,
+        (S.Panel.Feature_Diagnostics,
          Severity      => Editor.Feature_Diagnostics.Diagnostic_Error,
          Message       => "stale diagnostic target",
          Source_Label  => "src/renamed.adb",
@@ -2542,14 +2542,14 @@ package body Editor.Diagnostics_Review_UX.Tests is
          Target_Column => 1);
 
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Source_Path_Stale
-        (S.Feature_Diagnostics, "src/renamed.adb", "src/moved.adb");
-      Assert (Editor.Feature_Diagnostics.Item_Is_Stale (S.Feature_Diagnostics, 1),
+        (S.Panel.Feature_Diagnostics, "src/renamed.adb", "src/moved.adb");
+      Assert (Editor.Feature_Diagnostics.Item_Is_Stale (S.Panel.Feature_Diagnostics, 1),
               "source rename marks the diagnostic row stale in the owning Diagnostics store");
 
       Editor.Feature_Diagnostics.Project_Rows
-        (S.Feature_Diagnostics, S.Feature_Panel);
-      Editor.Feature_Panel.Select_Row (S.Feature_Panel, 1);
-      Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
+        (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
+      Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
+      Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Diagnostics_Open_Selected);
@@ -2561,7 +2561,7 @@ package body Editor.Diagnostics_Review_UX.Tests is
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Feature_Panel_Open_Selected);
-      M := Editor.Messages.Active_Message (S.Messages, Found);
+      M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then Editor.Messages.Text (M) =
               Editor.Commands.Workflow_Messages.Reason_Target_Stale,
               "Diagnostics stale-target activation uses the same canonical primary outcome");

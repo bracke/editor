@@ -120,7 +120,7 @@ package body Editor.Buffer_Switcher.Surface_Rendering is
       Text_Cols : constant Natural := Projection.Text_Columns;
       Active : constant Boolean :=
         Editor.Overlay_Focus.Is_Active
-          (State.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay);
+          (State.Panel.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay);
    begin
       Background_Rectangles.Clear;
       Field_Rectangles.Clear;

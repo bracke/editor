@@ -12,7 +12,7 @@ package body Editor.Executor.Project_Lifecycle_Availability_Commands is
    is
       function Has_Project return Boolean is
       begin
-         return Editor.Project.Has_Project (S.Project);
+         return Editor.Project.Has_Project (S.Project_Runtime.Project);
       end Has_Project;
    begin
       case Id is
@@ -33,24 +33,24 @@ package body Editor.Executor.Project_Lifecycle_Availability_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Clear_Recent_Projects =>
-            if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
+            if Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No recent projects");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Open_Selected_Recent_Project =>
-            if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
+            if Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No recent project selected");
             else
                declare
                   Total : constant Natural :=
-                    Editor.Recent_Projects.Count (S.Recent_Projects);
+                    Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects);
                   Selected : constant Positive :=
-                    (if S.Recent_Project_Selected_Index in 1 .. Total
-                     then Positive (S.Recent_Project_Selected_Index)
+                    (if S.Project_Runtime.Recent_Project_Selected_Index in 1 .. Total
+                     then Positive (S.Project_Runtime.Recent_Project_Selected_Index)
                      else 1);
                   Item : constant Editor.Recent_Projects.Recent_Project_Entry :=
-                    Editor.Recent_Projects.Item (S.Recent_Projects, Selected);
+                    Editor.Recent_Projects.Item (S.Project_Runtime.Recent_Projects, Selected);
                begin
                   if not Editor.Recent_Projects.Is_Available (Item) then
                      return Editor.Commands.Availability_Metadata.Unavailable
@@ -61,18 +61,18 @@ package body Editor.Executor.Project_Lifecycle_Availability_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Remove_Selected_Recent_Project =>
-            if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
+            if Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No recent project selected");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Remove_Missing_Recent_Projects =>
-            if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
+            if Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No recent projects");
             end if;
-            for Index in 1 .. Editor.Recent_Projects.Count (S.Recent_Projects) loop
+            for Index in 1 .. Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) loop
                if not Editor.Recent_Projects.Is_Available
-                 (Editor.Recent_Projects.Item (S.Recent_Projects, Index))
+                 (Editor.Recent_Projects.Item (S.Project_Runtime.Recent_Projects, Index))
                then
                   return Editor.Commands.Availability_Metadata.Available;
                end if;
@@ -81,7 +81,7 @@ package body Editor.Executor.Project_Lifecycle_Availability_Commands is
 
          when Editor.Command_Ids.Command_Select_Next_Recent_Project
             | Editor.Command_Ids.Command_Select_Previous_Recent_Project =>
-            if Editor.Recent_Projects.Count (S.Recent_Projects) = 0 then
+            if Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No recent projects");
             end if;
             return Editor.Commands.Availability_Metadata.Available;

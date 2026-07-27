@@ -388,7 +388,7 @@ package body Editor.Feature_Integration.Tests is
               "long-run feature-readiness scenario must keep keybindings separated from feature-like commands");
       Assert (Settings_Before /= Settings_After,
               "configuration command stand-in must alter only settings/configuration state");
-      Assert (Editor.Messages.Count (S.Messages) <= 3,
+      Assert (Editor.Messages.Count (S.Panel.Messages) <= 3,
               "scenario should respect visible-message cap for primary outcomes");
 
       Before := S;

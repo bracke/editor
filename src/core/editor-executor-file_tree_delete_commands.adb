@@ -32,7 +32,7 @@ package body Editor.Executor.File_Tree_Delete_Commands is
       Parent_After_Delete : Unbounded_String := Null_Unbounded_String;
       Active_Buffer_Was_Deleted : Boolean := False;
    begin
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
       elsif not Found then
@@ -42,7 +42,7 @@ package body Editor.Executor.File_Tree_Delete_Commands is
          Editor.Executor.Shared_Services.Report_Warning (S, "Cannot delete project root");
          return;
       elsif not Editor.Project.Is_Under_Project
-        (S.Project, To_String (Summary.Absolute_Path))
+        (S.Project_Runtime.Project, To_String (Summary.Absolute_Path))
       then
          Editor.Executor.Shared_Services.Report_Error (S, "Target path is outside the project");
          return;

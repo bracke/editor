@@ -59,16 +59,16 @@ package body Editor.Executor.Quick_Open_Create_Commands is
    begin
       Editor.Executor.Clear_Restore_Feedback_Current (S);
 
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif Editor.Project.Root_Path (S.Project)'Length = 0 then
+      elsif Editor.Project.Root_Path (S.Project_Runtime.Project)'Length = 0 then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
         or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
       then
          Editor.Executor.Shared_Services.Report_Warning (S, "Quick Open is not visible");
@@ -92,10 +92,10 @@ package body Editor.Executor.Quick_Open_Create_Commands is
 
       Rel_Path := Target.Project_Relative_Path;
       Abs_Path := To_Unbounded_String
-        (Editor.Project.Absolute_Project_File_Path (S.Project, To_String (Rel_Path)));
+        (Editor.Project.Absolute_Project_File_Path (S.Project_Runtime.Project, To_String (Rel_Path)));
 
       Rule_Check := Editor.Project.Validate_Project_Create_Path_Rules
-        (S.Project, To_String (Rel_Path));
+        (S.Project_Runtime.Project, To_String (Rel_Path));
       case Rule_Check.Status is
          when Editor.Project.Project_Create_Path_Ok =>
             null;
@@ -117,7 +117,7 @@ package body Editor.Executor.Quick_Open_Create_Commands is
             return;
       end case;
 
-      if Editor.Project.Has_Known_File (S.Project, To_String (Rel_Path)) then
+      if Editor.Project.Has_Known_File (S.Project_Runtime.Project, To_String (Rel_Path)) then
          Editor.Executor.Shared_Services.Report_Warning (S, "Project file already exists: " & To_String (Rel_Path));
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -132,13 +132,13 @@ package body Editor.Executor.Quick_Open_Create_Commands is
          Slash : constant Natural := Last_Slash (Rel);
       begin
          if Slash = 0 then
-            Parent_Abs := To_Unbounded_String (Editor.Project.Root_Path (S.Project));
+            Parent_Abs := To_Unbounded_String (Editor.Project.Root_Path (S.Project_Runtime.Project));
             Parent_Rel := Null_Unbounded_String;
          else
             Parent_Rel := To_Unbounded_String (Rel (Rel'First .. Slash));
             Parent_Abs := To_Unbounded_String
               (Editor.Project.Absolute_Project_File_Path
-                 (S.Project, Rel (Rel'First .. Slash - 1)));
+                 (S.Project_Runtime.Project, Rel (Rel'First .. Slash - 1)));
          end if;
       end;
 
@@ -186,7 +186,7 @@ package body Editor.Executor.Quick_Open_Create_Commands is
       end;
 
       Editor.Project.Add_Known_File
-        (S.Project, To_String (Rel_Path), To_String (Abs_Path));
+        (S.Project_Runtime.Project, To_String (Rel_Path), To_String (Abs_Path));
       Editor.Executor.Quick_Open_Input_Commands.Recompute_Quick_Open (S);
       declare
          Selected : Boolean := False;
@@ -214,9 +214,9 @@ package body Editor.Executor.Quick_Open_Create_Commands is
                Editor.Executor.Structured_File_Navigation_Target (To_String (Abs_Path)));
          end if;
       end;
-      Editor.Messages.Dismiss_Latest (S.Messages);
+      Editor.Messages.Dismiss_Latest (S.Panel.Messages);
       if Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
       then
          Editor.Executor.Dismiss_Active_Overlay (S, Editor.Overlay_Focus.Dismiss_Accept);
       else
@@ -275,13 +275,13 @@ package body Editor.Executor.Quick_Open_Create_Commands is
 
          procedure Check_Or_Create (Dir_Rel : String) is
             Dir_Abs : constant String :=
-              Editor.Project.Absolute_Project_File_Path (S.Project, Dir_Rel);
+              Editor.Project.Absolute_Project_File_Path (S.Project_Runtime.Project, Dir_Rel);
             Display : constant String := Dir_Rel & "/";
 
             function Directory_Remains_Under_Project return Boolean is
             begin
                return Editor.Project.Is_Under_Project
-                 (S.Project, Ada.Directories.Full_Name (Dir_Abs));
+                 (S.Project_Runtime.Project, Ada.Directories.Full_Name (Dir_Abs));
             exception
                when others =>
                   return False;
@@ -345,16 +345,16 @@ package body Editor.Executor.Quick_Open_Create_Commands is
    begin
       Editor.Executor.Clear_Restore_Feedback_Current (S);
 
-      if not Editor.Project.Has_Project (S.Project) then
+      if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif Editor.Project.Root_Path (S.Project)'Length = 0 then
+      elsif Editor.Project.Root_Path (S.Project_Runtime.Project)'Length = 0 then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open.");
          Editor.Render_Cache.Invalidate_All;
          return;
       elsif not Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
         or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
       then
          Editor.Executor.Shared_Services.Report_Warning (S, "Quick Open is not visible");
@@ -378,10 +378,10 @@ package body Editor.Executor.Quick_Open_Create_Commands is
 
       Rel_Path := Target.Project_Relative_Path;
       Abs_Path := To_Unbounded_String
-        (Editor.Project.Absolute_Project_File_Path (S.Project, To_String (Rel_Path)));
+        (Editor.Project.Absolute_Project_File_Path (S.Project_Runtime.Project, To_String (Rel_Path)));
 
       Rule_Check := Editor.Project.Validate_Project_Create_Path_Rules
-        (S.Project, To_String (Rel_Path));
+        (S.Project_Runtime.Project, To_String (Rel_Path));
       case Rule_Check.Status is
          when Editor.Project.Project_Create_Path_Ok =>
             null;
@@ -403,7 +403,7 @@ package body Editor.Executor.Quick_Open_Create_Commands is
             return;
       end case;
 
-      if Editor.Project.Has_Known_File (S.Project, To_String (Rel_Path)) then
+      if Editor.Project.Has_Known_File (S.Project_Runtime.Project, To_String (Rel_Path)) then
          Editor.Executor.Shared_Services.Report_Warning (S, "Project file already exists: " & To_String (Rel_Path));
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -462,7 +462,7 @@ package body Editor.Executor.Quick_Open_Create_Commands is
       end;
 
       Editor.Project.Add_Known_File
-        (S.Project, To_String (Rel_Path), To_String (Abs_Path));
+        (S.Project_Runtime.Project, To_String (Rel_Path), To_String (Abs_Path));
       Editor.Executor.Quick_Open_Input_Commands.Recompute_Quick_Open (S);
       declare
          Selected : Boolean := False;
@@ -490,9 +490,9 @@ package body Editor.Executor.Quick_Open_Create_Commands is
                Editor.Executor.Structured_File_Navigation_Target (To_String (Abs_Path)));
          end if;
       end;
-      Editor.Messages.Dismiss_Latest (S.Messages);
+      Editor.Messages.Dismiss_Latest (S.Panel.Messages);
       if Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
       then
          Editor.Executor.Dismiss_Active_Overlay (S, Editor.Overlay_Focus.Dismiss_Accept);
       else

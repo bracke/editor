@@ -14,9 +14,9 @@ package body Editor.Executor.Active_Replace_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      S.Active_Replace_Prompt := False;
-      S.Active_Replace_Text := Null_Unbounded_String;
-      S.Active_Replace_Error_Message := Null_Unbounded_String;
+      S.Search.Active_Replace_Prompt := False;
+      S.Search.Active_Replace_Text := Null_Unbounded_String;
+      S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
    end Clear_Active_Replace_State;
 
    function Is_Valid_Replace_Text (Text : String) return Boolean is
@@ -33,7 +33,7 @@ package body Editor.Executor.Active_Replace_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      S.Active_Replace_Error_Message :=
+      S.Search.Active_Replace_Error_Message :=
         To_Unbounded_String ("Replacement text must be single-line");
       Report_Warning (S, "Replacement text must be single-line");
       Editor.Render_Cache.Invalidate_All;
@@ -45,10 +45,10 @@ package body Editor.Executor.Active_Replace_Commands is
    begin
       Editor.Executor.Activate_Overlay
         (S, Editor.Overlay_Focus.Active_Find_Prompt_Overlay);
-      S.Active_Find_Prompt := True;
-      S.Active_Replace_Prompt := True;
-      S.Active_Replace_Error_Message := Null_Unbounded_String;
-      Editor.Input_Field.Set_Text (S.Active_Find_Input, To_String (S.Active_Find_Query));
+      S.Search.Active_Find_Prompt := True;
+      S.Search.Active_Replace_Prompt := True;
+      S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
+      Editor.Input_Field.Set_Text (S.Search.Active_Find_Input, To_String (S.Search.Active_Find_Query));
       Report_Info (S, "Replace shown");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Replace_Show;
@@ -66,7 +66,7 @@ package body Editor.Executor.Active_Replace_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if S.Active_Replace_Prompt then
+      if S.Search.Active_Replace_Prompt then
          Execute_Replace_Hide (S);
       else
          Execute_Replace_Show (S);
@@ -80,16 +80,16 @@ package body Editor.Executor.Active_Replace_Commands is
    begin
       Editor.Executor.Activate_Overlay
         (S, Editor.Overlay_Focus.Active_Find_Prompt_Overlay);
-      S.Active_Find_Prompt := True;
-      S.Active_Replace_Prompt := True;
+      S.Search.Active_Find_Prompt := True;
+      S.Search.Active_Replace_Prompt := True;
 
       if not Is_Valid_Replace_Text (Text) then
          Report_Invalid_Replace_Text (S);
          return;
       end if;
 
-      S.Active_Replace_Text := To_Unbounded_String (Text);
-      S.Active_Replace_Error_Message := Null_Unbounded_String;
+      S.Search.Active_Replace_Text := To_Unbounded_String (Text);
+      S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
       Report_Info (S, "Replace text set");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Replace_Set_Text;
@@ -98,13 +98,13 @@ package body Editor.Executor.Active_Replace_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Length (S.Active_Replace_Text) = 0
-        and then Length (S.Active_Replace_Error_Message) = 0
+      if Length (S.Search.Active_Replace_Text) = 0
+        and then Length (S.Search.Active_Replace_Error_Message) = 0
       then
          Report_Info (S, "No replacement text to clear");
       else
-         S.Active_Replace_Text := Null_Unbounded_String;
-         S.Active_Replace_Error_Message := Null_Unbounded_String;
+         S.Search.Active_Replace_Text := Null_Unbounded_String;
+         S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
          Report_Info (S, "Replace text cleared");
       end if;
       Editor.Render_Cache.Invalidate_All;

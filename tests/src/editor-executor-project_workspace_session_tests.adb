@@ -804,13 +804,13 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
         (S, Editor.Command_Ids.Command_Restore_Workspace_State);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "explicit restore should execute");
-      Assert (S.Post_Restore_Feedback_Current,
+      Assert (S.Project_Runtime.Post_Restore_Feedback_Current,
               "restore feedback should be current immediately after restore");
-      Assert (S.Last_Restore_Summary_Available
-                and then S.Last_Restore_Summary.Files_Requested = 1
-                and then S.Last_Restore_Summary.Files_Restored = 1,
+      Assert (S.Project_Runtime.Last_Restore_Summary_Available
+                and then S.Project_Runtime.Last_Restore_Summary.Files_Requested = 1
+                and then S.Project_Runtime.Last_Restore_Summary.Files_Restored = 1,
               "restore should retain structured restore details while feedback is current");
-      Assert (Editor.Messages.Count (S.Messages) > 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) > 0,
               "restore Message should remain historical");
 
       Cmd.Kind := Editor.Command_Kinds.Insert_Text_Input;
@@ -819,11 +819,11 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Cmd.Code := Wide_Wide_Character'Val (0);
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (not S.Post_Restore_Feedback_Current,
+      Assert (not S.Project_Runtime.Post_Restore_Feedback_Current,
               "first edit should stop restore feedback being current");
-      Assert (not S.Last_Restore_Summary_Available,
+      Assert (not S.Project_Runtime.Last_Restore_Summary_Available,
               "first edit should clear transient restore details");
-      Assert (Editor.Messages.Count (S.Messages) > 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) > 0,
               "first edit should not erase historical restore Message");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "restore feedback cleanup must preserve dirty state");
@@ -869,18 +869,18 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Restore_Workspace_State);
       Assert (Result.Status = Editor.Executor.Command_Executed
-                and then S.Post_Restore_Feedback_Current,
+                and then S.Project_Runtime.Post_Restore_Feedback_Current,
               "restore feedback should start as current command feedback");
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Save_File);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "save after restore should execute normally");
-      Assert (not S.Post_Restore_Feedback_Current,
+      Assert (not S.Project_Runtime.Post_Restore_Feedback_Current,
               "first command should replace restore-only current feedback");
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "restore feedback replacement must not dirty clean buffer");
-      Assert (Editor.Messages.Count (S.Messages) > 0,
+      Assert (Editor.Messages.Count (S.Panel.Messages) > 0,
               "command replacement keeps Messages as bounded history");
 
       Remove_Tree_If_Exists (Root);
@@ -1078,7 +1078,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
         (S, Editor.Command_Ids.Command_Restore_Workspace_State);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "restored-file fixture should restore session");
-      Assert (S.Post_Restore_Feedback_Current,
+      Assert (S.Project_Runtime.Post_Restore_Feedback_Current,
               "restored-file fixture should start with current restore feedback");
    end Prepare_Restored_File;
 
@@ -1100,9 +1100,9 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
          Assert (Result.Status = Editor.Executor.Command_Executed
                    or else Result.Status = Editor.Executor.Command_Unavailable,
                  "ordinary command should return a bounded command outcome");
-         Assert (not S.Post_Restore_Feedback_Current,
+         Assert (not S.Project_Runtime.Post_Restore_Feedback_Current,
                  "ordinary command should clear current restore feedback");
-         Assert (not S.Last_Restore_Summary_Available,
+         Assert (not S.Project_Runtime.Last_Restore_Summary_Available,
                  "ordinary command should clear transient restore details");
          Remove_Tree_If_Exists (Root);
          Editor.Buffers.Reset_Global_For_Test;
@@ -1133,9 +1133,9 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Prepare_Restored_File (Project_Root, S);
       Build_Fixture (Next_Root);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Next_Root);
-      Assert (not S.Post_Restore_Feedback_Current,
+      Assert (not S.Project_Runtime.Post_Restore_Feedback_Current,
               "project switch should clear current restore feedback");
-      Assert (not S.Last_Restore_Summary_Available,
+      Assert (not S.Project_Runtime.Last_Restore_Summary_Available,
               "project switch should clear transient restore details");
       Remove_Tree_If_Exists (Project_Root);
       Remove_Tree_If_Exists (Next_Root);
@@ -1166,19 +1166,19 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Cmd.Text := To_Unbounded_String (String'(1 => 'Z'));
       Cmd.Code := Wide_Wide_Character'Val (0);
       Editor.Executor.Execute_No_Log (S, Cmd);
-      Assert (not S.Post_Restore_Feedback_Current,
+      Assert (not S.Project_Runtime.Post_Restore_Feedback_Current,
               "edit cleanup should make restore feedback historical");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "edit after cleanup should expose ordinary dirty state");
 
-      Before := Editor.Messages.Count (S.Messages);
+      Before := Editor.Messages.Count (S.Panel.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Save_File);
       Latest := To_Unbounded_String (Latest_Message_Text (S));
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "save after cleanup should execute through normal save path");
-      Assert (Editor.Messages.Count (S.Messages) = Before + 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before + 1,
               "save after cleanup should post exactly one primary save message");
       Assert (Ada.Strings.Fixed.Index (To_String (Latest), "Saved a.txt") > 0,
               "save after cleanup should make the current feedback the save result");
@@ -1207,14 +1207,14 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Latest    : Unbounded_String;
    begin
       Prepare_Restored_File (Root, S);
-      Before := Editor.Messages.Count (S.Messages);
+      Before := Editor.Messages.Count (S.Panel.Messages);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, File_Path);
       Latest := To_Unbounded_String (Latest_Message_Text (S));
 
-      Assert (not S.Post_Restore_Feedback_Current,
+      Assert (not S.Project_Runtime.Post_Restore_Feedback_Current,
               "direct open/focus should clear current restore feedback");
-      Assert (Editor.Messages.Count (S.Messages) = Before + 1,
+      Assert (Editor.Messages.Count (S.Panel.Messages) = Before + 1,
               "direct open/focus should post only its own normal feedback");
       Assert (Ada.Strings.Fixed.Index (To_String (Latest), "Focused existing buffer a.txt") > 0,
               "direct open/focus should use ordinary already-open feedback");
@@ -1250,7 +1250,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
         (S, Node, Editor.File_Tree_View.Open_File_Action);
       Latest := To_Unbounded_String (Latest_Message_Text (S));
 
-      Assert (not S.Post_Restore_Feedback_Current,
+      Assert (not S.Project_Runtime.Post_Restore_Feedback_Current,
               "direct File Tree row action should clear current restore feedback");
       Assert (Ada.Strings.Fixed.Index (To_String (Latest), "Focused existing buffer a.txt") > 0,
               "File Tree activation after cleanup should use normal focus feedback");
@@ -1299,7 +1299,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
               "already-open File Tree activation should preserve dirty state");
       Assert (To_String (Before) = Editor.State.Current_Text (S),
               "already-open File Tree activation must not reread and replace dirty text");
-      Assert (not S.Post_Restore_Feedback_Current,
+      Assert (not S.Project_Runtime.Post_Restore_Feedback_Current,
               "dirty File Tree activation should leave restore feedback historical");
 
       Remove_Tree_If_Exists (Root);

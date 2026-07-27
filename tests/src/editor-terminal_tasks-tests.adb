@@ -271,7 +271,7 @@ package body Editor.Terminal_Tasks.Tests is
          Refresh_Build_Candidates => False,
          Apply_Workspace_Policy => False);
 
-      Assert (Editor.Project.Has_Project (S.Project),
+      Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "project open test should have an active project");
       Snapshot := Editor.Terminal_Tasks.Build_Render_Snapshot
         (S.Build.Terminal_Tasks);
@@ -356,7 +356,7 @@ package body Editor.Terminal_Tasks.Tests is
    begin
       Ada.Directories.Create_Path (Root);
       Editor.Project.Apply_Open_Result
-        (S.Project, Editor.Project.Open_Project (Root));
+        (S.Project_Runtime.Project, Editor.Project.Open_Project (Root));
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Terminal_Show);

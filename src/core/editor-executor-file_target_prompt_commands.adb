@@ -105,7 +105,7 @@ package body Editor.Executor.File_Target_Prompt_Commands is
       end if;
       Clear_File_Target_Prompt (S);
       if Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.File_Target_Prompt_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.File_Target_Prompt_Overlay)
       then
          Editor.Executor.Deactivate_Active_Overlay_Only
            (S, Editor.Overlay_Focus.Dismiss_Escape);
@@ -151,7 +151,7 @@ package body Editor.Executor.File_Target_Prompt_Commands is
 
       Clear_File_Target_Prompt (S);
       if Editor.Overlay_Focus.Is_Active
-        (S.Overlay_Focus, Editor.Overlay_Focus.File_Target_Prompt_Overlay)
+        (S.Panel.Overlay_Focus, Editor.Overlay_Focus.File_Target_Prompt_Overlay)
       then
          Editor.Executor.Deactivate_Active_Overlay_Only
            (S, Editor.Overlay_Focus.Dismiss_Accept);
