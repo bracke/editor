@@ -65,16 +65,16 @@ package body Editor.Build_Diagnostics.Tests is
         Editor.Build_Candidates.Gprbuild_Candidate
           ("current-project-root", "editor.gpr");
    begin
-      Editor.Build_UI.Show (S.Build_UI);
+      Editor.Build_UI.Show (S.Build.Build_UI);
       Candidates.Append (GPR);
       Editor.Build_UI.Set_Build_Candidates
-        (S.Build_UI, Candidates, "refresh succeeded: 1 candidates");
+        (S.Build.Build_UI, Candidates, "refresh succeeded: 1 candidates");
       Editor.Build_UI.Select_Build_Candidate
-        (S.Build_UI, To_String (GPR.Candidate_Id));
+        (S.Build.Build_UI, To_String (GPR.Candidate_Id));
       Editor.Build_UI.Set_Show_Diagnostics_On_Result
-        (S.Build_UI, Show_Diagnostics);
-      Editor.Build_UI.Acknowledge_Consent (S.Build_UI);
-      S.Public_Build_Execution_Policy :=
+        (S.Build.Build_UI, Show_Diagnostics);
+      Editor.Build_UI.Acknowledge_Consent (S.Build.Build_UI);
+      S.Build.Public_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Bounded_Process;
    end Prepare_Public_Build_UI;
 
@@ -298,8 +298,8 @@ package body Editor.Build_Diagnostics.Tests is
         (Gate.Process_Policy.Max_Output_Bytes = 262_144,
          "normal output capture limit reaches the execution gate");
 
-      Editor.Build_UI.Cycle_Output_Capture_Limit (S.Build_UI);
-      Editor.Build_UI.Acknowledge_Consent (S.Build_UI);
+      Editor.Build_UI.Cycle_Output_Capture_Limit (S.Build.Build_UI);
+      Editor.Build_UI.Acknowledge_Consent (S.Build.Build_UI);
       Gate := Editor.Build_Command.Build_Run_Execution_Gate (S);
       Assert
         (Gate.Process_Policy.Max_Output_Bytes = 1_048_576,

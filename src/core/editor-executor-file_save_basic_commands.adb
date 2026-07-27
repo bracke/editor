@@ -613,14 +613,14 @@ package body Editor.Executor.File_Save_Basic_Commands is
            (S.Semantic.Language_Service, S.Buffer_Lifecycle.Active_Buffer_Token);
       end if;
 
-      if To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length > 0 then
-         S.Build_UI.Selected_Candidate_Stale := True;
-         S.Build_UI.Consent_Acknowledged := False;
-         S.Build_UI.Pending_Public_Build_Request := False;
-         S.Build_UI.Candidate_Selection_Message := To_Unbounded_String (Reason);
-         S.Build_UI.Validation_Status :=
+      if To_String (S.Build.Build_UI.Selected_Build_Candidate_Id)'Length > 0 then
+         S.Build.Build_UI.Selected_Candidate_Stale := True;
+         S.Build.Build_UI.Consent_Acknowledged := False;
+         S.Build.Build_UI.Pending_Public_Build_Request := False;
+         S.Build.Build_UI.Candidate_Selection_Message := To_Unbounded_String (Reason);
+         S.Build.Build_UI.Validation_Status :=
            Editor.Build_UI.Build_UI_Rejected_Selected_Candidate_Stale;
-         S.Build_UI.Validation_Message := To_Unbounded_String
+         S.Build.Build_UI.Validation_Message := To_Unbounded_String
            (Editor.Build_UI.Validation_Message
               (Editor.Build_UI.Build_UI_Rejected_Selected_Candidate_Stale));
       end if;

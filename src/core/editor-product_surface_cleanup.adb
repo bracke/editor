@@ -116,17 +116,17 @@ package body Editor.Product_Surface_Cleanup is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      if Looks_Like_Demo_Text (US (S.Build_UI.Build_Target_Label))
-        or else Looks_Like_Demo_Text (US (S.Build_UI.Build_Working_Context_Label))
-        or else Looks_Like_Demo_Text (US (S.Build_UI.Candidate_Request_Preview))
-        or else Looks_Like_Demo_Text (US (S.Build_UI.Candidate_Selection_Message))
-        or else Looks_Like_Demo_Text (US (S.Build_UI.Candidate_Discovery_Message))
-        or else Looks_Like_Demo_Text (US (S.Build_UI.Candidate_Refresh_Message))
+      if Looks_Like_Demo_Text (US (S.Build.Build_UI.Build_Target_Label))
+        or else Looks_Like_Demo_Text (US (S.Build.Build_UI.Build_Working_Context_Label))
+        or else Looks_Like_Demo_Text (US (S.Build.Build_UI.Candidate_Request_Preview))
+        or else Looks_Like_Demo_Text (US (S.Build.Build_UI.Candidate_Selection_Message))
+        or else Looks_Like_Demo_Text (US (S.Build.Build_UI.Candidate_Discovery_Message))
+        or else Looks_Like_Demo_Text (US (S.Build.Build_UI.Candidate_Refresh_Message))
       then
          return True;
       end if;
 
-      for Candidate of S.Build_UI.Build_Candidates loop
+      for Candidate of S.Build.Build_UI.Build_Candidates loop
          if Candidate.Candidate_Kind = Editor.Build_Candidates.Build_Candidate_None
            or else Candidate.Discovery_Source = Editor.Build_Candidates.Build_Candidate_Source_None
            or else Looks_Like_Demo_Text (US (Candidate.Candidate_Id))

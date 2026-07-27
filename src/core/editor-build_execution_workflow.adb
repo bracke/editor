@@ -45,13 +45,13 @@ package body Editor.Build_Execution_Workflow is
         Editor.Build_Command.Validate_Build_Run_Invocation (State) =
           Editor.Build_Command.Build_Run_Readiness_Ready;
    begin
-      Editor.Build_UI.Clear_Consent (Without_Consent.Build_UI);
+      Editor.Build_UI.Clear_Consent (Without_Consent.Build.Build_UI);
       return Editor.Build_Command.Validate_Build_Run_Invocation
           (Without_Consent) /= Editor.Build_Command.Build_Run_Readiness_Ready
         and then (if Ready then
-                    State.Build_UI.Consent_Acknowledged
+                    State.Build.Build_UI.Consent_Acknowledged
                     and then Editor.Build_UI.Validate_Build_UI_State
-                      (State.Build_UI) = Editor.Build_UI.Build_UI_Valid
+                      (State.Build.Build_UI) = Editor.Build_UI.Build_UI_Valid
                   else True);
    end Assert_Build_Run_Requires_Valid_Consented_Request;
 
@@ -137,30 +137,30 @@ package body Editor.Build_Execution_Workflow is
    begin
       return Editor.Build_Diagnostics.Assert_Build_Diagnostics_Not_Persisted
         and then Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Not_Diagnostics_Owner
-          (State.Latest_Build_Result)
+          (State.Build.Latest_Result)
         and then Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Not_Diagnostics_Owner
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
    end Assert_Build_Diagnostics_Owned_By_Diagnostics;
 
    function Assert_Build_Render_Does_Not_Run_Or_Parse
      (State : Editor.State.State_Type) return Boolean
    is
-      Before_Has_Result : constant Boolean := State.Latest_Build_Result.Has_Result;
+      Before_Has_Result : constant Boolean := State.Build.Latest_Result.Has_Result;
       Before_Result_Kind : constant Editor.Build_Result_Summary.Build_Result_Summary_Kind :=
-        State.Latest_Build_Result.Kind;
+        State.Build.Latest_Result.Kind;
       Before_Has_Output : constant Boolean :=
-        State.Latest_Build_Output_Details.Has_Output_Details;
+        State.Build.Latest_Output_Details.Has_Output_Details;
       Snapshot : constant Editor.Build_UI.Build_UI_Render_Snapshot :=
         Editor.Build_UI.Build_Render_Snapshot
-          (State.Build_UI,
-           State.Latest_Build_Result,
-           State.Latest_Build_Output_Details);
+          (State.Build.Build_UI,
+           State.Build.Latest_Result,
+           State.Build.Latest_Output_Details);
    begin
       return Snapshot.Candidate_Count =
-          Editor.Build_UI.Candidate_Count (State.Build_UI)
-        and then State.Latest_Build_Result.Has_Result = Before_Has_Result
-        and then State.Latest_Build_Result.Kind = Before_Result_Kind
-        and then State.Latest_Build_Output_Details.Has_Output_Details =
+          Editor.Build_UI.Candidate_Count (State.Build.Build_UI)
+        and then State.Build.Latest_Result.Has_Result = Before_Has_Result
+        and then State.Build.Latest_Result.Kind = Before_Result_Kind
+        and then State.Build.Latest_Output_Details.Has_Output_Details =
           Before_Has_Output;
    end Assert_Build_Render_Does_Not_Run_Or_Parse;
 
@@ -170,9 +170,9 @@ package body Editor.Build_Execution_Workflow is
    begin
       return Editor.Build_Command.Assert_Build_Run_Persistence_Excluded (State)
         and then Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Persistence_Excluded
-          (State.Latest_Build_Result)
+          (State.Build.Latest_Result)
         and then Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Persistence_Excluded
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
    end Assert_Build_Result_Output_Not_Persisted;
 
    function Assert_Build_Keybindings_Have_No_Run_Payloads return Boolean is
@@ -219,11 +219,11 @@ package body Editor.Build_Execution_Workflow is
    begin
       return Assert_Build_Result_Output_Not_Persisted (State)
         and then Editor.Build_UI.Assert_Build_Request_State_Not_Persisted
-          (State.Build_UI)
+          (State.Build.Build_UI)
         and then Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Final_Persistence_Excluded
-          (State.Latest_Build_Result)
+          (State.Build.Latest_Result)
         and then Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Final_Persistence_Excluded
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
    end Assert_Build_Execution_No_Transient_Persistence_Fields;
 
    function Assert_Build_Diagnostics_Disabled_Does_Not_Ingest
@@ -351,19 +351,19 @@ package body Editor.Build_Execution_Workflow is
       --  but they must not refresh candidates, clear selection, auto-consent,
       --  or rewrite the structured request configuration.  The checks use the
       --  Build UI request/selection surface rather than any persisted state.
-      return Editor.Build_UI.Candidate_Count (Before.Build_UI) =
-          Editor.Build_UI.Candidate_Count (After.Build_UI)
-        and then To_String (Before.Build_UI.Selected_Build_Candidate_Id) =
-          To_String (After.Build_UI.Selected_Build_Candidate_Id)
-        and then Before.Build_UI.Consent_Acknowledged =
-          After.Build_UI.Consent_Acknowledged
-        and then To_String (Before.Build_UI.Consent_Request_Identity) =
-          To_String (After.Build_UI.Consent_Request_Identity)
-        and then Before.Build_UI.Selected_Build_Mode = After.Build_UI.Selected_Build_Mode
-        and then Before.Build_UI.Show_Diagnostics_On_Result =
-          After.Build_UI.Show_Diagnostics_On_Result
-        and then Before.Build_UI.Output_Capture_Limit =
-          After.Build_UI.Output_Capture_Limit;
+      return Editor.Build_UI.Candidate_Count (Before.Build.Build_UI) =
+          Editor.Build_UI.Candidate_Count (After.Build.Build_UI)
+        and then To_String (Before.Build.Build_UI.Selected_Build_Candidate_Id) =
+          To_String (After.Build.Build_UI.Selected_Build_Candidate_Id)
+        and then Before.Build.Build_UI.Consent_Acknowledged =
+          After.Build.Build_UI.Consent_Acknowledged
+        and then To_String (Before.Build.Build_UI.Consent_Request_Identity) =
+          To_String (After.Build.Build_UI.Consent_Request_Identity)
+        and then Before.Build.Build_UI.Selected_Build_Mode = After.Build.Build_UI.Selected_Build_Mode
+        and then Before.Build.Build_UI.Show_Diagnostics_On_Result =
+          After.Build.Build_UI.Show_Diagnostics_On_Result
+        and then Before.Build.Build_UI.Output_Capture_Limit =
+          After.Build.Build_UI.Output_Capture_Limit;
    end Assert_Build_Preflight_Preserves_Request_Surface;
 
 
@@ -392,10 +392,10 @@ package body Editor.Build_Execution_Workflow is
       return Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available
         and then Before.Buffer_Lifecycle.Buffer_Revision = After.Buffer_Lifecycle.Buffer_Revision
         and then Before.Buffer_Lifecycle.Active_Buffer_Token = After.Buffer_Lifecycle.Active_Buffer_Token
-        and then not After.Latest_Build_Output_Details.Stdout_Available
-        and then not After.Latest_Build_Output_Details.Stderr_Available
+        and then not After.Build.Latest_Output_Details.Stdout_Available
+        and then not After.Build.Latest_Output_Details.Stderr_Available
         and then Assert_Build_Output_Is_Bounded
-          (After.Latest_Build_Output_Details)
+          (After.Build.Latest_Output_Details)
         and then Assert_Build_Preflight_Preserves_Request_Surface (Before, After)
         and then Assert_Build_Result_Output_Not_Persisted (After);
    end Assert_Build_Preflight_Failure_Is_Non_Destructive;
@@ -405,7 +405,7 @@ package body Editor.Build_Execution_Workflow is
    is
       Conversion : constant Editor.Build_Public_Request.Public_Build_Request_Conversion_Result :=
         Editor.Build_Public_Request.Build_Public_Request_From_UI_State
-          (State.Build_UI);
+          (State.Build.Build_UI);
       Request_Checks : constant Boolean :=
         (if Conversion.Status = Editor.Build_UI.Build_UI_Valid then
            Assert_Build_Run_Uses_Structured_Tokens (Conversion.Request)
@@ -416,9 +416,9 @@ package body Editor.Build_Execution_Workflow is
       return Assert_Build_Run_Requires_Valid_Consented_Request (State)
         and then Request_Checks
         and then Assert_Build_Result_Summary_Reflects_Runner_Status
-          (State.Latest_Build_Result)
+          (State.Build.Latest_Result)
         and then Assert_Build_Output_Is_Bounded
-          (State.Latest_Build_Output_Details)
+          (State.Build.Latest_Output_Details)
         and then Assert_Build_Diagnostics_Owned_By_Diagnostics (State)
         and then Assert_Build_Render_Does_Not_Run_Or_Parse (State)
         and then Assert_Build_Result_Output_Not_Persisted (State)

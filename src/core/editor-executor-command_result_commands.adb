@@ -406,14 +406,14 @@ package body Editor.Executor.Command_Result_Commands is
                if Id = Editor.Command_Ids.Command_Build_Run
                  and then Editor.Build_Result_Summary.Retain_Pre_Run_Unavailable_Summary
                then
-                  S.Latest_Build_Result :=
+                  S.Build.Latest_Result :=
                     Editor.Build_Result_Summary.Replace_Latest_Build_Result_Summary
-                      (S.Latest_Build_Result,
+                      (S.Build.Latest_Result,
                        Editor.Build_Result_Summary.Summary_From_Unavailable_Message
                          (Reason));
-                  S.Latest_Build_Output_Details :=
+                  S.Build.Latest_Output_Details :=
                     Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
-                      (S.Latest_Build_Output_Details,
+                      (S.Build.Latest_Output_Details,
                        Editor.Build_Output_Details.Build_Unavailable_Output_Details
                          (Reason));
                end if;

@@ -947,16 +947,16 @@ package body Editor.Command_Surface.Build_Surface_Tests is
               Editor.Build_Command.Build_Run_Readiness_Request_Incomplete,
               "hidden build UI reports incomplete public build request");
 
-      Editor.Build_UI.Show (S.Build_UI);
+      Editor.Build_UI.Show (S.Build.Build_UI);
       Assert (Editor.Build_Command.Build_Run_Readiness (S) =
               Editor.Build_Command.Build_Run_Readiness_No_Candidate_Selected,
               "visible build UI with no selected candidate reports the specific preflight reason");
 
       Candidates.Append (Candidate);
       Editor.Build_UI.Set_Build_Candidates
-        (S.Build_UI, Candidates, "refresh succeeded: 1 candidates");
+        (S.Build.Build_UI, Candidates, "refresh succeeded: 1 candidates");
       Editor.Build_UI.Select_Build_Candidate
-        (S.Build_UI, To_String (Candidate.Candidate_Id));
+        (S.Build.Build_UI, To_String (Candidate.Candidate_Id));
       declare
          Status : constant Editor.Build_Command.Build_Run_Readiness_Status :=
            Editor.Build_Command.Build_Run_Readiness (S);
@@ -968,7 +968,7 @@ package body Editor.Command_Surface.Build_Surface_Tests is
                  Editor.Build_Command.Build_Run_Readiness_Status'Image (Status));
       end;
 
-      Editor.Build_UI.Acknowledge_Consent (S.Build_UI);
+      Editor.Build_UI.Acknowledge_Consent (S.Build.Build_UI);
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation (S) =
               Editor.Build_Command.Build_Run_Readiness_Execution_Backend_Disabled,
               "valid structured request still refuses disabled backend");

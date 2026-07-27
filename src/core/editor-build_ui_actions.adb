@@ -25,16 +25,16 @@ package body Editor.Build_UI_Actions is
 
    procedure Show_Build_UI (S : in out Editor.State.State_Type) is
    begin
-      Editor.Build_UI.Show (S.Build_UI);
+      Editor.Build_UI.Show (S.Build.Build_UI);
    end Show_Build_UI;
 
    procedure Hide_Build_UI (S : in out Editor.State.State_Type) is
       Owner_Before : constant Editor.Focus_Management.Focus_Owner :=
         Editor.Focus_Management.Effective_Focus_Owner (S);
    begin
-      Editor.Build_UI.Hide (S.Build_UI);
-      S.Latest_Build_Result_Focused := False;
-      S.Latest_Build_Output_Details.Build_Output_Details_Focused := False;
+      Editor.Build_UI.Hide (S.Build.Build_UI);
+      S.Build.Latest_Result_Focused := False;
+      S.Build.Latest_Output_Details.Build_Output_Details_Focused := False;
 
       if Owner_Before in Editor.Focus_Management.Focus_Build_UI
          | Editor.Focus_Management.Focus_Build_Result_Summary
@@ -52,7 +52,7 @@ package body Editor.Build_UI_Actions is
 
    procedure Toggle_Build_UI (S : in out Editor.State.State_Type) is
    begin
-      if S.Build_UI.Build_UI_Visible then
+      if S.Build.Build_UI.Build_UI_Visible then
          Hide_Build_UI (S);
       else
          Show_Build_UI (S);
@@ -66,7 +66,7 @@ package body Editor.Build_UI_Actions is
    is
    begin
       return Editor.Build_Candidate_Refresh.Refresh_Build_Candidates
-        (S.Build_UI, Context);
+        (S.Build.Build_UI, Context);
    end Build_UI_Refresh_Candidates;
 
    procedure Build_UI_Select_Candidate
@@ -74,48 +74,48 @@ package body Editor.Build_UI_Actions is
       Candidate_Id : String)
    is
    begin
-      Editor.Build_UI.Select_Build_Candidate (S.Build_UI, Candidate_Id);
+      Editor.Build_UI.Select_Build_Candidate (S.Build.Build_UI, Candidate_Id);
    end Build_UI_Select_Candidate;
 
    procedure Build_UI_Clear_Selected_Candidate
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build_UI);
+      Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build.Build_UI);
    end Build_UI_Clear_Selected_Candidate;
 
    procedure Build_UI_Acknowledge_Consent
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Build_UI.Acknowledge_Consent (S.Build_UI);
+      Editor.Build_UI.Acknowledge_Consent (S.Build.Build_UI);
    end Build_UI_Acknowledge_Consent;
 
    procedure Build_UI_Clear_Consent
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Build_UI.Clear_Consent (S.Build_UI);
+      Editor.Build_UI.Clear_Consent (S.Build.Build_UI);
    end Build_UI_Clear_Consent;
 
 
    procedure Build_UI_Select_Next_Candidate
      (S : in out Editor.State.State_Type)
    is
-      Count : constant Natural := Natural (S.Build_UI.Build_Candidates.Length);
-      Selected : constant String := To_String (S.Build_UI.Selected_Build_Candidate_Id);
+      Count : constant Natural := Natural (S.Build.Build_UI.Build_Candidates.Length);
+      Selected : constant String := To_String (S.Build.Build_UI.Selected_Build_Candidate_Id);
       Next_Index : Natural := 0;
       Found_Next : Boolean := False;
    begin
       if Count = 0 then
          return;
       end if;
-      for I in S.Build_UI.Build_Candidates.First_Index ..
-        S.Build_UI.Build_Candidates.Last_Index
+      for I in S.Build.Build_UI.Build_Candidates.First_Index ..
+        S.Build.Build_UI.Build_Candidates.Last_Index
       loop
-         if To_String (S.Build_UI.Build_Candidates.Element (I).Candidate_Id) = Selected then
-            if I = S.Build_UI.Build_Candidates.Last_Index then
-               Next_Index := S.Build_UI.Build_Candidates.First_Index;
+         if To_String (S.Build.Build_UI.Build_Candidates.Element (I).Candidate_Id) = Selected then
+            if I = S.Build.Build_UI.Build_Candidates.Last_Index then
+               Next_Index := S.Build.Build_UI.Build_Candidates.First_Index;
             else
                Next_Index := I + 1;
             end if;
@@ -123,45 +123,45 @@ package body Editor.Build_UI_Actions is
          end if;
       end loop;
       if not Found_Next then
-         Next_Index := S.Build_UI.Build_Candidates.First_Index;
+         Next_Index := S.Build.Build_UI.Build_Candidates.First_Index;
       end if;
       Editor.Build_UI.Select_Build_Candidate
-        (S.Build_UI,
-         To_String (S.Build_UI.Build_Candidates.Element (Next_Index).Candidate_Id));
+        (S.Build.Build_UI,
+         To_String (S.Build.Build_UI.Build_Candidates.Element (Next_Index).Candidate_Id));
    end Build_UI_Select_Next_Candidate;
 
    procedure Build_UI_Select_First_Candidate
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Natural (S.Build_UI.Build_Candidates.Length) = 0 then
+      if Natural (S.Build.Build_UI.Build_Candidates.Length) = 0 then
          return;
       end if;
 
       Editor.Build_UI.Select_Build_Candidate
-        (S.Build_UI,
+        (S.Build.Build_UI,
          To_String
-           (S.Build_UI.Build_Candidates.Element
-              (S.Build_UI.Build_Candidates.First_Index).Candidate_Id));
+           (S.Build.Build_UI.Build_Candidates.Element
+              (S.Build.Build_UI.Build_Candidates.First_Index).Candidate_Id));
    end Build_UI_Select_First_Candidate;
 
    procedure Build_UI_Select_Previous_Candidate
      (S : in out Editor.State.State_Type)
    is
-      Count : constant Natural := Natural (S.Build_UI.Build_Candidates.Length);
-      Selected : constant String := To_String (S.Build_UI.Selected_Build_Candidate_Id);
+      Count : constant Natural := Natural (S.Build.Build_UI.Build_Candidates.Length);
+      Selected : constant String := To_String (S.Build.Build_UI.Selected_Build_Candidate_Id);
       Previous_Index : Natural := 0;
       Found_Previous : Boolean := False;
    begin
       if Count = 0 then
          return;
       end if;
-      for I in S.Build_UI.Build_Candidates.First_Index ..
-        S.Build_UI.Build_Candidates.Last_Index
+      for I in S.Build.Build_UI.Build_Candidates.First_Index ..
+        S.Build.Build_UI.Build_Candidates.Last_Index
       loop
-         if To_String (S.Build_UI.Build_Candidates.Element (I).Candidate_Id) = Selected then
-            if I = S.Build_UI.Build_Candidates.First_Index then
-               Previous_Index := S.Build_UI.Build_Candidates.Last_Index;
+         if To_String (S.Build.Build_UI.Build_Candidates.Element (I).Candidate_Id) = Selected then
+            if I = S.Build.Build_UI.Build_Candidates.First_Index then
+               Previous_Index := S.Build.Build_UI.Build_Candidates.Last_Index;
             else
                Previous_Index := I - 1;
             end if;
@@ -169,11 +169,11 @@ package body Editor.Build_UI_Actions is
          end if;
       end loop;
       if not Found_Previous then
-         Previous_Index := S.Build_UI.Build_Candidates.Last_Index;
+         Previous_Index := S.Build.Build_UI.Build_Candidates.Last_Index;
       end if;
       Editor.Build_UI.Select_Build_Candidate
-        (S.Build_UI,
-         To_String (S.Build_UI.Build_Candidates.Element (Previous_Index).Candidate_Id));
+        (S.Build.Build_UI,
+         To_String (S.Build.Build_UI.Build_Candidates.Element (Previous_Index).Candidate_Id));
    end Build_UI_Select_Previous_Candidate;
 
    procedure Build_UI_Set_Mode_Default
@@ -181,7 +181,7 @@ package body Editor.Build_UI_Actions is
    is
    begin
       Editor.Build_UI.Set_Build_Mode
-        (S.Build_UI, Editor.Build_UI.Build_UI_Build_Mode_Default);
+        (S.Build.Build_UI, Editor.Build_UI.Build_UI_Build_Mode_Default);
    end Build_UI_Set_Mode_Default;
 
    procedure Build_UI_Set_Mode_Debug
@@ -189,7 +189,7 @@ package body Editor.Build_UI_Actions is
    is
    begin
       Editor.Build_UI.Set_Build_Mode
-        (S.Build_UI, Editor.Build_UI.Build_UI_Build_Mode_Debug);
+        (S.Build.Build_UI, Editor.Build_UI.Build_UI_Build_Mode_Debug);
    end Build_UI_Set_Mode_Debug;
 
    procedure Build_UI_Set_Mode_Release
@@ -197,7 +197,7 @@ package body Editor.Build_UI_Actions is
    is
    begin
       Editor.Build_UI.Set_Build_Mode
-        (S.Build_UI, Editor.Build_UI.Build_UI_Build_Mode_Release);
+        (S.Build.Build_UI, Editor.Build_UI.Build_UI_Build_Mode_Release);
    end Build_UI_Set_Mode_Release;
 
    procedure Build_UI_Set_Mode_Validation
@@ -205,35 +205,35 @@ package body Editor.Build_UI_Actions is
    is
    begin
       Editor.Build_UI.Set_Build_Mode
-        (S.Build_UI, Editor.Build_UI.Build_UI_Build_Mode_Validation);
+        (S.Build.Build_UI, Editor.Build_UI.Build_UI_Build_Mode_Validation);
    end Build_UI_Set_Mode_Validation;
 
    procedure Build_UI_Toggle_Diagnostics_Ingestion
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Build_UI.Toggle_Diagnostics_Ingestion (S.Build_UI);
+      Editor.Build_UI.Toggle_Diagnostics_Ingestion (S.Build.Build_UI);
    end Build_UI_Toggle_Diagnostics_Ingestion;
 
    procedure Build_UI_Cycle_Output_Limit
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Build_UI.Cycle_Output_Capture_Limit (S.Build_UI);
+      Editor.Build_UI.Cycle_Output_Capture_Limit (S.Build.Build_UI);
    end Build_UI_Cycle_Output_Limit;
 
    procedure Build_UI_Toggle_Verbose_Output
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Build_UI.Toggle_Verbose_Output (S.Build_UI);
+      Editor.Build_UI.Toggle_Verbose_Output (S.Build.Build_UI);
    end Build_UI_Toggle_Verbose_Output;
 
    procedure Build_UI_Toggle_Keep_Going
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Build_UI.Toggle_Keep_Going (S.Build_UI);
+      Editor.Build_UI.Toggle_Keep_Going (S.Build.Build_UI);
    end Build_UI_Toggle_Keep_Going;
 
    function Build_UI_Run_Build
@@ -301,7 +301,7 @@ package body Editor.Build_UI_Actions is
         Editor.Build_Command.Build_Run_Availability (S);
       Snapshot : Editor.Build_UI.Build_UI_Render_Snapshot :=
         Editor.Build_UI.Build_Render_Snapshot
-          (S.Build_UI, S.Latest_Build_Result, S.Latest_Build_Output_Details);
+          (S.Build.Build_UI, S.Build.Latest_Result, S.Build.Latest_Output_Details);
    begin
       Snapshot.Request_Valid := Snapshot.Run_Available;
       Snapshot.Run_Available := Editor.Commands.Availability_Metadata.Is_Available (Availability);
@@ -573,7 +573,7 @@ package body Editor.Build_UI_Actions is
          declare
             Selected : constant Natural :=
               Editor.Build_UI.Selected_Action_Row
-                (S.Build_UI, Natural (Snapshot.Actions.Length));
+                (S.Build.Build_UI, Natural (Snapshot.Actions.Length));
          begin
             if Selected > 0 then
                for I in Snapshot.Actions.First_Index .. Snapshot.Actions.Last_Index loop
@@ -614,18 +614,18 @@ package body Editor.Build_UI_Actions is
           or else Result.Status = Editor.Command_Execution.Command_Unavailable
           or else Result.Status = Editor.Command_Execution.Command_Failed)
         and then Editor.Build_UI.Assert_Build_UI_State_Is_Transient
-          (After.Build_UI);
+          (After.Build.Build_UI);
    end Assert_Build_UI_Run_Routes_Through_Executor;
 
    function Assert_Build_UI_Does_Not_Persist_Transient_State
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return Editor.Build_UI.Assert_Build_UI_State_Is_Transient (S.Build_UI)
+      return Editor.Build_UI.Assert_Build_UI_State_Is_Transient (S.Build.Build_UI)
         and then Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Persistence_Excluded
-          (S.Latest_Build_Result)
+          (S.Build.Latest_Result)
         and then Editor.Build_Output_Details.Assert_Build_Output_Details_Persistence_Excluded
-          (S.Latest_Build_Output_Details);
+          (S.Build.Latest_Output_Details);
    end Assert_Build_UI_Does_Not_Persist_Transient_State;
 
    function Assert_Public_Build_UI_Operability_Coherent
@@ -651,12 +651,12 @@ package body Editor.Build_UI_Actions is
         and then (Result.Status = Editor.Command_Execution.Command_Executed
                   or else Result.Status = Editor.Command_Execution.Command_Unavailable
                   or else Result.Status = Editor.Command_Execution.Command_No_Op)
-        and then To_String (Before.Latest_Build_Result.Primary_Message) =
-          To_String (After.Latest_Build_Result.Primary_Message)
-        and then To_String (Before.Latest_Build_Output_Details.Stdout_Excerpt) =
-          To_String (After.Latest_Build_Output_Details.Stdout_Excerpt)
-        and then To_String (Before.Latest_Build_Output_Details.Stderr_Excerpt) =
-          To_String (After.Latest_Build_Output_Details.Stderr_Excerpt);
+        and then To_String (Before.Build.Latest_Result.Primary_Message) =
+          To_String (After.Build.Latest_Result.Primary_Message)
+        and then To_String (Before.Build.Latest_Output_Details.Stdout_Excerpt) =
+          To_String (After.Build.Latest_Output_Details.Stdout_Excerpt)
+        and then To_String (Before.Build.Latest_Output_Details.Stderr_Excerpt) =
+          To_String (After.Build.Latest_Output_Details.Stderr_Excerpt);
    end Assert_Build_UI_Reveal_Diagnostics_Uses_Existing_Command;
 
    function Assert_Build_UI_Diagnostic_Action_Is_UI_Routed
@@ -671,12 +671,12 @@ package body Editor.Build_UI_Actions is
         and then (Result.Status = Editor.Command_Execution.Command_Executed
                   or else Result.Status = Editor.Command_Execution.Command_Unavailable
                   or else Result.Status = Editor.Command_Execution.Command_No_Op)
-        and then To_String (Before.Latest_Build_Result.Primary_Message) =
-          To_String (After.Latest_Build_Result.Primary_Message)
-        and then To_String (Before.Latest_Build_Output_Details.Stdout_Excerpt) =
-          To_String (After.Latest_Build_Output_Details.Stdout_Excerpt)
-        and then To_String (Before.Latest_Build_Output_Details.Stderr_Excerpt) =
-          To_String (After.Latest_Build_Output_Details.Stderr_Excerpt);
+        and then To_String (Before.Build.Latest_Result.Primary_Message) =
+          To_String (After.Build.Latest_Result.Primary_Message)
+        and then To_String (Before.Build.Latest_Output_Details.Stdout_Excerpt) =
+          To_String (After.Build.Latest_Output_Details.Stdout_Excerpt)
+        and then To_String (Before.Build.Latest_Output_Details.Stderr_Excerpt) =
+          To_String (After.Build.Latest_Output_Details.Stderr_Excerpt);
    end Assert_Build_UI_Diagnostic_Action_Is_UI_Routed;
 
    function Assert_Public_Build_Result_Output_UI_Coherent
@@ -684,7 +684,7 @@ package body Editor.Build_UI_Actions is
    is
    begin
       return Editor.Build_UI.Assert_Public_Build_Result_Output_UI_Coherent
-        (S.Build_UI, S.Latest_Build_Result, S.Latest_Build_Output_Details)
+        (S.Build.Build_UI, S.Build.Latest_Result, S.Build.Latest_Output_Details)
         and then Assert_Build_UI_Does_Not_Persist_Transient_State (S);
    end Assert_Public_Build_Result_Output_UI_Coherent;
 

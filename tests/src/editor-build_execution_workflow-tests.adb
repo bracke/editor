@@ -108,17 +108,17 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
          Error_Text => Null_Unbounded_String);
       Candidate := Editor.Build_Candidates.Gprbuild_Candidate
         (Root, "demo.gpr");
-      S.Public_Build_Execution_Policy :=
+      S.Build.Public_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Bounded_Process;
       Editor.Project.Apply_Open_Result (S.Project, Project_Result);
-      Editor.Build_UI.Show (S.Build_UI);
+      Editor.Build_UI.Show (S.Build.Build_UI);
       Candidates.Append (Candidate);
       Editor.Build_UI.Set_Build_Candidates
-        (S.Build_UI, Candidates, "refresh succeeded: 1 candidates");
+        (S.Build.Build_UI, Candidates, "refresh succeeded: 1 candidates");
       Editor.Build_UI.Select_Build_Candidate
-        (S.Build_UI, To_String (Candidate.Candidate_Id));
-      Editor.Build_UI.Set_Show_Diagnostics_On_Result (S.Build_UI, True);
-      Editor.Build_UI.Acknowledge_Consent (S.Build_UI);
+        (S.Build.Build_UI, To_String (Candidate.Candidate_Id));
+      Editor.Build_UI.Set_Show_Diagnostics_On_Result (S.Build.Build_UI, True);
+      Editor.Build_UI.Acknowledge_Consent (S.Build.Build_UI);
       return S;
    end Ready_State;
 
@@ -146,7 +146,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Run_Requires_Valid_Consented_Request
                 (S),
               "pre-run validation requires matching current consent");
-      Editor.Build_UI.Clear_Consent (S.Build_UI);
+      Editor.Build_UI.Clear_Consent (S.Build.Build_UI);
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation (S) =
                 Editor.Build_Command.Build_Run_Readiness_Consent_Required,
               "clearing consent makes build.run unavailable before runner invocation");
@@ -160,7 +160,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       end;
 
       S := Ready_State;
-      S.Build_UI.Consent_Request_Identity := To_Unbounded_String ("stale-request-identity");
+      S.Build.Build_UI.Consent_Request_Identity := To_Unbounded_String ("stale-request-identity");
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation (S) =
                 Editor.Build_Command.Build_Run_Readiness_Consent_Stale,
               "stale consent identity is rejected immediately before execution");
@@ -276,7 +276,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
       S : Editor.State.State_Type := Ready_State;
       Conversion : constant Editor.Build_Public_Request.Public_Build_Request_Conversion_Result :=
-        Editor.Build_Public_Request.Build_Public_Request_From_UI_State (S.Build_UI);
+        Editor.Build_Public_Request.Build_Public_Request_From_UI_State (S.Build.Build_UI);
    begin
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Render_Does_Not_Run_Or_Parse
                 (S),
@@ -300,25 +300,25 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       S : Editor.State.State_Type := Ready_State;
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
-      Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build_UI);
+      Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build.Build_UI);
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
 
       Assert (Result.Build_Result.Status =
                 Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "pre-run unavailable result is represented as a build command outcome");
-      Assert (S.Latest_Build_Result.Has_Result
-              and then S.Latest_Build_Result.Kind =
+      Assert (S.Build.Latest_Result.Has_Result
+              and then S.Build.Latest_Result.Kind =
                 Editor.Build_Result_Summary.Build_Result_Summary_Unavailable,
               "pre-run failure updates only the transient latest result summary");
-      Assert (To_String (S.Latest_Build_Result.Primary_Message) =
+      Assert (To_String (S.Build.Latest_Result.Primary_Message) =
                 "No build candidate selected.",
               "latest summary preserves the exact pre-run primary outcome");
-      Assert (S.Latest_Build_Output_Details.Has_Output_Details
-              and then S.Latest_Build_Output_Details.Kind =
+      Assert (S.Build.Latest_Output_Details.Has_Output_Details
+              and then S.Build.Latest_Output_Details.Kind =
                 Editor.Build_Output_Details.Build_Output_Details_Unavailable,
               "pre-run failure updates only transient output details, not runner output");
-      Assert (not S.Latest_Build_Output_Details.Stdout_Available
-              and then not S.Latest_Build_Output_Details.Stderr_Available,
+      Assert (not S.Build.Latest_Output_Details.Stdout_Available
+              and then not S.Build.Latest_Output_Details.Stderr_Available,
               "pre-run failure does not invent captured stdout or stderr");
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Result_Output_Not_Persisted
                 (S),
@@ -332,7 +332,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       S : Editor.State.State_Type := Ready_State;
       Snapshot : Editor.Build_UI.Build_UI_Render_Snapshot;
    begin
-      S.Latest_Build_Result := Editor.Build_Result_Summary.Build_Summary
+      S.Build.Latest_Result := Editor.Build_Result_Summary.Build_Summary
         (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
          Invocation_Label => "build.run",
          Tool_Kind => Editor.Build_Result_Summary.Build_Result_GPRbuild_Tool,
@@ -346,7 +346,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
            Editor.Build_Result_Summary.Diagnostics_Ingestion_Succeeded,
          Diagnostics_Count => 2,
          Has_Diagnostics_Count => True);
-      S.Latest_Build_Output_Details :=
+      S.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Build_Output_Details_From_Captured_Output
           (Runner_Status => Editor.Build_Output_Details.Build_Output_Runner_Failed,
            Stdout_Text => To_Unbounded_String ("compile stdout"),
@@ -358,11 +358,11 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
            Has_Exit_Code => True);
 
       Snapshot := Editor.Build_UI.Build_Render_Snapshot
-        (S.Build_UI, S.Latest_Build_Result, S.Latest_Build_Output_Details);
+        (S.Build.Build_UI, S.Build.Latest_Result, S.Build.Latest_Output_Details);
 
       Assert (Editor.Build_UI.Assert_Public_Build_Result_Output_UI_Coherent
-                (S.Build_UI, S.Latest_Build_Result,
-                 S.Latest_Build_Output_Details),
+                (S.Build.Build_UI, S.Build.Latest_Result,
+                 S.Build.Latest_Output_Details),
               "Build UI renders result output and diagnostics as display-only projections");
       Assert (Snapshot.Output_Details.Output_Details_Available
               and then Snapshot.Diagnostics_View.Reveal_Available,
@@ -409,7 +409,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Stale_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Editor.Build_UI.Clear_Selected_Build_Candidate
-        (No_Candidate_State.Build_UI);
+        (No_Candidate_State.Build.Build_UI);
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation
                 (No_Candidate_State) =
               Editor.Build_Command.Build_Run_Readiness_No_Candidate_Selected,
@@ -423,7 +423,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
                 "No build candidate selected.",
               "missing candidate uses the clear failure message");
 
-      Stale_State.Build_UI.Selected_Candidate_Stale := True;
+      Stale_State.Build.Build_UI.Selected_Candidate_Stale := True;
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation
                 (Stale_State) =
               Editor.Build_Command.Build_Run_Readiness_Selected_Candidate_Stale,
@@ -468,7 +468,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Missing_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Unavailable_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
-      Missing_Context_State.Build_UI.Selected_Working_Context :=
+      Missing_Context_State.Build.Build_UI.Selected_Working_Context :=
         Editor.Build_Working_Context.None;
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation
                 (Missing_Context_State) =
@@ -483,7 +483,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
                 "Build working directory is required.",
               "missing working context has a direct user-facing outcome");
 
-      Unavailable_Context_State.Build_UI.Selected_Working_Context :=
+      Unavailable_Context_State.Build.Build_UI.Selected_Working_Context :=
         Editor.Build_Working_Context.Unavailable ("working directory removed");
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation
                 (Unavailable_Context_State) =
@@ -516,11 +516,11 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
               "diagnostics ingestion/show flags are carried from explicit request configuration");
       Assert (Gate.Process_Policy.Max_Output_Bytes =
                 Editor.Build_UI.Output_Capture_Limit_Bytes
-                  (S.Build_UI.Output_Capture_Limit),
+                  (S.Build.Build_UI.Output_Capture_Limit),
               "execution gate receives the configured bounded output capture limit");
 
-      Editor.Build_UI.Set_Show_Diagnostics_On_Result (S.Build_UI, False);
-      Editor.Build_UI.Acknowledge_Consent (S.Build_UI);
+      Editor.Build_UI.Set_Show_Diagnostics_On_Result (S.Build.Build_UI, False);
+      Editor.Build_UI.Acknowledge_Consent (S.Build.Build_UI);
       Gate := Editor.Build_Command.Build_Run_Execution_Gate (S);
       Assert (not Gate.Allow_Diagnostics_Ingestion
               and then not Gate.Show_Diagnostics,
@@ -684,7 +684,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Result : Editor.Command_Execution.Command_Execution_Result;
       Before_Count : constant Natural := Editor.Messages.Count (S.Messages);
    begin
-      Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build_UI);
+      Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build.Build_UI);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Build_Run);
 
@@ -695,11 +695,11 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
               "Executor route emits exactly one primary command outcome message");
       Assert (Latest_Message_Text (S) = "No build candidate selected.",
               "Executor route surfaces the pre-run validation reason, not runner text");
-      Assert (S.Latest_Build_Result.Has_Result
-              and then S.Latest_Build_Output_Details.Has_Output_Details,
+      Assert (S.Build.Latest_Result.Has_Result
+              and then S.Build.Latest_Output_Details.Has_Output_Details,
               "Executor route updates only transient result/output surfaces for rejection");
-      Assert (not S.Latest_Build_Output_Details.Stdout_Available
-              and then not S.Latest_Build_Output_Details.Stderr_Available,
+      Assert (not S.Build.Latest_Output_Details.Stdout_Available
+              and then not S.Build.Latest_Output_Details.Stderr_Available,
               "Executor pre-run rejection has no captured runner output");
    end Test_Executor_Route_Rejects_Build_Run_Before_Runner;
 
@@ -784,14 +784,14 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
       S : Editor.State.State_Type := Ready_State;
       Before : Editor.State.State_Type;
-      Old_Identity : constant String := Editor.Build_UI.Current_Request_Identity (S.Build_UI);
+      Old_Identity : constant String := Editor.Build_UI.Current_Request_Identity (S.Build.Build_UI);
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation (S) =
                 Editor.Build_Command.Build_Run_Readiness_Ready,
               "initial consented request is ready");
-      Editor.Build_UI.Toggle_Verbose_Output (S.Build_UI);
-      Assert (Editor.Build_UI.Current_Request_Identity (S.Build_UI) /= Old_Identity,
+      Editor.Build_UI.Toggle_Verbose_Output (S.Build.Build_UI);
+      Assert (Editor.Build_UI.Current_Request_Identity (S.Build.Build_UI) /= Old_Identity,
               "changing a structured request option changes the consent identity");
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation (S) =
                 Editor.Build_Command.Build_Run_Readiness_Consent_Required,
@@ -824,7 +824,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
                 (S),
               "coherence helper accepts consented ready request");
 
-      Editor.Build_UI.Clear_Consent (S.Build_UI);
+      Editor.Build_UI.Clear_Consent (S.Build.Build_UI);
       Gate := Editor.Build_Command.Build_Run_Execution_Gate (S);
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation (S) =
                 Editor.Build_Command.Build_Run_Readiness_Consent_Required,
@@ -836,7 +836,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
               "coherence helper rejects confirmed gate consent for unavailable request");
 
       S := Ready_State;
-      S.Build_UI.Consent_Request_Identity := To_Unbounded_String ("manually-stale-consent");
+      S.Build.Build_UI.Consent_Request_Identity := To_Unbounded_String ("manually-stale-consent");
       Gate := Editor.Build_Command.Build_Run_Execution_Gate (S);
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation (S) =
                 Editor.Build_Command.Build_Run_Readiness_Consent_Stale,
@@ -860,7 +860,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
               "coherence helper rejects confirmed gate consent for no-project preflight failure");
 
       S := Ready_State;
-      S.Build_UI.Selected_Candidate_Stale := True;
+      S.Build.Build_UI.Selected_Candidate_Stale := True;
       Gate := Editor.Build_Command.Build_Run_Execution_Gate (S);
       Assert (Editor.Build_Command.Validate_Build_Run_Invocation (S) =
                 Editor.Build_Command.Build_Run_Readiness_Selected_Candidate_Stale,
@@ -893,7 +893,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Before : Editor.State.State_Type;
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
-      S.Build_UI.Selected_Candidate_Stale := True;
+      S.Build.Build_UI.Selected_Candidate_Stale := True;
       Before := S;
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
 
@@ -935,7 +935,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Assert (Result.Build_Result.Status =
                 Editor.External_Producers.Build_Types.Build_Run_Cancelled,
               "build.cancel requests cancellation through the active process handle");
-      Assert (S.Public_Build_Job_Cancellation =
+      Assert (S.Build.Public_Job_Cancellation =
                 Editor.Build_Runner_Policy.Cancellation_Requested,
               "active public build job records requested cancellation after signalling the handle");
 
@@ -962,20 +962,20 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
         (S, Editor.Build_Output_Details.Build_Output_Stream_Stderr,
          "src/main.adb:1:1: error: failed\n");
 
-      Assert (S.Public_Build_Output_Stream.Active
-              and then S.Public_Build_Output_Stream.Chunk_Count = 2,
+      Assert (S.Build.Public_Output_Stream.Active
+              and then S.Build.Public_Output_Stream.Chunk_Count = 2,
               "active public build job owns an incremental bounded output stream");
-      Assert (S.Latest_Build_Output_Details.Output_Partial
-              and then S.Latest_Build_Output_Details.Stdout_Available
-              and then S.Latest_Build_Output_Details.Stderr_Available,
+      Assert (S.Build.Latest_Output_Details.Output_Partial
+              and then S.Build.Latest_Output_Details.Stdout_Available
+              and then S.Build.Latest_Output_Details.Stderr_Available,
               "stream chunks update latest output details before the final result");
 
       Editor.Build_Command.Complete_Public_Build_Output_Stream
         (S, Editor.Build_Output_Details.Build_Output_Runner_Failed,
          Exit_Code => 1, Has_Exit_Code => True);
       Editor.Build_Command.Complete_Public_Build_Job (S);
-      Assert (not S.Public_Build_Output_Stream.Active
-              and then not S.Latest_Build_Output_Details.Output_Partial,
+      Assert (not S.Build.Public_Output_Stream.Active
+              and then not S.Build.Latest_Output_Details.Output_Partial,
               "final streamed build output is closed and no longer marked active partial output");
    end Test_Active_Build_Job_Streams_Output_Before_Final_Result;
 
@@ -1085,8 +1085,8 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       First_Availability : Editor.Commands.Availability_Metadata.Command_Availability;
       Second_Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
-      S.Latest_Build_Result := Before_Result;
-      S.Latest_Build_Output_Details := Before_Output;
+      S.Build.Latest_Result := Before_Result;
+      S.Build.Latest_Output_Details := Before_Output;
 
       First_Availability := Editor.Build_Command.Build_Run_Availability (S);
       Second_Availability := Editor.Build_Command.Build_Run_Availability (S);
@@ -1094,13 +1094,13 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       Assert (Editor.Commands.Availability_Metadata.Is_Available (First_Availability) =
                 Editor.Commands.Availability_Metadata.Is_Available (Second_Availability),
               "build.run availability is stable across repeated checks");
-      Assert (S.Latest_Build_Result.Has_Result
-              and then To_String (S.Latest_Build_Result.Primary_Message) =
+      Assert (S.Build.Latest_Result.Has_Result
+              and then To_String (S.Build.Latest_Result.Primary_Message) =
                 "Build failed: exit code 1.",
               "availability checks do not rewrite latest result summary");
-      Assert (S.Latest_Build_Output_Details.Stdout_Available
-              and then To_String (S.Latest_Build_Output_Details.Stdout_Excerpt) = "out"
-              and then To_String (S.Latest_Build_Output_Details.Stderr_Excerpt) = "err",
+      Assert (S.Build.Latest_Output_Details.Stdout_Available
+              and then To_String (S.Build.Latest_Output_Details.Stdout_Excerpt) = "out"
+              and then To_String (S.Build.Latest_Output_Details.Stderr_Excerpt) = "err",
               "availability checks do not rewrite bounded output details");
       Assert (Editor.Build_Command.Assert_Build_Run_Availability_Side_Effect_Free (S),
               "command availability remains side-effect-free with populated execution state");
@@ -1129,7 +1129,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       pragma Unreferenced (T);
       S : Editor.State.State_Type := Ready_State;
    begin
-      S.Latest_Build_Result := Editor.Build_Result_Summary.Build_Summary
+      S.Build.Latest_Result := Editor.Build_Result_Summary.Build_Summary
         (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Output_Truncated,
          Invocation_Label => "build.run",
          Tool_Kind => Editor.Build_Result_Summary.Build_Result_GPRbuild_Tool,
@@ -1144,7 +1144,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
            Editor.Build_Result_Summary.Diagnostics_Ingestion_Succeeded,
          Diagnostics_Count => 3,
          Has_Diagnostics_Count => True);
-      S.Latest_Build_Output_Details :=
+      S.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Build_Output_Details_From_Captured_Output
           (Runner_Status => Editor.Build_Output_Details.Build_Output_Runner_Output_Truncated,
            Stdout_Text => To_Unbounded_String ("bounded stdout"),
@@ -1153,7 +1153,7 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
            Stderr_Truncated => True,
            Output_Partial => True);
 
-      Assert (S.Build_UI.Consent_Acknowledged,
+      Assert (S.Build.Build_UI.Consent_Acknowledged,
               "fixture starts from a user-consented request surface");
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Execution_No_Transient_Persistence_Fields (S),
               "candidate selection request config consent latest result output and diagnostics scalar state remain non-persisted");
@@ -1226,10 +1226,10 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       First_Message_Count : Natural;
       Before_Count : constant Natural := Editor.Messages.Count (S.Messages);
    begin
-      Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build_UI);
+      Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build.Build_UI);
       First_Exec := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Build_Run);
-      First_Result := S.Latest_Build_Result;
+      First_Result := S.Build.Latest_Result;
       First_Message_Count := Editor.Messages.Count (S.Messages);
 
       Assert (First_Exec.Status = Editor.Command_Execution.Command_Unavailable,
@@ -1249,14 +1249,14 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
               "second preflight rejection emits exactly one additional command outcome");
       Assert (Latest_Message_Text (S) = "No project open.",
               "latest visible command outcome is replaced by the newest preflight reason");
-      Assert (To_String (S.Latest_Build_Result.Primary_Message) = "No project open.",
+      Assert (To_String (S.Build.Latest_Result.Primary_Message) = "No project open.",
               "latest result summary is replaced by newest preflight failure, not appended history");
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Latest_Result_Replaces_Attempt
-                (First_Result, S.Latest_Build_Result),
+                (First_Result, S.Build.Latest_Result),
               "latest-result surface remains replace-only across repeated preflight failures");
-      Assert (S.Latest_Build_Output_Details.Has_Output_Details
-              and then not S.Latest_Build_Output_Details.Stdout_Available
-              and then not S.Latest_Build_Output_Details.Stderr_Available,
+      Assert (S.Build.Latest_Output_Details.Has_Output_Details
+              and then not S.Build.Latest_Output_Details.Stdout_Available
+              and then not S.Build.Latest_Output_Details.Stderr_Available,
               "repeated preflight failures still do not synthesize runner output");
    end Test_Repeated_Preflight_Failures_Replace_Latest_Result_Not_History;
 
@@ -1267,14 +1267,14 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
       S : Editor.State.State_Type := Ready_State;
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
-      Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build_UI);
+      Editor.Build_UI.Clear_Selected_Build_Candidate (S.Build.Build_UI);
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
 
       Assert (Editor.Build_Execution_Workflow.Assert_Build_Preflight_Result_Has_No_Diagnostics
                 (Result),
               "preflight rejections do not parse output or create diagnostics rows");
-      Assert (S.Latest_Build_Result.Has_Result
-              and then S.Latest_Build_Result.Diagnostics_Ingestion_Status =
+      Assert (S.Build.Latest_Result.Has_Result
+              and then S.Build.Latest_Result.Diagnostics_Ingestion_Status =
                 Editor.Build_Result_Summary.Diagnostics_Ingestion_Not_Requested,
               "preflight latest result carries scalar not-requested diagnostics status only");
    end Test_Preflight_Rejections_Do_Not_Run_Diagnostics_Ingestion;

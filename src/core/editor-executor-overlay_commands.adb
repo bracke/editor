@@ -109,9 +109,9 @@ package body Editor.Executor.Overlay_Commands is
       --  context; clear lower-priority explicit owners that would otherwise
       --  coexist with the overlay and fail coherence checks.
       Editor.Feature_Panel.Set_Focused (S.Feature_Panel, False);
-      S.Build_UI.Build_UI_Focused := False;
-      S.Latest_Build_Result_Focused := False;
-      S.Latest_Build_Output_Details.Build_Output_Details_Focused := False;
+      S.Build.Build_UI.Build_UI_Focused := False;
+      S.Build.Latest_Result_Focused := False;
+      S.Build.Latest_Output_Details.Build_Output_Details_Focused := False;
       S.Recent_Projects_Focused := False;
 
       if Editor.Feature_Search_Results.Search_Input_Is_Active

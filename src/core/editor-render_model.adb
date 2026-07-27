@@ -1707,7 +1707,7 @@ package body Editor.Render_Model is
 
       O.Build_UI := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
       O.Terminal_Tasks :=
-        Editor.Terminal_Tasks.Build_Render_Snapshot (S.Terminal_Tasks);
+        Editor.Terminal_Tasks.Build_Render_Snapshot (S.Build.Terminal_Tasks);
       O.Keybindings_UI := Editor.Keybinding_Management.Build_Surface_Snapshot;
       O.Settings_UI := Editor.Settings_Management.Build_Current_Surface_Snapshot (S.Settings);
       O.Configuration_Audit_UI :=

@@ -4570,7 +4570,7 @@ package body Editor.Render_Model.Tests is
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
       Editor.State.Add_Diagnostic (S, 0, 3, Editor.Diagnostics.Error);
       Editor.Build_UI_Actions.Show_Build_UI (S);
-      S.Latest_Build_Result :=
+      S.Build.Latest_Result :=
         Editor.Build_Result_Summary.Build_Summary
           (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
            Invocation_Label => "build.run",
@@ -4633,7 +4633,7 @@ package body Editor.Render_Model.Tests is
         (S.Feature_Diagnostics, Editor.Feature_Diagnostics.Diagnostic_Error,
          "render packet diagnostic", "src/main.adb", Has_Target => False);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Diagnostics_Show);
-      S.Latest_Build_Result :=
+      S.Build.Latest_Result :=
         Editor.Build_Result_Summary.Build_Summary
           (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
            Invocation_Label => "build.run",
@@ -4947,9 +4947,9 @@ package body Editor.Render_Model.Tests is
       Editor.Build_UI_Actions.Show_Build_UI (S);
       Candidates.Append (Long_Candidate);
       Editor.Build_UI.Set_Build_Candidates
-        (S.Build_UI, Candidates, "refresh succeeded: 1 long candidate");
+        (S.Build.Build_UI, Candidates, "refresh succeeded: 1 long candidate");
       Editor.Build_UI.Select_Build_Candidate
-        (S.Build_UI, To_String (Long_Candidate.Candidate_Id));
+        (S.Build.Build_UI, To_String (Long_Candidate.Candidate_Id));
       Editor.Command_Palette.Reset;
       Editor.Command_Palette.Open;
       Editor.Command_Palette.Append_Character ('b');

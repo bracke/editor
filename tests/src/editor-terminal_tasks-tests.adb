@@ -132,12 +132,12 @@ package body Editor.Terminal_Tasks.Tests is
       Id : Natural;
       Snapshot : Editor.Render_Model.Render_Snapshot;
    begin
-      Editor.Terminal_Tasks.Show (S.Terminal_Tasks);
+      Editor.Terminal_Tasks.Show (S.Build.Terminal_Tasks);
       Id := Editor.Terminal_Tasks.Register_Task
-        (S.Terminal_Tasks, "Version", "/bin/echo");
-      Editor.Terminal_Tasks.Append_Argument (S.Terminal_Tasks, Id, "--version");
+        (S.Build.Terminal_Tasks, "Version", "/bin/echo");
+      Editor.Terminal_Tasks.Append_Argument (S.Build.Terminal_Tasks, Id, "--version");
       Editor.Terminal_Tasks.Run_Selected_With_Result
-        (S.Terminal_Tasks,
+        (S.Build.Terminal_Tasks,
          Editor.External_Producers.Build_Requests.Build_Process_Run_Result
            (Editor.External_Producers.Build_Types.Process_Run_Succeeded,
             Stdout_Text => "1.0" & ASCII.LF));
@@ -150,7 +150,7 @@ package body Editor.Terminal_Tasks.Tests is
       Assert (Snapshot.Terminal_Tasks.Output_Row_Count > 0,
               "render model projects terminal output");
 
-      Editor.Terminal_Tasks.Clear_Output (S.Terminal_Tasks);
+      Editor.Terminal_Tasks.Clear_Output (S.Build.Terminal_Tasks);
       Editor.Render_Model.Build_Render_Snapshot (S, Snapshot);
       Assert (Snapshot.Terminal_Tasks.Row_Count = 1,
               "clearing output preserves tasks");
@@ -168,22 +168,22 @@ package body Editor.Terminal_Tasks.Tests is
       Second : Natural;
       Snapshot : Editor.Terminal_Tasks.Terminal_Task_Render_Snapshot;
    begin
-      Editor.Terminal_Tasks.Focus (S.Terminal_Tasks);
+      Editor.Terminal_Tasks.Focus (S.Build.Terminal_Tasks);
       First := Editor.Terminal_Tasks.Register_Task
-        (S.Terminal_Tasks, "Echo One", "/bin/echo");
+        (S.Build.Terminal_Tasks, "Echo One", "/bin/echo");
       Editor.Terminal_Tasks.Append_Argument
-        (S.Terminal_Tasks, First, "one");
+        (S.Build.Terminal_Tasks, First, "one");
       Second := Editor.Terminal_Tasks.Register_Task
-        (S.Terminal_Tasks, "Echo Two", "/bin/echo");
+        (S.Build.Terminal_Tasks, "Echo Two", "/bin/echo");
       Editor.Terminal_Tasks.Append_Argument
-        (S.Terminal_Tasks, Second, "two");
+        (S.Build.Terminal_Tasks, Second, "two");
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Key (Editor.Keybindings.Key_Down));
       After := Editor.Input_Bridge.Get_State_For_Test;
       Snapshot := Editor.Terminal_Tasks.Build_Render_Snapshot
-        (After.Terminal_Tasks);
+        (After.Build.Terminal_Tasks);
       Assert (Snapshot.Selected_Index = 2,
               "Down selects the next terminal task through Input_Bridge");
 
@@ -191,7 +191,7 @@ package body Editor.Terminal_Tasks.Tests is
         (Key (Editor.Keybindings.Key_Up));
       After := Editor.Input_Bridge.Get_State_For_Test;
       Snapshot := Editor.Terminal_Tasks.Build_Render_Snapshot
-        (After.Terminal_Tasks);
+        (After.Build.Terminal_Tasks);
       Assert (Snapshot.Selected_Index = 1,
               "Up selects the previous terminal task through Input_Bridge");
 
@@ -199,7 +199,7 @@ package body Editor.Terminal_Tasks.Tests is
         (Key (Editor.Keybindings.Key_Enter));
       After := Editor.Input_Bridge.Get_State_For_Test;
       Snapshot := Editor.Terminal_Tasks.Build_Render_Snapshot
-        (After.Terminal_Tasks);
+        (After.Build.Terminal_Tasks);
       Assert (Snapshot.Output_Row_Count > 0,
               "Enter runs the selected terminal task through Input_Bridge");
 
@@ -207,7 +207,7 @@ package body Editor.Terminal_Tasks.Tests is
         (Key (Editor.Keybindings.Key_Delete));
       After := Editor.Input_Bridge.Get_State_For_Test;
       Snapshot := Editor.Terminal_Tasks.Build_Render_Snapshot
-        (After.Terminal_Tasks);
+        (After.Build.Terminal_Tasks);
       Assert (Snapshot.Output_Row_Count = 0,
               "Delete clears focused terminal output through Input_Bridge");
 
@@ -215,7 +215,7 @@ package body Editor.Terminal_Tasks.Tests is
         (Key (Editor.Keybindings.Key_Escape));
       After := Editor.Input_Bridge.Get_State_For_Test;
       Snapshot := Editor.Terminal_Tasks.Build_Render_Snapshot
-        (After.Terminal_Tasks);
+        (After.Build.Terminal_Tasks);
       Assert (not Snapshot.Focused,
               "Escape returns focused terminal keyboard workflow to editor text");
    end Test_Focused_Terminal_Keyboard_Routes_Through_Input_Bridge;
@@ -274,7 +274,7 @@ package body Editor.Terminal_Tasks.Tests is
       Assert (Editor.Project.Has_Project (S.Project),
               "project open test should have an active project");
       Snapshot := Editor.Terminal_Tasks.Build_Render_Snapshot
-        (S.Terminal_Tasks);
+        (S.Build.Terminal_Tasks);
       Assert (Snapshot.Row_Count = 6,
               "project open seeds build, run, profile, and test terminal tasks");
       Assert (Snapshot.Has_Selected,
@@ -364,7 +364,7 @@ package body Editor.Terminal_Tasks.Tests is
               "terminal show command executes");
 
       Snapshot := Editor.Terminal_Tasks.Build_Render_Snapshot
-        (S.Terminal_Tasks);
+        (S.Build.Terminal_Tasks);
       Assert (Snapshot.Visible, "terminal command shows the panel");
       Assert (Snapshot.Row_Count = 6,
               "terminal command path prepares project tasks");

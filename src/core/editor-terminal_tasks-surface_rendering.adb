@@ -98,7 +98,7 @@ package body Editor.Terminal_Tasks.Surface_Rendering is
            Viewport_Width,
            Viewport_Height);
       Snapshot : constant Editor.Terminal_Tasks.Terminal_Task_Render_Snapshot :=
-        Editor.Terminal_Tasks.Build_Render_Snapshot (State.Terminal_Tasks);
+        Editor.Terminal_Tasks.Build_Render_Snapshot (State.Build.Terminal_Tasks);
       Capacity_Rows : Natural := 0;
       Header_Rows : constant Natural := 1;
       Task_Rows : Natural := 0;

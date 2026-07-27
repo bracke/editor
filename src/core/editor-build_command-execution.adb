@@ -34,7 +34,7 @@ package body Editor.Build_Command.Execution is
       return Editor.External_Producers.Build_Requests.Build_Command_Result
    is
       Conversion : constant Editor.Build_Public_Request.Public_Build_Request_Conversion_Result :=
-        Editor.Build_Public_Request.Build_Public_Request_From_UI_State (State.Build_UI);
+        Editor.Build_Public_Request.Build_Public_Request_From_UI_State (State.Build.Build_UI);
       Empty_Diagnostics : constant Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result :=
         Editor.External_Producers.Diagnostic_Line_Parsing.Empty_Diagnostic_Line_Command_Result;
       Readiness : constant Build_Run_Readiness_Status :=
@@ -45,14 +45,14 @@ package body Editor.Build_Command.Execution is
             Message : constant String := Build_Run_Unavailable_Reason (Readiness);
          begin
             if Editor.Build_Result_Summary.Retain_Pre_Run_Unavailable_Summary then
-               State.Latest_Build_Result :=
+               State.Build.Latest_Result :=
                  Editor.Build_Result_Summary.Replace_Latest_Build_Result_Summary
-                   (State.Latest_Build_Result,
+                   (State.Build.Latest_Result,
                     Editor.Build_Result_Summary.Summary_From_Unavailable_Message
                       (Message));
-               State.Latest_Build_Output_Details :=
+               State.Build.Latest_Output_Details :=
                  Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
-                   (State.Latest_Build_Output_Details,
+                   (State.Build.Latest_Output_Details,
                     Editor.Build_Output_Details.Build_Unavailable_Output_Details
                       (Message));
             end if;
@@ -69,7 +69,7 @@ package body Editor.Build_Command.Execution is
             Diagnostic_Result => Empty_Diagnostics,
             Command_Message   => To_Unbounded_String
               ("Build unavailable: async build worker pool is stopping."));
-      elsif State.Public_Build_Job_Active then
+      elsif State.Build.Public_Job_Active then
          return
            (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
               (Editor.External_Producers.Build_Types.Build_Run_Not_Available),
@@ -94,7 +94,7 @@ package body Editor.Build_Command.Execution is
            (State, To_String (Conversion.Request.Command_Label));
 
          if not Public_Build_Jobs.Slot_Available_For
-           (State.Public_Build_Async_Slot_Id)
+           (State.Build.Public_Async_Slot_Id)
          then
             Complete_Public_Build_Job (State);
             return
@@ -105,20 +105,20 @@ package body Editor.Build_Command.Execution is
                  ("Build unavailable: async build slot pool exhausted."));
          end if;
 
-         State.Public_Build_Async_Job_Queued := True;
-         State.Public_Build_Async_Job_Result_Pending := False;
+         State.Build.Public_Async_Job_Queued := True;
+         State.Build.Public_Async_Job_Result_Pending := False;
          Public_Build_Jobs.Store_Queued
-           (State.Public_Build_Async_Slot_Id, State,
+           (State.Build.Public_Async_Slot_Id, State,
             Conversion.Request,
             Runner_Only_Gate,
             Gate,
-            State.Public_Build_Job_Id);
-         Public_Build_Workers (Slot_Index_For (State.Public_Build_Async_Slot_Id)).Start
-           (State.Public_Build_Async_Slot_Id);
+            State.Build.Public_Job_Id);
+         Public_Build_Workers (Slot_Index_For (State.Build.Public_Async_Slot_Id)).Start
+           (State.Build.Public_Async_Slot_Id);
 
-         State.Latest_Build_Output_Details :=
+         State.Build.Latest_Output_Details :=
            Editor.Build_Output_Details.Build_Output_Details_From_Stream
-             (State.Public_Build_Output_Stream,
+             (State.Build.Public_Output_Stream,
               Editor.Build_Output_Details.Build_Output_Runner_Succeeded,
               Output_Partial => True);
 
@@ -156,22 +156,22 @@ package body Editor.Build_Command.Execution is
          return False;
       end if;
 
-      if not Public_Build_Jobs.Result_Ready (State.Public_Build_Async_Slot_Id) then
+      if not Public_Build_Jobs.Result_Ready (State.Build.Public_Async_Slot_Id) then
          Public_Build_Jobs.Snapshot_While_Running
-           (State.Public_Build_Async_Slot_Id, Worker_State);
-         State.Public_Build_Process_Handle :=
+           (State.Build.Public_Async_Slot_Id, Worker_State);
+         State.Build.Public_Process_Handle :=
            Editor.Build_Process_Control.Active_Process_Handle;
          Editor.Build_Process_Control.Active_Output_Stream
            (Active_Stream, Active_Stream_Available);
          if Active_Stream_Available then
-            State.Public_Build_Output_Stream := Active_Stream;
+            State.Build.Public_Output_Stream := Active_Stream;
          else
-            State.Public_Build_Output_Stream :=
-              Worker_State.Public_Build_Output_Stream;
+            State.Build.Public_Output_Stream :=
+              Worker_State.Build.Public_Output_Stream;
          end if;
-         State.Latest_Build_Output_Details :=
+         State.Build.Latest_Output_Details :=
            Editor.Build_Output_Details.Build_Output_Details_From_Stream
-             (State.Public_Build_Output_Stream,
+             (State.Build.Public_Output_Stream,
               Editor.Build_Output_Details.Build_Output_Runner_Succeeded,
               Output_Partial => True);
          Result :=
@@ -184,14 +184,14 @@ package body Editor.Build_Command.Execution is
       end if;
 
       Public_Build_Jobs.Final_Result
-        (State.Public_Build_Async_Slot_Id, Worker_State, Completed_Request, Result_Gate, Result);
-      State.Public_Build_Output_Stream :=
-        Worker_State.Public_Build_Output_Stream;
+        (State.Build.Public_Async_Slot_Id, Worker_State, Completed_Request, Result_Gate, Result);
+      State.Build.Public_Output_Stream :=
+        Worker_State.Build.Public_Output_Stream;
       Duration_MS := Public_Build_Duration_Milliseconds (State);
 
       Complete_Public_Build_Job (State);
-      State.Public_Build_Async_Job_Queued := False;
-      State.Public_Build_Async_Job_Result_Pending := True;
+      State.Build.Public_Async_Job_Queued := False;
+      State.Build.Public_Async_Job_Result_Pending := True;
 
       Ingestion :=
         Editor.Build_Diagnostics.Ingest_Build_Diagnostics_Through_Diagnostics
@@ -199,7 +199,7 @@ package body Editor.Build_Command.Execution is
            Completed_Request,
            Result.Build_Result,
            Public_Build_Run_Diagnostics_Ingestion_Policy,
-           State.Build_UI.Show_Diagnostics_On_Result);
+           State.Build.Build_UI.Show_Diagnostics_On_Result);
 
       Result.Diagnostic_Result :=
         Ingestion;
@@ -212,21 +212,21 @@ package body Editor.Build_Command.Execution is
             Result_Gate.Allow_Diagnostics_Ingestion,
             Result_Gate.Allow_Diagnostics_Ingestion));
 
-      State.Latest_Build_Result :=
+      State.Build.Latest_Result :=
         Editor.Build_Result_Summary.Replace_Latest_Build_Result_Summary
-          (State.Latest_Build_Result,
+          (State.Build.Latest_Result,
            Summary_From_Result
              (Completed_Request,
               Result,
               Result_Gate.Allow_Diagnostics_Ingestion,
               Duration_MS,
               True));
-      State.Latest_Build_Output_Details :=
+      State.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
-          (State.Latest_Build_Output_Details,
+          (State.Build.Latest_Output_Details,
            Output_Details_From_Result (Result.Build_Result));
 
-      Public_Build_Jobs.Clear (State.Public_Build_Async_Slot_Id);
+      Public_Build_Jobs.Clear (State.Build.Public_Async_Slot_Id);
       return True;
    end Poll_Public_Build_Run_Completion;
 
@@ -235,7 +235,7 @@ package body Editor.Build_Command.Execution is
       return Editor.External_Producers.Build_Requests.Build_Command_Result
    is
       Conversion : constant Editor.Build_Public_Request.Public_Build_Request_Conversion_Result :=
-        Editor.Build_Public_Request.Build_Public_Request_From_UI_State (State.Build_UI);
+        Editor.Build_Public_Request.Build_Public_Request_From_UI_State (State.Build.Build_UI);
       Empty_Diagnostics : constant Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result :=
         Editor.External_Producers.Diagnostic_Line_Parsing.Empty_Diagnostic_Line_Command_Result;
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
@@ -252,14 +252,14 @@ package body Editor.Build_Command.Execution is
                Diagnostic_Result => Empty_Diagnostics,
                Command_Message   => To_Unbounded_String (Message));
             if Editor.Build_Result_Summary.Retain_Pre_Run_Unavailable_Summary then
-               State.Latest_Build_Result :=
+               State.Build.Latest_Result :=
                  Editor.Build_Result_Summary.Replace_Latest_Build_Result_Summary
-                   (State.Latest_Build_Result,
+                   (State.Build.Latest_Result,
                     Editor.Build_Result_Summary.Summary_From_Unavailable_Message
                       (Message));
-               State.Latest_Build_Output_Details :=
+               State.Build.Latest_Output_Details :=
                  Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
-                   (State.Latest_Build_Output_Details,
+                   (State.Build.Latest_Output_Details,
                     Editor.Build_Output_Details.Build_Unavailable_Output_Details
                       (Message));
             end if;
@@ -296,7 +296,7 @@ package body Editor.Build_Command.Execution is
             Conversion.Request,
             Result.Build_Result,
             Public_Build_Run_Diagnostics_Ingestion_Policy,
-            State.Build_UI.Show_Diagnostics_On_Result);
+            State.Build.Build_UI.Show_Diagnostics_On_Result);
 
          Result.Diagnostic_Result :=
            Ingestion;
@@ -309,15 +309,15 @@ package body Editor.Build_Command.Execution is
                Gate.Allow_Diagnostics_Ingestion,
                Gate.Allow_Diagnostics_Ingestion));
 
-         State.Latest_Build_Result :=
+         State.Build.Latest_Result :=
            Editor.Build_Result_Summary.Replace_Latest_Build_Result_Summary
-             (State.Latest_Build_Result,
+             (State.Build.Latest_Result,
               Summary_From_Result
                 (Conversion.Request, Result, Gate.Allow_Diagnostics_Ingestion,
                  Duration_MS, True));
-         State.Latest_Build_Output_Details :=
+         State.Build.Latest_Output_Details :=
            Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
-             (State.Latest_Build_Output_Details,
+             (State.Build.Latest_Output_Details,
               Output_Details_From_Result (Result.Build_Result));
          return Result;
       end;
@@ -329,7 +329,7 @@ package body Editor.Build_Command.Execution is
       return Editor.External_Producers.Build_Requests.Build_Command_Result
    is
       Conversion : constant Editor.Build_Public_Request.Public_Build_Request_Conversion_Result :=
-        Editor.Build_Public_Request.Build_Public_Request_From_UI_State (State.Build_UI);
+        Editor.Build_Public_Request.Build_Public_Request_From_UI_State (State.Build.Build_UI);
       Empty_Diagnostics : constant Editor.External_Producers.Build_Requests.Diagnostic_Line_Command_Result :=
         Editor.External_Producers.Diagnostic_Line_Parsing.Empty_Diagnostic_Line_Command_Result;
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
@@ -346,14 +346,14 @@ package body Editor.Build_Command.Execution is
                Diagnostic_Result => Empty_Diagnostics,
                Command_Message   => To_Unbounded_String (Message));
             if Editor.Build_Result_Summary.Retain_Pre_Run_Unavailable_Summary then
-               State.Latest_Build_Result :=
+               State.Build.Latest_Result :=
                  Editor.Build_Result_Summary.Replace_Latest_Build_Result_Summary
-                   (State.Latest_Build_Result,
+                   (State.Build.Latest_Result,
                     Editor.Build_Result_Summary.Summary_From_Unavailable_Message
                       (Message));
-               State.Latest_Build_Output_Details :=
+               State.Build.Latest_Output_Details :=
                  Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
-                   (State.Latest_Build_Output_Details,
+                   (State.Build.Latest_Output_Details,
                     Editor.Build_Output_Details.Build_Unavailable_Output_Details
                       (Message));
             end if;
@@ -390,7 +390,7 @@ package body Editor.Build_Command.Execution is
             Conversion.Request,
             Result.Build_Result,
             Public_Build_Run_Diagnostics_Ingestion_Policy,
-            State.Build_UI.Show_Diagnostics_On_Result);
+            State.Build.Build_UI.Show_Diagnostics_On_Result);
 
          Result.Diagnostic_Result :=
            Ingestion;
@@ -403,15 +403,15 @@ package body Editor.Build_Command.Execution is
                Gate.Allow_Diagnostics_Ingestion,
                Gate.Allow_Diagnostics_Ingestion));
 
-         State.Latest_Build_Result :=
+         State.Build.Latest_Result :=
            Editor.Build_Result_Summary.Replace_Latest_Build_Result_Summary
-             (State.Latest_Build_Result,
+             (State.Build.Latest_Result,
               Summary_From_Result
                 (Conversion.Request, Result, Gate.Allow_Diagnostics_Ingestion,
                  Duration_MS, True));
-         State.Latest_Build_Output_Details :=
+         State.Build.Latest_Output_Details :=
            Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
-             (State.Latest_Build_Output_Details,
+             (State.Build.Latest_Output_Details,
               Output_Details_From_Result (Result.Build_Result));
          return Result;
       end;

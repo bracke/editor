@@ -148,7 +148,7 @@ package body Editor.Product_Surface_Cleanup.Tests is
       Candidate.Display_Label :=
         Ada.Strings.Unbounded.To_Unbounded_String
           ("placeholder build candidate");
-      S.Build_UI.Build_Candidates.Append (Candidate);
+      S.Build.Build_UI.Build_Candidates.Append (Candidate);
       Assert (Editor.Product_Surface_Cleanup.Build_UI_Has_Demo_State (S),
               "audit detects fake Build UI candidate state");
 
@@ -178,7 +178,7 @@ package body Editor.Product_Surface_Cleanup.Tests is
         Editor.Build_Candidates.Manual_Request_Candidate;
    begin
       Editor.State.Initialize (S);
-      S.Build_UI.Build_Candidates.Append (Candidate);
+      S.Build.Build_UI.Build_Candidates.Append (Candidate);
 
       Assert (not Editor.Product_Surface_Cleanup.Build_UI_Has_Demo_State (S),
               "manual/unavailable build request state is a real empty workflow state, not demo data");
@@ -232,7 +232,7 @@ package body Editor.Product_Surface_Cleanup.Tests is
               "Outline empty state has no target rows");
       Assert (Editor.Diagnostics.Diagnostic_Count (S.Diagnostics) = 0,
               "Diagnostics empty state has no diagnostics rows");
-      Assert (Editor.Build_UI.Candidate_Count (S.Build_UI) = 0,
+      Assert (Editor.Build_UI.Candidate_Count (S.Build.Build_UI) = 0,
               "Build UI empty state has no candidates");
       Assert (Editor.Feature_Search_Results.Row_Count
                 (S.Feature_Search_Results) = 0,

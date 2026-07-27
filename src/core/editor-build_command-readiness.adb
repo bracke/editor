@@ -23,10 +23,10 @@ package body Editor.Build_Command.Readiness is
      (State : Editor.State.State_Type) return Build_Run_Readiness_Status
    is
       UI_Status : constant Editor.Build_UI.Public_Build_UI_Validation_Status :=
-        Editor.Build_UI.Validate_Build_UI_State (State.Build_UI);
+        Editor.Build_UI.Validate_Build_UI_State (State.Build.Build_UI);
    begin
-      if State.Public_Build_Job_Active
-        or else State.Public_Build_Async_Job_Queued
+      if State.Build.Public_Job_Active
+        or else State.Build.Public_Async_Job_Queued
       then
          return Build_Run_Readiness_Job_Already_Active;
       elsif not Editor.Project.Has_Project (State.Project) then
@@ -37,7 +37,7 @@ package body Editor.Build_Command.Readiness is
          return Editor.Build_Command.Projections.Map_UI_Status (UI_Status);
       end if;
 
-      case State.Public_Build_Execution_Policy is
+      case State.Build.Public_Execution_Policy is
          when Editor.Build_Runner_Policy.Build_Execution_Disabled |
               Editor.Build_Runner_Policy.Build_Execution_Stub_Only =>
             return Build_Run_Readiness_Execution_Backend_Disabled;
@@ -148,14 +148,14 @@ package body Editor.Build_Command.Readiness is
      (State : Editor.State.State_Type) return Boolean
    is
    begin
-      return State.Public_Build_Job_Active;
+      return State.Build.Public_Job_Active;
    end Has_Active_Public_Build_Job;
 
    function Build_Cancel_Availability
      (State : Editor.State.State_Type) return Editor.Commands.Availability_Metadata.Command_Availability
    is
    begin
-      if State.Public_Build_Job_Active then
+      if State.Build.Public_Job_Active then
          return Editor.Commands.Availability_Metadata.Available;
       end if;
       return Editor.Commands.Availability_Metadata.Unavailable ("No active build job.");
@@ -165,10 +165,10 @@ package body Editor.Build_Command.Readiness is
      (State : Editor.State.State_Type) return Build_Run_Readiness_Status
    is
       Conversion : constant Editor.Build_Public_Request.Public_Build_Request_Conversion_Result :=
-        Editor.Build_Public_Request.Build_Public_Request_From_UI_State (State.Build_UI);
+        Editor.Build_Public_Request.Build_Public_Request_From_UI_State (State.Build.Build_UI);
    begin
-      if State.Public_Build_Job_Active
-        or else State.Public_Build_Async_Job_Queued
+      if State.Build.Public_Job_Active
+        or else State.Build.Public_Async_Job_Queued
       then
          return Build_Run_Readiness_Job_Already_Active;
       elsif not Editor.Project.Has_Project (State.Project) then
@@ -179,7 +179,7 @@ package body Editor.Build_Command.Readiness is
          return Editor.Build_Command.Projections.Map_UI_Status (Conversion.Status);
       end if;
 
-      case State.Public_Build_Execution_Policy is
+      case State.Build.Public_Execution_Policy is
          when Editor.Build_Runner_Policy.Build_Execution_Disabled |
               Editor.Build_Runner_Policy.Build_Execution_Stub_Only =>
             return Build_Run_Readiness_Execution_Backend_Disabled;
@@ -216,7 +216,7 @@ package body Editor.Build_Command.Readiness is
          then Editor.External_Producers.Build_Types.Build_Consent_User_Confirmed
          else Editor.External_Producers.Build_Types.Build_Consent_Not_Provided);
    begin
-      case State.Public_Build_Execution_Policy is
+      case State.Build.Public_Execution_Policy is
          when Editor.Build_Runner_Policy.Build_Execution_Disabled |
               Editor.Build_Runner_Policy.Build_Execution_Stub_Only =>
             return Editor.External_Producers.Execution_Policy.Build_Default_Execution_Gate;
@@ -225,15 +225,15 @@ package body Editor.Build_Command.Readiness is
               (Allow_Diagnostics_Ingestion =>
                  Editor.Build_Diagnostics.Build_Diagnostics_Ingestion_Allowed
                    (Editor.Build_Diagnostics.Build_Diagnostics_Ingestion_On_Request,
-                    State.Build_UI.Show_Diagnostics_On_Result),
+                    State.Build.Build_UI.Show_Diagnostics_On_Result),
                Show_Diagnostics            =>
                  Editor.Build_Diagnostics.Build_Diagnostics_Show_Diagnostics_Allowed
                    (Editor.Build_Diagnostics.Build_Diagnostics_Ingestion_On_Request,
-                    State.Build_UI.Show_Diagnostics_On_Result),
+                    State.Build.Build_UI.Show_Diagnostics_On_Result),
                Require_Absolute_Program    => False,
                Max_Output_Bytes            =>
                  Editor.Build_UI.Output_Capture_Limit_Bytes
-                   (State.Build_UI.Output_Capture_Limit),
+                   (State.Build.Build_UI.Output_Capture_Limit),
                Consent                     => Consent);
       end case;
    end Build_Run_Execution_Gate;

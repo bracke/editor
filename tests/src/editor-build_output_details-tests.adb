@@ -88,15 +88,15 @@ package body Editor.Build_Output_Details.Tests is
         Editor.Build_Candidates.Gprbuild_Candidate
           ("current-project-root", "editor.gpr");
    begin
-      S.Public_Build_Execution_Policy :=
+      S.Build.Public_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Bounded_Process;
-      Editor.Build_UI.Show (S.Build_UI);
+      Editor.Build_UI.Show (S.Build.Build_UI);
       Candidates.Append (Candidate);
       Editor.Build_UI.Set_Build_Candidates
-        (S.Build_UI, Candidates, "refresh succeeded: 1 candidates");
+        (S.Build.Build_UI, Candidates, "refresh succeeded: 1 candidates");
       Editor.Build_UI.Select_Build_Candidate
-        (S.Build_UI, To_String (Candidate.Candidate_Id));
-      Editor.Build_UI.Acknowledge_Consent (S.Build_UI);
+        (S.Build.Build_UI, To_String (Candidate.Candidate_Id));
+      Editor.Build_UI.Acknowledge_Consent (S.Build.Build_UI);
       return S;
    end Ready_State;
 
@@ -289,18 +289,18 @@ package body Editor.Build_Output_Details.Tests is
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "incomplete public command remains unavailable before runner execution");
-      Assert (S.Latest_Build_Result.Has_Result,
+      Assert (S.Build.Latest_Result.Has_Result,
               "Executor updates latest compact summary");
-      Assert (S.Latest_Build_Output_Details.Has_Output_Details,
+      Assert (S.Build.Latest_Output_Details.Has_Output_Details,
               "Executor also replaces latest output details");
-      Assert (S.Latest_Build_Result.Kind =
+      Assert (S.Build.Latest_Result.Kind =
                 Editor.Build_Result_Summary.Build_Result_Summary_Unavailable,
               "summary remains a compact status projection");
       Assert (not Editor.Build_Result_Summary.Has_Full_Stdout_Field
-                (S.Latest_Build_Result),
+                (S.Build.Latest_Result),
               "summary still does not store full stdout");
       Assert (Editor.Build_Output_Details.Assert_Public_Build_Output_Details_Foundation_Coherent
-                (S.Latest_Build_Output_Details),
+                (S.Build.Latest_Output_Details),
               "output details remain bounded/transient after Executor update");
    end Test_Executor_Updates_Output_Details_And_Keeps_Summary_Compact;
 
@@ -347,7 +347,7 @@ package body Editor.Build_Output_Details.Tests is
       Assert (Result.Status = Editor.Command_Execution.Command_Unavailable,
               "output details focus is unavailable before output exists");
 
-      S.Latest_Build_Result :=
+      S.Build.Latest_Result :=
         Editor.Build_Result_Summary.Build_Summary
           (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
            Invocation_Label => "gprbuild editor.gpr",
@@ -358,7 +358,7 @@ package body Editor.Build_Output_Details.Tests is
            Primary_Message => "build failed",
            Diagnostics_Ingestion_Status =>
              Editor.Build_Result_Summary.Diagnostics_Ingestion_Succeeded);
-      S.Latest_Build_Output_Details :=
+      S.Build.Latest_Output_Details :=
         Details_From_Output
           (Editor.Build_Output_Details.Build_Output_Runner_Failed,
            Stdout_Text => "stdout",
@@ -375,75 +375,75 @@ package body Editor.Build_Output_Details.Tests is
         (S, Editor.Command_Ids.Command_Build_Result_Focus);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed,
               "build result focus routes through Executor");
-      Assert (S.Latest_Build_Result_Focused,
+      Assert (S.Build.Latest_Result_Focused,
               "build result focus command focuses the result surface");
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Build_Output_Details_Focus);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed,
               "output details focus routes through Executor");
-      Assert (S.Latest_Build_Output_Details.Build_Output_Details_Focused,
+      Assert (S.Build.Latest_Output_Details.Build_Output_Details_Focused,
               "output details focus command focuses the details surface");
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Build_Output_Details_Select_Stdout);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed
-              and then S.Latest_Build_Output_Details.Selected_Output_Stream =
+              and then S.Build.Latest_Output_Details.Selected_Output_Stream =
                 Editor.Build_Output_Details.Build_Output_Stream_Stdout,
               "stdout selection command updates the selected output stream");
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Build_Output_Details_Select_Stderr);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed
-              and then S.Latest_Build_Output_Details.Selected_Output_Stream =
+              and then S.Build.Latest_Output_Details.Selected_Output_Stream =
                 Editor.Build_Output_Details.Build_Output_Stream_Stderr,
               "stderr selection command updates the selected output stream");
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Build_Output_Details_Select_Merged);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed
-              and then S.Latest_Build_Output_Details.Selected_Output_Stream =
+              and then S.Build.Latest_Output_Details.Selected_Output_Stream =
                 Editor.Build_Output_Details.Build_Output_Stream_Merged,
               "merged selection command updates the selected output stream");
 
-      S.Latest_Build_Result_Focused := True;
-      S.Latest_Build_Output_Details.Build_Output_Details_Focused := False;
+      S.Build.Latest_Result_Focused := True;
+      S.Build.Latest_Output_Details.Build_Output_Details_Focused := False;
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Key (Editor.Keybindings.Key_Enter));
       After := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (After.Latest_Build_Output_Details.Build_Output_Details_Focused
-              and then not After.Latest_Build_Result_Focused,
+      Assert (After.Build.Latest_Output_Details.Build_Output_Details_Focused
+              and then not After.Build.Latest_Result_Focused,
               "Enter on focused result moves focus to output details");
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Key (Editor.Keybindings.Key_Left));
       After := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (After.Latest_Build_Output_Details.Selected_Output_Stream =
+      Assert (After.Build.Latest_Output_Details.Selected_Output_Stream =
                 Editor.Build_Output_Details.Build_Output_Stream_Stdout,
               "Left selects stdout while output details are focused");
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Key (Editor.Keybindings.Key_Right));
       After := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (After.Latest_Build_Output_Details.Selected_Output_Stream =
+      Assert (After.Build.Latest_Output_Details.Selected_Output_Stream =
                 Editor.Build_Output_Details.Build_Output_Stream_Stderr,
               "Right selects stderr while output details are focused");
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Key (Editor.Keybindings.Key_Down));
       After := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (After.Latest_Build_Output_Details.Selected_Output_Stream =
+      Assert (After.Build.Latest_Output_Details.Selected_Output_Stream =
                 Editor.Build_Output_Details.Build_Output_Stream_Merged,
               "Down selects merged output while output details are focused");
 
       Editor.Input_Bridge.Handle_Key_Chord
         (Key (Editor.Keybindings.Key_Escape));
       After := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (not After.Latest_Build_Result_Focused
+      Assert (not After.Build.Latest_Result_Focused
               and then not
-                After.Latest_Build_Output_Details.Build_Output_Details_Focused,
+                After.Build.Latest_Output_Details.Build_Output_Details_Focused,
               "Escape returns build result/details focus to editor text");
    end Test_Output_Details_Commands_And_Focused_Keyboard;
 
@@ -474,12 +474,12 @@ package body Editor.Build_Output_Details.Tests is
       S : Editor.State.State_Type;
       Audit : Editor.Build_Output_Details_Audit.Build_Output_Details_Audit_Result;
    begin
-      S.Latest_Build_Output_Details :=
+      S.Build.Latest_Output_Details :=
         Details_From_Output
           (Editor.Build_Output_Details.Build_Output_Runner_Failed,
               Stdout_Text => "out", Stderr_Text => "err",
               Exit_Code => 1, Has_Exit_Code => True);
-      S.Latest_Build_Result :=
+      S.Build.Latest_Result :=
         Editor.Build_Result_Summary.Build_Summary
           (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
            Invocation_Label => "build.run",
@@ -720,27 +720,27 @@ package body Editor.Build_Output_Details.Tests is
       Before_Identity : Unbounded_String;
       Audit : Editor.Build_Output_Details_Audit.Build_Output_Details_Audit_Result;
    begin
-      S.Latest_Build_Output_Details :=
+      S.Build.Latest_Output_Details :=
         Details_From_Output
           (Editor.Build_Output_Details.Build_Output_Runner_Failed,
            Stdout_Text => "render stdout",
            Stderr_Text => "render stderr",
            Exit_Code => 1,
            Has_Exit_Code => True);
-      Before_Identity := S.Latest_Build_Output_Details.Associated_Result_Identity;
+      Before_Identity := S.Build.Latest_Output_Details.Associated_Result_Identity;
       Snapshot := Editor.Build_Output_Details.Render_Snapshot
-        (S.Latest_Build_Output_Details);
+        (S.Build.Latest_Output_Details);
       Assert (To_String (Snapshot.Stdout_Excerpt) = "render stdout"
               and then To_String (Snapshot.Stderr_Excerpt) = "render stderr",
               "render snapshot consumes bounded fields already present");
-      Assert (To_String (S.Latest_Build_Output_Details.Associated_Result_Identity) =
+      Assert (To_String (S.Build.Latest_Output_Details.Associated_Result_Identity) =
                 To_String (Before_Identity),
               "render snapshot does not mutate output details identity");
       Assert (Editor.Build_Output_Details.Assert_Latest_Build_Output_Details_Render_Cleanup
-                (S.Latest_Build_Output_Details),
+                (S.Build.Latest_Output_Details),
               "render cleanup assertion confirms snapshot-only behavior");
 
-      S.Latest_Build_Result :=
+      S.Build.Latest_Result :=
         Editor.Build_Result_Summary.Build_Summary
           (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
            Invocation_Label => "build.run",
@@ -768,13 +768,13 @@ package body Editor.Build_Output_Details.Tests is
       Result := Editor.Build_Command.Execute_Public_Build_Run (S);
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "pre-run unavailable outcome is still represented through Executor path");
-      Assert (S.Latest_Build_Output_Details.Has_Output_Details,
+      Assert (S.Build.Latest_Output_Details.Has_Output_Details,
               "Executor path replaces latest output details even for unavailable outcome");
       Assert (Editor.Build_Output_Details.Assert_Public_Build_Output_Details_Canonical_Coherent
-                (S.Latest_Build_Output_Details),
+                (S.Build.Latest_Output_Details),
               "Executor-updated output details are canonical and display-only");
-      Assert (not S.Latest_Build_Output_Details.Stdout_Available
-              and then not S.Latest_Build_Output_Details.Stderr_Available,
+      Assert (not S.Build.Latest_Output_Details.Stdout_Available
+              and then not S.Build.Latest_Output_Details.Stderr_Available,
               "unavailable outcome fabricates no stdout/stderr from command messages");
    end Test_Executor_Path_Is_Only_State_Update_Surface;
 
@@ -922,15 +922,15 @@ package body Editor.Build_Output_Details.Tests is
       Assert (Result.Build_Result.Status = Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "pre-run unavailable result is represented through Executor");
       Assert (Editor.Build_Output_Details.Assert_Public_Build_Output_Details_Final_Freeze_Coherent
-                (S.Latest_Build_Output_Details),
+                (S.Build.Latest_Output_Details),
               "Executor-updated output details satisfy final freeze");
       Assert (Editor.Build_Result_Summary.Assert_Public_Build_Result_Surface_Final_Freeze_Coherent
-                (S.Latest_Build_Result),
+                (S.Build.Latest_Result),
               "preserves compact result-summary final freeze");
       Assert (not Editor.Build_Result_Summary.Has_Full_Stdout_Field
-                (S.Latest_Build_Result)
+                (S.Build.Latest_Result)
               and then not Editor.Build_Result_Summary.Has_Full_Stderr_Field
-                (S.Latest_Build_Result),
+                (S.Build.Latest_Result),
               "summary still does not store stdout/stderr excerpts");
    end Test_Final_Freeze_Summary_Frontdoor_And_Executor_Ownership;
 
@@ -944,14 +944,14 @@ package body Editor.Build_Output_Details.Tests is
       Audit : Editor.Build_Output_Details_Audit.Build_Output_Details_Audit_Result;
       Restarted : Editor.State.State_Type;
    begin
-      S.Latest_Build_Output_Details :=
+      S.Build.Latest_Output_Details :=
         Details_From_Output
           (Editor.Build_Output_Details.Build_Output_Runner_Failed,
            Stdout_Text => "bounded out",
            Stderr_Text => "bounded err",
            Exit_Code => 1,
            Has_Exit_Code => True);
-      S.Latest_Build_Result :=
+      S.Build.Latest_Result :=
         Editor.Build_Result_Summary.Build_Summary
           (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
            Invocation_Label => "build.run",
@@ -962,13 +962,13 @@ package body Editor.Build_Output_Details.Tests is
            Primary_Message => "Build failed",
            Exit_Code => 1,
            Has_Exit_Code => True);
-      Before := S.Latest_Build_Output_Details.Associated_Result_Identity;
+      Before := S.Build.Latest_Output_Details.Associated_Result_Identity;
       Snapshot := Editor.Build_Output_Details.Render_Snapshot
-        (S.Latest_Build_Output_Details);
+        (S.Build.Latest_Output_Details);
       Assert (To_String (Snapshot.Stdout_Excerpt) = "bounded out"
               and then To_String (Snapshot.Stderr_Excerpt) = "bounded err",
               "render consumes already-built output-details snapshot");
-      Assert (To_String (S.Latest_Build_Output_Details.Associated_Result_Identity) =
+      Assert (To_String (S.Build.Latest_Output_Details.Associated_Result_Identity) =
                 To_String (Before),
               "render does not mutate latest output details");
       Audit := Editor.Build_Output_Details_Audit.Run_Build_Output_Details_Audit (S);
@@ -977,7 +977,7 @@ package body Editor.Build_Output_Details.Tests is
               "audit observes final boundaries without mutating runtime state");
       Assert (Editor.Build_Command.Assert_Build_Run_Persistence_Excluded (S),
               "build command persistence exclusion remains intact");
-      Assert (not Restarted.Latest_Build_Output_Details.Has_Output_Details,
+      Assert (not Restarted.Build.Latest_Output_Details.Has_Output_Details,
               "fresh session/reload restores no output details");
    end Test_Final_Freeze_Render_Audit_Lifecycle_And_Persistence;
 

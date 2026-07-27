@@ -118,7 +118,7 @@ package body Editor.Build_Command.Registry is
          Index : constant Public_Build_Async_Slot_Index := Slot_Index_For (Slot_Id);
       begin
          if Slot_Id = Stored_Slot_Id (Index) then
-            Stored_State (Index).Public_Build_Job_Cancellation :=
+            Stored_State (Index).Build.Public_Job_Cancellation :=
            Editor.Build_Runner_Policy.Cancellation_Requested;
          end if;
       end Mark_Cancellation_Requested;

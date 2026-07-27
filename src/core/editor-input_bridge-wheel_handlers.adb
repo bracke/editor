@@ -229,7 +229,7 @@ package body Editor.Input_Bridge.Wheel_Handlers is
             Wheel_Row_Delta (Delta_Y));
       else
          Editor.Build_UI.Scroll_Action_Rows
-           (S.Build_UI,
+           (S.Build.Build_UI,
             Projection.Action_Count,
             Projection.Visible_Action_Rows,
             Wheel_Row_Delta (Delta_Y));

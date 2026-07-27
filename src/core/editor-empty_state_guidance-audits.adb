@@ -78,8 +78,8 @@ package body Editor.Empty_State_Guidance.Audits is
           Editor.File_Tree.File_Node_Count (After.File_Tree)
         and then Editor.Project_Search.Result_Count (Before.Project_Search) =
           Editor.Project_Search.Result_Count (After.Project_Search)
-        and then Editor.Build_UI.Candidate_Count (Before.Build_UI) =
-          Editor.Build_UI.Candidate_Count (After.Build_UI)
+        and then Editor.Build_UI.Candidate_Count (Before.Build.Build_UI) =
+          Editor.Build_UI.Candidate_Count (After.Build.Build_UI)
         and then Editor.Feature_Diagnostics.Row_Count (Before.Feature_Diagnostics) =
           Editor.Feature_Diagnostics.Row_Count (After.Feature_Diagnostics)
         and then Editor.Feature_Diagnostics.Visible_Row_Count (Before.Feature_Diagnostics) =
@@ -94,8 +94,8 @@ package body Editor.Empty_State_Guidance.Audits is
       return Assert_Render_Empty_State_Construction_Is_Observational (Before, After)
         and then Editor.Recent_Projects.Count (Before.Recent_Projects) =
           Editor.Recent_Projects.Count (After.Recent_Projects)
-        and then Editor.Build_UI.Candidate_Count (Before.Build_UI) =
-          Editor.Build_UI.Candidate_Count (After.Build_UI)
+        and then Editor.Build_UI.Candidate_Count (Before.Build.Build_UI) =
+          Editor.Build_UI.Candidate_Count (After.Build.Build_UI)
         and then Editor.Feature_Diagnostics.Row_Count (Before.Feature_Diagnostics) =
           Editor.Feature_Diagnostics.Row_Count (After.Feature_Diagnostics)
         and then Editor.Feature_Diagnostics.Visible_Row_Count (Before.Feature_Diagnostics) =

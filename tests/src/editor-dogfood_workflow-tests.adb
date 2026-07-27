@@ -698,43 +698,43 @@ package body Editor.Dogfood_Workflow.Tests is
       --  Build UI candidate refresh, explicit command-route selection, consent,
       --  deterministic bounded run, Diagnostics ingestion, and diagnostic target open.
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Build_UI_Show);
-      Assert (S.Build_UI.Build_UI_Visible,
+      Assert (S.Build.Build_UI.Build_UI_Visible,
               "Build UI is shown through the public command route");
       Context := Editor.Build_Working_Context.Current_Project_Root (Root);
       Build_Refresh := Editor.Build_Candidate_Refresh.Refresh_Build_Candidates
-        (S.Build_UI, Context);
+        (S.Build.Build_UI, Context);
       Assert (Build_Refresh.Status =
                 Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Succeeded,
               "Build UI refresh discovers dogfood project build candidates");
-      Assert (Editor.Build_UI.Candidate_Count (S.Build_UI) >= 1,
+      Assert (Editor.Build_UI.Candidate_Count (S.Build.Build_UI) >= 1,
               "Build UI stores discovered candidates only as transient UI state");
-      Assert (To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length = 0,
+      Assert (To_String (S.Build.Build_UI.Selected_Build_Candidate_Id)'Length = 0,
               "candidate refresh does not auto-select");
       Build_Run := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Build_Select_Next_Candidate);
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "Build candidate selection executes through Executor");
-      Assert (To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length > 0,
+      Assert (To_String (S.Build.Build_UI.Selected_Build_Candidate_Id)'Length > 0,
               "candidate selection is explicit");
-      Assert (To_String (S.Build_UI.Candidate_Request_Preview)'Length > 0,
+      Assert (To_String (S.Build.Build_UI.Candidate_Request_Preview)'Length > 0,
               "selected candidate exposes a structured request preview");
-      Assert (not S.Build_UI.Consent_Acknowledged,
+      Assert (not S.Build.Build_UI.Consent_Acknowledged,
               "candidate selection does not auto-consent");
-      if not S.Build_UI.Show_Diagnostics_On_Result then
+      if not S.Build.Build_UI.Show_Diagnostics_On_Result then
          Build_Run := Editor.Executor.Execute_Command_With_Result
            (S, Editor.Command_Ids.Command_Build_Toggle_Diagnostics_Ingestion);
          Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
                  "build diagnostics ingestion is enabled through Executor");
       end if;
-      Assert (S.Build_UI.Show_Diagnostics_On_Result,
+      Assert (S.Build.Build_UI.Show_Diagnostics_On_Result,
               "Build UI request explicitly enables diagnostics ingestion");
-      S.Public_Build_Execution_Policy :=
+      S.Build.Public_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Bounded_Process;
       Build_Run := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Build_Acknowledge_Consent);
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "build consent is acknowledged through Executor");
-      Assert (S.Build_UI.Consent_Acknowledged,
+      Assert (S.Build.Build_UI.Consent_Acknowledged,
               "build consent is explicitly acknowledged");
       Assert (Editor.Build_Command.Build_Run_Availability (S).Status =
                 Editor.Commands.Availability_Metadata.Command_Available,
@@ -781,15 +781,15 @@ package body Editor.Dogfood_Workflow.Tests is
               and then Editor.Ada_Language_Service.Compiler_Diagnostic_Count
                 (S.Semantic.Language_Service) >= 1,
               "semantic project refresh preserves compiler-backed language diagnostics");
-      Assert (S.Latest_Build_Result.Has_Result,
+      Assert (S.Build.Latest_Result.Has_Result,
               "Build latest result summary is updated by the public build frontdoor");
-      Assert (S.Latest_Build_Output_Details.Has_Output_Details,
+      Assert (S.Build.Latest_Output_Details.Has_Output_Details,
               "Build output details are captured by the public build frontdoor");
-      Saved_Latest_Build_Result := S.Latest_Build_Result;
-      Saved_Latest_Build_Output_Details := S.Latest_Build_Output_Details;
-      Editor.Build_Output_Details.Show_Output_Details (S.Latest_Build_Output_Details);
+      Saved_Latest_Build_Result := S.Build.Latest_Result;
+      Saved_Latest_Build_Output_Details := S.Build.Latest_Output_Details;
+      Editor.Build_Output_Details.Show_Output_Details (S.Build.Latest_Output_Details);
       Build_View := Editor.Build_UI.Build_Render_Snapshot
-        (S.Build_UI, S.Latest_Build_Result, S.Latest_Build_Output_Details);
+        (S.Build.Build_UI, S.Build.Latest_Result, S.Build.Latest_Output_Details);
       Assert (Build_View.Latest_Result.Latest_Build_Result_Visible,
               "Build UI snapshot exposes latest result summary");
       Assert (Build_View.Output_Details.Output_Details_Available,
@@ -925,8 +925,8 @@ package body Editor.Dogfood_Workflow.Tests is
          Source_Label => "pre-restore",
          Build_Produced => True);
       Editor.Executor.Execute_Command (S2, Editor.Command_Ids.Command_Build_UI_Show);
-      S2.Latest_Build_Result := Saved_Latest_Build_Result;
-      S2.Latest_Build_Output_Details := Saved_Latest_Build_Output_Details;
+      S2.Build.Latest_Result := Saved_Latest_Build_Result;
+      S2.Build.Latest_Output_Details := Saved_Latest_Build_Output_Details;
       Editor.Guided_Prompts.Start
         (S2.Guided_Prompt,
          Editor.Guided_Prompts.Search_Query_Prompt,
@@ -943,11 +943,11 @@ package body Editor.Dogfood_Workflow.Tests is
               "restart precondition has transient Outline rows");
       Assert (Editor.Feature_Diagnostics.Row_Count (S2.Feature_Diagnostics) > 0,
               "restart precondition has transient Diagnostics rows");
-      Assert (S2.Build_UI.Build_UI_Visible,
+      Assert (S2.Build.Build_UI.Build_UI_Visible,
               "restart precondition has transient Build UI state");
-      Assert (S2.Latest_Build_Result.Has_Result,
+      Assert (S2.Build.Latest_Result.Has_Result,
               "restart precondition has transient latest Build result");
-      Assert (S2.Latest_Build_Output_Details.Has_Output_Details,
+      Assert (S2.Build.Latest_Output_Details.Has_Output_Details,
               "restart precondition has transient Build output details");
       Assert (Editor.Guided_Prompts.Is_Active (S2.Guided_Prompt),
               "restart precondition has transient prompt state");
@@ -976,12 +976,12 @@ package body Editor.Dogfood_Workflow.Tests is
               "workspace restore clears Outline transient rows");
       Assert (Editor.Feature_Diagnostics.Row_Count (S2.Feature_Diagnostics) = 0,
               "workspace restore clears Diagnostics transient rows");
-      Assert (not S2.Build_UI.Build_UI_Visible
-                and then Editor.Build_UI.Candidate_Count (S2.Build_UI) = 0,
+      Assert (not S2.Build.Build_UI.Build_UI_Visible
+                and then Editor.Build_UI.Candidate_Count (S2.Build.Build_UI) = 0,
               "workspace restore clears Build candidate/UI transient state");
-      Assert (not S2.Latest_Build_Result.Has_Result,
+      Assert (not S2.Build.Latest_Result.Has_Result,
               "workspace restore clears latest Build result state");
-      Assert (not S2.Latest_Build_Output_Details.Has_Output_Details,
+      Assert (not S2.Build.Latest_Output_Details.Has_Output_Details,
               "workspace restore clears Build output details state");
       Assert (not Editor.Guided_Prompts.Is_Active (S2.Guided_Prompt),
               "workspace restore clears prompt state");
@@ -1515,14 +1515,14 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
               "Project A Diagnostics state is populated before switch");
 
-      Editor.Build_UI.Show (S.Build_UI);
+      Editor.Build_UI.Show (S.Build.Build_UI);
       Context := Editor.Build_Working_Context.Current_Project_Root (Root_A);
       Build_Refresh := Editor.Build_Candidate_Refresh.Refresh_Build_Candidates
-        (S.Build_UI, Context);
+        (S.Build.Build_UI, Context);
       Assert (Build_Refresh.Status =
                 Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Succeeded,
               "Project A Build candidates are populated before switch");
-      Assert (Editor.Build_UI.Candidate_Count (S.Build_UI) > 0,
+      Assert (Editor.Build_UI.Candidate_Count (S.Build.Build_UI) > 0,
               "Project A Build UI has candidate rows before switch");
       Project_A_Row_Count := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
       Assert (Project_A_Row_Count > 0,
@@ -1546,7 +1546,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "dirty blocked switch preserves Project A Outline state");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) = 1,
               "dirty blocked switch preserves Project A Diagnostics state");
-      Assert (Editor.Build_UI.Candidate_Count (S.Build_UI) > 0,
+      Assert (Editor.Build_UI.Candidate_Count (S.Build.Build_UI) > 0,
               "dirty blocked switch preserves Project A Build state");
 
       Editor.Executor.Execute_Command
@@ -3030,7 +3030,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Build_UI_Show);
       Context := Editor.Build_Working_Context.Current_Project_Root (Root);
       Build_Refresh := Editor.Build_Candidate_Refresh.Refresh_Build_Candidates
-        (S.Build_UI, Context);
+        (S.Build.Build_UI, Context);
       Assert (Build_Refresh.Status =
                 Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Succeeded,
               "main workflow smoke discovers build candidates");
@@ -3038,13 +3038,13 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Command_Ids.Command_Build_Select_Next_Candidate);
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "main workflow smoke selects a build candidate");
-      if not S.Build_UI.Show_Diagnostics_On_Result then
+      if not S.Build.Build_UI.Show_Diagnostics_On_Result then
          Build_Run := Editor.Executor.Execute_Command_With_Result
            (S, Editor.Command_Ids.Command_Build_Toggle_Diagnostics_Ingestion);
          Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
                  "main workflow smoke enables build Diagnostics ingestion");
       end if;
-      S.Public_Build_Execution_Policy :=
+      S.Build.Public_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Bounded_Process;
       Build_Run := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Build_Acknowledge_Consent);
@@ -3250,7 +3250,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Build_UI_Show);
       Context := Editor.Build_Working_Context.Current_Project_Root (Root);
       Build_Refresh := Editor.Build_Candidate_Refresh.Refresh_Build_Candidates
-        (S.Build_UI, Context);
+        (S.Build.Build_UI, Context);
       Assert (Build_Refresh.Status =
                 Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Succeeded,
               "daily loop discovers build candidates");
@@ -3258,15 +3258,15 @@ package body Editor.Dogfood_Workflow.Tests is
         (S, Editor.Command_Ids.Command_Build_Select_Next_Candidate);
       Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
               "daily loop explicitly selects a build candidate");
-      if not S.Build_UI.Show_Diagnostics_On_Result then
+      if not S.Build.Build_UI.Show_Diagnostics_On_Result then
          Build_Run := Editor.Executor.Execute_Command_With_Result
            (S, Editor.Command_Ids.Command_Build_Toggle_Diagnostics_Ingestion);
          Assert (Build_Run.Status = Editor.Command_Execution.Command_Executed,
                  "daily loop enables build diagnostics ingestion");
       end if;
-      Assert (S.Build_UI.Show_Diagnostics_On_Result,
+      Assert (S.Build.Build_UI.Show_Diagnostics_On_Result,
               "daily loop Build UI request explicitly enables diagnostics ingestion");
-      S.Public_Build_Execution_Policy :=
+      S.Build.Public_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Bounded_Process;
       Build_Run := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Build_Acknowledge_Consent);
@@ -3284,7 +3284,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Build_Command_Result.Build_Result.Status =
                 Editor.External_Producers.Build_Types.Build_Run_Failed,
               "daily loop records a deterministic build result");
-      Assert (S.Latest_Build_Output_Details.Has_Output_Details,
+      Assert (S.Build.Latest_Output_Details.Has_Output_Details,
               "daily loop captures Build Output details");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Feature_Diagnostics) >= 1,
               "daily loop surfaces build diagnostics");

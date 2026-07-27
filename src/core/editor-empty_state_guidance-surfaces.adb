@@ -508,8 +508,8 @@ package body Editor.Empty_State_Guidance.Surfaces is
                    "Clear stale diagnostics or run the producer again explicitly.",
                    Empty_Warning);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Diagnostics_Clear);
-      elsif S.Latest_Build_Result.Has_Diagnostics_Count
-        and then S.Latest_Build_Result.Diagnostics_Count_If_Available = 0
+      elsif S.Build.Latest_Result.Has_Diagnostics_Count
+        and then S.Build.Latest_Result.Diagnostics_Count_If_Available = 0
       then
          Set_Text (Snapshot, Diagnostics_Surface, No_Build_Diagnostics_State,
                    "Build completed with no diagnostics.",
@@ -544,15 +544,15 @@ package body Editor.Empty_State_Guidance.Surfaces is
 
    function Build_Build_UI_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
       Snapshot : Empty_State_Snapshot;
-      Candidate_Count : constant Natural := Editor.Build_UI.Candidate_Count (S.Build_UI);
+      Candidate_Count : constant Natural := Editor.Build_UI.Candidate_Count (S.Build.Build_UI);
       Validation : constant Editor.Build_UI.Public_Build_UI_Validation_Status :=
-        Editor.Build_UI.Validate_Build_UI_State (S.Build_UI);
+        Editor.Build_UI.Validate_Build_UI_State (S.Build.Build_UI);
    begin
       if not Editor.Project.Has_Project (S.Project) then
          Set_Text (Snapshot, Build_Surface, No_Project_State, "Open a project to build.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Open_Project);
       elsif Candidate_Count = 0
-        and then S.Build_UI.Candidate_Refresh_Status = Editor.Build_UI.Build_Candidate_Refresh_Not_Requested
+        and then S.Build.Build_UI.Candidate_Refresh_Status = Editor.Build_UI.Build_Candidate_Refresh_Not_Requested
       then
          Set_Text (Snapshot, Build_Surface, Not_Refreshed_State, "Refresh build candidates.",
                    "Candidate discovery is explicit; this guidance does not scan or run anything.");
@@ -584,20 +584,20 @@ package body Editor.Empty_State_Guidance.Surfaces is
             Editor.Build_UI.Validation_Message (Validation), Empty_Warning);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Build_UI_Show);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Build_Refresh_Candidates);
-      elsif S.Latest_Build_Result.Diagnostics_Ingestion_Status =
+      elsif S.Build.Latest_Result.Diagnostics_Ingestion_Status =
         Editor.Build_Result_Summary.Diagnostics_Ingestion_Disabled
       then
          Set_Text (Snapshot, Build_Surface, Diagnostics_Disabled_State, "Diagnostics ingestion is disabled.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Build_Toggle_Diagnostics_Ingestion);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Diagnostics_Show);
-      elsif not S.Latest_Build_Result.Has_Result then
+      elsif not S.Build.Latest_Result.Has_Result then
          Set_Text (Snapshot, Build_Surface, No_Result_State, "No build has run.",
                    "Run build or inspect output details after an explicit build request.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Build_Run);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Build_UI_Show);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Diagnostics_Show);
-      elsif S.Latest_Build_Output_Details.Has_Output_Details
-        and then S.Latest_Build_Output_Details.Kind = Editor.Build_Output_Details.Build_Output_Details_None
+      elsif S.Build.Latest_Output_Details.Has_Output_Details
+        and then S.Build.Latest_Output_Details.Kind = Editor.Build_Output_Details.Build_Output_Details_None
       then
          Set_Text (Snapshot, Build_Surface, No_Output_State, "No output captured.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Build_UI_Show);

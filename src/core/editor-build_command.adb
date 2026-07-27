@@ -77,20 +77,20 @@ package body Editor.Build_Command is
       Label : String)
    is
    begin
-      State.Public_Build_Job_Active := True;
-      State.Public_Build_Job_Id := State.Public_Build_Job_Id + 1;
-      State.Public_Build_Job_Started_At := Editor.View.Current_Time_Seconds;
-      State.Public_Build_Job_Has_Start_Time := True;
-      if State.Public_Build_Async_Slot_Id = 0 then
-         Public_Build_Slot_Allocator.Allocate (State.Public_Build_Async_Slot_Id);
+      State.Build.Public_Job_Active := True;
+      State.Build.Public_Job_Id := State.Build.Public_Job_Id + 1;
+      State.Build.Public_Job_Started_At := Editor.View.Current_Time_Seconds;
+      State.Build.Public_Job_Has_Start_Time := True;
+      if State.Build.Public_Async_Slot_Id = 0 then
+         Public_Build_Slot_Allocator.Allocate (State.Build.Public_Async_Slot_Id);
       end if;
-      State.Public_Build_Job_Label := To_Unbounded_String (Label);
-      State.Public_Build_Job_Cancellation :=
+      State.Build.Public_Job_Label := To_Unbounded_String (Label);
+      State.Build.Public_Job_Cancellation :=
         Editor.Build_Runner_Policy.No_Cancellation_Requested;
-      State.Public_Build_Process_Handle :=
+      State.Build.Public_Process_Handle :=
         Editor.Build_Process_Control.No_Process_Handle;
       Editor.Build_Output_Details.Begin_Build_Output_Stream
-        (State.Public_Build_Output_Stream, State.Public_Build_Job_Id);
+        (State.Build.Public_Output_Stream, State.Build.Public_Job_Id);
    end Begin_Public_Build_Job;
 
    procedure Register_Public_Build_Process
@@ -98,8 +98,8 @@ package body Editor.Build_Command is
       Handle : Editor.Build_Process_Control.Build_Process_Handle)
    is
    begin
-      if State.Public_Build_Job_Active then
-         State.Public_Build_Process_Handle := Handle;
+      if State.Build.Public_Job_Active then
+         State.Build.Public_Process_Handle := Handle;
       end if;
    end Register_Public_Build_Process;
 
@@ -115,26 +115,26 @@ package body Editor.Build_Command is
      (State : in out Editor.State.State_Type)
    is
    begin
-      State.Public_Build_Job_Active := False;
-      State.Public_Build_Job_Has_Start_Time := False;
-      State.Public_Build_Job_Label := Null_Unbounded_String;
-      State.Public_Build_Process_Handle :=
+      State.Build.Public_Job_Active := False;
+      State.Build.Public_Job_Has_Start_Time := False;
+      State.Build.Public_Job_Label := Null_Unbounded_String;
+      State.Build.Public_Process_Handle :=
         Editor.Build_Process_Control.No_Process_Handle;
       Editor.Build_Process_Control.Clear_Active_Process;
       Editor.Build_Output_Details.Finish_Build_Output_Stream
-        (State.Public_Build_Output_Stream);
+        (State.Build.Public_Output_Stream);
       --  Public_Build_Async_Slot_Id is deliberately stable for the
       --  editor state.  Completion clears the transient job markers and
       --  protected registry payload, but does not reset the slot; later
       --  builds from the same state reuse the same worker-pool slot with a
       --  new Public_Build_Job_Id.
-      if State.Public_Build_Job_Cancellation =
+      if State.Build.Public_Job_Cancellation =
         Editor.Build_Runner_Policy.Cancellation_Requested
       then
-         State.Public_Build_Job_Cancellation :=
+         State.Build.Public_Job_Cancellation :=
            Editor.Build_Runner_Policy.Cancellation_Acknowledged;
       else
-         State.Public_Build_Job_Cancellation :=
+         State.Build.Public_Job_Cancellation :=
            Editor.Build_Runner_Policy.No_Cancellation_Requested;
       end if;
    end Complete_Public_Build_Job;
@@ -149,7 +149,7 @@ package body Editor.Build_Command is
             Empty_Diagnostic_Line_Command_Result;
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
-      if not State.Public_Build_Job_Active then
+      if not State.Build.Public_Job_Active then
          Result :=
            (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
               (Editor.External_Producers.Build_Types.Build_Run_Not_Available),
@@ -158,15 +158,15 @@ package body Editor.Build_Command is
          return Result;
       end if;
 
-      if State.Public_Build_Async_Job_Queued
+      if State.Build.Public_Async_Job_Queued
         and then not Editor.Build_Process_Control.Is_Active
-          (State.Public_Build_Process_Handle)
+          (State.Build.Public_Process_Handle)
         and then not Editor.Build_Process_Control.Is_Active
           (Editor.Build_Process_Control.Active_Process_Handle)
       then
-         State.Public_Build_Job_Cancellation :=
+         State.Build.Public_Job_Cancellation :=
            Editor.Build_Runner_Policy.Cancellation_Requested;
-         Public_Build_Jobs.Mark_Cancellation_Requested (State.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Mark_Cancellation_Requested (State.Build.Public_Async_Slot_Id);
          return
            (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
               (Editor.External_Producers.Build_Types.Build_Run_Cancelled,
@@ -179,8 +179,8 @@ package body Editor.Build_Command is
       declare
          Handle : Editor.Build_Process_Control.Build_Process_Handle :=
            (if Editor.Build_Process_Control.Is_Active
-                 (State.Public_Build_Process_Handle)
-            then State.Public_Build_Process_Handle
+                 (State.Build.Public_Process_Handle)
+            then State.Build.Public_Process_Handle
             else Editor.Build_Process_Control.Active_Process_Handle);
          Cancel_Result : constant Editor.Build_Process_Control.Build_Process_Cancel_Result :=
            (if Editor.Build_Process_Control.Is_Active
@@ -190,44 +190,44 @@ package body Editor.Build_Command is
       begin
          case Cancel_Result is
             when Editor.Build_Process_Control.Build_Process_Cancel_Sent =>
-               State.Public_Build_Job_Cancellation :=
+               State.Build.Public_Job_Cancellation :=
                  Editor.Build_Runner_Policy.Cancellation_Requested;
-               Public_Build_Jobs.Mark_Cancellation_Requested (State.Public_Build_Async_Slot_Id);
-               State.Public_Build_Process_Handle := Handle;
+               Public_Build_Jobs.Mark_Cancellation_Requested (State.Build.Public_Async_Slot_Id);
+               State.Build.Public_Process_Handle := Handle;
                Result :=
                  (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
                     (Editor.External_Producers.Build_Types.Build_Run_Cancelled),
                   Diagnostic_Result => Empty_Diagnostics,
                   Command_Message   => To_Unbounded_String ("Build cancellation requested."));
-               State.Latest_Build_Result :=
+               State.Build.Latest_Result :=
                  Editor.Build_Result_Summary.Replace_Latest_Build_Result_Summary
-                   (State.Latest_Build_Result,
+                   (State.Build.Latest_Result,
                     Editor.Build_Result_Summary.Build_Summary
                       (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Cancelled,
                        Invocation_Label => "build.cancel",
                        Tool_Kind => Editor.Build_Result_Summary.Build_Result_No_Tool,
                        Request_Mode => Editor.Build_Result_Summary.Build_Result_Request_Test_Or_Internal,
-                       Working_Context_Label => To_String (State.Public_Build_Job_Label),
+                       Working_Context_Label => To_String (State.Build.Public_Job_Label),
                        Runner_Status_Label => "cancelled",
                        Primary_Message => "Build cancellation requested",
                        Cancelled => True,
                        Output_Partial => True));
-               State.Latest_Build_Output_Details :=
+               State.Build.Latest_Output_Details :=
                  Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
-                   (State.Latest_Build_Output_Details,
+                   (State.Build.Latest_Output_Details,
                     Editor.Build_Output_Details.Build_Output_Details_From_Captured_Output
                       (Runner_Status =>
                          Editor.Build_Output_Details.Build_Output_Runner_Cancelled,
-                       Stdout_Text => State.Public_Build_Output_Stream.Stdout_Text,
-                       Stderr_Text => State.Public_Build_Output_Stream.Stderr_Text,
-                       Stdout_Truncated => State.Public_Build_Output_Stream.Stdout_Truncated,
-                       Stderr_Truncated => State.Public_Build_Output_Stream.Stderr_Truncated,
+                       Stdout_Text => State.Build.Public_Output_Stream.Stdout_Text,
+                       Stderr_Text => State.Build.Public_Output_Stream.Stderr_Text,
+                       Stdout_Truncated => State.Build.Public_Output_Stream.Stdout_Truncated,
+                       Stderr_Truncated => State.Build.Public_Output_Stream.Stderr_Truncated,
                        Output_Partial => True));
                return Result;
 
             when Editor.Build_Process_Control.Build_Process_Cancel_Not_Active
                | Editor.Build_Process_Control.Build_Process_Cancel_Not_Cancellable =>
-               State.Public_Build_Job_Cancellation :=
+               State.Build.Public_Job_Cancellation :=
                  Editor.Build_Runner_Policy.Cancellation_Unsupported;
                Result :=
                  (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
@@ -237,7 +237,7 @@ package body Editor.Build_Command is
                     To_Unbounded_String ("Build unavailable: cancellation unsupported."));
 
             when Editor.Build_Process_Control.Build_Process_Cancel_Failed =>
-               State.Public_Build_Job_Cancellation :=
+               State.Build.Public_Job_Cancellation :=
                  Editor.Build_Runner_Policy.Cancellation_Unsupported;
                Result :=
                  (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
@@ -248,29 +248,29 @@ package body Editor.Build_Command is
          end case;
       end;
 
-      State.Latest_Build_Result :=
+      State.Build.Latest_Result :=
         Editor.Build_Result_Summary.Replace_Latest_Build_Result_Summary
-          (State.Latest_Build_Result,
+          (State.Build.Latest_Result,
            Editor.Build_Result_Summary.Build_Summary
              (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Unavailable,
               Invocation_Label => "build.cancel",
               Tool_Kind => Editor.Build_Result_Summary.Build_Result_No_Tool,
               Request_Mode => Editor.Build_Result_Summary.Build_Result_Request_Test_Or_Internal,
-              Working_Context_Label => To_String (State.Public_Build_Job_Label),
+              Working_Context_Label => To_String (State.Build.Public_Job_Label),
               Runner_Status_Label => "cancellation unsupported",
               Primary_Message => "Build unavailable: cancellation unsupported",
               Cancellation_Unsupported => True,
               Output_Partial => True));
-      State.Latest_Build_Output_Details :=
+      State.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
-          (State.Latest_Build_Output_Details,
+          (State.Build.Latest_Output_Details,
            Editor.Build_Output_Details.Build_Output_Details_From_Captured_Output
              (Runner_Status =>
                 Editor.Build_Output_Details.Build_Output_Runner_Cancellation_Unsupported,
-              Stdout_Text => State.Public_Build_Output_Stream.Stdout_Text,
-              Stderr_Text => State.Public_Build_Output_Stream.Stderr_Text,
-              Stdout_Truncated => State.Public_Build_Output_Stream.Stdout_Truncated,
-              Stderr_Truncated => State.Public_Build_Output_Stream.Stderr_Truncated,
+              Stdout_Text => State.Build.Public_Output_Stream.Stdout_Text,
+              Stderr_Text => State.Build.Public_Output_Stream.Stderr_Text,
+              Stdout_Truncated => State.Build.Public_Output_Stream.Stdout_Truncated,
+              Stderr_Truncated => State.Build.Public_Output_Stream.Stderr_Truncated,
               Output_Partial => True));
       return Result;
    end Request_Public_Build_Cancel;
@@ -294,7 +294,7 @@ package body Editor.Build_Command is
          else
             "Build cancellation requested before " & Reason & ".");
    begin
-      if not State.Public_Build_Job_Active then
+      if not State.Build.Public_Job_Active then
          return
            (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
               (Editor.External_Producers.Build_Types.Build_Run_Not_Available),
@@ -302,12 +302,12 @@ package body Editor.Build_Command is
             Command_Message   => To_Unbounded_String ("No active build job."));
       end if;
 
-      State.Public_Build_Job_Cancellation :=
+      State.Build.Public_Job_Cancellation :=
         Editor.Build_Runner_Policy.Cancellation_Requested;
 
-      if State.Public_Build_Async_Job_Queued then
+      if State.Build.Public_Async_Job_Queued then
          Public_Build_Jobs.Mark_Cancellation_Requested
-           (State.Public_Build_Async_Slot_Id);
+           (State.Build.Public_Async_Slot_Id);
       end if;
 
       if Editor.Build_Process_Control.Is_Active
@@ -315,11 +315,11 @@ package body Editor.Build_Command is
       then
          Cancel_Result := Editor.Build_Process_Control.Request_Active_Cancel;
       elsif Editor.Build_Process_Control.Is_Active
-        (State.Public_Build_Process_Handle)
+        (State.Build.Public_Process_Handle)
       then
          Cancel_Result :=
            Editor.Build_Process_Control.Request_Cancel
-             (State.Public_Build_Process_Handle);
+             (State.Build.Public_Process_Handle);
       end if;
 
       declare
@@ -328,15 +328,15 @@ package body Editor.Build_Command is
       begin
          Editor.Build_Process_Control.Active_Output_Stream (Stream, Available);
          if Available then
-            State.Public_Build_Output_Stream := Stream;
+            State.Build.Public_Output_Stream := Stream;
          end if;
       end;
 
-      State.Latest_Build_Output_Details :=
+      State.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
-          (State.Latest_Build_Output_Details,
+          (State.Build.Latest_Output_Details,
            Editor.Build_Output_Details.Build_Output_Details_From_Stream
-             (State.Public_Build_Output_Stream,
+             (State.Build.Public_Output_Stream,
               Editor.Build_Output_Details.Build_Output_Runner_Cancelled,
               Output_Partial => True));
 
@@ -372,7 +372,7 @@ package body Editor.Build_Command is
           Editor.External_Producers.Diagnostic_Line_Parsing.
             Empty_Diagnostic_Line_Command_Result;
    begin
-      if not State.Public_Build_Job_Active then
+      if not State.Build.Public_Job_Active then
          return
            (Build_Result      => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
               (Editor.External_Producers.Build_Types.Build_Run_Not_Available),
@@ -382,10 +382,10 @@ package body Editor.Build_Command is
 
       Result := Request_Public_Build_Lifecycle_Shutdown (State, Reason);
 
-      if State.Public_Build_Async_Slot_Id /= 0 then
+      if State.Build.Public_Async_Slot_Id /= 0 then
          Public_Build_Workers
-           (Slot_Index_For (State.Public_Build_Async_Slot_Id)).Drain
-             (State.Public_Build_Async_Slot_Id);
+           (Slot_Index_For (State.Build.Public_Async_Slot_Id)).Drain
+             (State.Build.Public_Async_Slot_Id);
       end if;
 
       if Has_Queued_Public_Build_Job (State) then
@@ -400,10 +400,10 @@ package body Editor.Build_Command is
       end if;
 
       Editor.Build_Process_Control.Clear_Active_Process;
-      if State.Public_Build_Async_Slot_Id /= 0
-        and then not State.Public_Build_Async_Job_Queued
+      if State.Build.Public_Async_Slot_Id /= 0
+        and then not State.Build.Public_Async_Job_Queued
       then
-         Public_Build_Jobs.Clear (State.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (State.Build.Public_Async_Slot_Id);
       end if;
 
       return Result;
@@ -430,17 +430,17 @@ package body Editor.Build_Command is
       Text : String)
    is
    begin
-      if not State.Public_Build_Job_Active then
+      if not State.Build.Public_Job_Active then
          return;
       end if;
 
       Editor.Build_Output_Details.Append_Build_Output_Stream_Chunk
-        (State.Public_Build_Output_Stream, Output_Stream, Text);
-      State.Latest_Build_Output_Details :=
+        (State.Build.Public_Output_Stream, Output_Stream, Text);
+      State.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
-          (State.Latest_Build_Output_Details,
+          (State.Build.Latest_Output_Details,
            Editor.Build_Output_Details.Build_Output_Details_From_Stream
-             (State.Public_Build_Output_Stream,
+             (State.Build.Public_Output_Stream,
               Runner_Status => Editor.Build_Output_Details.Build_Output_Runner_Succeeded,
               Output_Partial => True));
    end Append_Public_Build_Output_Chunk;
@@ -453,12 +453,12 @@ package body Editor.Build_Command is
    is
    begin
       Editor.Build_Output_Details.Finish_Build_Output_Stream
-        (State.Public_Build_Output_Stream);
-      State.Latest_Build_Output_Details :=
+        (State.Build.Public_Output_Stream);
+      State.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Replace_Latest_Build_Output_Details
-          (State.Latest_Build_Output_Details,
+          (State.Build.Latest_Output_Details,
            Editor.Build_Output_Details.Build_Output_Details_From_Stream
-             (State.Public_Build_Output_Stream,
+             (State.Build.Public_Output_Stream,
               Runner_Status => Runner_Status,
               Output_Partial => False,
               Exit_Code => Exit_Code,
@@ -478,8 +478,8 @@ package body Editor.Build_Command is
      (State : Editor.State.State_Type) return Boolean
    is
    begin
-      return State.Public_Build_Async_Job_Queued
-        and then Public_Build_Jobs.Has_Job (State.Public_Build_Async_Slot_Id, State.Public_Build_Job_Id);
+      return State.Build.Public_Async_Job_Queued
+        and then Public_Build_Jobs.Has_Job (State.Build.Public_Async_Slot_Id, State.Build.Public_Job_Id);
    end Has_Queued_Public_Build_Job;
 
    function Start_Public_Build_Run_Asynchronously
@@ -606,42 +606,42 @@ package body Editor.Build_Command is
    begin
       Editor.State.Initialize (S);
       Begin_Public_Build_Job (S, "async cancellation behavior");
-      S.Public_Build_Async_Job_Queued := True;
-      S.Public_Build_Async_Job_Result_Pending := False;
+      S.Build.Public_Async_Job_Queued := True;
+      S.Build.Public_Async_Job_Result_Pending := False;
       Public_Build_Jobs.Store_Queued
-        (S.Public_Build_Async_Slot_Id, S, Async_Test_Request, Gate, Gate, S.Public_Build_Job_Id);
-      Public_Build_Jobs.Mark_Worker_Running (S.Public_Build_Async_Slot_Id);
+        (S.Build.Public_Async_Slot_Id, S, Async_Test_Request, Gate, Gate, S.Build.Public_Job_Id);
+      Public_Build_Jobs.Mark_Worker_Running (S.Build.Public_Async_Slot_Id);
       Editor.Build_Process_Control.Publish_Active_Process
         (Editor.Build_Process_Control.Test_Cancellable_Handle);
 
       if not Has_Queued_Public_Build_Job (S) then
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
       end if;
 
       Result := Request_Public_Build_Cancel (S);
       if Result.Build_Result.Status /= Editor.External_Producers.Build_Types.Build_Run_Cancelled
-        or else S.Public_Build_Job_Cancellation /=
+        or else S.Build.Public_Job_Cancellation /=
           Editor.Build_Runner_Policy.Cancellation_Requested
         or else not Editor.Build_Process_Control.Active_Cancel_Requested
       then
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
       end if;
 
-      Public_Build_Jobs.Snapshot_While_Running (S.Public_Build_Async_Slot_Id, Worker_State);
-      if Worker_State.Public_Build_Job_Cancellation /=
+      Public_Build_Jobs.Snapshot_While_Running (S.Build.Public_Async_Slot_Id, Worker_State);
+      if Worker_State.Build.Public_Job_Cancellation /=
         Editor.Build_Runner_Policy.Cancellation_Requested
       then
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
       end if;
 
       Public_Build_Jobs.Store_Worker_Result
-        (S.Public_Build_Async_Slot_Id, Worker_State,
+        (S.Build.Public_Async_Slot_Id, Worker_State,
           (Build_Result => Editor.External_Producers.Build_Requests.Build_Build_Run_Result
             (Editor.External_Producers.Build_Types.Build_Run_Cancelled,
              Output_Partial => True),
@@ -654,15 +654,15 @@ package body Editor.Build_Command is
       return Completed
         and then Poll_Result.Build_Result.Status =
           Editor.External_Producers.Build_Types.Build_Run_Cancelled
-        and then not S.Public_Build_Job_Active
-        and then not S.Public_Build_Async_Job_Queued
-        and then S.Public_Build_Job_Cancellation =
+        and then not S.Build.Public_Job_Active
+        and then not S.Build.Public_Async_Job_Queued
+        and then S.Build.Public_Job_Cancellation =
           Editor.Build_Runner_Policy.Cancellation_Acknowledged
         and then not Editor.Build_Process_Control.Is_Active
           (Editor.Build_Process_Control.Active_Process_Handle);
    exception
       when others =>
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
    end Assert_Async_Build_Cancel_Handoff_Behavior;
@@ -680,14 +680,14 @@ package body Editor.Build_Command is
    begin
       Editor.State.Initialize (S);
       Begin_Public_Build_Job (S, "async output behavior");
-      S.Public_Build_Async_Job_Queued := True;
-      S.Public_Build_Async_Job_Result_Pending := False;
+      S.Build.Public_Async_Job_Queued := True;
+      S.Build.Public_Async_Job_Result_Pending := False;
       Public_Build_Jobs.Store_Queued
-        (S.Public_Build_Async_Slot_Id, S, Async_Test_Request, Gate, Gate, S.Public_Build_Job_Id);
-      Public_Build_Jobs.Mark_Worker_Running (S.Public_Build_Async_Slot_Id);
+        (S.Build.Public_Async_Slot_Id, S, Async_Test_Request, Gate, Gate, S.Build.Public_Job_Id);
+      Public_Build_Jobs.Mark_Worker_Running (S.Build.Public_Async_Slot_Id);
 
       Editor.Build_Output_Details.Begin_Build_Output_Stream
-        (Stream, S.Public_Build_Job_Id);
+        (Stream, S.Build.Public_Job_Id);
       Editor.Build_Output_Details.Append_Build_Output_Stream_Chunk
         (Stream,
          Editor.Build_Output_Details.Build_Output_Stream_Stdout,
@@ -704,26 +704,26 @@ package body Editor.Build_Command is
           Editor.External_Producers.Build_Types.Build_Run_Succeeded
         or else not Result.Build_Result.Output_Partial
       then
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
       end if;
 
       declare
          OK : constant Boolean :=
-           S.Public_Build_Output_Stream.Active
-           and then S.Public_Build_Output_Stream.Chunk_Count = 2
-           and then S.Latest_Build_Output_Details.Output_Partial
-           and then S.Latest_Build_Output_Details.Stdout_Available
-           and then S.Latest_Build_Output_Details.Stderr_Available;
+           S.Build.Public_Output_Stream.Active
+           and then S.Build.Public_Output_Stream.Chunk_Count = 2
+           and then S.Build.Latest_Output_Details.Output_Partial
+           and then S.Build.Latest_Output_Details.Stdout_Available
+           and then S.Build.Latest_Output_Details.Stderr_Available;
       begin
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return OK;
       end;
    exception
       when others =>
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
    end Assert_Async_Build_Output_Snapshot_Handoff_Behavior;
@@ -745,14 +745,14 @@ package body Editor.Build_Command is
    begin
       Editor.State.Initialize (S);
       Begin_Public_Build_Job (S, "async partial output behavior");
-      S.Public_Build_Async_Job_Queued := True;
-      S.Public_Build_Async_Job_Result_Pending := False;
+      S.Build.Public_Async_Job_Queued := True;
+      S.Build.Public_Async_Job_Result_Pending := False;
       Public_Build_Jobs.Store_Queued
-        (S.Public_Build_Async_Slot_Id, S, Async_Test_Request, Gate, Gate, S.Public_Build_Job_Id);
-      Public_Build_Jobs.Mark_Worker_Running (S.Public_Build_Async_Slot_Id);
+        (S.Build.Public_Async_Slot_Id, S, Async_Test_Request, Gate, Gate, S.Build.Public_Job_Id);
+      Public_Build_Jobs.Mark_Worker_Running (S.Build.Public_Async_Slot_Id);
 
       Editor.Build_Output_Details.Begin_Build_Output_Stream
-        (Stream, S.Public_Build_Job_Id);
+        (Stream, S.Build.Public_Job_Id);
       Editor.Build_Output_Details.Append_Build_Output_Stream_Chunk
         (Stream,
          Editor.Build_Output_Details.Build_Output_Stream_Stdout,
@@ -762,18 +762,18 @@ package body Editor.Build_Command is
       Completed := Poll_Public_Build_Run_Completion (S, Result);
       if Completed
         or else Result.Command_Message /= To_Unbounded_String ("Build still running.")
-        or else not S.Public_Build_Output_Stream.Active
-        or else S.Public_Build_Output_Stream.Chunk_Count /= 1
-        or else not S.Latest_Build_Output_Details.Output_Partial
-        or else not S.Latest_Build_Output_Details.Stdout_Available
-        or else S.Latest_Build_Output_Details.Stderr_Available
+        or else not S.Build.Public_Output_Stream.Active
+        or else S.Build.Public_Output_Stream.Chunk_Count /= 1
+        or else not S.Build.Latest_Output_Details.Output_Partial
+        or else not S.Build.Latest_Output_Details.Stdout_Available
+        or else S.Build.Latest_Output_Details.Stderr_Available
         or else Ada.Strings.Fixed.Index
-          (To_String (S.Latest_Build_Output_Details.Stdout_Excerpt),
+          (To_String (S.Build.Latest_Output_Details.Stdout_Excerpt),
            Stdout_Marker) = 0
-        or else not S.Public_Build_Job_Active
-        or else not S.Public_Build_Async_Job_Queued
+        or else not S.Build.Public_Job_Active
+        or else not S.Build.Public_Async_Job_Queued
       then
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
       end if;
@@ -789,30 +789,30 @@ package body Editor.Build_Command is
          OK : constant Boolean :=
            (not Completed)
            and then Result.Command_Message = To_Unbounded_String ("Build still running.")
-           and then S.Public_Build_Output_Stream.Active
-           and then S.Public_Build_Output_Stream.Chunk_Count = 2
-           and then S.Latest_Build_Output_Details.Kind =
+           and then S.Build.Public_Output_Stream.Active
+           and then S.Build.Public_Output_Stream.Chunk_Count = 2
+           and then S.Build.Latest_Output_Details.Kind =
              Editor.Build_Output_Details.Build_Output_Details_Partial
-           and then S.Latest_Build_Output_Details.Output_Partial
-           and then S.Latest_Build_Output_Details.Stdout_Available
-           and then S.Latest_Build_Output_Details.Stderr_Available
+           and then S.Build.Latest_Output_Details.Output_Partial
+           and then S.Build.Latest_Output_Details.Stdout_Available
+           and then S.Build.Latest_Output_Details.Stderr_Available
            and then Ada.Strings.Fixed.Index
-             (To_String (S.Latest_Build_Output_Details.Stdout_Excerpt),
+             (To_String (S.Build.Latest_Output_Details.Stdout_Excerpt),
               Stdout_Marker) /= 0
            and then Ada.Strings.Fixed.Index
-             (To_String (S.Latest_Build_Output_Details.Stderr_Excerpt),
+             (To_String (S.Build.Latest_Output_Details.Stderr_Excerpt),
               Stderr_Marker) /= 0
-           and then S.Public_Build_Job_Active
-           and then S.Public_Build_Async_Job_Queued
-           and then not S.Public_Build_Async_Job_Result_Pending;
+           and then S.Build.Public_Job_Active
+           and then S.Build.Public_Async_Job_Queued
+           and then not S.Build.Public_Async_Job_Result_Pending;
       begin
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return OK;
       end;
    exception
       when others =>
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
    end Assert_Async_Build_Partial_Stdout_Stderr_Before_Completion;
@@ -912,7 +912,7 @@ package body Editor.Build_Command is
       function Wait_For_Final_Result return Boolean is
       begin
          for Attempt in 1 .. 100 loop
-            if Public_Build_Jobs.Result_Ready (S.Public_Build_Async_Slot_Id) then
+            if Public_Build_Jobs.Result_Ready (S.Build.Public_Async_Slot_Id) then
                return True;
             end if;
             delay 0.05;
@@ -936,12 +936,12 @@ package body Editor.Build_Command is
          Structured_Arguments => Args);
 
       Begin_Public_Build_Job (S, "real-process async cancellation integration");
-      S.Public_Build_Async_Job_Queued := True;
-      S.Public_Build_Async_Job_Result_Pending := False;
+      S.Build.Public_Async_Job_Queued := True;
+      S.Build.Public_Async_Job_Result_Pending := False;
       Public_Build_Jobs.Store_Queued
-        (S.Public_Build_Async_Slot_Id, S, Async_Test_Request, Gate, Gate, S.Public_Build_Job_Id);
+        (S.Build.Public_Async_Slot_Id, S, Async_Test_Request, Gate, Gate, S.Build.Public_Job_Id);
 
-      Worker.Start (S.Public_Build_Async_Slot_Id);
+      Worker.Start (S.Build.Public_Async_Slot_Id);
 
       if not Wait_For_Active_Process then
          declare
@@ -950,7 +950,7 @@ package body Editor.Build_Command is
          begin
             null;
          end;
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
       end if;
@@ -958,8 +958,8 @@ package body Editor.Build_Command is
       Completed := Poll_Public_Build_Run_Completion (S, Poll_Result);
       if Completed
         or else Poll_Result.Command_Message /= To_Unbounded_String ("Build still running.")
-        or else not S.Public_Build_Job_Active
-        or else not S.Public_Build_Async_Job_Queued
+        or else not S.Build.Public_Job_Active
+        or else not S.Build.Public_Async_Job_Queued
       then
          declare
             Ignored : constant Editor.Build_Process_Control.Build_Process_Cancel_Result :=
@@ -967,7 +967,7 @@ package body Editor.Build_Command is
          begin
             null;
          end;
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
       end if;
@@ -982,7 +982,7 @@ package body Editor.Build_Command is
          begin
             null;
          end;
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
       end if;
@@ -994,7 +994,7 @@ package body Editor.Build_Command is
          begin
             null;
          end;
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
       end if;
@@ -1005,8 +1005,8 @@ package body Editor.Build_Command is
           Editor.External_Producers.Build_Types.Build_Run_Cancelled
         and then Process_Result.Status =
           Editor.External_Producers.Build_Types.Process_Run_Cancelled
-        and then not S.Public_Build_Job_Active
-        and then not S.Public_Build_Async_Job_Queued
+        and then not S.Build.Public_Job_Active
+        and then not S.Build.Public_Async_Job_Queued
         and then not Editor.Build_Process_Control.Is_Active
           (Editor.Build_Process_Control.Active_Process_Handle);
    exception
@@ -1017,7 +1017,7 @@ package body Editor.Build_Command is
          begin
             null;
          end;
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
    end Assert_Async_Build_Real_Process_Cancel_Integration;
@@ -1040,45 +1040,45 @@ package body Editor.Build_Command is
       Begin_Public_Build_Job (S1, "async slot one");
       Begin_Public_Build_Job (S2, "async slot two");
 
-      if S1.Public_Build_Async_Slot_Id = 0
-        or else S2.Public_Build_Async_Slot_Id = 0
-        or else S1.Public_Build_Async_Slot_Id = S2.Public_Build_Async_Slot_Id
+      if S1.Build.Public_Async_Slot_Id = 0
+        or else S2.Build.Public_Async_Slot_Id = 0
+        or else S1.Build.Public_Async_Slot_Id = S2.Build.Public_Async_Slot_Id
       then
          return False;
       end if;
 
-      S1.Public_Build_Async_Job_Queued := True;
-      S2.Public_Build_Async_Job_Queued := True;
+      S1.Build.Public_Async_Job_Queued := True;
+      S2.Build.Public_Async_Job_Queued := True;
       Public_Build_Jobs.Store_Queued
-        (S1.Public_Build_Async_Slot_Id, S1, Async_Test_Request, Gate, Gate, S1.Public_Build_Job_Id);
+        (S1.Build.Public_Async_Slot_Id, S1, Async_Test_Request, Gate, Gate, S1.Build.Public_Job_Id);
       Public_Build_Jobs.Store_Queued
-        (S2.Public_Build_Async_Slot_Id, S2, Async_Test_Request, Gate, Gate, S2.Public_Build_Job_Id);
-      Public_Build_Jobs.Mark_Worker_Running (S1.Public_Build_Async_Slot_Id);
-      Public_Build_Jobs.Mark_Worker_Running (S2.Public_Build_Async_Slot_Id);
-      Public_Build_Jobs.Mark_Cancellation_Requested (S1.Public_Build_Async_Slot_Id);
+        (S2.Build.Public_Async_Slot_Id, S2, Async_Test_Request, Gate, Gate, S2.Build.Public_Job_Id);
+      Public_Build_Jobs.Mark_Worker_Running (S1.Build.Public_Async_Slot_Id);
+      Public_Build_Jobs.Mark_Worker_Running (S2.Build.Public_Async_Slot_Id);
+      Public_Build_Jobs.Mark_Cancellation_Requested (S1.Build.Public_Async_Slot_Id);
 
-      Public_Build_Jobs.Snapshot_While_Running (S1.Public_Build_Async_Slot_Id, Snap1);
-      Public_Build_Jobs.Snapshot_While_Running (S2.Public_Build_Async_Slot_Id, Snap2);
+      Public_Build_Jobs.Snapshot_While_Running (S1.Build.Public_Async_Slot_Id, Snap1);
+      Public_Build_Jobs.Snapshot_While_Running (S2.Build.Public_Async_Slot_Id, Snap2);
 
       declare
          OK : constant Boolean :=
-           Snap1.Public_Build_Job_Cancellation =
+           Snap1.Build.Public_Job_Cancellation =
              Editor.Build_Runner_Policy.Cancellation_Requested
-           and then Snap2.Public_Build_Job_Cancellation =
+           and then Snap2.Build.Public_Job_Cancellation =
              Editor.Build_Runner_Policy.No_Cancellation_Requested
            and then Public_Build_Jobs.Has_Job
-             (S1.Public_Build_Async_Slot_Id, S1.Public_Build_Job_Id)
+             (S1.Build.Public_Async_Slot_Id, S1.Build.Public_Job_Id)
            and then Public_Build_Jobs.Has_Job
-             (S2.Public_Build_Async_Slot_Id, S2.Public_Build_Job_Id);
+             (S2.Build.Public_Async_Slot_Id, S2.Build.Public_Job_Id);
       begin
-         Public_Build_Jobs.Clear (S1.Public_Build_Async_Slot_Id);
-         Public_Build_Jobs.Clear (S2.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S1.Build.Public_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S2.Build.Public_Async_Slot_Id);
          return OK;
       end;
    exception
       when others =>
-         Public_Build_Jobs.Clear (S1.Public_Build_Async_Slot_Id);
-         Public_Build_Jobs.Clear (S2.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S1.Build.Public_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S2.Build.Public_Async_Slot_Id);
          return False;
    end Assert_Async_Build_State_Slots_Are_Isolated;
 
@@ -1095,31 +1095,31 @@ package body Editor.Build_Command is
       Editor.State.Initialize (S);
 
       Begin_Public_Build_Job (S, "async slot stable first build");
-      First_Slot := S.Public_Build_Async_Slot_Id;
-      First_Job := S.Public_Build_Job_Id;
+      First_Slot := S.Build.Public_Async_Slot_Id;
+      First_Job := S.Build.Public_Job_Id;
       Complete_Public_Build_Job (S);
 
       if First_Slot = 0
-        or else S.Public_Build_Async_Slot_Id /= First_Slot
-        or else S.Public_Build_Job_Active
+        or else S.Build.Public_Async_Slot_Id /= First_Slot
+        or else S.Build.Public_Job_Active
       then
          return False;
       end if;
 
       Begin_Public_Build_Job (S, "async slot stable second build");
-      Second_Slot := S.Public_Build_Async_Slot_Id;
-      Second_Job := S.Public_Build_Job_Id;
+      Second_Slot := S.Build.Public_Async_Slot_Id;
+      Second_Job := S.Build.Public_Job_Id;
       Complete_Public_Build_Job (S);
 
       return Second_Slot = First_Slot
         and then Second_Job = First_Job + 1
-        and then S.Public_Build_Async_Slot_Id = First_Slot
-        and then not S.Public_Build_Job_Active
-        and then not S.Public_Build_Async_Job_Queued
-        and then not S.Public_Build_Async_Job_Result_Pending;
+        and then S.Build.Public_Async_Slot_Id = First_Slot
+        and then not S.Build.Public_Job_Active
+        and then not S.Build.Public_Async_Job_Queued
+        and then not S.Build.Public_Async_Job_Result_Pending;
    exception
       when others =>
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          return False;
    end Assert_Async_Build_Slot_Id_Is_Stable_Per_State;
 
@@ -1146,14 +1146,14 @@ package body Editor.Build_Command is
          Editor.State.Initialize (S);
          Begin_Public_Build_Job (S, Label);
          Public_Build_Jobs.Store_Queued
-           (S.Public_Build_Async_Slot_Id, S, Async_Test_Request, Gate, Gate,
-            S.Public_Build_Job_Id);
+           (S.Build.Public_Async_Slot_Id, S, Async_Test_Request, Gate, Gate,
+            S.Build.Public_Job_Id);
       end Queue_Test_Job;
 
       procedure Clear_Test_Job (S : in out Editor.State.State_Type) is
       begin
-         if S.Public_Build_Async_Slot_Id /= 0 then
-            Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         if S.Build.Public_Async_Slot_Id /= 0 then
+            Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          end if;
          Complete_Public_Build_Job (S);
       end Clear_Test_Job;
@@ -1172,7 +1172,7 @@ package body Editor.Build_Command is
 
       declare
          Rejected : constant Boolean :=
-           not Public_Build_Jobs.Slot_Available_For (S9.Public_Build_Async_Slot_Id);
+           not Public_Build_Jobs.Slot_Available_For (S9.Build.Public_Async_Slot_Id);
       begin
          Clear_Test_Job (S1);
          Clear_Test_Job (S2);
@@ -1215,34 +1215,34 @@ package body Editor.Build_Command is
    begin
       Editor.State.Initialize (S);
       Begin_Public_Build_Job (S, "lifecycle shutdown behavior");
-      S.Public_Build_Async_Job_Queued := True;
-      S.Public_Build_Async_Job_Result_Pending := False;
+      S.Build.Public_Async_Job_Queued := True;
+      S.Build.Public_Async_Job_Result_Pending := False;
       Public_Build_Jobs.Store_Queued
-        (S.Public_Build_Async_Slot_Id, S, Request, Gate, Gate, S.Public_Build_Job_Id);
-      Public_Build_Jobs.Mark_Worker_Running (S.Public_Build_Async_Slot_Id);
+        (S.Build.Public_Async_Slot_Id, S, Request, Gate, Gate, S.Build.Public_Job_Id);
+      Public_Build_Jobs.Mark_Worker_Running (S.Build.Public_Async_Slot_Id);
 
       Result := Request_Public_Build_Lifecycle_Shutdown (S, "closing project");
-      Public_Build_Jobs.Snapshot_While_Running (S.Public_Build_Async_Slot_Id, Worker_State);
+      Public_Build_Jobs.Snapshot_While_Running (S.Build.Public_Async_Slot_Id, Worker_State);
 
       if Result.Build_Result.Status /= Editor.External_Producers.Build_Types.Build_Run_Cancelled
-        or else S.Public_Build_Job_Cancellation /=
+        or else S.Build.Public_Job_Cancellation /=
           Editor.Build_Runner_Policy.Cancellation_Requested
-        or else Worker_State.Public_Build_Job_Cancellation /=
+        or else Worker_State.Build.Public_Job_Cancellation /=
           Editor.Build_Runner_Policy.Cancellation_Requested
-        or else not S.Public_Build_Job_Active
-        or else not S.Public_Build_Async_Job_Queued
+        or else not S.Build.Public_Job_Active
+        or else not S.Build.Public_Async_Job_Queued
       then
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
       end if;
 
-      Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+      Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
       Complete_Public_Build_Job (S);
       return True;
    exception
       when others =>
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
    end Assert_Async_Build_Lifecycle_Shutdown_Handoff_Behavior;
@@ -1261,31 +1261,31 @@ package body Editor.Build_Command is
    begin
       Editor.State.Initialize (S);
       Begin_Public_Build_Job (S, "async worker shutdown drain behavior");
-      S.Public_Build_Async_Job_Queued := True;
-      S.Public_Build_Async_Job_Result_Pending := False;
+      S.Build.Public_Async_Job_Queued := True;
+      S.Build.Public_Async_Job_Result_Pending := False;
       Public_Build_Jobs.Store_Queued
-        (S.Public_Build_Async_Slot_Id, S, Async_Test_Request, Gate, Gate, S.Public_Build_Job_Id);
+        (S.Build.Public_Async_Slot_Id, S, Async_Test_Request, Gate, Gate, S.Build.Public_Job_Id);
 
       --  A disabled-gate worker finishes quickly, but the drain path is still
       --  the same deterministic shutdown handshake used by application exit.
-      Public_Build_Workers (Slot_Index_For (S.Public_Build_Async_Slot_Id)).Start
-        (S.Public_Build_Async_Slot_Id);
+      Public_Build_Workers (Slot_Index_For (S.Build.Public_Async_Slot_Id)).Start
+        (S.Build.Public_Async_Slot_Id);
       Result := Drain_Public_Build_Worker_For_Shutdown (S, "application shutdown");
 
-      if S.Public_Build_Async_Job_Queued then
+      if S.Build.Public_Async_Job_Queued then
          Completed := Poll_Public_Build_Run_Completion (S, Result);
       else
          Completed := True;
       end if;
 
       return Completed
-        and then not S.Public_Build_Job_Active
-        and then not S.Public_Build_Async_Job_Queued
+        and then not S.Build.Public_Job_Active
+        and then not S.Build.Public_Async_Job_Queued
         and then not Editor.Build_Process_Control.Is_Active
           (Editor.Build_Process_Control.Active_Process_Handle);
    exception
       when others =>
-         Public_Build_Jobs.Clear (S.Public_Build_Async_Slot_Id);
+         Public_Build_Jobs.Clear (S.Build.Public_Async_Slot_Id);
          Editor.Build_Process_Control.Clear_Active_Process;
          return False;
    end Assert_Async_Build_Worker_Shutdown_Drain_Behavior;

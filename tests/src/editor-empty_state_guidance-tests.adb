@@ -192,7 +192,7 @@ package body Editor.Empty_State_Guidance.Tests is
                 (Snapshot, Editor.Command_Ids.Command_Refresh_Project_Files),
               "Build guidance should not use project-file refresh as a proxy");
 
-      S.Build_UI.Candidate_Refresh_Status :=
+      S.Build.Build_UI.Candidate_Refresh_Status :=
         Editor.Build_UI.Build_Candidate_Refresh_No_Candidates;
       Snapshot := Build_Build_UI_Empty_State (S);
       Assert (Snapshot.Kind = No_Candidates_State,
@@ -446,7 +446,7 @@ package body Editor.Empty_State_Guidance.Tests is
       S : Editor.State.State_Type;
       Snapshot : Empty_State_Snapshot;
    begin
-      S.Latest_Build_Result := Editor.Build_Result_Summary.Build_Summary
+      S.Build.Latest_Result := Editor.Build_Result_Summary.Build_Summary
         (Kind           => Editor.Build_Result_Summary.Build_Result_Summary_Succeeded,
          Invocation_Label => "gprbuild",
          Tool_Kind      => Editor.Build_Result_Summary.Build_Result_GPRbuild_Tool,

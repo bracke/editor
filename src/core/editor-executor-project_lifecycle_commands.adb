@@ -715,7 +715,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
       declare
          Refresh_Result : constant Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Result :=
            Editor.Build_Candidate_Refresh.Clear_Build_Candidates_After_Project_Close
-             (S.Build_UI);
+             (S.Build.Build_UI);
          pragma Unreferenced (Refresh_Result);
       begin
          null;
@@ -935,7 +935,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
          Editor.Clipboard.Clear;
          Editor.Project.Apply_Open_Result (S.Project, Result);
          Editor.Terminal_Tasks.Ensure_Project_Default_Tasks
-           (S.Terminal_Tasks, Editor.Project.Root_Path (S.Project));
+           (S.Build.Terminal_Tasks, Editor.Project.Root_Path (S.Project));
          if Refresh_Build_Candidates then
             declare
                Context : constant Editor.Build_Working_Context.Build_Working_Context_Record :=
@@ -946,10 +946,10 @@ package body Editor.Executor.Project_Lifecycle_Commands is
                Refresh_Result : constant Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_Result :=
                  (if Is_Switch then
                     Editor.Build_Candidate_Refresh.Refresh_Build_Candidates_After_Project_Switch
-                      (S.Build_UI, Context, True)
+                      (S.Build.Build_UI, Context, True)
                   else
                     Editor.Build_Candidate_Refresh.Refresh_Build_Candidates_After_Project_Open
-                      (S.Build_UI, Context, True));
+                      (S.Build.Build_UI, Context, True));
                pragma Unreferenced (Refresh_Result);
             begin
                null;

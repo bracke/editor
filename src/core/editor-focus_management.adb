@@ -81,15 +81,15 @@ package body Editor.Focus_Management is
             null;
       end case;
 
-      if S.Latest_Build_Output_Details.Build_Output_Details_Focused then
+      if S.Build.Latest_Output_Details.Build_Output_Details_Focused then
          return Focus_Build_Output_Details;
-      elsif S.Latest_Build_Result_Focused then
+      elsif S.Build.Latest_Result_Focused then
          return Focus_Build_Result_Summary;
       elsif Editor.Terminal_Tasks.Build_Render_Snapshot
-        (S.Terminal_Tasks).Focused
+        (S.Build.Terminal_Tasks).Focused
       then
          return Focus_Terminal;
-      elsif S.Build_UI.Build_UI_Focused then
+      elsif S.Build.Build_UI.Build_UI_Focused then
          return Focus_Build_UI;
       elsif S.Recent_Projects_Focused then
          return Focus_Recent_Projects;
@@ -1275,9 +1275,9 @@ package body Editor.Focus_Management is
         and then not Editor.Feature_Search_Results.Search_Input_Is_Active
           (S.Feature_Search_Results)
         and then not Editor.Outline.Filter_Input_Is_Active (S.Outline));
-      Count (S.Build_UI.Build_UI_Focused);
-      Count (S.Latest_Build_Result_Focused);
-      Count (S.Latest_Build_Output_Details.Build_Output_Details_Focused);
+      Count (S.Build.Build_UI.Build_UI_Focused);
+      Count (S.Build.Latest_Result_Focused);
+      Count (S.Build.Latest_Output_Details.Build_Output_Details_Focused);
       Count (S.Recent_Projects_Focused);
 
       --  Embedded text inputs are valid only when their parent Feature Panel
@@ -1307,10 +1307,10 @@ package body Editor.Focus_Management is
            (S.Overlay_Focus, Editor.Overlay_Focus.Dismiss_Command);
       end if;
 
-      S.Build_UI.Build_UI_Focused := False;
-      Editor.Terminal_Tasks.Unfocus (S.Terminal_Tasks);
-      S.Latest_Build_Result_Focused := False;
-      S.Latest_Build_Output_Details.Build_Output_Details_Focused := False;
+      S.Build.Build_UI.Build_UI_Focused := False;
+      Editor.Terminal_Tasks.Unfocus (S.Build.Terminal_Tasks);
+      S.Build.Latest_Result_Focused := False;
+      S.Build.Latest_Output_Details.Build_Output_Details_Focused := False;
       S.Recent_Projects_Focused := False;
 
       if Editor.Feature_Search_Results.Search_Input_Is_Active
@@ -1343,10 +1343,10 @@ package body Editor.Focus_Management is
    begin
       Clear_Overlay_And_Local_Text_Focus (S);
       Editor.Feature_Panel.Set_Focused (S.Feature_Panel, False);
-      S.Build_UI.Build_UI_Focused := False;
-      Editor.Terminal_Tasks.Unfocus (S.Terminal_Tasks);
-      S.Latest_Build_Result_Focused := False;
-      S.Latest_Build_Output_Details.Build_Output_Details_Focused := False;
+      S.Build.Build_UI.Build_UI_Focused := False;
+      Editor.Terminal_Tasks.Unfocus (S.Build.Terminal_Tasks);
+      S.Build.Latest_Result_Focused := False;
+      S.Build.Latest_Output_Details.Build_Output_Details_Focused := False;
       S.Recent_Projects_Focused := False;
       Editor.Panel_Focus.Focus_Editor_Text (S.Panel_Focus);
    end Restore_Focus_To_Editor;
@@ -1496,20 +1496,20 @@ package body Editor.Focus_Management is
                Editor.Outline.Activate_Filter_Input (S.Outline);
             end;
          when Focus_Build_UI =>
-            Editor.Build_UI.Focus (S.Build_UI);
+            Editor.Build_UI.Focus (S.Build.Build_UI);
          when Focus_Terminal =>
             Editor.Panels.Set_Visible
               (S.Panels, Editor.Panels.Bottom_Panel, True);
-            Editor.Terminal_Tasks.Focus (S.Terminal_Tasks);
+            Editor.Terminal_Tasks.Focus (S.Build.Terminal_Tasks);
          when Focus_Build_Result_Summary =>
             --  The latest build result summary is display-only, but it still
             --  needs an explicit transient focus owner so local navigation,
             --  Escape policy, and status/render labels do not fall through to
             --  editor text focus.
-            S.Latest_Build_Result_Focused := True;
+            S.Build.Latest_Result_Focused := True;
          when Focus_Build_Output_Details =>
             Editor.Build_Output_Details.Focus_Output_Details
-              (S.Latest_Build_Output_Details);
+              (S.Build.Latest_Output_Details);
          when Focus_Recent_Projects =>
             --  Recent Projects has a list selection but no separate panel
             --  focus package.  Keep the focus marker in State as transient UI

@@ -30,7 +30,7 @@ package body Editor.Build_Command_Audit is
       Before_Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
         Editor.Build_Command.Build_Run_Availability (State);
       Before_Identity   : constant String :=
-        Editor.Build_UI.Current_Request_Identity (State.Build_UI);
+        Editor.Build_UI.Current_Request_Identity (State.Build.Build_UI);
       After_Availability : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       After_Availability := Editor.Build_Command.Build_Run_Availability (Copy);
@@ -38,7 +38,7 @@ package body Editor.Build_Command_Audit is
           Editor.Commands.Availability_Metadata.Is_Available (After_Availability)
         and then Editor.Commands.Availability_Metadata.Unavailable_Reason (Before_Availability) =
           Editor.Commands.Availability_Metadata.Unavailable_Reason (After_Availability)
-        and then Editor.Build_UI.Current_Request_Identity (Copy.Build_UI) =
+        and then Editor.Build_UI.Current_Request_Identity (Copy.Build.Build_UI) =
           Before_Identity;
    end Build_Run_Availability_Is_Side_Effect_Free;
 
@@ -66,25 +66,25 @@ package body Editor.Build_Command_Audit is
       Result.Build_Run_Does_Not_Execute_When_Backend_Disabled :=
         Readiness.Public_Input_Does_Not_Enable_Public_Execution;
       Result.Build_UI_State_Is_Transient :=
-        Editor.Build_UI.Assert_Build_UI_State_Is_Transient (State.Build_UI);
+        Editor.Build_UI.Assert_Build_UI_State_Is_Transient (State.Build.Build_UI);
       Result.Build_UI_Has_No_Raw_Shell_Command_Field :=
-        not Editor.Build_UI.Has_Raw_Shell_Command_Field (State.Build_UI);
+        not Editor.Build_UI.Has_Raw_Shell_Command_Field (State.Build.Build_UI);
       Result.Build_UI_Has_No_Remembered_Consent_Field :=
-        not Editor.Build_UI.Has_Remembered_Consent_Field (State.Build_UI);
+        not Editor.Build_UI.Has_Remembered_Consent_Field (State.Build.Build_UI);
       Result.Persistence_Excludes_Build_UI_State :=
         Readiness.Public_Input_Does_Not_Create_Command_Descriptors;
       Result.Diagnostics_Ownership_Unchanged :=
         Readiness.Routes_Diagnostics_Through_Pipeline;
       Result.Working_Context_Is_Structured :=
         Editor.Build_Working_Context.Assert_Build_Working_Context_Is_Structured
-          (State.Build_UI.Selected_Working_Context);
+          (State.Build.Build_UI.Selected_Working_Context);
       Result.Working_Context_Is_Transient :=
         Editor.Build_Working_Context.Assert_Build_Working_Context_Is_Transient
-          (State.Build_UI.Selected_Working_Context)
+          (State.Build.Build_UI.Selected_Working_Context)
         and then Editor.Build_Working_Context.Assert_Build_Working_Context_Persistence_Excluded
-          (State.Build_UI.Selected_Working_Context);
+          (State.Build.Build_UI.Selected_Working_Context);
       Result.Working_Context_Requires_Valid_Source :=
-        State.Build_UI.Selected_Working_Context.Source_Kind in
+        State.Build.Build_UI.Selected_Working_Context.Source_Kind in
           Editor.Build_Working_Context.Working_Context_Source_None |
           Editor.Build_Working_Context.Working_Context_Source_Canonical_Project |
           Editor.Build_Working_Context.Working_Context_Source_Canonical_Workspace |
@@ -115,7 +115,7 @@ package body Editor.Build_Command_Audit is
               "alire.toml")) =
         Editor.Build_Working_Context.Build_Working_Context_Rejected_Implicit_Derived;
       Result.Working_Context_Consent_Bound :=
-        Editor.Build_UI.Current_Request_Identity (State.Build_UI)'Length > 0;
+        Editor.Build_UI.Current_Request_Identity (State.Build.Build_UI)'Length > 0;
       Result.Command_Palette_Cannot_Supply_Working_Context :=
         Readiness.Public_Command_Is_Invokable
         and then Readiness.Public_Input_Does_Not_Enable_Public_Execution;
@@ -147,82 +147,82 @@ package body Editor.Build_Command_Audit is
         Result.Persistence_Excludes_Build_UI_State;
       Result.Latest_Result_Summary_Is_Transient :=
         Editor.Build_Result_Summary.Assert_Summary_Is_Transient_Projection
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Summary_Has_No_Process_Handle :=
         not Editor.Build_Result_Summary.Has_Process_Handle_Field
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Summary_Has_No_Cancellation_Token :=
         not Editor.Build_Result_Summary.Has_Cancellation_Token_Field
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Summary_Has_No_Rerun_Payload :=
         not Editor.Build_Result_Summary.Has_Rerun_Request_Payload_Field
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Summary_Has_No_Diagnostics_Rows :=
         not Editor.Build_Result_Summary.Has_Diagnostics_Rows_Field
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Summary_Has_No_Unbounded_Output :=
         not Editor.Build_Result_Summary.Has_Unbounded_Output_Field
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Summary_Has_No_Build_History :=
         not Editor.Build_Result_Summary.Has_Build_History_Field
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Summary_Owned_By_Executor :=
         Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Owned_By_Executor
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Summary_Shape_Canonical :=
         Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Shape_Canonical
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Summary_Replace_Only :=
         Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Replace_Only
-          (State.Latest_Build_Result, State.Latest_Build_Result);
+          (State.Build.Latest_Result, State.Build.Latest_Result);
       Result.Latest_Result_Summary_Not_Rerun_State :=
         Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Not_Rerun_State
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Summary_Not_Diagnostics_Owner :=
         Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Not_Diagnostics_Owner
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Summary_Not_Output_Log :=
         Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Not_Output_Log
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Summary_Render_Clean :=
         Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Render_Cleanup
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Summary_Persistence_Excluded :=
         Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Persistence_Excluded
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Surface_Canonical_Coherent :=
         Editor.Build_Result_Summary.Assert_Public_Build_Result_Surface_Canonical_Coherent
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Result_Surface_Final_Freeze_Coherent :=
         Editor.Build_Result_Summary.Assert_Public_Build_Result_Surface_Final_Freeze_Coherent
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Latest_Output_Details_Is_Transient :=
         Editor.Build_Output_Details.Assert_Build_Output_Details_Transient
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
       Result.Latest_Output_Details_Bounded :=
         Editor.Build_Output_Details.Assert_Build_Output_Details_Bounded
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
       Result.Latest_Output_Details_Has_No_Process_Handle :=
         not Editor.Build_Output_Details.Has_Process_Handle_Field
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
       Result.Latest_Output_Details_Has_No_Cancellation_Token :=
         not Editor.Build_Output_Details.Has_Cancellation_Token_Field
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
       Result.Latest_Output_Details_Has_No_Rerun_Payload :=
         not Editor.Build_Output_Details.Has_Rerun_Request_Payload_Field
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
       Result.Latest_Output_Details_Has_No_Diagnostics_Rows :=
         not Editor.Build_Output_Details.Has_Diagnostics_Rows_Field
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
       Result.Latest_Output_Details_Has_No_Build_History :=
         not Editor.Build_Output_Details.Has_Build_History_Field
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
       Result.Latest_Output_Details_Persistence_Excluded :=
         Editor.Build_Output_Details.Assert_Build_Output_Details_Persistence_Excluded
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
       Result.Latest_Output_Details_Foundation_Coherent :=
         Editor.Build_Output_Details.Assert_Public_Build_Output_Details_Foundation_Coherent
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
       Result.Side_Effect_Free :=
         Build_Run_Availability_Is_Side_Effect_Free (State);
       Result.Coherent :=

@@ -180,7 +180,7 @@ package body Editor.Build_Diagnostics_Review is
      (State : Editor.State.State_Type) return Boolean
    is
    begin
-      return Editor.Build_UI.Assert_Build_UI_State_Is_Transient (State.Build_UI)
+      return Editor.Build_UI.Assert_Build_UI_State_Is_Transient (State.Build.Build_UI)
         and then Editor.Build_Command.Assert_Build_Run_Persistence_Excluded (State);
    end Assert_Build_Diagnostics_Review_Persistence_Excluded;
 
@@ -281,14 +281,14 @@ package body Editor.Build_Diagnostics_Review is
    is
    begin
       return not Editor.Build_Result_Summary.Has_Diagnostics_Rows_Field
-          (State.Latest_Build_Result)
+          (State.Build.Latest_Result)
         and then not Editor.Build_Result_Summary.Has_Diagnostics_Table_Field
-          (State.Latest_Build_Result)
+          (State.Build.Latest_Result)
         and then not Editor.Build_Output_Details.Has_Diagnostics_Rows_Field
-          (State.Latest_Build_Output_Details)
-        and then not Editor.Build_UI.Has_Candidate_Execution_Field (State.Build_UI)
-        and then not Editor.Build_UI.Has_Raw_Shell_Command_Field (State.Build_UI)
-        and then not Editor.Build_UI.Has_Remembered_Consent_Field (State.Build_UI);
+          (State.Build.Latest_Output_Details)
+        and then not Editor.Build_UI.Has_Candidate_Execution_Field (State.Build.Build_UI)
+        and then not Editor.Build_UI.Has_Raw_Shell_Command_Field (State.Build.Build_UI)
+        and then not Editor.Build_UI.Has_Remembered_Consent_Field (State.Build.Build_UI);
    end Assert_Build_Diagnostics_Not_Build_Owned;
 
    function Assert_Build_Diagnostics_Not_Render_Parsed return Boolean
@@ -304,11 +304,11 @@ package body Editor.Build_Diagnostics_Review is
    begin
       return Assert_Build_Diagnostics_Not_Build_Owned (State)
         and then not Editor.Build_Result_Summary.Has_Diagnostics_Rows_Field
-          (State.Latest_Build_Result)
+          (State.Build.Latest_Result)
         and then not Editor.Build_Result_Summary.Has_Diagnostics_Table_Field
-          (State.Latest_Build_Result)
+          (State.Build.Latest_Result)
         and then not Editor.Build_Output_Details.Has_Diagnostics_Rows_Field
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
    end Assert_Build_Diagnostics_No_Build_Local_Table;
 
    function Assert_Build_Diagnostics_No_Build_Local_Selection
@@ -383,14 +383,14 @@ package body Editor.Build_Diagnostics_Review is
         Assert_Build_Diagnostics_Navigation_Uses_Diagnostics_Routes;
       Result.Summary_Stores_No_Diagnostics_Rows :=
         Assert_Build_Summary_Stores_No_Diagnostics_Rows
-          (State.Latest_Build_Result);
+          (State.Build.Latest_Result);
       Result.Output_Details_Stores_No_Diagnostics_Rows :=
         Assert_Build_Output_Details_Stores_No_Diagnostics_Rows
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
       Result.Build_UI_Stores_No_Diagnostics_Rows :=
-        not Editor.Build_UI.Has_Raw_Shell_Command_Field (State.Build_UI)
-        and then not Editor.Build_UI.Has_Remembered_Consent_Field (State.Build_UI)
-        and then not Editor.Build_UI.Has_Candidate_Execution_Field (State.Build_UI);
+        not Editor.Build_UI.Has_Raw_Shell_Command_Field (State.Build.Build_UI)
+        and then not Editor.Build_UI.Has_Remembered_Consent_Field (State.Build.Build_UI)
+        and then not Editor.Build_UI.Has_Candidate_Execution_Field (State.Build.Build_UI);
       Result.Render_Parses_No_Build_Output :=
         Editor.Build_Diagnostics.Assert_Build_Diagnostics_Render_Not_Parsing;
       Result.Command_Frontdoors_Do_Not_Ingest :=
@@ -495,9 +495,9 @@ package body Editor.Build_Diagnostics_Review is
         and then Assert_Build_Diagnostics_No_Build_Local_Selection (State)
         and then Assert_Build_Diagnostics_No_Build_Specific_Navigation
         and then Assert_Build_Summary_Stores_No_Diagnostics_Rows
-          (State.Latest_Build_Result)
+          (State.Build.Latest_Result)
         and then Assert_Build_Output_Details_Stores_No_Diagnostics_Rows
-          (State.Latest_Build_Output_Details)
+          (State.Build.Latest_Output_Details)
         and then Assert_Build_Diagnostics_Review_Persistence_Excluded (State)
         and then Assert_Build_Diagnostics_Not_Render_Parsed;
    end Assert_Public_Build_Diagnostics_Review_Canonical_Coherent;
@@ -785,9 +785,9 @@ package body Editor.Build_Diagnostics_Review is
    is
    begin
       return Assert_Build_Output_Details_Final_Stores_No_Diagnostics_Rows
-          (State.Latest_Build_Output_Details)
+          (State.Build.Latest_Output_Details)
         and then not Editor.Build_Output_Details.Has_Diagnostics_Rows_Field
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
    end Assert_Output_Details_Do_Not_Navigate_Diagnostics;
 
    function Assert_Render_Does_Not_Copy_Build_Diagnostics
@@ -896,9 +896,9 @@ package body Editor.Build_Diagnostics_Review is
         and then Assert_Build_Diagnostics_Final_No_Build_Local_Selection (S)
         and then Assert_Build_Diagnostics_Final_No_Build_Specific_Navigation
         and then Assert_Build_Summary_Final_Stores_No_Diagnostics_Rows
-          (S.Latest_Build_Result)
+          (S.Build.Latest_Result)
         and then Assert_Build_Output_Details_Final_Stores_No_Diagnostics_Rows
-          (S.Latest_Build_Output_Details)
+          (S.Build.Latest_Output_Details)
         and then Assert_Render_Final_Does_Not_Parse_Build_Diagnostics
         and then Assert_Build_Diagnostics_Final_Persistence_Excluded (S);
    end Assert_Public_Build_Diagnostics_Review_Final_Freeze_Coherent;

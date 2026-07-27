@@ -272,18 +272,18 @@ package body Editor.Diagnostics_Review_UX is
    begin
       Editor.Feature_Diagnostics.Clear_Diagnostics (Copy.Feature_Diagnostics);
       return Editor.Build_Diagnostics_Review.Assert_Build_Output_Details_Stores_No_Diagnostics_Rows
-          (Copy.Latest_Build_Output_Details)
+          (Copy.Build.Latest_Output_Details)
         and then Editor.Build_Diagnostics_Review.Assert_Build_Summary_Stores_No_Diagnostics_Rows
-          (Copy.Latest_Build_Result);
+          (Copy.Build.Latest_Result);
    end Assert_Diagnostics_Clear_Does_Not_Mutate_Build_Output;
 
    function Assert_Build_UI_Diagnostics_Display_Is_Scalar_Only
      (State : Editor.State.State_Type) return Boolean
    is
    begin
-      return not Editor.Build_UI.Has_Raw_Shell_Command_Field (State.Build_UI)
-        and then not Editor.Build_UI.Has_Remembered_Consent_Field (State.Build_UI)
-        and then not Editor.Build_UI.Has_Candidate_Execution_Field (State.Build_UI)
+      return not Editor.Build_UI.Has_Raw_Shell_Command_Field (State.Build.Build_UI)
+        and then not Editor.Build_UI.Has_Remembered_Consent_Field (State.Build.Build_UI)
+        and then not Editor.Build_UI.Has_Candidate_Execution_Field (State.Build.Build_UI)
         and then Editor.Build_Diagnostics_Review.Assert_Build_Diagnostics_Not_Build_Owned
           (State);
    end Assert_Build_UI_Diagnostics_Display_Is_Scalar_Only;
@@ -293,7 +293,7 @@ package body Editor.Diagnostics_Review_UX is
    is
    begin
       return Editor.Build_Diagnostics_Review.Assert_Build_Output_Details_Stores_No_Diagnostics_Rows
-          (State.Latest_Build_Output_Details);
+          (State.Build.Latest_Output_Details);
    end Assert_Output_Details_Do_Not_Own_Diagnostics;
 
    function Assert_Diagnostics_Render_Is_Side_Effect_Free

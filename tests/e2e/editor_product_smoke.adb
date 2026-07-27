@@ -291,7 +291,7 @@ procedure Editor_Product_Smoke is
 
    begin
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Build_UI_Show);
-      Check (S.Build_UI.Build_UI_Visible,
+      Check (S.Build.Build_UI.Build_UI_Visible,
              "Build UI show command did not make Build Output visible");
 
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
@@ -303,9 +303,9 @@ procedure Editor_Product_Smoke is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Build_Refresh_Candidates);
       Check
-        (S.Build_UI.Candidate_Refresh_Status =
+        (S.Build.Build_UI.Candidate_Refresh_Status =
            Editor.Build_UI.Build_Candidate_Refresh_Succeeded
-         and then S.Build_UI.Last_Refresh_Candidate_Count > 0,
+         and then S.Build.Build_UI.Last_Refresh_Candidate_Count > 0,
          "Build UI refresh did not discover the smoke project candidate");
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
       Check (not Snapshot.Run_Available
@@ -320,7 +320,7 @@ procedure Editor_Product_Smoke is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Build_Select_First_Candidate);
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
-      Check (Editor.Build_UI.Validate_Build_UI_State (S.Build_UI) =
+      Check (Editor.Build_UI.Validate_Build_UI_State (S.Build.Build_UI) =
                Editor.Build_UI.Build_UI_Rejected_Missing_Consent,
              "Build candidate selection did not require explicit consent");
       Check (To_String (Snapshot.Run_Recovery_Hint) =
@@ -330,16 +330,16 @@ procedure Editor_Product_Smoke is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Build_Acknowledge_Consent);
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
-      Check (Editor.Build_UI.Validate_Build_UI_State (S.Build_UI) =
+      Check (Editor.Build_UI.Validate_Build_UI_State (S.Build.Build_UI) =
                Editor.Build_UI.Build_UI_Valid,
              "Build UI did not become runnable after consent: "
              & Editor.Build_UI.Validation_Message
-                 (Editor.Build_UI.Validate_Build_UI_State (S.Build_UI)));
+                 (Editor.Build_UI.Validate_Build_UI_State (S.Build.Build_UI)));
       Check (To_String (Snapshot.Run_Recovery_Hint) = "Run build",
              "Build UI did not expose runnable recovery guidance after consent");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Build_Cancel);
-      Check (S.Build_UI.Build_UI_Visible,
+      Check (S.Build.Build_UI.Build_UI_Visible,
              "Build cancel command should not hide Build Output");
 
       Editor.State.Load_Text
@@ -421,7 +421,7 @@ procedure Editor_Product_Smoke is
       Check (Keyboard_Quick_Fix_Row > 0,
              "Build UI keyboard quick-fix smoke did not expose the action row");
       Editor.Build_UI.Set_Selected_Action_Row
-        (S.Build_UI,
+        (S.Build.Build_UI,
          Keyboard_Quick_Fix_Row,
          Natural (Snapshot.Actions.Length));
       Editor.Input_Bridge.Set_State_For_Test (S);
@@ -478,7 +478,7 @@ procedure Editor_Product_Smoke is
       Check (not Snapshot.Actions.Element (Disabled_Quick_Fix_Row - 1).Enabled,
              "Build UI disabled quick-fix smoke row should be disabled");
       Editor.Build_UI.Set_Selected_Action_Row
-        (S.Build_UI,
+        (S.Build.Build_UI,
          Disabled_Quick_Fix_Row,
          Natural (Snapshot.Actions.Length));
       Editor.Input_Bridge.Set_State_For_Test (S);

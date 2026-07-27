@@ -31,13 +31,13 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
    begin
       if Previous then
          Editor.Build_UI.Select_Previous_Action_Row
-           (S.Build_UI, Projection.Action_Count);
+           (S.Build.Build_UI, Projection.Action_Count);
       else
          Editor.Build_UI.Select_Next_Action_Row
-           (S.Build_UI, Projection.Action_Count);
+           (S.Build.Build_UI, Projection.Action_Count);
       end if;
       Editor.Build_UI.Ensure_Selected_Action_Row_Visible
-        (S.Build_UI, Projection.Action_Count, Projection.Visible_Action_Rows);
+        (S.Build.Build_UI, Projection.Action_Count, Projection.Visible_Action_Rows);
       Editor.Render_Cache.Invalidate_All;
    end Select_Next_Or_Previous_Action;
 
@@ -47,7 +47,7 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
    is
       Projection : Editor.Input_Bridge.Build_UI_Projection.Build_UI_Panel_Input_Projection;
    begin
-      if not S.Build_UI.Build_UI_Focused
+      if not S.Build.Build_UI.Build_UI_Focused
         or else Chord.Key /= Editor.Keybindings.Key_Tab
       then
          return False;
@@ -67,7 +67,7 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
         (Id : Editor.Command_Ids.Command_Id)) return Focused_Key_Result
    is
    begin
-      if S.Latest_Build_Result_Focused then
+      if S.Build.Latest_Result_Focused then
          case Chord.Key is
             when Editor.Keybindings.Key_Enter =>
                Execute (Editor.Command_Ids.Command_Build_Output_Details_Focus);
@@ -76,7 +76,7 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
             when others =>
                return Build_UI_Key_Not_Handled;
          end case;
-      elsif S.Latest_Build_Output_Details.Build_Output_Details_Focused then
+      elsif S.Build.Latest_Output_Details.Build_Output_Details_Focused then
          case Chord.Key is
             when Editor.Keybindings.Key_Left =>
                Execute (Editor.Command_Ids.Command_Build_Output_Details_Select_Stdout);
@@ -106,7 +106,7 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
    is
       Selected : constant Natural :=
         Editor.Build_UI.Selected_Action_Row
-          (S.Build_UI, Projection.Action_Count);
+          (S.Build.Build_UI, Projection.Action_Count);
       Found : Boolean := False;
       Id : Editor.Command_Ids.Command_Id := Editor.Command_Ids.No_Command;
    begin
@@ -160,7 +160,7 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
    is
       Projection : Editor.Input_Bridge.Build_UI_Projection.Build_UI_Panel_Input_Projection;
    begin
-      if S.Build_UI.Build_UI_Focused then
+      if S.Build.Build_UI.Build_UI_Focused then
          Projection := Editor.Input_Bridge.Build_UI_Projection.Current (S);
 
          if Chord.Modifiers.Ctrl
@@ -207,7 +207,7 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
                   null;
             end case;
          end if;
-      elsif S.Latest_Build_Result_Focused then
+      elsif S.Build.Latest_Result_Focused then
          case Chord.Key is
             when Editor.Keybindings.Key_Enter =>
                Execute (Editor.Command_Ids.Command_Build_Output_Details_Focus);
@@ -216,7 +216,7 @@ package body Editor.Input_Bridge.Build_UI_Key_Handlers is
             when others =>
                null;
          end case;
-      elsif S.Latest_Build_Output_Details.Build_Output_Details_Focused then
+      elsif S.Build.Latest_Output_Details.Build_Output_Details_Focused then
          case Chord.Key is
             when Editor.Keybindings.Key_Left =>
                Execute (Editor.Command_Ids.Command_Build_Output_Details_Select_Stdout);

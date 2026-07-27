@@ -846,13 +846,13 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       New_Path : String) return Boolean
    is
       Selected_Id : constant String :=
-        To_String (S.Build_UI.Selected_Build_Candidate_Id);
+        To_String (S.Build.Build_UI.Selected_Build_Candidate_Id);
    begin
       if Selected_Id'Length = 0 then
          return False;
       end if;
 
-      for Candidate of S.Build_UI.Build_Candidates loop
+      for Candidate of S.Build.Build_UI.Build_Candidates loop
          if To_String (Candidate.Candidate_Id) = Selected_Id then
             declare
                Source : constant String :=
@@ -903,7 +903,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
         or else File_Tree_Mutation_Affects_Known_Build_Config
           (S, Old_Path, New_Path);
       Has_Selected_Build_Candidate : constant Boolean :=
-        To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length > 0;
+        To_String (S.Build.Build_UI.Selected_Build_Candidate_Id)'Length > 0;
       Affects_Selected_Build_Candidate : constant Boolean :=
         File_Tree_Mutation_Affects_Selected_Build_Candidate
           (S, Old_Path, New_Path);
@@ -985,30 +985,30 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          --  not only the currently selected candidate.  Do not refresh from
          --  this mutation path and do not preserve a runnable request; leave
          --  candidate discovery for the owning Build UI command.
-         S.Build_UI.Build_Candidates :=
+         S.Build.Build_UI.Build_Candidates :=
            Editor.Build_Candidates.Build_Candidate_Vectors.Empty_Vector;
-         S.Build_UI.Candidate_Refresh_Status :=
+         S.Build.Build_UI.Candidate_Refresh_Status :=
            Editor.Build_UI.Build_Candidate_Refresh_Not_Requested;
-         S.Build_UI.Candidate_Refresh_Message := To_Unbounded_String
+         S.Build.Build_UI.Candidate_Refresh_Message := To_Unbounded_String
            ("Build candidates are stale after File Tree mutation");
-         S.Build_UI.Candidate_Discovery_Message := To_Unbounded_String
+         S.Build.Build_UI.Candidate_Discovery_Message := To_Unbounded_String
            ("Build candidates are stale after File Tree mutation");
-         S.Build_UI.Last_Refresh_Candidate_Count := 0;
-         S.Build_UI.Selected_Candidate_Preserved_On_Refresh := False;
-         S.Build_UI.Selected_Candidate_Cleared_On_Refresh := False;
+         S.Build.Build_UI.Last_Refresh_Candidate_Count := 0;
+         S.Build.Build_UI.Selected_Candidate_Preserved_On_Refresh := False;
+         S.Build.Build_UI.Selected_Candidate_Cleared_On_Refresh := False;
       end if;
 
       if (Affects_Build_Config and then Has_Selected_Build_Candidate)
         or else Affects_Selected_Build_Candidate
       then
-         S.Build_UI.Selected_Candidate_Stale := True;
-         S.Build_UI.Consent_Acknowledged := False;
-         S.Build_UI.Pending_Public_Build_Request := False;
-         S.Build_UI.Candidate_Selection_Message := To_Unbounded_String
+         S.Build.Build_UI.Selected_Candidate_Stale := True;
+         S.Build.Build_UI.Consent_Acknowledged := False;
+         S.Build.Build_UI.Pending_Public_Build_Request := False;
+         S.Build.Build_UI.Candidate_Selection_Message := To_Unbounded_String
            ("Selected build candidate is stale after File Tree mutation");
-         S.Build_UI.Validation_Status :=
+         S.Build.Build_UI.Validation_Status :=
            Editor.Build_UI.Build_UI_Rejected_Selected_Candidate_Stale;
-         S.Build_UI.Validation_Message := To_Unbounded_String
+         S.Build.Build_UI.Validation_Message := To_Unbounded_String
            (Editor.Build_UI.Validation_Message
               (Editor.Build_UI.Build_UI_Rejected_Selected_Candidate_Stale));
       end if;

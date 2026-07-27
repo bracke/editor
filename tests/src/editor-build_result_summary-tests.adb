@@ -226,12 +226,12 @@ package body Editor.Build_Result_Summary.Tests is
       Assert (Result.Build_Result.Status =
                 Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "unavailable public build remains unavailable");
-      Assert (S.Latest_Build_Result.Has_Result,
+      Assert (S.Build.Latest_Result.Has_Result,
               "Executor/build path records unavailable latest summary");
-      Assert (S.Latest_Build_Result.Kind =
+      Assert (S.Build.Latest_Result.Kind =
                 Editor.Build_Result_Summary.Build_Result_Summary_Unavailable,
               "unavailable invocation maps to unavailable summary");
-      Assert (To_String (S.Latest_Build_Result.Primary_Message)'Length > 0,
+      Assert (To_String (S.Build.Latest_Result.Primary_Message)'Length > 0,
               "summary carries the primary message as display projection");
    end Test_Executor_Build_Path_Updates_Unavailable_Summary;
 
@@ -675,26 +675,26 @@ package body Editor.Build_Result_Summary.Tests is
       pragma Unreferenced (T);
       State : Editor.State.State_Type;
       Before : constant Editor.Build_Result_Summary.Latest_Build_Result_Summary :=
-        State.Latest_Build_Result;
+        State.Build.Latest_Result;
       Snapshot : Editor.Build_Result_Summary.Latest_Build_Result_Render_Snapshot;
    begin
       Snapshot := Editor.Build_Result_Summary.Render_Snapshot
-        (State.Latest_Build_Result);
+        (State.Build.Latest_Result);
       Assert (not Snapshot.Latest_Build_Result_Visible,
               "empty render snapshot is display-only");
-      Assert (State.Latest_Build_Result.Has_Result = Before.Has_Result
-              and then State.Latest_Build_Result.Kind = Before.Kind,
+      Assert (State.Build.Latest_Result.Has_Result = Before.Has_Result
+              and then State.Build.Latest_Result.Kind = Before.Kind,
               "render does not mutate latest summary");
       Assert (Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Final_Render_Boundary
-                (State.Latest_Build_Result),
+                (State.Build.Latest_Result),
               "render boundary remains side-effect-free");
       declare
          Availability : constant Editor.Commands.Availability_Metadata.Command_Availability :=
            Editor.Build_Command.Build_Run_Availability (State);
          pragma Unreferenced (Availability);
       begin
-         Assert (State.Latest_Build_Result.Has_Result = Before.Has_Result
-                 and then State.Latest_Build_Result.Kind = Before.Kind,
+         Assert (State.Build.Latest_Result.Has_Result = Before.Has_Result
+                 and then State.Build.Latest_Result.Kind = Before.Kind,
                  "availability/frontdoor checks do not update latest summary");
       end;
    end Test_Render_And_Availability_Do_Not_Update_Summary;
@@ -706,19 +706,19 @@ package body Editor.Build_Result_Summary.Tests is
       State : Editor.State.State_Type;
       Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
    begin
-      Assert (not State.Latest_Build_Result.Has_Result,
+      Assert (not State.Build.Latest_Result.Has_Result,
               "fresh runtime state has no restored latest result");
       Result := Editor.Build_Command.Execute_Public_Build_Run (State);
       Assert (Result.Build_Result.Status =
                 Editor.External_Producers.Build_Types.Build_Run_Not_Available,
               "test exercises pre-run unavailable Executor/build outcome");
-      Assert (State.Latest_Build_Result.Has_Result,
+      Assert (State.Build.Latest_Result.Has_Result,
               "Executor/build outcome path creates latest summary");
       Assert (Editor.Build_Result_Summary.Assert_Latest_Build_Result_Summary_Final_Ownership_Frozen
-                (State.Latest_Build_Result),
+                (State.Build.Latest_Result),
               "latest summary ownership is frozen to Executor/build outcome path");
       Assert (Editor.Build_Result_Summary.Assert_Public_Build_Result_Surface_Final_Freeze_Coherent
-                (State.Latest_Build_Result),
+                (State.Build.Latest_Result),
               "Executor-created unavailable summary satisfies final freeze contract");
    end Test_Executor_Path_Is_Only_Update_Path_Freeze;
 

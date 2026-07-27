@@ -223,7 +223,7 @@ package body Editor.Build_UI.Tests is
       First_Index : Natural;
       Last_Index  : Natural;
    begin
-      S.Build_UI := Two_Candidate_Focused_UI;
+      S.Build.Build_UI := Two_Candidate_Focused_UI;
       for I in 1 .. 2 loop
          Editor.Feature_Diagnostics.Add_Diagnostic
            (S.Feature_Diagnostics,
@@ -250,8 +250,8 @@ package body Editor.Build_UI.Tests is
         (Key (Editor.Keybindings.Key_Down));
       After := Editor.Input_Bridge.Get_State_For_Test;
       Snapshot := Editor.Build_UI.Build_Render_Snapshot
-        (After.Build_UI, After.Latest_Build_Result,
-         After.Latest_Build_Output_Details);
+        (After.Build.Build_UI, After.Build.Latest_Result,
+         After.Build.Latest_Output_Details);
       First_Index := Snapshot.Candidates.First_Index;
       Last_Index := Snapshot.Candidates.Last_Index;
       Assert (Snapshot.Candidate_Count = 2,
@@ -263,8 +263,8 @@ package body Editor.Build_UI.Tests is
         (Key (Editor.Keybindings.Key_Up));
       After := Editor.Input_Bridge.Get_State_For_Test;
       Snapshot := Editor.Build_UI.Build_Render_Snapshot
-        (After.Build_UI, After.Latest_Build_Result,
-         After.Latest_Build_Output_Details);
+        (After.Build.Build_UI, After.Build.Latest_Result,
+         After.Build.Latest_Output_Details);
       First_Index := Snapshot.Candidates.First_Index;
       Last_Index := Snapshot.Candidates.Last_Index;
       Assert (Snapshot.Candidates (First_Index).Selected,
@@ -274,8 +274,8 @@ package body Editor.Build_UI.Tests is
         (Key (Editor.Keybindings.Key_Delete));
       After := Editor.Input_Bridge.Get_State_For_Test;
       Snapshot := Editor.Build_UI.Build_Render_Snapshot
-        (After.Build_UI, After.Latest_Build_Result,
-         After.Latest_Build_Output_Details);
+        (After.Build.Build_UI, After.Build.Latest_Result,
+         After.Build.Latest_Output_Details);
       First_Index := Snapshot.Candidates.First_Index;
       Last_Index := Snapshot.Candidates.Last_Index;
       Assert (not Snapshot.Candidates (First_Index).Selected
@@ -293,7 +293,7 @@ package body Editor.Build_UI.Tests is
 
       Editor.Feature_Diagnostics.Select_Suppressed_Diagnostic
         (After.Feature_Diagnostics, 2);
-      Editor.Build_UI.Focus (After.Build_UI);
+      Editor.Build_UI.Focus (After.Build.Build_UI);
       Editor.Input_Bridge.Set_State_For_Test (After);
 
       Editor.Input_Bridge.Handle_Key_Chord
@@ -331,7 +331,7 @@ package body Editor.Build_UI.Tests is
       Editor.Input_Bridge.Handle_Key_Chord
         (Key (Editor.Keybindings.Key_Escape));
       After := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (not After.Build_UI.Build_UI_Focused,
+      Assert (not After.Build.Build_UI.Build_UI_Focused,
               "Escape returns focused Build UI keyboard workflow to editor text");
    end Test_Focused_Build_UI_Keyboard_Routes_Through_Input_Bridge;
 
@@ -558,7 +558,7 @@ package body Editor.Build_UI.Tests is
       Result : Editor.Command_Execution.Command_Execution_Result;
    begin
       Editor.State.Init (S);
-      S.Build_UI := Ready_UI;
+      S.Build.Build_UI := Ready_UI;
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
                 (Editor.Command_Ids.Command_Build_Run) = "build.run",
               "build.run has a stable public command name");
@@ -611,24 +611,24 @@ package body Editor.Build_UI.Tests is
    begin
       Editor.State.Init (S);
       Editor.Build_UI_Actions.Show_Build_UI (S);
-      Assert (S.Build_UI.Build_UI_Visible, "Build UI can be shown");
-      Assert (not S.Build_UI.Consent_Acknowledged,
+      Assert (S.Build.Build_UI.Build_UI_Visible, "Build UI can be shown");
+      Assert (not S.Build.Build_UI.Consent_Acknowledged,
               "showing Build UI does not acknowledge consent");
-      Assert (Editor.Build_UI.Candidate_Count (S.Build_UI) = 0,
+      Assert (Editor.Build_UI.Candidate_Count (S.Build.Build_UI) = 0,
               "showing Build UI does not auto-select or discover candidates");
 
       Candidates.Append (Candidate);
       Editor.Build_UI.Set_Build_Candidates
-        (S.Build_UI, Candidates, "refresh succeeded: 1 candidates");
+        (S.Build.Build_UI, Candidates, "refresh succeeded: 1 candidates");
       Editor.Build_UI_Actions.Build_UI_Select_First_Candidate (S);
-      Assert (S.Build_UI.Candidate_Applied_To_Request,
+      Assert (S.Build.Build_UI.Candidate_Applied_To_Request,
               "first candidate selection applies candidate-derived request mode");
       Editor.Build_UI_Actions.Build_UI_Clear_Selected_Candidate (S);
       Editor.Build_UI_Actions.Build_UI_Select_Candidate
         (S, To_String (Candidate.Candidate_Id));
-      Assert (S.Build_UI.Candidate_Applied_To_Request,
+      Assert (S.Build.Build_UI.Candidate_Applied_To_Request,
               "candidate selection applies candidate-derived request mode");
-      Assert (not S.Build_UI.Consent_Acknowledged,
+      Assert (not S.Build.Build_UI.Consent_Acknowledged,
               "candidate selection invalidates prior consent and does not auto-consent");
 
       Snapshot := Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
@@ -745,10 +745,10 @@ package body Editor.Build_UI.Tests is
                 Editor.Build_Candidate_Refresh.Build_Candidate_Refresh_No_Project_Context,
               "Build UI refresh calls canonical refresh path and reports no project");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Does_Not_Auto_Select
-                (Before.Build_UI, S.Build_UI, Result),
+                (Before.Build.Build_UI, S.Build.Build_UI, Result),
               "Build UI refresh does not auto-select");
       Assert (Editor.Build_Candidate_Refresh.Assert_Build_Candidate_Refresh_Does_Not_Auto_Consent
-                (Before.Build_UI, S.Build_UI),
+                (Before.Build.Build_UI, S.Build.Build_UI),
               "Build UI refresh does not auto-consent");
 
       Before := S;
@@ -832,10 +832,10 @@ package body Editor.Build_UI.Tests is
    begin
       Editor.State.Init (S);
       Editor.Build_UI_Actions.Show_Build_UI (S);
-      S.Latest_Build_Result :=
+      S.Build.Latest_Result :=
         Editor.Build_Result_Summary.Summary_From_Unavailable_Message
           ("execution backend disabled");
-      S.Latest_Build_Output_Details :=
+      S.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Build_Output_Details_From_Captured_Output
           (Editor.Build_Output_Details.Build_Output_Runner_Failed,
            To_Unbounded_String ("stdout excerpt"),
@@ -870,7 +870,7 @@ package body Editor.Build_UI.Tests is
    begin
       Editor.State.Init (S);
       Editor.Build_UI_Actions.Show_Build_UI (S);
-      Editor.Build_UI.Select_Tool (S.Build_UI, Editor.Build_UI.Build_UI_GPRbuild);
+      Editor.Build_UI.Select_Tool (S.Build.Build_UI, Editor.Build_UI.Build_UI_GPRbuild);
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (Snap.Build_UI.Visible,
               "render model consumes Build UI snapshot");
@@ -883,7 +883,7 @@ package body Editor.Build_UI.Tests is
       Assert (Editor.Build_UI.Assert_Build_Diagnostics_Surface_Is_Renderable
                 (Editor.Build_UI.Build_Diagnostics_Surface_For (Snap.Build_UI)),
               "render model projects renderable Build/Diagnostics surface");
-      Assert (not S.Build_UI.Consent_Acknowledged,
+      Assert (not S.Build.Build_UI.Consent_Acknowledged,
               "render snapshot does not acknowledge consent");
    end Test_Render_Model_Projects_Build_UI_Snapshot;
 
@@ -904,25 +904,25 @@ package body Editor.Build_UI.Tests is
         (S, Editor.Command_Ids.Command_Build_UI_Show);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed,
               "Build UI show is routed through Executor");
-      Assert (S.Build_UI.Build_UI_Visible,
+      Assert (S.Build.Build_UI.Build_UI_Visible,
               "Build UI show command makes the Build UI visible");
-      Assert (not S.Build_UI.Consent_Acknowledged,
+      Assert (not S.Build.Build_UI.Consent_Acknowledged,
               "Build UI show command does not acknowledge consent");
-      Assert (Editor.Build_UI.Candidate_Count (S.Build_UI) = 0,
+      Assert (Editor.Build_UI.Candidate_Count (S.Build.Build_UI) = 0,
               "Build UI show command does not discover or auto-select candidates");
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Build_UI_Focus);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed,
               "Build UI focus is routed through Executor");
-      Assert (S.Build_UI.Build_UI_Visible and then S.Build_UI.Build_UI_Focused,
+      Assert (S.Build.Build_UI.Build_UI_Visible and then S.Build.Build_UI.Build_UI_Focused,
               "Build UI focus command shows and focuses the panel");
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Build_UI_Hide);
       Assert (Result.Status = Editor.Command_Execution.Command_Executed,
               "Build UI hide is routed through Executor");
-      Assert (not S.Build_UI.Build_UI_Visible,
+      Assert (not S.Build.Build_UI.Build_UI_Visible,
               "Build UI hide command hides the panel");
    end Test_Build_UI_Commands_Are_Public_And_Executor_Routed;
 
@@ -967,7 +967,7 @@ package body Editor.Build_UI.Tests is
    begin
       Editor.State.Init (S);
       Editor.Build_UI_Actions.Show_Build_UI (S);
-      S.Latest_Build_Result :=
+      S.Build.Latest_Result :=
         Editor.Build_Result_Summary.Build_Summary
           (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
            Invocation_Label => "build.run",
@@ -989,7 +989,7 @@ package body Editor.Build_UI.Tests is
            Has_Diagnostics_Severity_Counts => True,
            Duration_Milliseconds => 1250,
            Has_Duration => True);
-      S.Latest_Build_Output_Details :=
+      S.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Build_Output_Details_From_Captured_Output
           (Editor.Build_Output_Details.Build_Output_Runner_Failed,
            To_Unbounded_String ("bounded stdout"),
@@ -1197,7 +1197,7 @@ package body Editor.Build_UI.Tests is
    begin
       Editor.State.Init (S);
       Editor.Build_UI_Actions.Show_Build_UI (S);
-      S.Latest_Build_Result :=
+      S.Build.Latest_Result :=
         Editor.Build_Result_Summary.Build_Summary
           (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Timed_Out,
            Invocation_Label => "build.run",
@@ -1210,7 +1210,7 @@ package body Editor.Build_UI.Tests is
            Output_Partial => True,
            Diagnostics_Ingestion_Status =>
              Editor.Build_Result_Summary.Diagnostics_Ingestion_No_Diagnostics);
-      S.Latest_Build_Output_Details :=
+      S.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Build_Output_Details_No_Output_State
           (Editor.Build_Output_Details.Build_Output_Runner_Timed_Out);
 
@@ -1232,7 +1232,7 @@ package body Editor.Build_UI.Tests is
       Assert (not Snapshot.Diagnostics_View.Reveal_Available,
               "no diagnostics does not create a build-local diagnostics route");
 
-      S.Latest_Build_Result :=
+      S.Build.Latest_Result :=
         Editor.Build_Result_Summary.Build_Summary
           (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Succeeded,
            Invocation_Label => "build.run",
@@ -1266,7 +1266,7 @@ package body Editor.Build_UI.Tests is
       Result : Editor.Command_Execution.Command_Execution_Result;
    begin
       Editor.State.Init (S);
-      S.Latest_Build_Result :=
+      S.Build.Latest_Result :=
         Editor.Build_Result_Summary.Build_Summary
           (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
            Invocation_Label => "build.run",
@@ -1279,7 +1279,7 @@ package body Editor.Build_UI.Tests is
              Editor.Build_Result_Summary.Diagnostics_Ingestion_Succeeded,
            Diagnostics_Count => 1,
            Has_Diagnostics_Count => True);
-      S.Latest_Build_Output_Details :=
+      S.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Build_Output_Details_From_Captured_Output
           (Editor.Build_Output_Details.Build_Output_Runner_Failed,
            To_Unbounded_String ("out"),
@@ -1719,7 +1719,7 @@ package body Editor.Build_UI.Tests is
       Editor.State.Init (S);
       Editor.Build_UI_Actions.Show_Build_UI (S);
 
-      S.Latest_Build_Result :=
+      S.Build.Latest_Result :=
         Editor.Build_Result_Summary.Build_Summary
           (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
            Invocation_Label => "build.run",
@@ -1738,7 +1738,7 @@ package body Editor.Build_UI.Tests is
       Assert (To_String (Snapshot.Diagnostics_View.Reveal_Command_Name) = "",
               "Build UI does not fabricate a reveal command without rows");
 
-      S.Latest_Build_Result :=
+      S.Build.Latest_Result :=
         Editor.Build_Result_Summary.Build_Summary
           (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
            Invocation_Label => "build.run",

@@ -53,7 +53,7 @@ package body Editor.Executor.Build_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Build_Result_Focus =>
-            if not S.Latest_Build_Result.Has_Result then
+            if not S.Build.Latest_Result.Has_Result then
                return Editor.Commands.Availability_Metadata.Unavailable ("No build result");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -62,7 +62,7 @@ package body Editor.Executor.Build_Commands is
             | Editor.Command_Ids.Command_Build_Output_Details_Select_Stdout
             | Editor.Command_Ids.Command_Build_Output_Details_Select_Stderr
             | Editor.Command_Ids.Command_Build_Output_Details_Select_Merged =>
-            if not S.Latest_Build_Output_Details.Has_Output_Details then
+            if not S.Build.Latest_Output_Details.Has_Output_Details then
                return Editor.Commands.Availability_Metadata.Unavailable ("No build output details");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -70,13 +70,13 @@ package body Editor.Executor.Build_Commands is
          when Editor.Command_Ids.Command_Build_Select_First_Candidate
             | Editor.Command_Ids.Command_Build_Select_Next_Candidate
             | Editor.Command_Ids.Command_Build_Select_Previous_Candidate =>
-            if Natural (S.Build_UI.Build_Candidates.Length) = 0 then
+            if Natural (S.Build.Build_UI.Build_Candidates.Length) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No build candidates");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Build_Clear_Selected_Candidate =>
-            if To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length = 0 then
+            if To_String (S.Build.Build_UI.Selected_Build_Candidate_Id)'Length = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No build candidate selected");
             end if;
@@ -84,9 +84,9 @@ package body Editor.Executor.Build_Commands is
 
          when Editor.Command_Ids.Command_Build_Toggle_Option_Verbose
             | Editor.Command_Ids.Command_Build_Toggle_Option_Keep_Going =>
-            if S.Build_UI.Selected_Build_Tool /=
+            if S.Build.Build_UI.Selected_Build_Tool /=
               Editor.Build_UI.Build_UI_GPRbuild
-              or else not S.Build_UI.Candidate_Applied_To_Request
+              or else not S.Build.Build_UI.Candidate_Applied_To_Request
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("Build option not supported for selected candidate");
@@ -95,13 +95,13 @@ package body Editor.Executor.Build_Commands is
 
          when Editor.Command_Ids.Command_Build_Acknowledge_Consent =>
             declare
-               Copy : Editor.Build_UI.Public_Build_UI_State := S.Build_UI;
+               Copy : Editor.Build_UI.Public_Build_UI_State := S.Build.Build_UI;
             begin
                Editor.Build_UI.Acknowledge_Consent (Copy);
                if not Copy.Consent_Acknowledged then
                   return Editor.Commands.Availability_Metadata.Unavailable
                     (Editor.Build_UI.Validation_Message
-                       (Editor.Build_UI.Validate_Build_UI_State (S.Build_UI)));
+                       (Editor.Build_UI.Validate_Build_UI_State (S.Build.Build_UI)));
                end if;
             end;
             return Editor.Commands.Availability_Metadata.Available;
@@ -231,7 +231,7 @@ package body Editor.Executor.Build_Commands is
 
          when Editor.Command_Ids.Command_Build_Acknowledge_Consent =>
             Editor.Build_UI_Actions.Build_UI_Acknowledge_Consent (S);
-            if S.Build_UI.Consent_Acknowledged then
+            if S.Build.Build_UI.Consent_Acknowledged then
                Report_Info (S, "Build request consent acknowledged");
                Editor.Render_Cache.Invalidate_All;
                return Editor.Command_Execution.Executed (Id);
@@ -291,7 +291,7 @@ package body Editor.Executor.Build_Commands is
 
          when Editor.Command_Ids.Command_Build_Output_Details_Select_Stdout =>
             Editor.Build_Output_Details.Select_Output_Stream
-              (S.Latest_Build_Output_Details,
+              (S.Build.Latest_Output_Details,
                Editor.Build_Output_Details.Build_Output_Stream_Stdout);
             Report_Info (S, "Build output stream set to stdout.");
             Editor.Render_Cache.Invalidate_All;
@@ -299,7 +299,7 @@ package body Editor.Executor.Build_Commands is
 
          when Editor.Command_Ids.Command_Build_Output_Details_Select_Stderr =>
             Editor.Build_Output_Details.Select_Output_Stream
-              (S.Latest_Build_Output_Details,
+              (S.Build.Latest_Output_Details,
                Editor.Build_Output_Details.Build_Output_Stream_Stderr);
             Report_Info (S, "Build output stream set to stderr.");
             Editor.Render_Cache.Invalidate_All;
@@ -307,7 +307,7 @@ package body Editor.Executor.Build_Commands is
 
          when Editor.Command_Ids.Command_Build_Output_Details_Select_Merged =>
             Editor.Build_Output_Details.Select_Output_Stream
-              (S.Latest_Build_Output_Details,
+              (S.Build.Latest_Output_Details,
                Editor.Build_Output_Details.Build_Output_Stream_Merged);
             Report_Info (S, "Build output stream set to merged.");
             Editor.Render_Cache.Invalidate_All;

@@ -183,8 +183,8 @@ package body Editor.Build_Milestone_Freeze.Tests is
          Display_Name => To_Unbounded_String ("current-project-root"),
          Error_Text => Null_Unbounded_String);
    begin
-      S.Build_UI := Manual_UI;
-      S.Public_Build_Execution_Policy :=
+      S.Build.Build_UI := Manual_UI;
+      S.Build.Public_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Disabled;
       Editor.Project.Apply_Open_Result (S.Project, Project_Result);
       Assert (Editor.Commands.Name_Metadata.Stable_Command_Name
@@ -287,7 +287,7 @@ package body Editor.Build_Milestone_Freeze.Tests is
       S : Editor.State.State_Type;
       R : Editor.Build_Milestone_Freeze.Public_Build_Command_Milestone_Freeze;
    begin
-      S.Build_UI := Manual_UI;
+      S.Build.Build_UI := Manual_UI;
       R := Editor.Build_Milestone_Freeze.Run_Public_Build_Command_Milestone_Freeze_Audit
         (S);
       Assert (R.Manual_Request_Frozen, "manual request path is frozen");

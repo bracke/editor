@@ -1379,12 +1379,12 @@ package body Editor.State is
       --  reusing old selected candidates, consent, latest result, or bounded
       --  output details after the project-scoped lifecycle state has been
       --  reset.
-      S.Build_UI := Editor.Build_UI.Empty_State;
-      S.Latest_Build_Result := Editor.Build_Result_Summary.Empty_Summary;
-      S.Latest_Build_Result_Focused := False;
-      S.Latest_Build_Output_Details :=
+      S.Build.Build_UI := Editor.Build_UI.Empty_State;
+      S.Build.Latest_Result := Editor.Build_Result_Summary.Empty_Summary;
+      S.Build.Latest_Result_Focused := False;
+      S.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Empty_Output_Details;
-      Editor.Terminal_Tasks.Clear (S.Terminal_Tasks);
+      Editor.Terminal_Tasks.Clear (S.Build.Terminal_Tasks);
       S.Recent_Projects_Focused := False;
 
       Clear_File_Target_Prompt (S);

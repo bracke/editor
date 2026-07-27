@@ -208,8 +208,8 @@ package body Editor.Build_Milestone_Freeze is
       S : Editor.Build_UI.Public_Build_UI_State := Ready_Manual_UI;
       State : Editor.State.State_Type;
    begin
-      State.Build_UI := S;
-      State.Public_Build_Execution_Policy :=
+      State.Build.Build_UI := S;
+      State.Build.Public_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Bounded_Process;
       Open_Fake_Project (State);
 
@@ -220,7 +220,7 @@ package body Editor.Build_Milestone_Freeze is
       end if;
 
       Editor.Build_UI.Clear_Consent (S);
-      State.Build_UI := S;
+      State.Build.Build_UI := S;
       return Editor.Build_Command.Build_Run_Readiness (State) =
         Editor.Build_Command.Build_Run_Readiness_Consent_Required;
    end Assert_Public_Build_Consent_Frozen;
@@ -346,11 +346,11 @@ package body Editor.Build_Milestone_Freeze is
    begin
       return Editor.Build_Command.Assert_Build_Run_Persistence_Excluded (State)
         and then Editor.Build_UI.Assert_Build_UI_State_Is_Transient
-          (State.Build_UI)
+          (State.Build.Build_UI)
         and then not Editor.Build_UI.Has_Remembered_Consent_Field
-          (State.Build_UI)
+          (State.Build.Build_UI)
         and then not Editor.Build_UI.Has_Candidate_Execution_Field
-          (State.Build_UI)
+          (State.Build.Build_UI)
         and then Editor.Build_Diagnostics.Assert_Build_Diagnostics_Not_Persisted;
    end Assert_Public_Build_Persistence_Excluded_Frozen;
 
@@ -364,8 +364,8 @@ package body Editor.Build_Milestone_Freeze is
       One_Message_Result : Editor.External_Producers.Build_Requests.Build_Command_Result;
       Manual : constant Editor.Build_UI.Public_Build_UI_State := Ready_Manual_UI;
    begin
-      Audit_State.Build_UI := Ready_Manual_UI;
-      Audit_State.Public_Build_Execution_Policy :=
+      Audit_State.Build.Build_UI := Ready_Manual_UI;
+      Audit_State.Build.Public_Execution_Policy :=
         Editor.Build_Runner_Policy.Build_Execution_Disabled;
       declare
          Audit : constant Editor.Build_Command_Audit.Public_Build_Command_UX_Foundation_Audit :=

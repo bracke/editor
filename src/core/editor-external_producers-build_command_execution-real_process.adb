@@ -68,16 +68,16 @@ package body Editor.External_Producers.Build_Command_Execution.Real_Process is
            Read_Bounded_Output_File (Path, Policy.Max_Output_Bytes, Truncated);
          Text      : constant String := To_String (Snapshot);
       begin
-         if S.Public_Build_Output_Stream.Active
+         if S.Build.Public_Output_Stream.Active
            and then Text'Length > Last_Length
          then
             Editor.Build_Output_Details.Append_Build_Output_Stream_Chunk
-              (S.Public_Build_Output_Stream,
+              (S.Build.Public_Output_Stream,
                Output_Stream,
                Text (Text'First + Last_Length .. Text'Last));
             Last_Length := Text'Length;
             Editor.Build_Process_Control.Publish_Active_Output_Stream
-              (S.Public_Build_Output_Stream);
+              (S.Build.Public_Output_Stream);
          end if;
       end Stream_Capture_File_Delta;
 
@@ -106,18 +106,18 @@ package body Editor.External_Producers.Build_Command_Execution.Real_Process is
 
          procedure Register_Active_Build_Process (System_Process_Id : Integer) is
          begin
-            if S.Public_Build_Job_Active then
-               S.Public_Build_Process_Handle :=
+            if S.Build.Public_Job_Active then
+               S.Build.Public_Process_Handle :=
                  Editor.Build_Process_Control.From_System_Process_Id (System_Process_Id);
                Editor.Build_Process_Control.Publish_Active_Process
-                 (S.Public_Build_Process_Handle);
+                 (S.Build.Public_Process_Handle);
             end if;
          end Register_Active_Build_Process;
 
          procedure Clear_Active_Build_Process is
          begin
-            if S.Public_Build_Job_Active then
-               S.Public_Build_Process_Handle :=
+            if S.Build.Public_Job_Active then
+               S.Build.Public_Process_Handle :=
                  Editor.Build_Process_Control.No_Process_Handle;
                Editor.Build_Process_Control.Clear_Active_Process;
             end if;
@@ -129,8 +129,8 @@ package body Editor.External_Producers.Build_Command_Execution.Real_Process is
          --  signals to send.
          function Cancellation_Requested return Boolean is
          begin
-            return (S.Public_Build_Job_Active
-                    and then S.Public_Build_Job_Cancellation =
+            return (S.Build.Public_Job_Active
+                    and then S.Build.Public_Job_Cancellation =
                       Editor.Build_Runner_Policy.Cancellation_Requested)
               or else Editor.Build_Process_Control.Active_Cancel_Requested;
          end Cancellation_Requested;

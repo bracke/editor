@@ -113,7 +113,7 @@ package body Editor.Executor.Command_Palette_Projection is
                  Editor.Build_UI_Actions.Build_UI_Operability_Snapshot (S);
                Selected : constant Natural :=
                  Editor.Build_UI.Selected_Action_Row
-                   (S.Build_UI, Natural (Snapshot.Actions.Length));
+                   (S.Build.Build_UI, Natural (Snapshot.Actions.Length));
                Selected_Label : constant String :=
                  (if Selected = 0 then "none"
                   else To_String (Snapshot.Actions.Element (Selected - 1).Label));

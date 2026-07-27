@@ -45,7 +45,7 @@ package body Editor.Input_Bridge.Diagnostics_Focus_Key_Handlers is
    is
       Displayed_Count : Natural;
    begin
-      if not S.Build_UI.Build_UI_Focused or else not Chord.Modifiers.Ctrl then
+      if not S.Build.Build_UI.Build_UI_Focused or else not Chord.Modifiers.Ctrl then
          return False;
       end if;
 

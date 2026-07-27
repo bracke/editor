@@ -44,7 +44,7 @@ package body Editor.Input_Bridge.Build_UI_Projection is
          else 0);
       Action_Top_Row : constant Natural :=
         Editor.Build_UI.Action_Top_Row
-          (S.Build_UI, Action_Count, Visible_Action_Rows);
+          (S.Build.Build_UI, Action_Count, Visible_Action_Rows);
    begin
       return
         (Snapshot                   => Snapshot,

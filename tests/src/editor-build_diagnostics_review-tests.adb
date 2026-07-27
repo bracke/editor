@@ -221,7 +221,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
    begin
-      S.Latest_Build_Output_Details :=
+      S.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Build_Output_Details_From_Captured_Output
           (Runner_Status =>
              Editor.Build_Output_Details.Build_Output_Runner_Failed,
@@ -235,7 +235,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
          "raw output details alone do not create Diagnostics rows");
       Assert
         (Assert_Build_Output_Details_Stores_No_Diagnostics_Rows
-           (S.Latest_Build_Output_Details),
+           (S.Build.Latest_Output_Details),
          "output details remain bounded text inspection only");
    end Test_Output_Details_Do_Not_Create_Diagnostics_Rows;
 
@@ -502,7 +502,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Review : Build_Diagnostics_Review_Result;
    begin
       Ingest_One_Build_Diagnostic (S, Command);
-      S.Latest_Build_Result := Editor.Build_Result_Summary.Build_Summary
+      S.Build.Latest_Result := Editor.Build_Result_Summary.Build_Summary
         (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
          Invocation_Label => "build.run",
          Tool_Kind => Editor.Build_Result_Summary.Build_Result_GPRbuild_Tool,
@@ -514,7 +514,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
            Editor.Build_Result_Summary.Diagnostics_Ingestion_Succeeded,
          Diagnostics_Count => 1,
          Has_Diagnostics_Count => True);
-      S.Latest_Build_Output_Details :=
+      S.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Build_Output_Details_From_Captured_Output
           (Runner_Status => Editor.Build_Output_Details.Build_Output_Runner_Failed,
            Stdout_Text => Null_Unbounded_String,
@@ -614,7 +614,7 @@ package body Editor.Build_Diagnostics_Review.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
    begin
-      S.Latest_Build_Result := Editor.Build_Result_Summary.Build_Summary
+      S.Build.Latest_Result := Editor.Build_Result_Summary.Build_Summary
         (Kind => Editor.Build_Result_Summary.Build_Result_Summary_Failed,
          Invocation_Label => "build.run",
          Tool_Kind => Editor.Build_Result_Summary.Build_Result_GPRbuild_Tool,
@@ -626,25 +626,25 @@ package body Editor.Build_Diagnostics_Review.Tests is
            Editor.Build_Result_Summary.Diagnostics_Ingestion_Succeeded,
          Diagnostics_Count => 1,
          Has_Diagnostics_Count => True);
-      S.Latest_Build_Output_Details :=
+      S.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Build_Output_Details_From_Captured_Output
           (Runner_Status => Editor.Build_Output_Details.Build_Output_Runner_Failed,
            Stdout_Text => Null_Unbounded_String,
            Stderr_Text => To_Unbounded_String ("main.adb:1:1: error: bounded text only"));
 
       Assert
-        (S.Latest_Build_Result.Diagnostics_Ingestion_Status =
+        (S.Build.Latest_Result.Diagnostics_Ingestion_Status =
            Editor.Build_Result_Summary.Diagnostics_Ingestion_Succeeded
-         and then S.Latest_Build_Result.Has_Diagnostics_Count
-         and then S.Latest_Build_Result.Diagnostics_Count_If_Available = 1,
+         and then S.Build.Latest_Result.Has_Diagnostics_Count
+         and then S.Build.Latest_Result.Diagnostics_Count_If_Available = 1,
          "summary retains only scalar Diagnostics ingestion status/count");
       Assert
         (Assert_Build_Summary_Final_Stores_No_Diagnostics_Rows
-           (S.Latest_Build_Result),
+           (S.Build.Latest_Result),
          "freezes summary as scalar-only and not a Diagnostics owner");
       Assert
         (Assert_Build_Output_Details_Final_Stores_No_Diagnostics_Rows
-           (S.Latest_Build_Output_Details),
+           (S.Build.Latest_Output_Details),
          "freezes output details as bounded text only");
       Assert
         (Assert_Render_Final_Does_Not_Parse_Build_Diagnostics,

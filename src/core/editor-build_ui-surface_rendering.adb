@@ -105,7 +105,7 @@ package body Editor.Build_UI.Surface_Rendering is
          else 0);
       Action_Top_Row : constant Natural :=
         Editor.Build_UI.Action_Top_Row
-          (State.Build_UI, Row_Count, Visible_Action_Rows);
+          (State.Build.Build_UI, Row_Count, Visible_Action_Rows);
    begin
       Background_Rectangles.Clear;
       Row_Rectangles.Clear;

@@ -706,10 +706,10 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       S.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
       Candidates.Append (Editor.Build_Candidates.Alire_Candidate (Root));
-      Editor.Build_UI.Set_Build_Candidates (S.Build_UI, Candidates, "test");
+      Editor.Build_UI.Set_Build_Candidates (S.Build.Build_UI, Candidates, "test");
       Editor.Build_UI.Select_Build_Candidate
-        (S.Build_UI, Editor.Build_Candidates.Candidate_Id_For_Alire (Root));
-      Assert (To_String (S.Build_UI.Selected_Build_Candidate_Id)'Length > 0,
+        (S.Build.Build_UI, Editor.Build_Candidates.Candidate_Id_For_Alire (Root));
+      Assert (To_String (S.Build.Build_UI.Selected_Build_Candidate_Id)'Length > 0,
               "setup must select build candidate");
 
       Select_File_Tree_Test_Path (S, "alire.toml");
@@ -718,11 +718,11 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
 
       Assert (not Ada.Directories.Exists (Alire_Path),
               "delete must remove selected build config file");
-      Assert (S.Build_UI.Selected_Candidate_Stale,
+      Assert (S.Build.Build_UI.Selected_Candidate_Stale,
               "delete of build config must stale selected build candidate");
-      Assert (not S.Build_UI.Consent_Acknowledged,
+      Assert (not S.Build.Build_UI.Consent_Acknowledged,
               "stale build candidate must clear consent");
-      Assert (not S.Build_UI.Pending_Public_Build_Request,
+      Assert (not S.Build.Build_UI.Pending_Public_Build_Request,
               "stale build candidate must clear pending request");
 
       Remove_Tree_If_Exists (Root);
@@ -767,8 +767,8 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
 
       Candidates.Append (Editor.Build_Candidates.Gprbuild_Candidate
         (Root, "config/demo.gpr"));
-      Editor.Build_UI.Set_Build_Candidates (S.Build_UI, Candidates, "test");
-      Assert (Editor.Build_UI.Candidate_Count (S.Build_UI) = 1,
+      Editor.Build_UI.Set_Build_Candidates (S.Build.Build_UI, Candidates, "test");
+      Assert (Editor.Build_UI.Candidate_Count (S.Build.Build_UI) = 1,
               "setup must have a discovered build candidate");
 
       Select_File_Tree_Test_Path (S, "config");
@@ -779,14 +779,14 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
               "directory rename must move nested build config");
       Assert (not Ada.Directories.Exists (Old_Gpr),
               "directory rename must remove old nested build config path");
-      Assert (Editor.Build_UI.Candidate_Count (S.Build_UI) = 0,
+      Assert (Editor.Build_UI.Candidate_Count (S.Build.Build_UI) = 0,
               "directory rename containing build config must clear stale candidates");
       Assert
-        (S.Build_UI.Candidate_Refresh_Status =
+        (S.Build.Build_UI.Candidate_Refresh_Status =
            Editor.Build_UI.Build_Candidate_Refresh_Not_Requested,
          "stale build candidates must require explicit rediscovery");
       Assert
-        (To_String (S.Build_UI.Candidate_Discovery_Message) =
+        (To_String (S.Build.Build_UI.Candidate_Discovery_Message) =
            "Build candidates are stale after File Tree mutation",
          "directory build-config rename must report stale candidates");
 
@@ -895,11 +895,11 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Candidate.Candidate_Id := To_Unbounded_String ("relative-source-candidate");
       Candidate.Source_Path_If_Represented := To_Unbounded_String ("src/main.adb");
       Candidates.Append (Candidate);
-      Editor.Build_UI.Set_Build_Candidates (S.Build_UI, Candidates, "test");
-      S.Build_UI.Selected_Build_Candidate_Id :=
+      Editor.Build_UI.Set_Build_Candidates (S.Build.Build_UI, Candidates, "test");
+      S.Build.Build_UI.Selected_Build_Candidate_Id :=
         To_Unbounded_String ("relative-source-candidate");
-      S.Build_UI.Consent_Acknowledged := True;
-      S.Build_UI.Pending_Public_Build_Request := True;
+      S.Build.Build_UI.Consent_Acknowledged := True;
+      S.Build.Build_UI.Pending_Public_Build_Request := True;
 
       Select_File_Tree_Test_Path (S, "src/main.adb");
       Cmd.Text := To_Unbounded_String ("renamed.adb");
@@ -909,13 +909,13 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
               "relative build-source rename must create renamed file");
       Assert (not Ada.Directories.Exists (Old_Path),
               "relative build-source rename must remove old file path");
-      Assert (S.Build_UI.Selected_Candidate_Stale,
+      Assert (S.Build.Build_UI.Selected_Candidate_Stale,
               "relative build-source candidate must be marked stale");
-      Assert (not S.Build_UI.Consent_Acknowledged,
+      Assert (not S.Build.Build_UI.Consent_Acknowledged,
               "stale relative build-source candidate must clear consent");
-      Assert (not S.Build_UI.Pending_Public_Build_Request,
+      Assert (not S.Build.Build_UI.Pending_Public_Build_Request,
               "stale relative build-source candidate must clear pending request");
-      Assert (Editor.Build_UI.Candidate_Count (S.Build_UI) = 1,
+      Assert (Editor.Build_UI.Candidate_Count (S.Build.Build_UI) = 1,
               "non-build-config source rename must preserve candidate list");
 
       Remove_Tree_If_Exists (Root);

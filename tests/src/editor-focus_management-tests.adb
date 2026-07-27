@@ -304,10 +304,10 @@ package body Editor.Focus_Management.Tests is
          Editor.Focus_Management.Focus_Build_UI,
          "Build UI focus should use the retained Build UI focused flag");
       Assert
-        (S.Build_UI.Build_UI_Visible,
+        (S.Build.Build_UI.Build_UI_Visible,
          "focusing Build UI should make the Build UI visible");
       Assert
-        (S.Build_UI.Build_UI_Focused,
+        (S.Build.Build_UI.Build_UI_Focused,
          "focusing Build UI should set the Build UI focused flag");
       Assert
         (Editor.Focus_Management.Panel_Navigation_Owns_Arrows (S),
@@ -331,10 +331,10 @@ package body Editor.Focus_Management.Tests is
          Editor.Focus_Management.Focus_Build_Output_Details,
          "Build output details focus should use the retained output details focused flag");
       Assert
-        (S.Latest_Build_Output_Details.Build_Output_Details_Visible,
+        (S.Build.Latest_Output_Details.Build_Output_Details_Visible,
          "focusing Build output details should make output details visible");
       Assert
-        (S.Latest_Build_Output_Details.Build_Output_Details_Focused,
+        (S.Build.Latest_Output_Details.Build_Output_Details_Focused,
          "focusing Build output details should set output details focus");
       Assert
         (Editor.Focus_Management.Panel_Navigation_Owns_Arrows (S),
@@ -391,7 +391,7 @@ package body Editor.Focus_Management.Tests is
          Editor.Focus_Management.Focus_Build_Result_Summary,
          "Build result summary focus should use the transient summary focus flag");
       Assert
-        (S.Latest_Build_Result_Focused,
+        (S.Build.Latest_Result_Focused,
          "focusing Build result summary should set only transient focus state");
       Assert
         (Editor.Focus_Management.Panel_Navigation_Owns_Arrows (S),
@@ -402,7 +402,7 @@ package body Editor.Focus_Management.Tests is
 
       Editor.Focus_Management.Restore_Focus_To_Editor (S);
       Assert
-        (not S.Latest_Build_Result_Focused,
+        (not S.Build.Latest_Result_Focused,
          "restoring editor focus should clear Build result summary focus");
    end Test_Build_Result_Summary_Focus_Uses_Transient_State;
 
@@ -1861,9 +1861,9 @@ package body Editor.Focus_Management.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      S.Build_UI.Build_UI_Focused := True;
-      S.Latest_Build_Result_Focused := True;
-      S.Latest_Build_Output_Details.Build_Output_Details_Focused := True;
+      S.Build.Build_UI.Build_UI_Focused := True;
+      S.Build.Latest_Result_Focused := True;
+      S.Build.Latest_Output_Details.Build_Output_Details_Focused := True;
       S.Recent_Projects_Focused := True;
       Editor.Overlay_Focus.Activate
         (S.Overlay_Focus,
@@ -1891,9 +1891,9 @@ package body Editor.Focus_Management.Tests is
         (not Editor.Overlay_Focus.Has_Active_Overlay (S.Overlay_Focus),
          "clearing transient owners should dismiss stale overlays");
       Assert
-        (not S.Build_UI.Build_UI_Focused
-         and then not S.Latest_Build_Result_Focused
-         and then not S.Latest_Build_Output_Details.Build_Output_Details_Focused
+        (not S.Build.Build_UI.Build_UI_Focused
+         and then not S.Build.Latest_Result_Focused
+         and then not S.Build.Latest_Output_Details.Build_Output_Details_Focused
          and then not S.Recent_Projects_Focused,
          "clearing transient owners should remove stale build/recent focus markers");
    end Test_Clear_Transient_Focus_Allows_Feature_Panel_To_Take_Focus;
@@ -1911,8 +1911,8 @@ package body Editor.Focus_Management.Tests is
          Editor.Overlay_Focus.Quick_Open_Overlay,
          S.Panel_Focus);
       S.Recent_Projects_Focused := True;
-      S.Latest_Build_Result_Focused := True;
-      S.Latest_Build_Output_Details.Build_Output_Details_Focused := True;
+      S.Build.Latest_Result_Focused := True;
+      S.Build.Latest_Output_Details.Build_Output_Details_Focused := True;
 
       Editor.Build_UI_Actions.Focus_Build_UI (S);
 
@@ -1925,8 +1925,8 @@ package body Editor.Focus_Management.Tests is
          "Build UI public focus action should clear stale overlay focus");
       Assert
         (not S.Recent_Projects_Focused
-         and then not S.Latest_Build_Result_Focused
-         and then not S.Latest_Build_Output_Details.Build_Output_Details_Focused,
+         and then not S.Build.Latest_Result_Focused
+         and then not S.Build.Latest_Output_Details.Build_Output_Details_Focused,
          "Build UI public focus action should clear stale competing transient owners");
       Assert
         (Editor.Focus_Management.Assert_Panel_Focus_Management_Coherent (S),
@@ -1954,9 +1954,9 @@ package body Editor.Focus_Management.Tests is
          Editor.Focus_Management.Focus_Editor,
          "hiding a build-owned surface should restore editor focus");
       Assert
-        (not S.Build_UI.Build_UI_Focused
-         and then not S.Latest_Build_Result_Focused
-         and then not S.Latest_Build_Output_Details.Build_Output_Details_Focused,
+        (not S.Build.Build_UI.Build_UI_Focused
+         and then not S.Build.Latest_Result_Focused
+         and then not S.Build.Latest_Output_Details.Build_Output_Details_Focused,
          "hiding Build UI should clear the build focus family");
       Assert
         (Editor.Focus_Management.Assert_Panel_Focus_Management_Coherent (S),
@@ -1970,19 +1970,19 @@ package body Editor.Focus_Management.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
-      S.Build_UI.Build_UI_Visible := True;
-      S.Build_UI.Build_UI_Focused := True;
-      S.Latest_Build_Result_Focused := True;
-      S.Latest_Build_Output_Details.Build_Output_Details_Focused := True;
+      S.Build.Build_UI.Build_UI_Visible := True;
+      S.Build.Build_UI.Build_UI_Focused := True;
+      S.Build.Latest_Result_Focused := True;
+      S.Build.Latest_Output_Details.Build_Output_Details_Focused := True;
       S.Recent_Projects_Focused := True;
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Focus_Feature_Panel);
 
       Assert
-        (not S.Build_UI.Build_UI_Focused
-         and then not S.Latest_Build_Result_Focused
-         and then not S.Latest_Build_Output_Details.Build_Output_Details_Focused
+        (not S.Build.Build_UI.Build_UI_Focused
+         and then not S.Build.Latest_Result_Focused
+         and then not S.Build.Latest_Output_Details.Build_Output_Details_Focused
          and then not S.Recent_Projects_Focused,
          "executor feature-panel focus should clear stale transient owners");
       Assert
@@ -2012,18 +2012,18 @@ package body Editor.Focus_Management.Tests is
          Editor.Overlay_Focus.Quick_Open_Overlay,
          S.Panel_Focus);
 
-      S.Build_UI.Build_UI_Focused := True;
-      S.Latest_Build_Result_Focused := True;
-      S.Latest_Build_Output_Details.Build_Output_Details_Focused := True;
+      S.Build.Build_UI.Build_UI_Focused := True;
+      S.Build.Latest_Result_Focused := True;
+      S.Build.Latest_Output_Details.Build_Output_Details_Focused := True;
       S.Recent_Projects_Focused := True;
 
       Editor.Executor.Dismiss_Active_Overlay
         (S, Editor.Overlay_Focus.Dismiss_Escape);
 
       Assert
-        (not S.Build_UI.Build_UI_Focused
-         and then not S.Latest_Build_Result_Focused
-         and then not S.Latest_Build_Output_Details.Build_Output_Details_Focused
+        (not S.Build.Build_UI.Build_UI_Focused
+         and then not S.Build.Latest_Result_Focused
+         and then not S.Build.Latest_Output_Details.Build_Output_Details_Focused
          and then not S.Recent_Projects_Focused,
          "overlay dismissal should clear stale transient owners before restoring previous focus");
       Assert
@@ -2051,9 +2051,9 @@ package body Editor.Focus_Management.Tests is
 
       Editor.Feature_Panel.Set_Visible (S.Feature_Panel, True);
       Editor.Feature_Panel.Set_Focused (S.Feature_Panel, True);
-      S.Build_UI.Build_UI_Focused := True;
-      S.Latest_Build_Result_Focused := True;
-      S.Latest_Build_Output_Details.Build_Output_Details_Focused := True;
+      S.Build.Build_UI.Build_UI_Focused := True;
+      S.Build.Latest_Result_Focused := True;
+      S.Build.Latest_Output_Details.Build_Output_Details_Focused := True;
       S.Recent_Projects_Focused := True;
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Goto_Line);
@@ -2066,9 +2066,9 @@ package body Editor.Focus_Management.Tests is
         (not Editor.Feature_Panel.Is_Focused (S.Feature_Panel),
          "overlay activation should clear explicit Feature Panel focus");
       Assert
-        (not S.Build_UI.Build_UI_Focused
-         and then not S.Latest_Build_Result_Focused
-         and then not S.Latest_Build_Output_Details.Build_Output_Details_Focused
+        (not S.Build.Build_UI.Build_UI_Focused
+         and then not S.Build.Latest_Result_Focused
+         and then not S.Build.Latest_Output_Details.Build_Output_Details_Focused
          and then not S.Recent_Projects_Focused,
          "overlay activation should clear stale lower-priority transient owners");
       Assert

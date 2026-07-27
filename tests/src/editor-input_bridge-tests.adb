@@ -948,10 +948,10 @@ package body Editor.Input_Bridge.Tests is
               "fixture must render a scrolled subset of Build UI action rows");
 
       Editor.Build_UI.Scroll_Action_Rows
-        (S.Build_UI, Action_Count, Visible_Action_Rows, 2);
+        (S.Build.Build_UI, Action_Count, Visible_Action_Rows, 2);
       Expected_Action_Row :=
         Editor.Build_UI.Action_Top_Row
-          (S.Build_UI, Action_Count, Visible_Action_Rows);
+          (S.Build.Build_UI, Action_Count, Visible_Action_Rows);
       Assert (Expected_Action_Row > 1,
               "fixture must scroll Build UI actions below the first row");
 
@@ -965,7 +965,7 @@ package body Editor.Input_Bridge.Tests is
 
       Assert
         (Editor.Build_UI.Selected_Action_Row
-           (After.Build_UI, Action_Count) = Expected_Action_Row,
+           (After.Build.Build_UI, Action_Count) = Expected_Action_Row,
          "Build UI action row click must select the underlying scrolled action");
    end Test_Build_UI_Action_Row_Click_Uses_Scrolled_Action_Window;
 
@@ -1025,7 +1025,7 @@ package body Editor.Input_Bridge.Tests is
       Assert (Quick_Fix_Row > 0,
               "fixture must expose the first Build UI quick-fix action row");
       Editor.Build_UI.Set_Selected_Action_Row
-        (S.Build_UI, Quick_Fix_Row, Natural (Snapshot.Actions.Length));
+        (S.Build.Build_UI, Quick_Fix_Row, Natural (Snapshot.Actions.Length));
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle_Key_Chord
@@ -1221,14 +1221,14 @@ package body Editor.Input_Bridge.Tests is
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "terminal focus");
-      Editor.Terminal_Tasks.Show (S.Terminal_Tasks);
-      Editor.Terminal_Tasks.Focus (S.Terminal_Tasks);
+      Editor.Terminal_Tasks.Show (S.Build.Terminal_Tasks);
+      Editor.Terminal_Tasks.Focus (S.Build.Terminal_Tasks);
       First := Editor.Terminal_Tasks.Register_Task
-        (S.Terminal_Tasks, "Echo One", "/bin/echo");
-      Editor.Terminal_Tasks.Append_Argument (S.Terminal_Tasks, First, "one");
+        (S.Build.Terminal_Tasks, "Echo One", "/bin/echo");
+      Editor.Terminal_Tasks.Append_Argument (S.Build.Terminal_Tasks, First, "one");
       Second := Editor.Terminal_Tasks.Register_Task
-        (S.Terminal_Tasks, "Echo Two", "/bin/echo");
-      Editor.Terminal_Tasks.Append_Argument (S.Terminal_Tasks, Second, "two");
+        (S.Build.Terminal_Tasks, "Echo Two", "/bin/echo");
+      Editor.Terminal_Tasks.Append_Argument (S.Build.Terminal_Tasks, Second, "two");
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Editor.Input_Bridge.Handle_Key_Chord
@@ -1236,7 +1236,7 @@ package body Editor.Input_Bridge.Tests is
           Modifiers => (others => False)));
       After := Editor.Input_Bridge.Get_State_For_Test;
       Snapshot := Editor.Terminal_Tasks.Build_Render_Snapshot
-        (After.Terminal_Tasks);
+        (After.Build.Terminal_Tasks);
 
       Assert
         (Snapshot.Focused,
@@ -1345,15 +1345,15 @@ package body Editor.Input_Bridge.Tests is
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "output details focus");
-      S.Latest_Build_Output_Details :=
+      S.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Build_Output_Details_From_Captured_Output
           (Runner_Status => Editor.Build_Output_Details.Build_Output_Runner_Failed,
            Stdout_Text   => To_Unbounded_String ("out"),
            Stderr_Text   => To_Unbounded_String ("err"));
       Editor.Build_Output_Details.Focus_Output_Details
-        (S.Latest_Build_Output_Details);
+        (S.Build.Latest_Output_Details);
       Editor.Build_Output_Details.Select_Output_Stream
-        (S.Latest_Build_Output_Details,
+        (S.Build.Latest_Output_Details,
          Editor.Build_Output_Details.Build_Output_Stream_Stderr);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
@@ -1363,10 +1363,10 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (After.Latest_Build_Output_Details.Build_Output_Details_Focused,
+        (After.Build.Latest_Output_Details.Build_Output_Details_Focused,
          "focused Output Details Down key must stay local before global bindings");
       Assert
-        (After.Latest_Build_Output_Details.Selected_Output_Stream =
+        (After.Build.Latest_Output_Details.Selected_Output_Stream =
            Editor.Build_Output_Details.Build_Output_Stream_Merged,
          "focused Output Details Down key must select merged output locally");
 
@@ -1732,7 +1732,7 @@ package body Editor.Input_Bridge.Tests is
 
       Assert
         (Editor.Build_UI.Action_Top_Row
-           (After.Build_UI, Action_Count, Visible_Action_Rows) > 1,
+           (After.Build.Build_UI, Action_Count, Visible_Action_Rows) > 1,
          "wheel over Build UI action rows must scroll action rows");
       Assert
         (Editor.View.Scroll_Y = 0,

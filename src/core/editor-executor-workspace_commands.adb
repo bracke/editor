@@ -430,10 +430,10 @@ package body Editor.Executor.Workspace_Commands is
       Editor.Buffer_Switcher.Clear (S.Buffer_Switcher);
       Editor.Guided_Prompts.Clear (S.Guided_Prompt);
       Editor.Executor.File_Target_Prompt_Commands.Clear_File_Target_Prompt (S);
-      S.Build_UI := Editor.Build_UI.Empty_State;
-      S.Latest_Build_Result := Editor.Build_Result_Summary.Empty_Summary;
-      S.Latest_Build_Result_Focused := False;
-      S.Latest_Build_Output_Details :=
+      S.Build.Build_UI := Editor.Build_UI.Empty_State;
+      S.Build.Latest_Result := Editor.Build_Result_Summary.Empty_Summary;
+      S.Build.Latest_Result_Focused := False;
+      S.Build.Latest_Output_Details :=
         Editor.Build_Output_Details.Empty_Output_Details;
 
 

@@ -23,7 +23,7 @@ package body Editor.Input_Bridge.Panel_Focus_Key_Handlers is
    is
    begin
       if Editor.Terminal_Tasks.Build_Render_Snapshot
-          (S.Terminal_Tasks).Focused
+          (S.Build.Terminal_Tasks).Focused
       then
          case Chord.Key is
             when Editor.Keybindings.Key_Up =>

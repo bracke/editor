@@ -401,16 +401,16 @@ package body Editor.Render_Packet.Panel_Surfaces is
       function Build_Status_Label return String
       is
          Label : constant String :=
-           Editor.Build_Result_Summary.Status_Label (S.Latest_Build_Result);
+           Editor.Build_Result_Summary.Status_Label (S.Build.Latest_Result);
          Build_UI_View : constant Editor.Build_UI.Build_UI_Render_Snapshot :=
            Editor.Build_UI.Build_Render_Snapshot
-             (S.Build_UI,
-              S.Latest_Build_Result,
-              S.Latest_Build_Output_Details);
+             (S.Build.Build_UI,
+              S.Build.Latest_Result,
+              S.Build.Latest_Output_Details);
          Validation : constant Editor.Build_UI.Public_Build_UI_Validation_Status :=
-           Editor.Build_UI.Validate_Build_UI_State (S.Build_UI);
+           Editor.Build_UI.Validate_Build_UI_State (S.Build.Build_UI);
          Candidate_Stale : constant Boolean :=
-           S.Build_UI.Selected_Candidate_Stale
+           S.Build.Build_UI.Selected_Candidate_Stale
            or else Validation = Editor.Build_UI.Build_UI_Rejected_Selected_Candidate_Stale;
 
          function Normalized_Result_Label return String
@@ -428,18 +428,18 @@ package body Editor.Render_Packet.Panel_Surfaces is
          function Duration_Suffix return String
          is
          begin
-            if not S.Latest_Build_Result.Has_Duration then
+            if not S.Build.Latest_Result.Has_Duration then
                return "";
             else
                return ", "
-                 & Editor.Build_Result_Summary.Duration_Label (S.Latest_Build_Result);
+                 & Editor.Build_Result_Summary.Duration_Label (S.Build.Latest_Result);
             end if;
          end Duration_Suffix;
 
          function Command_Suffix return String
          is
             Label : constant String :=
-              Editor.Build_Result_Summary.Command_Label (S.Latest_Build_Result);
+              Editor.Build_Result_Summary.Command_Label (S.Build.Latest_Result);
          begin
             if Label = "command unavailable" then
                return "";
@@ -451,10 +451,10 @@ package body Editor.Render_Packet.Panel_Surfaces is
          function Diagnostics_Suffix return String
          is
          begin
-            if S.Latest_Build_Result.Has_Diagnostics_Count then
+            if S.Build.Latest_Result.Has_Diagnostics_Count then
                return ", diagnostics"
                  & Natural'Image
-                   (S.Latest_Build_Result.Diagnostics_Count_If_Available);
+                   (S.Build.Latest_Result.Diagnostics_Count_If_Available);
             else
                return "";
             end if;
@@ -521,9 +521,9 @@ package body Editor.Render_Packet.Panel_Surfaces is
               & Action_Rows_Suffix;
          end if;
 
-         if S.Latest_Build_Result.Has_Result then
-            if S.Latest_Build_Result.Stdout_Truncated
-              or else S.Latest_Build_Result.Stderr_Truncated
+         if S.Build.Latest_Result.Has_Result then
+            if S.Build.Latest_Result.Stdout_Truncated
+              or else S.Build.Latest_Result.Stderr_Truncated
             then
                if Candidate_Stale then
                   return "Build: " & Normalized_Result_Label

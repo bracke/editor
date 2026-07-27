@@ -243,10 +243,10 @@ package body Editor.Build_Command.Projections is
       Now : constant Duration := Editor.View.Current_Time_Seconds;
       Elapsed : Duration := 0.0;
    begin
-      if not State.Public_Build_Job_Has_Start_Time then
+      if not State.Build.Public_Job_Has_Start_Time then
          return 0;
-      elsif Now > State.Public_Build_Job_Started_At then
-         Elapsed := Now - State.Public_Build_Job_Started_At;
+      elsif Now > State.Build.Public_Job_Started_At then
+         Elapsed := Now - State.Build.Public_Job_Started_At;
       end if;
 
       if Elapsed >= Duration (Natural'Last / 1000) then
@@ -314,14 +314,14 @@ package body Editor.Build_Command.Projections is
    function Selected_Candidate_Preflight_Status
      (State : Editor.State.State_Type) return Build_Run_Readiness_Status
    is
-      Selected_Id : constant String := To_String (State.Build_UI.Selected_Build_Candidate_Id);
+      Selected_Id : constant String := To_String (State.Build.Build_UI.Selected_Build_Candidate_Id);
       Found       : Boolean := False;
    begin
       if Selected_Id'Length = 0 then
          return Build_Run_Readiness_No_Candidate_Selected;
       end if;
 
-      for Candidate of State.Build_UI.Build_Candidates loop
+      for Candidate of State.Build.Build_UI.Build_Candidates loop
          if To_String (Candidate.Candidate_Id) = Selected_Id then
             Found := True;
             declare

@@ -111,8 +111,8 @@ package body Editor.Input_Bridge.Key_Chord_Routing is
                   null;
             end case;
          end;
-      elsif S.Latest_Build_Result_Focused
-        or else S.Latest_Build_Output_Details.Build_Output_Details_Focused
+      elsif S.Build.Latest_Result_Focused
+        or else S.Build.Latest_Output_Details.Build_Output_Details_Focused
       then
          declare
             Result : constant

@@ -68,7 +68,7 @@ package body Editor.Input_Bridge.Build_UI_Pointer_Handlers is
             Reason : constant String := To_String (Action.Disabled_Reason);
          begin
             Editor.Build_UI.Set_Selected_Action_Row
-              (S.Build_UI, Action_Row, Projection.Action_Count);
+              (S.Build.Build_UI, Action_Row, Projection.Action_Count);
 
             if not Action.Enabled then
                if Reason'Length > 0 then
