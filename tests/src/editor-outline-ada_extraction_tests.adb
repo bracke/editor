@@ -417,7 +417,7 @@ package body Editor.Outline.Ada_Extraction_Tests is
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "opening an Ada outline row executes");
-      Editor.State.Row_Col_For_Index (S, S.Carets (0).Pos, Row, Col);
+      Editor.State.Row_Col_For_Index (S, S.Caret.Carets (0).Pos, Row, Col);
       Assert (Row = 1 and then Col = 3,
               "opening an Ada outline row navigates to captured line/column");
    end Test_Ada_Outline_Rows_Open_To_Target_Line;
@@ -1943,7 +1943,7 @@ package body Editor.Outline.Ada_Extraction_Tests is
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "activating a real Ada outline row navigates");
-      Editor.State.Row_Col_For_Index (S, S.Carets (0).Pos, Row, Col);
+      Editor.State.Row_Col_For_Index (S, S.Caret.Carets (0).Pos, Row, Col);
       Assert (Row = 1 and then Col = 3,
               "outline navigation uses the stored target line and column");
    end Test_Ada_Outline_Extracts_Subtype_And_Navigates;

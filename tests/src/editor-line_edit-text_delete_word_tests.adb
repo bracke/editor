@@ -50,8 +50,8 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Pos : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Pos,
             Anchor                => Pos,
@@ -65,8 +65,8 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Pos    : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Pos,
             Anchor                => Anchor,
@@ -110,9 +110,9 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Row : Natural := 0;
       Col : Natural := 0;
    begin
-      Assert (S.Carets.Length > 0, Why & ": expected a caret");
+      Assert (S.Caret.Carets.Length > 0, Why & ": expected a caret");
       Editor.Navigation.Line_Column_For_Index
-        (S, Natural (S.Carets (S.Carets.First_Index).Pos), Row, Col);
+        (S, Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos), Row, Col);
       Assert (Row = Expected_Row, Why & ": caret row mismatch");
       Assert (Col = Expected_Col, Why & ": caret column mismatch");
    end Assert_Caret_Row_Col;
@@ -274,7 +274,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       end if;
 
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               Why & ": text-changing word delete must create one undo entry");
@@ -380,7 +380,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       end if;
 
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               Why & ": character delete must create one undo entry");
@@ -501,7 +501,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       end if;
 
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               Why & ": text-changing Character Delete must create one undo entry");
@@ -661,7 +661,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Assert (Message_Text (S) = "Deleted selection", Why & ": message mismatch");
       Assert (not Editor.Selection.Has_Selection (S), Why & ": selection must collapse");
       Assert
-        (Natural (S.Carets (S.Carets.First_Index).Pos) =
+        (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) =
          Natural (Cursor_Index'Min (Anchor, Pos)),
          Why & ": caret must land at normalized deletion start");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
@@ -706,7 +706,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
         (S, Editor.Command_Ids.Command_Word_Delete_Previous);
       Assert_Buffer_Text (S, "Alpha   ",
                           "delete-previous must delete the preceding word span");
-      Assert (Natural (S.Carets (S.Carets.First_Index).Pos) = 8,
+      Assert (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = 8,
               "delete-previous caret must move to deleted range start");
       Assert (Message_Text (S) = "Deleted previous word",
               "delete-previous success message mismatch");
@@ -809,7 +809,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
         (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert_Buffer_Text (S, "   Beta",
                           "delete-next must delete the following word span");
-      Assert (Natural (S.Carets (S.Carets.First_Index).Pos) = 0,
+      Assert (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = 0,
               "delete-next caret must remain at deletion start");
       Assert (Message_Text (S) = "Deleted next word",
               "delete-next success message mismatch");
@@ -865,7 +865,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Count,
               "delete-next no-op must preserve redo stack");
 
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Word_Delete_Next);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
@@ -924,7 +924,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
          Editor.Executor.Execute_Command
            (S, Editor.Command_Ids.Command_Word_Delete_Previous);
          Assert_Buffer_Text (S, Expected, Why);
-         Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+         Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
                  Why & ": caret mismatch");
          Assert (Message_Text (S) = "Deleted previous word",
                  Why & ": success message mismatch");
@@ -1013,7 +1013,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
          Editor.Executor.Execute_Command
            (S, Editor.Command_Ids.Command_Word_Delete_Next);
          Assert_Buffer_Text (S, Expected, Why);
-         Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+         Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
                  Why & ": caret mismatch");
          Assert (Message_Text (S) = "Deleted next word",
                  Why & ": success message mismatch");
@@ -1102,7 +1102,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
       Set_Primary_Selection (S, 0, 5);
 
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
-      Before_Caret := S.Carets (S.Carets.First_Index).Pos;
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Before_Dirty := Editor.State.Is_Dirty (S);
@@ -1123,7 +1123,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
               "render snapshot length must derive from canonical buffer text");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
               "render/availability must not mutate buffer text");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Caret,
               "render/availability must not move caret");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
@@ -1422,7 +1422,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
                           "undo in A affects only A");
 
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
-      Before_Caret := S.Carets (S.Carets.First_Index).Pos;
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Before_Dirty := Editor.State.Is_Dirty (S);
@@ -1441,7 +1441,7 @@ package body Editor.Line_Edit.Text_Delete_Word_Tests is
                  "Command Palette projection must return candidates");
       end;
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text)
-              and then S.Carets (S.Carets.First_Index).Pos = Before_Caret
+              and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Caret
               and then Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo
               and then Editor.State.Is_Dirty (S) = Before_Dirty,

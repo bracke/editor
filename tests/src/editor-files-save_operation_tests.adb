@@ -155,8 +155,8 @@ package body Editor.Files.Save_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Exact_Text);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 2,
           Anchor                => 0,
           Virtual_Column        => 0,
@@ -176,7 +176,7 @@ package body Editor.Files.Save_Operation_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, New_Path);
 
@@ -193,9 +193,9 @@ package body Editor.Files.Save_Operation_Tests is
       Assert (Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "Save As must not create or clear Undo/Redo entries");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "Save As must preserve caret and selection");
       Assert (To_String (S.Search.Active_Find_Query) = "alpha"
         and then To_String (S.Search.Active_Replace_Text) = "omega"
@@ -212,8 +212,8 @@ package body Editor.Files.Save_Operation_Tests is
         and then To_String (M.Text) = "Saved file as",
         "Save As success must use deterministic feedback");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Editor.Cursors.Cursor_Index (Exact_Text'Length),
             Anchor                => Editor.Cursors.Cursor_Index (Exact_Text'Length),
@@ -249,8 +249,8 @@ package body Editor.Files.Save_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Before_Text);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 5,
           Anchor                => 1,
           Virtual_Column        => 0,
@@ -265,7 +265,7 @@ package body Editor.Files.Save_Operation_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Dir_Path);
 
@@ -280,9 +280,9 @@ package body Editor.Files.Save_Operation_Tests is
       Assert (Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "failed Save As must preserve Undo/Redo stacks");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "failed Save As must preserve caret and selection");
       Assert (Read_Bytes (Old_Path) = "old disk",
         "failed Save As must not write the old path");
@@ -377,8 +377,8 @@ package body Editor.Files.Save_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Before_Text);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 8,
           Anchor                => 1,
           Virtual_Column        => 0,
@@ -397,7 +397,7 @@ package body Editor.Files.Save_Operation_Tests is
       Before_Saved := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Target_Path);
 
@@ -416,9 +416,9 @@ package body Editor.Files.Save_Operation_Tests is
       Assert (Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "failed Save As must preserve Undo/Redo stacks");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "failed Save As must preserve caret and selection");
       Assert (To_String (S.Search.Active_Find_Query) = "missing"
         and then To_String (S.Search.Active_Replace_Text) = "present"
@@ -559,8 +559,8 @@ package body Editor.Files.Save_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Before_Text);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 6,
           Anchor                => 2,
           Virtual_Column        => 0,
@@ -592,7 +592,7 @@ package body Editor.Files.Save_Operation_Tests is
         and then S.Buffer_Lifecycle.File_Info.Dirty
         and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Saved,
         "render and Save As availability must not mutate text, dirty state, or baseline");
-      Assert (S.Carets.Length = 1 and then S.Carets (0).Pos = 6 and then S.Carets (0).Anchor = 2,
+      Assert (S.Caret.Carets.Length = 1 and then S.Caret.Carets (0).Pos = 6 and then S.Caret.Carets (0).Anchor = 2,
         "render and Save As availability must preserve caret and selection");
       Assert (To_String (S.Search.Active_Find_Query) = "save-as"
         and then To_String (S.Search.Active_Replace_Text) = "availability"
@@ -639,8 +639,8 @@ package body Editor.Files.Save_Operation_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B, Emit_Feedback => False);
       Insert_Text_At (S, 2, " dirty-B");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 4,
           Anchor                => 1,
           Virtual_Column        => 0,
@@ -672,9 +672,9 @@ package body Editor.Files.Save_Operation_Tests is
       Assert (Editor.History.Undo_Stack.Length = Undo_Before
         and then Editor.History.Redo_Stack.Length = Redo_Before,
         "Save As must preserve active-buffer Undo/Redo stacks");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (0).Pos = 4
-        and then S.Carets (0).Anchor = 1,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = 4
+        and then S.Caret.Carets (0).Anchor = 1,
         "Save As must preserve caret and selection");
       Assert (To_String (S.Search.Active_Find_Query) = "B0"
         and then To_String (S.Search.Active_Replace_Text) = "B1"
@@ -885,8 +885,8 @@ package body Editor.Files.Save_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Before_Text);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 7,
           Anchor                => 1,
           Virtual_Column        => 0,
@@ -917,9 +917,9 @@ package body Editor.Files.Save_Operation_Tests is
         and then S.Buffer_Lifecycle.File_Info.Dirty
         and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Saved,
         "render and availability must not mutate text, dirty state, or saved baseline");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (0).Pos = 7
-        and then S.Carets (0).Anchor = 1,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = 7
+        and then S.Caret.Carets (0).Anchor = 1,
         "render and availability must preserve caret and selection");
       Assert (To_String (S.Search.Active_Find_Query) = "availability"
         and then To_String (S.Search.Active_Replace_Text) = "mutation"
@@ -976,8 +976,8 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
       S.Buffer_Lifecycle.File_Info.Saved_Generation := 7;
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 5,
           Anchor                => 1,
           Virtual_Column        => 0,
@@ -1017,7 +1017,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "Save As must not create, clear, or squash Undo/Redo entries");
-      Assert (S.Carets.Length = 1 and then S.Carets (0).Pos = 5 and then S.Carets (0).Anchor = 1,
+      Assert (S.Caret.Carets.Length = 1 and then S.Caret.Carets (0).Pos = 5 and then S.Caret.Carets (0).Anchor = 1,
         "Save As must not move caret or normalize selection");
       Assert (To_String (S.Search.Active_Find_Query) = ""
         and then To_String (S.Search.Active_Replace_Text) = "canonical"
@@ -1025,8 +1025,8 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard",
         "Save As must not mutate Find/Replace or Clipboard state");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Editor.Cursors.Cursor_Index (Buffer_Text (S)'Length),
             Anchor                => Editor.Cursors.Cursor_Index (Buffer_Text (S)'Length),
@@ -1140,8 +1140,8 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 3,
           Anchor                => 1,
           Virtual_Column        => 0,
@@ -1161,7 +1161,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
@@ -1176,9 +1176,9 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "save must not create or clear Undo/Redo entries");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "save must preserve caret and selection");
       Assert (To_String (S.Search.Active_Find_Query) = "alpha"
         and then To_String (S.Search.Active_Replace_Text) = "omega"
@@ -1552,8 +1552,8 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Before_Text);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 4,
           Anchor                => 1,
           Virtual_Column        => 0,
@@ -1574,7 +1574,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Before_Saved := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
@@ -1586,9 +1586,9 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "failed save must preserve Undo/Redo stacks");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "failed save must preserve caret and selection");
       Assert (To_String (S.Search.Active_Find_Query) = "alpha"
         and then To_String (S.Search.Active_Replace_Text) = "omega"
@@ -1814,8 +1814,8 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Before_Text);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 7,
           Anchor                => 2,
           Virtual_Column        => 0,
@@ -1839,7 +1839,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Before_Saved := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
@@ -1850,9 +1850,9 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Assert (Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "failed save must preserve Undo/Redo stacks, including redo after undo");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "failed save must preserve caret and selection exactly");
       Assert (To_String (S.Search.Active_Find_Query) = "failure"
         and then To_String (S.Search.Active_Replace_Text) = "success"
@@ -1887,8 +1887,8 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Before_Text);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 5,
           Anchor                => 1,
           Virtual_Column        => 0,
@@ -1920,7 +1920,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         and then S.Buffer_Lifecycle.File_Info.Dirty
         and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Saved,
         "render and availability must not mutate text, dirty state, or baseline");
-      Assert (S.Carets.Length = 1 and then S.Carets (0).Pos = 5 and then S.Carets (0).Anchor = 1,
+      Assert (S.Caret.Carets.Length = 1 and then S.Caret.Carets (0).Pos = 5 and then S.Caret.Carets (0).Anchor = 1,
         "render and availability must preserve caret and selection");
       Assert (To_String (S.Search.Active_Find_Query) = "render"
         and then To_String (S.Search.Active_Replace_Text) = "availability"
@@ -1950,8 +1950,8 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "untitled dirty text");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 3,
           Anchor                => 0,
           Virtual_Column        => 0,
@@ -1964,7 +1964,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Before_Saved := S.Buffer_Lifecycle.File_Info.Saved_Generation;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
 
@@ -1974,8 +1974,8 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         "no-path save must not infer a target or update dirty baseline");
       Assert (Buffer_Text (S) = "untitled dirty text",
         "no-path save must preserve buffer text");
-      Assert (S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "no-path save must preserve caret and selection");
       Assert (To_String (S.Search.Active_Find_Query) = "untitled"
         and then Editor.Clipboard.Has_Text
@@ -1994,7 +1994,7 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
       S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
       S.Buffer_Lifecycle.File_Info.Saved_Generation := Editor.State.Current_Buffer_Revision (S);
       Before_Saved := S.Buffer_Lifecycle.File_Info.Saved_Generation;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File);
@@ -2006,8 +2006,8 @@ procedure Test_Save_As_Canonical_Handler_Preserves_File_Save_Targeting
         "clean save must preserve clean dirty state and saved baseline");
       Assert (Buffer_Text (S) = "clean memory",
         "clean save must not mutate memory text");
-      Assert (S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "clean save must preserve caret and selection");
       M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Info_Message

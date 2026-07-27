@@ -64,7 +64,7 @@ package body Editor.Focus_Management is
          when Editor.Overlay_Focus.Quick_Open_Overlay =>
             return Focus_Quick_Open;
          when Editor.Overlay_Focus.Project_Search_Bar_Overlay =>
-            if Editor.Project_Search_Bar.Active_Field (S.Project_Search_Bar) =
+            if Editor.Project_Search_Bar.Active_Field (S.Surface.Project_Search_Bar) =
               Editor.Project_Search_Bar.Project_Search_Replace_Field
             then
                return Focus_Project_Replace_Input;
@@ -1437,13 +1437,13 @@ package body Editor.Focus_Management is
                Editor.Overlay_Focus.Quick_Open_Overlay,
                S.Panel.Panel_Focus);
          when Focus_Project_Search_Query =>
-            Editor.Project_Search_Bar.Focus_Query_Field (S.Project_Search_Bar);
+            Editor.Project_Search_Bar.Focus_Query_Field (S.Surface.Project_Search_Bar);
             Editor.Overlay_Focus.Activate
               (S.Panel.Overlay_Focus,
                Editor.Overlay_Focus.Project_Search_Bar_Overlay,
                S.Panel.Panel_Focus);
          when Focus_Project_Replace_Input =>
-            Editor.Project_Search_Bar.Focus_Replace_Field (S.Project_Search_Bar);
+            Editor.Project_Search_Bar.Focus_Replace_Field (S.Surface.Project_Search_Bar);
             Editor.Overlay_Focus.Activate
               (S.Panel.Overlay_Focus,
                Editor.Overlay_Focus.Project_Search_Bar_Overlay,

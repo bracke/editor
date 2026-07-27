@@ -70,11 +70,11 @@ package body Editor.Executor.Overlay_Commands is
          when Editor.Overlay_Focus.Command_Palette_Overlay =>
             Editor.Command_Palette.Close;
          when Editor.Overlay_Focus.Quick_Open_Overlay =>
-            Editor.Quick_Open.Close (S.Quick_Open);
+            Editor.Quick_Open.Close (S.Surface.Quick_Open);
          when Editor.Overlay_Focus.Buffer_Switcher_Overlay =>
-            Editor.Buffer_Switcher.Close (S.Buffer_Switcher);
+            Editor.Buffer_Switcher.Close (S.Surface.Buffer_Switcher);
          when Editor.Overlay_Focus.Project_Search_Bar_Overlay =>
-            Editor.Project_Search_Bar.Close (S.Project_Search_Bar);
+            Editor.Project_Search_Bar.Close (S.Surface.Project_Search_Bar);
          when Editor.Overlay_Focus.Active_Find_Prompt_Overlay =>
             Editor.Input_Field.Clear (S.Search.Active_Find_Input);
             if S.Search.Active_Find_Prompt then
@@ -93,7 +93,7 @@ package body Editor.Executor.Overlay_Commands is
                S.Search.Active_Replace_Prompt := False;
             end if;
          when Editor.Overlay_Focus.Go_To_Line_Overlay =>
-            Editor.Go_To_Line.Clear (S.Go_To_Line);
+            Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
          when Editor.Overlay_Focus.File_Target_Prompt_Overlay =>
             Editor.Executor.File_Target_Prompt_Commands.Clear_File_Target_Prompt (S);
          when Editor.Overlay_Focus.No_Overlay =>
@@ -164,45 +164,45 @@ package body Editor.Executor.Overlay_Commands is
 
       case Overlay is
          when Editor.Overlay_Focus.Command_Palette_Overlay =>
-            Editor.Quick_Open.Close (S.Quick_Open);
-            Editor.Buffer_Switcher.Close (S.Buffer_Switcher);
-            Editor.Project_Search_Bar.Close (S.Project_Search_Bar);
-            Editor.Go_To_Line.Clear (S.Go_To_Line);
+            Editor.Quick_Open.Close (S.Surface.Quick_Open);
+            Editor.Buffer_Switcher.Close (S.Surface.Buffer_Switcher);
+            Editor.Project_Search_Bar.Close (S.Surface.Project_Search_Bar);
+            Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
             Editor.Command_Palette.Open;
          when Editor.Overlay_Focus.Quick_Open_Overlay =>
             Editor.Command_Palette.Close;
-            Editor.Buffer_Switcher.Close (S.Buffer_Switcher);
-            Editor.Project_Search_Bar.Close (S.Project_Search_Bar);
-            Editor.Go_To_Line.Clear (S.Go_To_Line);
-            Editor.Quick_Open.Open (S.Quick_Open);
+            Editor.Buffer_Switcher.Close (S.Surface.Buffer_Switcher);
+            Editor.Project_Search_Bar.Close (S.Surface.Project_Search_Bar);
+            Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
+            Editor.Quick_Open.Open (S.Surface.Quick_Open);
          when Editor.Overlay_Focus.Buffer_Switcher_Overlay =>
             Editor.Command_Palette.Close;
-            Editor.Quick_Open.Close (S.Quick_Open);
-            Editor.Project_Search_Bar.Close (S.Project_Search_Bar);
-            Editor.Go_To_Line.Clear (S.Go_To_Line);
-            Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+            Editor.Quick_Open.Close (S.Surface.Quick_Open);
+            Editor.Project_Search_Bar.Close (S.Surface.Project_Search_Bar);
+            Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
+            Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
          when Editor.Overlay_Focus.Project_Search_Bar_Overlay =>
             Editor.Command_Palette.Close;
-            Editor.Quick_Open.Close (S.Quick_Open);
-            Editor.Buffer_Switcher.Close (S.Buffer_Switcher);
-            Editor.Go_To_Line.Clear (S.Go_To_Line);
-            Editor.Project_Search_Bar.Open (S.Project_Search_Bar);
+            Editor.Quick_Open.Close (S.Surface.Quick_Open);
+            Editor.Buffer_Switcher.Close (S.Surface.Buffer_Switcher);
+            Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
+            Editor.Project_Search_Bar.Open (S.Surface.Project_Search_Bar);
          when Editor.Overlay_Focus.Active_Find_Prompt_Overlay =>
             if not S.Search.Active_Find_Prompt then
                Editor.Input_Field.Set_Text (S.Search.Active_Find_Input, To_String (S.Search.Active_Find_Query));
             end if;
          when Editor.Overlay_Focus.Go_To_Line_Overlay =>
             Editor.Command_Palette.Close;
-            Editor.Quick_Open.Close (S.Quick_Open);
-            Editor.Buffer_Switcher.Close (S.Buffer_Switcher);
-            Editor.Project_Search_Bar.Close (S.Project_Search_Bar);
+            Editor.Quick_Open.Close (S.Surface.Quick_Open);
+            Editor.Buffer_Switcher.Close (S.Surface.Buffer_Switcher);
+            Editor.Project_Search_Bar.Close (S.Surface.Project_Search_Bar);
             Editor.Executor.File_Target_Prompt_Commands.Clear_File_Target_Prompt (S);
-            Editor.Go_To_Line.Open (S.Go_To_Line);
+            Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
          when Editor.Overlay_Focus.File_Target_Prompt_Overlay =>
             Editor.Command_Palette.Close;
-            Editor.Buffer_Switcher.Close (S.Buffer_Switcher);
-            Editor.Project_Search_Bar.Close (S.Project_Search_Bar);
-            Editor.Go_To_Line.Clear (S.Go_To_Line);
+            Editor.Buffer_Switcher.Close (S.Surface.Buffer_Switcher);
+            Editor.Project_Search_Bar.Close (S.Surface.Project_Search_Bar);
+            Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
          when Editor.Overlay_Focus.No_Overlay =>
             null;
       end case;

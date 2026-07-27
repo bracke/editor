@@ -52,16 +52,16 @@ package body Editor.Input_Bridge.Quick_Open_Key_Handlers is
             Cmd.Kind := Editor.Command_Kinds.Quick_Open_Delete_Forward;
             Execute_Command (Cmd);
          when Editor.Keybindings.Key_Left =>
-            Editor.Quick_Open.Move_Cursor_Left (S.Quick_Open);
+            Editor.Quick_Open.Move_Cursor_Left (S.Surface.Quick_Open);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_Right =>
-            Editor.Quick_Open.Move_Cursor_Right (S.Quick_Open);
+            Editor.Quick_Open.Move_Cursor_Right (S.Surface.Quick_Open);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_Home =>
-            Editor.Quick_Open.Move_Cursor_Start (S.Quick_Open);
+            Editor.Quick_Open.Move_Cursor_Start (S.Surface.Quick_Open);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_End =>
-            Editor.Quick_Open.Move_Cursor_End (S.Quick_Open);
+            Editor.Quick_Open.Move_Cursor_End (S.Surface.Quick_Open);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_V =>
             if Chord.Modifiers.Ctrl then

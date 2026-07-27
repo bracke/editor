@@ -35,7 +35,7 @@ package body Editor.Input_Bridge.Buffer_Switcher_Handlers is
       case Cmd.Kind is
          when Editor.Command_Kinds.Insert_Text_Input =>
             if Cmd.Ctrl and then (Cmd.Ch = 'a' or else Cmd.Ch = 'A') then
-               Editor.Buffer_Switcher.Select_All (S.Buffer_Switcher);
+               Editor.Buffer_Switcher.Select_All (S.Surface.Buffer_Switcher);
                Editor.Render_Cache.Invalidate_All;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                Execute (Editor.Command_Ids.Command_Accept_Buffer_Switcher);
@@ -89,22 +89,22 @@ package body Editor.Input_Bridge.Buffer_Switcher_Handlers is
             return True;
 
          when Editor.Command_Kinds.Move_Left =>
-            Editor.Buffer_Switcher.Move_Cursor_Left (S.Buffer_Switcher);
+            Editor.Buffer_Switcher.Move_Cursor_Left (S.Surface.Buffer_Switcher);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
          when Editor.Command_Kinds.Move_Right =>
-            Editor.Buffer_Switcher.Move_Cursor_Right (S.Buffer_Switcher);
+            Editor.Buffer_Switcher.Move_Cursor_Right (S.Surface.Buffer_Switcher);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
          when Editor.Command_Kinds.Move_Home | Editor.Command_Kinds.Move_Line_Start =>
-            Editor.Buffer_Switcher.Move_Cursor_Start (S.Buffer_Switcher);
+            Editor.Buffer_Switcher.Move_Cursor_Start (S.Surface.Buffer_Switcher);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
          when Editor.Command_Kinds.Move_End | Editor.Command_Kinds.Move_Line_End =>
-            Editor.Buffer_Switcher.Move_Cursor_End (S.Buffer_Switcher);
+            Editor.Buffer_Switcher.Move_Cursor_End (S.Surface.Buffer_Switcher);
             Editor.Render_Cache.Invalidate_All;
             return True;
 

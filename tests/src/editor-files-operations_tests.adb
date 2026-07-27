@@ -498,7 +498,7 @@ package body Editor.Files.Operations_Tests is
       Before_Base := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Move_Buffer_File);
@@ -551,9 +551,9 @@ package body Editor.Files.Operations_Tests is
         and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor
+        and then S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
         and then To_String (S.Search.Active_Find_Query) = "boundary"
         and then To_String (S.Search.Active_Replace_Text) = "replacement"
@@ -950,7 +950,7 @@ package body Editor.Files.Operations_Tests is
       Before_Redo := Editor.History.Redo_Stack.Length;
       Before_Back := S.Navigation_History.Back_Stack.Length;
       Before_Fwd := S.Navigation_History.Forward_Stack.Length;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
       Before_Count := Editor.Buffers.Global_Count;
       Before_Query := S.Search.Active_Find_Query;
       Before_Replace := S.Search.Active_Replace_Text;
@@ -968,9 +968,9 @@ package body Editor.Files.Operations_Tests is
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then S.Navigation_History.Back_Stack.Length = Before_Back
         and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
-        and then S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor
+        and then S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor
         and then To_String (S.Search.Active_Find_Query) = To_String (Before_Query)
         and then To_String (S.Search.Active_Replace_Text) = To_String (Before_Replace)
         and then To_String (Editor.Clipboard.Get_Text) = "stable clipboard"
@@ -1141,8 +1141,8 @@ package body Editor.Files.Operations_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "first");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 2, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
@@ -1150,7 +1150,7 @@ package body Editor.Files.Operations_Tests is
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
@@ -1161,8 +1161,8 @@ package body Editor.Files.Operations_Tests is
       Editor.Executor.Selection_Commands.Execute_Clear_Selection_Command (S);
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Buffer_Text (S)'Length, '!'));
-      S.Carets.Clear;
-      S.Carets.Append (Before_Caret);
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Before_Caret);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
 
       Assert (Read_Bytes (Path) = "first!",
@@ -1171,9 +1171,9 @@ package body Editor.Files.Operations_Tests is
         "successful retry save should clear dirty state");
       Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Editor.State.Current_Buffer_Revision (S),
         "successful retry save should update saved baseline");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "retry save should preserve cursor and selection");
       Remove_If_Exists (Path);
    end Test_Retry_Save_After_Failure_Uses_Latest_Content;

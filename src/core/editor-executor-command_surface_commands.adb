@@ -77,7 +77,7 @@ package body Editor.Executor.Command_Surface_Commands is
          when Command_Goto_Line_Prefill_Current =>
             if not Has_Buffer then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
-            elsif S.Carets.Length = 0
+            elsif S.Caret.Carets.Length = 0
               or else Editor.State.Line_Count (S) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No current caret location");
@@ -92,7 +92,7 @@ package body Editor.Executor.Command_Surface_Commands is
 
          when Command_Toggle_Quick_Open =>
             if not Has_Project
-              and then not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              and then not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open.");
             end if;
@@ -123,7 +123,7 @@ package body Editor.Executor.Command_Surface_Commands is
 
          when Command_Goto_Line_Query_Set =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Go_To_Line_Overlay)
-              or else not Editor.Go_To_Line.Is_Open (S.Go_To_Line)
+              or else not Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
@@ -131,13 +131,13 @@ package body Editor.Executor.Command_Surface_Commands is
 
          when Command_Goto_Line_Query_Clear =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Go_To_Line_Overlay)
-              or else not Editor.Go_To_Line.Is_Open (S.Go_To_Line)
+              or else not Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Ada.Strings.Fixed.Trim
-              (Editor.Go_To_Line.Text (S.Go_To_Line),
+              (Editor.Go_To_Line.Text (S.Surface.Go_To_Line),
                Ada.Strings.Both)'Length = 0
-              and then not Editor.Go_To_Line.Has_Error (S.Go_To_Line)
+              and then not Editor.Go_To_Line.Has_Error (S.Surface.Go_To_Line)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No go-to-line query to clear");
@@ -147,7 +147,7 @@ package body Editor.Executor.Command_Surface_Commands is
          when Command_Close_Goto_Line
             | Command_Accept_Goto_Line =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Go_To_Line_Overlay)
-              or else not Editor.Go_To_Line.Is_Open (S.Go_To_Line)
+              or else not Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
@@ -169,7 +169,7 @@ package body Editor.Executor.Command_Surface_Commands is
    is
    begin
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.File_Tree, Default_Quick_Open_Config);
+        (S.Surface.Quick_Open, S.Surface.File_Tree, Default_Quick_Open_Config);
       Editor.Render_Cache.Invalidate_All;
    end Recompute_Quick_Open;
 
@@ -213,11 +213,11 @@ package body Editor.Executor.Command_Surface_Commands is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return False;
       else
          return Editor.Rectangle_Selection.Has_Selection
-           (S.Carets (S.Carets.First_Index));
+           (S.Caret.Carets (S.Caret.Carets.First_Index));
       end if;
    end Has_Primary_Selection;
 
@@ -226,14 +226,14 @@ package body Editor.Executor.Command_Surface_Commands is
    is
       C : Editor.Cursors.Caret_State;
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return;
       end if;
 
-      for I in S.Carets.First_Index .. S.Carets.Last_Index loop
-         C := S.Carets (I);
+      for I in S.Caret.Carets.First_Index .. S.Caret.Carets.Last_Index loop
+         C := S.Caret.Carets (I);
          C.Anchor := C.Pos;
-         S.Carets.Replace_Element (I, C);
+         S.Caret.Carets.Replace_Element (I, C);
       end loop;
    end Collapse_All_Selections;
 
@@ -438,10 +438,10 @@ package body Editor.Executor.Command_Surface_Commands is
                   Editor.Executor.Navigation_Commands
                     .Execute_Goto_Line_Delete_Forward (S);
                when Goto_Line_Move_Cursor_Left =>
-                  Editor.Go_To_Line.Move_Cursor_Left (S.Go_To_Line);
+                  Editor.Go_To_Line.Move_Cursor_Left (S.Surface.Go_To_Line);
                   Editor.Render_Cache.Invalidate_All;
                when Goto_Line_Move_Cursor_Right =>
-                  Editor.Go_To_Line.Move_Cursor_Right (S.Go_To_Line);
+                  Editor.Go_To_Line.Move_Cursor_Right (S.Surface.Go_To_Line);
                   Editor.Render_Cache.Invalidate_All;
                when others =>
                   raise Program_Error with "unsupported goto-line command kind";

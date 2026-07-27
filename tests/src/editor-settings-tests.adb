@@ -820,13 +820,13 @@ package body Editor.Settings.Tests is
       --  before saving Settings.  Settings persistence owns only global
       --  preferences and must not observe or serialize this transient panel
       --  state.
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text
-        (S.Buffer_Switcher, "buffer-list-query-must-not-persist");
-      Editor.Buffer_Switcher.Set_Dirty_Filter (S.Buffer_Switcher);
+        (S.Surface.Buffer_Switcher, "buffer-list-query-must-not-persist");
+      Editor.Buffer_Switcher.Set_Dirty_Filter (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Sort_Mode
-        (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
-      Editor.Buffer_Switcher.Show_Marked_Review (S.Buffer_Switcher);
+        (S.Surface.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
+      Editor.Buffer_Switcher.Show_Marked_Review (S.Surface.Buffer_Switcher);
 
       Editor.Settings.Save_To_File (S.Settings, Path, Status);
       Assert (Status = Editor.Settings.Settings_Ok,

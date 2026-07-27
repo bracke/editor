@@ -62,7 +62,7 @@ package body Editor.Smoke_Tests is
       Assert (Text_Buffer.Length (S.Buffer) = 2,
               "Smoke replace must shrink buffer to 2");
 
-      Assert (S.Carets (0).Anchor = S.Carets (0).Pos,
+      Assert (S.Caret.Carets (0).Anchor = S.Caret.Carets (0).Pos,
               "Smoke replace must collapse selection");
    end Test_Select_And_Replace;
 

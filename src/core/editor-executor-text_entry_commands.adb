@@ -24,10 +24,10 @@ package body Editor.Executor.Text_Entry_Commands is
    function Safe_Caret
      (S : Editor.State.State_Type) return Cursor_Index is
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return 0;
       else
-         return S.Carets.Element (S.Carets.First_Index).Pos;
+         return S.Caret.Carets.Element (S.Caret.Carets.First_Index).Pos;
       end if;
    end Safe_Caret;
 
@@ -58,8 +58,8 @@ package body Editor.Executor.Text_Entry_Commands is
      (S   : in out Editor.State.State_Type;
       Pos : Cursor_Index) is
    begin
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => Pos,
          Anchor => Pos,
          Virtual_Column => 0,
@@ -72,10 +72,10 @@ package body Editor.Executor.Text_Entry_Commands is
    is
       C : Caret_State;
    begin
-      for I in S.Carets.First_Index .. S.Carets.Last_Index loop
-         C := S.Carets (I);
+      for I in S.Caret.Carets.First_Index .. S.Caret.Carets.Last_Index loop
+         C := S.Caret.Carets (I);
          C.Anchor := C.Pos;
-         S.Carets.Replace_Element (I, C);
+         S.Caret.Carets.Replace_Element (I, C);
       end loop;
    end Collapse_All_Selections;
 
@@ -95,7 +95,7 @@ package body Editor.Executor.Text_Entry_Commands is
         (C : Caret_State) return Boolean
       is
       begin
-         if S.Rect_Select_Active then
+         if S.Caret.Rect_Select_Active then
             return C.Pos /= C.Anchor
               or else C.Virtual_Column /= C.Anchor_Virtual_Column;
          else
@@ -103,7 +103,7 @@ package body Editor.Executor.Text_Entry_Commands is
          end if;
       end Caret_Has_Editable_Selection;
    begin
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          if Caret_Has_Editable_Selection (C) then
             return True;
          end if;
@@ -232,12 +232,12 @@ package body Editor.Executor.Text_Entry_Commands is
 
       if Status /= Editor.Selection.Selection_Ok then
          if Status = Editor.Selection.Selection_Invalid
-           and then not S.Rect_Select_Active
-           and then Natural (S.Carets.Length) = 1
+           and then not S.Caret.Rect_Select_Active
+           and then Natural (S.Caret.Carets.Length) = 1
          then
             declare
                C : constant Editor.Cursors.Caret_State :=
-                 S.Carets (S.Carets.First_Index);
+                 S.Caret.Carets (S.Caret.Carets.First_Index);
                L : constant Cursor_Index := Cursor_Index'Min (C.Pos, C.Anchor);
                H : constant Cursor_Index := Cursor_Index'Max (C.Pos, C.Anchor);
             begin
@@ -256,7 +256,7 @@ package body Editor.Executor.Text_Entry_Commands is
          return Result;
       end if;
 
-      if S.Rect_Select_Active or else Natural (S.Carets.Length) /= 1 then
+      if S.Caret.Rect_Select_Active or else Natural (S.Caret.Carets.Length) /= 1 then
          Status := Editor.Selection.Selection_Invalid;
          return Result;
       end if;
@@ -433,7 +433,7 @@ package body Editor.Executor.Text_Entry_Commands is
    begin
       Forward_Cmd.Kind := Apply_Replace_Batch;
 
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          if C.Pos > 0 then
             Append_Replace_Op
               (Forward_Cmd,
@@ -445,7 +445,7 @@ package body Editor.Executor.Text_Entry_Commands is
 
       Editor.Executor.History.Apply_Replace_Batch_Command (S, Forward_Cmd);
 
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          if C.Pos = 0 then
             New_Carets.Append (Caret_State'(others => <>));
          else
@@ -461,7 +461,7 @@ package body Editor.Executor.Text_Entry_Commands is
          end if;
       end loop;
 
-      S.Carets := New_Carets;
+      S.Caret.Carets := New_Carets;
       Editor.State.Normalize_Carets (S);
 
       New_Caret := Safe_Caret (S);
@@ -474,7 +474,7 @@ package body Editor.Executor.Text_Entry_Commands is
       Forward_Cmd : out Editor.Commands.Payloads.Command)
    is
       New_Carets   : Cursors_Vector.Vector;
-      Old_Carets   : constant Cursors_Vector.Vector := S.Carets;
+      Old_Carets   : constant Cursors_Vector.Vector := S.Caret.Carets;
       Old_Len      : constant Natural := Text_Buffer.Length (S.Buffer);
       Offset       : Natural := 0;
       Deleted_Here : Natural := 0;
@@ -511,7 +511,7 @@ package body Editor.Executor.Text_Entry_Commands is
          Offset := Offset + Deleted_Here;
       end loop;
 
-      S.Carets := New_Carets;
+      S.Caret.Carets := New_Carets;
       Editor.State.Normalize_Carets (S);
 
       New_Caret := Safe_Caret (S);
@@ -527,10 +527,10 @@ package body Editor.Executor.Text_Entry_Commands is
       if Missing_Active_Buffer (S) then
          Status := No_Active_Buffer;
          return Pos;
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          Status := No_Caret_Location;
          return 0;
-      elsif S.Rect_Select_Active or else Natural (S.Carets.Length) /= 1 then
+      elsif S.Caret.Rect_Select_Active or else Natural (S.Caret.Carets.Length) /= 1 then
          Status := Invalid_Selection;
          return Pos;
       elsif Natural (Pos) > Text_Buffer.Length (S.Buffer) then
@@ -591,7 +591,7 @@ package body Editor.Executor.Text_Entry_Commands is
       C : Caret_State) return Boolean
    is
    begin
-      if S.Rect_Select_Active then
+      if S.Caret.Rect_Select_Active then
          return C.Pos /= C.Anchor
            or else C.Virtual_Column /= C.Anchor_Virtual_Column;
       else
@@ -606,7 +606,7 @@ package body Editor.Executor.Text_Entry_Commands is
       Forward_Cmd : out Editor.Commands.Payloads.Command)
    is
       Old_State  : constant Editor.State.State_Type := S;
-      Old_Carets : constant Cursors_Vector.Vector := S.Carets;
+      Old_Carets : constant Cursors_Vector.Vector := S.Caret.Carets;
       New_Carets : Cursors_Vector.Vector;
       Offset     : Integer := 0;
       Line_I     : Natural := Lines.First_Index;
@@ -622,7 +622,7 @@ package body Editor.Executor.Text_Entry_Commands is
                 (To_String (Lines (Use_Line))) > 0;
             Is_Target  : constant Boolean :=
               Caret_Has_Editable_Selection (Old_State, C)
-              or else (Old_State.Rect_Select_Active and then Has_Insert);
+              or else (Old_State.Caret.Rect_Select_Active and then Has_Insert);
          begin
             if Is_Target then
                declare
@@ -677,7 +677,7 @@ package body Editor.Executor.Text_Entry_Commands is
                 (To_String (Lines (Use_Line))) > 0;
             Is_Target  : constant Boolean :=
               Caret_Has_Editable_Selection (Old_State, C)
-              or else (Old_State.Rect_Select_Active and then Has_Insert);
+              or else (Old_State.Caret.Rect_Select_Active and then Has_Insert);
          begin
             if Is_Target then
                declare
@@ -733,8 +733,8 @@ package body Editor.Executor.Text_Entry_Commands is
          end;
       end loop;
 
-      S.Carets := New_Carets;
-      S.Rect_Select_Active := False;
+      S.Caret.Carets := New_Carets;
+      S.Caret.Rect_Select_Active := False;
       Editor.State.Normalize_Carets (S);
       New_Caret := Safe_Caret (S);
    end Replace_Selected_Carets;
@@ -756,7 +756,7 @@ package body Editor.Executor.Text_Entry_Commands is
       Pos      : Cursor_Index := 0;
       VC       : Natural := 0;
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return Result;
       end if;
 
@@ -764,11 +764,11 @@ package body Editor.Executor.Text_Entry_Commands is
          return Result;
       end if;
 
-      if Lines.Length <= S.Carets.Length then
-         return S.Carets;
+      if Lines.Length <= S.Caret.Carets.Length then
+         return S.Caret.Carets;
       end if;
 
-      First_Caret := S.Carets (S.Carets.First_Index);
+      First_Caret := S.Caret.Carets (S.Caret.Carets.First_Index);
 
       Line_Column_For_Index
       (S,
@@ -856,8 +856,8 @@ package body Editor.Executor.Text_Entry_Commands is
          return;
       end if;
 
-      if S.Rect_Select_Active
-        or else Natural (S.Carets.Length) > 1
+      if S.Caret.Rect_Select_Active
+        or else Natural (S.Caret.Carets.Length) > 1
       then
          Status := Invalid_Selection;
          New_Caret := Safe_Caret (S);
@@ -895,7 +895,7 @@ package body Editor.Executor.Text_Entry_Commands is
          end if;
 
          if Command_Has_Position
-           and then S.Carets (S.Carets.First_Index).Virtual_Column = 0
+           and then S.Caret.Carets (S.Caret.Carets.First_Index).Virtual_Column = 0
          then
             Insert_Pos := Cursor_Index'Min
               (Command_Pos, Cursor_Index (Text_Buffer.Length (S.Buffer)));
@@ -951,7 +951,7 @@ package body Editor.Executor.Text_Entry_Commands is
 
          when Delete_Char =>
             if Any_Selection (S)
-              and then (S.Rect_Select_Active or else S.Carets.Length > 1)
+              and then (S.Caret.Rect_Select_Active or else S.Caret.Carets.Length > 1)
             then
                Replace_Selected_Carets
                  (S           => S,
@@ -966,7 +966,7 @@ package body Editor.Executor.Text_Entry_Commands is
                  (S, Sel_Start, Sel_End, New_Caret, Forward_Cmd);
                Should_Log_Edit := True;
 
-            elsif S.Carets.Length > 1 then
+            elsif S.Caret.Carets.Length > 1 then
                Backspace_All_Carets (S, New_Caret, Forward_Cmd);
                Should_Log_Edit := True;
 
@@ -997,7 +997,7 @@ package body Editor.Executor.Text_Entry_Commands is
 
          when Forward_Delete_Char =>
             if Any_Selection (S)
-              and then (S.Rect_Select_Active or else S.Carets.Length > 1)
+              and then (S.Caret.Rect_Select_Active or else S.Caret.Carets.Length > 1)
             then
                Replace_Selected_Carets
                  (S           => S,
@@ -1012,7 +1012,7 @@ package body Editor.Executor.Text_Entry_Commands is
                  (S, Sel_Start, Sel_End, New_Caret, Forward_Cmd);
                Should_Log_Edit := True;
 
-            elsif S.Carets.Length > 1 then
+            elsif S.Caret.Carets.Length > 1 then
                Delete_All_Carets (S, New_Caret, Forward_Cmd);
                Should_Log_Edit := True;
 
@@ -1060,7 +1060,7 @@ package body Editor.Executor.Text_Entry_Commands is
                   null;
 
                elsif Any_Selection (S)
-                 and then (S.Rect_Select_Active or else S.Carets.Length > 1)
+                 and then (S.Caret.Rect_Select_Active or else S.Caret.Carets.Length > 1)
                then
                   Replace_Selected_Carets
                     (S           => S,
@@ -1097,9 +1097,9 @@ package body Editor.Executor.Text_Entry_Commands is
                elsif Lines.Length > 1
                  and then Targets.Length > 0
                  and then
-                   (S.Rect_Select_Active
-                    or else S.Carets.Length > 1
-                    or else S.Carets (S.Carets.First_Index).Virtual_Column > 0)
+                   (S.Caret.Rect_Select_Active
+                    or else S.Caret.Carets.Length > 1
+                    or else S.Caret.Carets (S.Caret.Carets.First_Index).Virtual_Column > 0)
                then
                   Forward_Cmd.Kind := Apply_Replace_Batch;
 
@@ -1169,17 +1169,17 @@ package body Editor.Executor.Text_Entry_Commands is
                         end;
                      end loop;
 
-                     S.Carets := New_Carets;
+                     S.Caret.Carets := New_Carets;
                      Editor.State.Normalize_Carets (S);
                   end;
 
                   New_Caret := Safe_Caret (S);
                   Should_Log_Edit := True;
 
-               elsif S.Carets.Length > 1 then
+               elsif S.Caret.Carets.Length > 1 then
                   Forward_Cmd.Kind := Apply_Replace_Batch;
 
-                  for C of S.Carets loop
+                  for C of S.Caret.Carets loop
                      declare
                         Pad : constant Unbounded_String := Padding_For (S, C);
                         Ins : constant Unbounded_String := Pad & Paste_Text;
@@ -1199,7 +1199,7 @@ package body Editor.Executor.Text_Entry_Commands is
                      Offset     : Natural := 0;
                      Pos        : Natural := 0;
                   begin
-                     for C of S.Carets loop
+                     for C of S.Caret.Carets loop
                         declare
                            Pad     : constant Unbounded_String := Padding_For (S, C);
                            Ins_Len : constant Natural := Text_Buffer.UTF8_Code_Point_Count (To_String (Pad & Paste_Text));
@@ -1217,7 +1217,7 @@ package body Editor.Executor.Text_Entry_Commands is
                         end;
                      end loop;
 
-                     S.Carets := New_Carets;
+                     S.Caret.Carets := New_Carets;
                      Editor.State.Normalize_Carets (S);
                   end;
 
@@ -1226,7 +1226,7 @@ package body Editor.Executor.Text_Entry_Commands is
 
                else
                   declare
-                     C   : constant Caret_State := S.Carets (S.Carets.First_Index);
+                     C   : constant Caret_State := S.Caret.Carets (S.Caret.Carets.First_Index);
                      Pad : constant Unbounded_String := Padding_For (S, C);
                      Ins : constant Unbounded_String := Pad & Paste_Text;
 
@@ -1243,8 +1243,8 @@ package body Editor.Executor.Text_Entry_Commands is
 
                      Editor.Executor.History.Apply_Replace_Batch_Command (S, Forward_Cmd);
 
-                     S.Carets.Clear;
-                     S.Carets.Append
+                     S.Caret.Carets.Clear;
+                     S.Caret.Carets.Append
                      (Caret_State'(Pos                   => New_Pos,
                         Anchor                => New_Pos,
                         Virtual_Column        => 0,

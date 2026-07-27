@@ -676,7 +676,7 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
       Before_Redo := Editor.History.Redo_Stack.Length;
       Before_Back := S.Navigation_History.Back_Stack.Length;
       Before_Fwd := S.Navigation_History.Forward_Stack.Length;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Copy_Buffer_File);
@@ -722,9 +722,9 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then S.Navigation_History.Back_Stack.Length = Before_Back
         and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
-        and then S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor
+        and then S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor
         and then To_String (S.Search.Active_Find_Query) = "transient"
         and then To_String (S.Search.Active_Replace_Text) = "stable"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"
@@ -745,8 +745,8 @@ procedure Test_Copy_Validation_Order_And_Active_Source_Reliability
         and then Editor.History.Redo_Stack.Length = Before_Redo
         and then S.Navigation_History.Back_Stack.Length = Before_Back
         and then S.Navigation_History.Forward_Stack.Length = Before_Fwd
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor
         and then To_String (S.Search.Active_Find_Query) = "transient"
         and then To_String (S.Search.Active_Replace_Text) = "stable"
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard"

@@ -585,7 +585,7 @@ package body Editor.Executor.Buffer_Close_Commands is
 
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Editor.Executor.Pending_Transition_Policy.Invalidate_Pending_Transition_If_Stale (S);
-      if Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
+      if Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher) then
          Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
          Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
       end if;

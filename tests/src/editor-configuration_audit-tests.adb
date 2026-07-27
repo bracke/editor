@@ -939,9 +939,9 @@ package body Editor.Configuration_Audit.Tests is
       Editor.Buffers.Global_Add_File_Buffer
         (Editor.Test_Temp.Base & "/editor-/selected.adb", "selected.adb", "procedure Selected is begin null; end;", Id);
       Editor.Buffers.Global_Set_Active_Buffer (Id);
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
 
       Summary := Editor.Configuration_Audit.Buffer_Boundary_Audit_For (S);
       Assert (Summary.Selected_Buffer_Valid
@@ -1186,9 +1186,9 @@ package body Editor.Configuration_Audit.Tests is
       Editor.Feature_Panel.Set_Focused (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Panel.Feature_Panel);
       Editor.Feature_Panel.Select_First (S.Panel.Feature_Panel);
-      Editor.Project_Search.Set_Query (S.Project_Search, "preserve");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "preserve");
       Editor.Project_Search.Set_Status
-        (S.Project_Search, Editor.Project_Search.Project_Search_Ok);
+        (S.Surface.Project_Search, Editor.Project_Search.Project_Search_Ok);
 
       Before_Project := Editor.State.Project_Scoped_State_Summary_For (S);
       Before_Config  := Editor.Configuration_Audit.Configuration_State_Summary_For (S);
@@ -1247,7 +1247,7 @@ package body Editor.Configuration_Audit.Tests is
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Fixtures.Set_Placeholder_Rows (S.Panel.Feature_Panel);
       Editor.Feature_Panel.Select_First (S.Panel.Feature_Panel);
-      Editor.Project_Search.Set_Query (S.Project_Search, "not persisted");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "not persisted");
       S.Buffer_Lifecycle.Dirty_Close_Prompt_Active := True;
       S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer := 1234;
       S.Buffer_Lifecycle.Dirty_Close_Prompt_Buffer_Ids := To_Unbounded_String ("1234");

@@ -257,11 +257,11 @@ package body Editor.Executor.Semantic_Symbol_Selection is
       First_Char : Natural;
       Last_Char  : Natural;
    begin
-      if Text'Length = 0 or else S.Carets.Length = 0 then
+      if Text'Length = 0 or else S.Caret.Carets.Length = 0 then
          return (others => <>);
       end if;
 
-      Caret_Pos := Natural (S.Carets (S.Carets.First_Index).Pos);
+      Caret_Pos := Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos);
       if Caret_Pos >= Text'Length then
          Probe := Text'Last;
       else

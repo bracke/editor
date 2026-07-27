@@ -87,7 +87,7 @@ package body Editor.Input_Bridge.Text_Entry_Routing is
         and then not Editor.State.Has_Active_Buffer (State)
       then
          return No_Active_Buffer;
-      elsif State.Carets.Is_Empty then
+      elsif State.Caret.Carets.Is_Empty then
          return No_Caret_Location;
       end if;
 
@@ -125,9 +125,9 @@ package body Editor.Input_Bridge.Text_Entry_Routing is
          when Routed_To_Text_Insert =>
             Routed.Kind := Editor.Command_Kinds.Insert_Text_Input;
             if not Routed.Has_Position
-              and then not State.Carets.Is_Empty
+              and then not State.Caret.Carets.Is_Empty
             then
-               Routed.Pos := State.Carets (State.Carets.First_Index).Pos;
+               Routed.Pos := State.Caret.Carets (State.Caret.Carets.First_Index).Pos;
                Routed.Has_Position := True;
             end if;
             if Cmd.Code /= Wide_Wide_Character'Val (0)

@@ -225,9 +225,9 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Add_File_Buffer
         (Editor.Test_Temp.Base & "/hints/alphabet.adb", "alphabet.adb", "procedure Alphabet is begin null; end;", Beta);
       Editor.Buffers.Global_Set_Active_Buffer (Alpha);
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
       Editor.Overlay_Focus.Activate
         (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Buffer_Switcher_Overlay,
@@ -2954,8 +2954,8 @@ package body Editor.Buffer_Switcher.Tests is
       Hints : Editor.Buffer_Switcher_Contextual_Hints.Switcher_Contextual_Hint_Vectors.Vector;
    begin
       Setup_Global_Switcher_State (S, Alpha, Beta);
-      Before_Selected := Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
-      Before_Rows := Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher);
+      Before_Selected := Editor.Buffer_Switcher.Selected_Row_Index (S.Surface.Buffer_Switcher);
+      Before_Rows := Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher);
 
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
 
@@ -2976,13 +2976,13 @@ package body Editor.Buffer_Switcher.Tests is
                  "default policy exposes enabled hints only");
       end loop;
 
-      Assert (Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher) = Before_Selected,
+      Assert (Editor.Buffer_Switcher.Selected_Row_Index (S.Surface.Buffer_Switcher) = Before_Selected,
               "hint derivation must not alter selected row");
-      Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = Before_Rows,
+      Assert (Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = Before_Rows,
               "hint derivation must not alter row projection");
-      Assert (Editor.Buffer_Switcher.Filter_Text (S.Buffer_Switcher) = "",
+      Assert (Editor.Buffer_Switcher.Filter_Text (S.Surface.Buffer_Switcher) = "",
               "hint derivation must not alter query text");
-      Assert (Editor.Buffer_Switcher.Marked_Count (S.Buffer_Switcher) = 0,
+      Assert (Editor.Buffer_Switcher.Marked_Count (S.Surface.Buffer_Switcher) = 0,
               "hint derivation must not mutate marks");
       Assert (Alpha /= Editor.Buffers.No_Buffer,
               "setup keeps a concrete selected buffer");
@@ -3006,9 +3006,9 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (not Contains_Hint (Hints, Command_Buffer_Switcher_Mark_Clear),
               "selected unmarked row must not expose unmark-selected hint");
 
-      Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Alpha);
+      Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, Alpha);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Mark_Clear),
               "selected marked row should expose unmark-selected hint");
@@ -3016,9 +3016,9 @@ package body Editor.Buffer_Switcher.Tests is
               "marked state should expose marked-close preparation hint");
 
       Editor.Buffer_Switcher.Prepare_Pending_Marked_Close
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Count, Dirty_Count);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Count, Dirty_Count);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
 
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Mark_Confirm),
@@ -3082,17 +3082,17 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Set_Active_Buffer (Alpha);
       Editor.Buffers.Load_Global_Active_Into_State (S);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
 
-      Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Alpha);
-      Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Beta);
+      Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, Alpha);
+      Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, Beta);
       Editor.Buffer_Switcher.Prepare_Pending_Marked_Close
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Count, Dirty_Count);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Count, Dirty_Count);
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Count);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Count);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
-      Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, Alpha, 1);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
+      Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Surface.Buffer_Switcher, Alpha, 1);
 
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply),
@@ -3105,7 +3105,7 @@ package body Editor.Buffer_Switcher.Tests is
               "preview workflow hints should outrank pending-close confirmation hints");
 
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune_Apply
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Count, Applicable);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Count, Applicable);
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Confirm),
               "apply confirmation should expose confirm-apply hint");
@@ -3135,18 +3135,18 @@ package body Editor.Buffer_Switcher.Tests is
       Mark_Global_Buffer_Dirty (S, Beta);
       Editor.Buffers.Global_Set_Active_Buffer (Alpha);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Alpha);
-      Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Beta);
+      Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, Alpha);
+      Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, Beta);
       Editor.Buffer_Switcher.Prepare_Pending_Marked_Close
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Count, Dirty_Count);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Count, Dirty_Count);
       Editor.Buffer_Switcher.Prepare_Dirty_Pending_Marked_Close_Prune
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Count);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Count);
       Before_Targets := Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count
-        (S.Buffer_Switcher);
+        (S.Surface.Buffer_Switcher);
 
-      Editor.Buffer_Switcher.Show_Dirty_Prune_Review (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Show_Dirty_Prune_Review (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Review_Hide),
               "dirty-prune review mode should expose its own hide-review hint");
@@ -3156,12 +3156,12 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (not Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Review_Hide),
               "active dirty-prune review hints must not imply pending-close review");
       Assert (Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Target_Count
-                (S.Buffer_Switcher) = Before_Targets,
+                (S.Surface.Buffer_Switcher) = Before_Targets,
               "review hint derivation must not mutate reviewed target set");
 
-      Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "no-visible-target");
+      Editor.Buffer_Switcher.Set_Filter_Text (S.Surface.Buffer_Switcher, "no-visible-target");
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, (others => <>));
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Assert (not Contains_Hint (Hints, Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected),
               "selected-target correction hint must disappear when candidates are hidden by query");
@@ -3179,8 +3179,8 @@ package body Editor.Buffer_Switcher.Tests is
       Text  : Unbounded_String;
    begin
       Setup_Global_Switcher_State (S, Alpha, Beta);
-      Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Alpha);
-      Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Beta);
+      Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, Alpha);
+      Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, Beta);
       Hints := Editor.Buffer_Switcher_Contextual_Hints.Build_Switcher_Contextual_Hints (S);
       Text := To_Unbounded_String (Formatted_Hints (Hints));
 
@@ -4189,14 +4189,14 @@ package body Editor.Buffer_Switcher.Tests is
    begin
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Initialize (S);
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
 
-      Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0,
+      Assert (Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 0,
               "empty buffer list has no activatable data rows");
       Assert (Editor.Buffer_Switcher.Buffer_List_Empty_State_Label
-                (S.Buffer_Switcher, Editor.Buffers.Global_Count) = "No open buffers",
+                (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Count) = "No open buffers",
               "empty buffer list reports no open buffers");
 
       A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Next_Buffer);
@@ -4253,9 +4253,9 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.State.Initialize (S);
       Setup_Global_Switcher_State (S, Alpha, Beta);
 
-      Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 2,
+      Assert (Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 2,
               "stale-row test starts from visible real buffer rows");
-      Assert (Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher) = 1,
+      Assert (Editor.Buffer_Switcher.Selected_Row_Index (S.Surface.Buffer_Switcher) = 1,
               "selected row starts on the active buffer");
 
       Editor.Buffers.Global_Force_Close_Buffer (Alpha, Closed);
@@ -4301,11 +4301,11 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Add_File_Buffer
         (Editor.Test_Temp.Base & "/scenario/outside/other.adb", "other.adb", "procedure Other is begin null; end;", Outside);
       Editor.Buffers.Global_Set_Active_Buffer (Inside);
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project_Runtime.Project, Config);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project_Runtime.Project, Config);
 
-      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Inside, Found);
+      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Inside, Found);
       Assert (Found and then Row.Is_Project_Owned
                 and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Owned
                 and then To_String (Row.Project_Ownership_Label) = "project",
@@ -4313,7 +4313,7 @@ package body Editor.Buffer_Switcher.Tests is
       Assert (Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row) = "active file project",
               "project ownership marker composes with active/file markers deterministically");
 
-      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Outside, Found);
+      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Outside, Found);
       Assert (Found and then Row.Is_Outside_Project
                 and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Outside
                 and then To_String (Row.Project_Ownership_Label) = "outside project",
@@ -4357,17 +4357,17 @@ package body Editor.Buffer_Switcher.Tests is
         (Editor.Test_Temp.Base & "/scenario/labels/outside/main.adb", "main.adb", "procedure Outside is begin null; end;", Outside);
       Editor.Buffers.Global_Add_Untitled_Buffer (Scratch);
       Editor.Buffers.Global_Set_Active_Buffer (Inside);
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project_Runtime.Project, Config);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project_Runtime.Project, Config);
 
-      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Inside, Found);
+      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Inside, Found);
       Assert (Found and then To_String (Row.Display_Label) = "src/main.adb",
               "project-owned rows use project-relative display labels");
-      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Outside, Found);
+      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Outside, Found);
       Assert (Found and then To_String (Row.Display_Label) = "outside/main.adb",
               "outside-project duplicate basenames receive deterministic parent hints");
-      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Scratch, Found);
+      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Scratch, Found);
       Assert (Found and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Scratch
                 and then Editor.Buffer_Switcher.Buffer_Row_State_Markers (Row) = "scratch",
               "unbacked rows are labelled and marked as scratch without path payloads");
@@ -4377,9 +4377,9 @@ package body Editor.Buffer_Switcher.Tests is
          No_Project : Editor.Project.Project_State;
       begin
          Editor.Buffer_Switcher.Recompute_Rows
-           (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, No_Project, Config);
+           (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, No_Project, Config);
       end;
-      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Inside, Found);
+      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Inside, Found);
       Assert (Found and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_No_Project
                 and then To_String (Row.Project_Ownership_Label) = "no project",
               "file-backed rows expose no-project ownership distinctly when no project is open");
@@ -4410,30 +4410,30 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Add_File_Buffer (Editor.Test_Temp.Base & "/scenario/sel/beta.adb", "beta.adb", "", Beta);
       Editor.Buffers.Global_Add_File_Buffer (Editor.Test_Temp.Base & "/scenario/sel/gamma.adb", "gamma.adb", "", Gamma);
       Editor.Buffers.Global_Set_Active_Buffer (Alpha);
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
-      Editor.Buffer_Switcher.Move_Selection_Down (S.Buffer_Switcher);
-      Editor.Buffer_Switcher.Move_Selection_Down (S.Buffer_Switcher);
-      Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
+      Editor.Buffer_Switcher.Move_Selection_Down (S.Surface.Buffer_Switcher);
+      Editor.Buffer_Switcher.Move_Selection_Down (S.Surface.Buffer_Switcher);
+      Row := Editor.Buffer_Switcher.Selected_Row (S.Surface.Buffer_Switcher, Found);
       Assert (Found and then Row.Id = Gamma,
               "setup selects a non-active row before recompute");
 
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
-      Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
+      Row := Editor.Buffer_Switcher.Selected_Row (S.Surface.Buffer_Switcher, Found);
       Assert (Found and then Row.Id = Gamma,
               "recompute preserves transient selected buffer identity while it remains visible");
 
       Editor.Buffers.Global_Force_Close_Buffer (Gamma, Closed);
       Assert (Closed, "setup closes the selected buffer");
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
-      Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
+      Row := Editor.Buffer_Switcher.Selected_Row (S.Surface.Buffer_Switcher, Found);
       Assert (Found and then Row.Id = Alpha,
               "recompute clamps stale selection back to the active buffer row");
       Assert (Editor.Buffer_Switcher.Assert_Multi_Buffer_Management_Coherent
-                (S.Buffer_Switcher),
+                (S.Surface.Buffer_Switcher),
               "milestone helper confirms coherent transient buffer-list projection");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -4511,18 +4511,18 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Add_File_Buffer
         (Editor.Test_Temp.Base & "/scenario/duplicate_project/tests/main.adb", "main.adb", "tests", Main_B);
       Editor.Buffers.Global_Set_Active_Buffer (Main_A);
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project_Runtime.Project, Config);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, S.Recent_Buffers, S.Project_Runtime.Project, Config);
 
-      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Main_A, Found);
+      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Main_A, Found);
       Assert (Found and then To_String (Row.Display_Label) = "src/main.adb",
               "duplicate project basenames keep deterministic project-relative label for src/main.adb");
-      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Main_B, Found);
+      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Main_B, Found);
       Assert (Found and then To_String (Row.Display_Label) = "tests/main.adb",
               "duplicate project basenames keep deterministic project-relative label for tests/main.adb");
-      Assert (Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = Main_A
-                and then Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 2).Id = Main_B,
+      Assert (Editor.Buffer_Switcher.Row_At (S.Surface.Buffer_Switcher, 1).Id = Main_A
+                and then Editor.Buffer_Switcher.Row_At (S.Surface.Buffer_Switcher, 2).Id = Main_B,
               "duplicate label disambiguation does not reorder buffer-list rows");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -4579,29 +4579,29 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Add_Untitled_Buffer (Scratch);
       Editor.Buffers.Global_Set_Active_Buffer (Project_Main);
 
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher,
+        (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers,
          S.Project_Runtime.Project,
          Config);
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer
-        (S.Buffer_Switcher, Project_Main, Found);
+        (S.Surface.Buffer_Switcher, Project_Main, Found);
       Assert (Found and then To_String (Row.Display_Label) = "src/main.adb"
                 and then Row.Is_Project_Owned,
               "project duplicate label keeps project-relative parent context");
       Project_Label_Before := Row.Display_Label;
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer
-        (S.Buffer_Switcher, Project_Test, Found);
+        (S.Surface.Buffer_Switcher, Project_Test, Found);
       Assert (Found and then To_String (Row.Display_Label) = "tests/main.adb"
                 and then Row.Is_Project_Owned,
               "same project basename is disambiguated by project-relative directory");
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer
-        (S.Buffer_Switcher, Outside_Main, Found);
+        (S.Surface.Buffer_Switcher, Outside_Main, Found);
       Assert (Found and then To_String (Row.Display_Label) = "src/main.adb"
                 and then Row.Is_Outside_Project
                 and then To_String (Row.Path) =
@@ -4610,7 +4610,7 @@ package body Editor.Buffer_Switcher.Tests is
       Outside_Label_Before := Row.Display_Label;
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer
-        (S.Buffer_Switcher, Outside_Deep, Found);
+        (S.Surface.Buffer_Switcher, Outside_Deep, Found);
       Assert (Found and then To_String (Row.Display_Label) = "e/final.adb"
                 and then Row.Is_Outside_Project,
               "deep outside-project paths are bounded to parent/basename labels");
@@ -4620,7 +4620,7 @@ package body Editor.Buffer_Switcher.Tests is
               "outside-project labels do not dump unbounded absolute paths");
 
       Row := Editor.Buffer_Switcher.Row_For_Buffer
-        (S.Buffer_Switcher, Scratch, Found);
+        (S.Surface.Buffer_Switcher, Scratch, Found);
       Assert (Found and then Row.Is_Unbacked
                 and then Row.Project_Ownership =
                   Editor.Buffer_Switcher.Rows.Buffer_Project_Scratch
@@ -4629,33 +4629,33 @@ package body Editor.Buffer_Switcher.Tests is
 
       Editor.Buffers.Global_Set_Active_Buffer (Outside_Main);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher,
+        (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers,
          S.Project_Runtime.Project,
          Config);
       Row := Editor.Buffer_Switcher.Row_For_Buffer
-        (S.Buffer_Switcher, Project_Main, Found);
+        (S.Surface.Buffer_Switcher, Project_Main, Found);
       Assert (Found and then Row.Display_Label = Project_Label_Before,
               "project labels are stable after active-buffer recompute");
       Row := Editor.Buffer_Switcher.Row_For_Buffer
-        (S.Buffer_Switcher, Outside_Main, Found);
+        (S.Surface.Buffer_Switcher, Outside_Main, Found);
       Assert (Found and then Row.Display_Label = Outside_Label_Before,
               "outside-project labels are stable after active-buffer recompute");
 
-      Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "main.adb");
+      Editor.Buffer_Switcher.Set_Filter_Text (S.Surface.Buffer_Switcher, "main.adb");
       Editor.Buffer_Switcher.Set_Sort_Mode
-        (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
+        (S.Surface.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher,
+        (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers,
          S.Project_Runtime.Project,
          Config);
-      Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 3
-                and then Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 1).Id = Project_Main
-                and then Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 2).Id = Project_Test
-                and then Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, 3).Id = Outside_Main,
+      Assert (Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 3
+                and then Editor.Buffer_Switcher.Row_At (S.Surface.Buffer_Switcher, 1).Id = Project_Main
+                and then Editor.Buffer_Switcher.Row_At (S.Surface.Buffer_Switcher, 2).Id = Project_Test
+                and then Editor.Buffer_Switcher.Row_At (S.Surface.Buffer_Switcher, 3).Id = Outside_Main,
               "duplicate basename filter/name-sort ordering remains deterministic");
 
       No_Project_Id := Editor.Buffers.Add_Buffer_From_File
@@ -4745,10 +4745,10 @@ package body Editor.Buffer_Switcher.Tests is
          Found  : Boolean := False;
          Row    : Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row;
       begin
-         Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+         Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
          Editor.Buffer_Switcher.Recompute_Rows
-           (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
-         Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Id, Found);
+           (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
+         Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Id, Found);
 
          Assert (Found, Context & ": active buffer must have a Buffer List row");
          Assert ((not Missing) or else Row.Missing_Target_Surfaced,
@@ -5012,14 +5012,14 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Add_File_Buffer
         (Editor.Test_Temp.Base & "/scenario/render/beta.adb", "beta.adb", "beta", Beta);
       Editor.Buffers.Global_Set_Active_Buffer (Alpha);
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
-      Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "adb");
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
+      Editor.Buffer_Switcher.Set_Filter_Text (S.Surface.Buffer_Switcher, "adb");
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
-      Editor.Buffer_Switcher.Move_Selection_Down (S.Buffer_Switcher);
-      Before_Selected := Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
-      Before_Rows := Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher);
-      Before_Filter := To_Unbounded_String (Editor.Buffer_Switcher.Filter_Text (S.Buffer_Switcher));
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI, Config);
+      Editor.Buffer_Switcher.Move_Selection_Down (S.Surface.Buffer_Switcher);
+      Before_Selected := Editor.Buffer_Switcher.Selected_Row_Index (S.Surface.Buffer_Switcher);
+      Before_Rows := Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher);
+      Before_Filter := To_Unbounded_String (Editor.Buffer_Switcher.Filter_Text (S.Surface.Buffer_Switcher));
       Before_Active := Editor.Buffers.Global_Active_Buffer;
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -5029,9 +5029,9 @@ package body Editor.Buffer_Switcher.Tests is
               "render snapshot construction does not switch buffers");
       Assert (Editor.Buffers.Global_Contains (Alpha) and then Editor.Buffers.Global_Contains (Beta),
               "render snapshot construction does not close buffers");
-      Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = Before_Rows
-                and then Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher) = Before_Selected
-                and then Editor.Buffer_Switcher.Filter_Text (S.Buffer_Switcher) = To_String (Before_Filter),
+      Assert (Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = Before_Rows
+                and then Editor.Buffer_Switcher.Selected_Row_Index (S.Surface.Buffer_Switcher) = Before_Selected
+                and then Editor.Buffer_Switcher.Filter_Text (S.Surface.Buffer_Switcher) = To_String (Before_Filter),
               "render snapshot construction does not mutate buffer-list rows, selection, or filter");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -5234,12 +5234,12 @@ package body Editor.Buffer_Switcher.Tests is
 
       Before_Active := Natural (Editor.Buffers.Global_Active_Buffer);
       Before_Count := Editor.Buffers.Global_Count;
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
-      Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "payload-audit");
-      Before_Row_Count := Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher);
-      Before_Selected := Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
-      Before_Filter := To_Unbounded_String (Editor.Buffer_Switcher.Filter_Text (S.Buffer_Switcher));
-      Before_Open := Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
+      Editor.Buffer_Switcher.Set_Filter_Text (S.Surface.Buffer_Switcher, "payload-audit");
+      Before_Row_Count := Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher);
+      Before_Selected := Editor.Buffer_Switcher.Selected_Row_Index (S.Surface.Buffer_Switcher);
+      Before_Filter := To_Unbounded_String (Editor.Buffer_Switcher.Filter_Text (S.Surface.Buffer_Switcher));
+      Before_Open := Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher);
 
       for I in Commands'Range loop
          declare
@@ -5295,13 +5295,13 @@ package body Editor.Buffer_Switcher.Tests is
                     "Buffer List availability must not switch buffers");
             Assert (Editor.Buffers.Global_Count = Before_Count,
                     "Buffer List availability must not close buffers");
-            Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = Before_Row_Count,
+            Assert (Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = Before_Row_Count,
                     "Buffer List availability must not recompute/mutate rows");
-            Assert (Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher) = Before_Selected,
+            Assert (Editor.Buffer_Switcher.Selected_Row_Index (S.Surface.Buffer_Switcher) = Before_Selected,
                     "Buffer List availability must not mutate transient selection");
-            Assert (To_String (Before_Filter) = Editor.Buffer_Switcher.Filter_Text (S.Buffer_Switcher),
+            Assert (To_String (Before_Filter) = Editor.Buffer_Switcher.Filter_Text (S.Surface.Buffer_Switcher),
                     "Buffer List availability must not mutate transient filter/query");
-            Assert (Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) = Before_Open,
+            Assert (Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher) = Before_Open,
                     "Buffer List availability must not open/close the list surface");
          end;
       end loop;
@@ -5407,14 +5407,14 @@ package body Editor.Buffer_Switcher.Tests is
       Beta := Editor.Buffers.Add_Buffer_From_File
         (Registry, Editor.Test_Temp.Base & "/live/b/live-b.adb", "live-b.adb", "beta text");
       Editor.Buffers.Set_Active_Buffer (Registry, Alpha);
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
-      Editor.Buffer_Switcher.Set_Filter_Text (S.Buffer_Switcher, "settings-recent-query");
-      Editor.Buffer_Switcher.Set_Dirty_Filter (S.Buffer_Switcher);
-      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
-      Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Beta);
-      Editor.Buffer_Switcher.Show_Marked_Review (S.Buffer_Switcher);
-      Editor.Buffer_Switcher.Recompute_Rows (S.Buffer_Switcher, Registry, Recent_Buffers, Project, Config);
-      Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, Beta, 1);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
+      Editor.Buffer_Switcher.Set_Filter_Text (S.Surface.Buffer_Switcher, "settings-recent-query");
+      Editor.Buffer_Switcher.Set_Dirty_Filter (S.Surface.Buffer_Switcher);
+      Editor.Buffer_Switcher.Set_Sort_Mode (S.Surface.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
+      Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, Beta);
+      Editor.Buffer_Switcher.Show_Marked_Review (S.Surface.Buffer_Switcher);
+      Editor.Buffer_Switcher.Recompute_Rows (S.Surface.Buffer_Switcher, Registry, Recent_Buffers, Project, Config);
+      Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Surface.Buffer_Switcher, Beta, 1);
 
       Settings_Model := Editor.Settings.Build_From_Current;
       Editor.Settings.Save_To_File (Settings_Model, Settings_Path, Settings_Status);
@@ -5864,9 +5864,9 @@ package body Editor.Buffer_Switcher.Tests is
       Editor.Buffers.Global_Add_Untitled_Buffer (Scratch);
       Editor.Buffers.Global_Set_Active_Buffer (Inside);
 
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher,
+        (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers,
          S.Project_Runtime.Project,
@@ -5874,7 +5874,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Metadata := Editor.Buffers.Metadata_For
         (Editor.Buffers.Global_Registry_For_UI, S.Project_Runtime.Project, Inside);
-      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Inside, Found);
+      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Inside, Found);
       Assert (Found
                 and then Metadata.Ownership = Editor.Buffers.Buffer_Project_Owned
                 and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Owned
@@ -5885,7 +5885,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Metadata := Editor.Buffers.Metadata_For
         (Editor.Buffers.Global_Registry_For_UI, S.Project_Runtime.Project, Outside);
-      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Outside, Found);
+      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Outside, Found);
       Assert (Found
                 and then Metadata.Ownership = Editor.Buffers.Buffer_Outside_Project
                 and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Outside
@@ -5895,7 +5895,7 @@ package body Editor.Buffer_Switcher.Tests is
 
       Metadata := Editor.Buffers.Metadata_For
         (Editor.Buffers.Global_Registry_For_UI, S.Project_Runtime.Project, Scratch);
-      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Buffer_Switcher, Scratch, Found);
+      Row := Editor.Buffer_Switcher.Row_For_Buffer (S.Surface.Buffer_Switcher, Scratch, Found);
       Assert (Found
                 and then Metadata.Ownership = Editor.Buffers.Buffer_Scratch_Unbacked
                 and then Row.Project_Ownership = Editor.Buffer_Switcher.Rows.Buffer_Project_Scratch

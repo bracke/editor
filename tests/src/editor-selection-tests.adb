@@ -133,9 +133,9 @@ package body Editor.Selection.Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
 
-      Assert (S.Carets (S.Carets.First_Index).Anchor = 0,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 0,
               "select-all anchor must be beginning of buffer");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 3,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 3,
               "select-all caret must be end of buffer");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "abc",
               "select-all must not mutate text");
@@ -174,17 +174,17 @@ package body Editor.Selection.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abcdef");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 4, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.State.Set_Dirty (S, False);
       Undo_Count := Natural (Editor.History.Undo_Stack.Length);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Clear);
 
-      Assert (S.Carets (S.Carets.First_Index).Pos = 4,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 4,
               "clear-selection must preserve the active caret endpoint");
-      Assert (S.Carets (S.Carets.First_Index).Anchor = 4,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 4,
               "clear-selection must collapse to the caret endpoint");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = "abcdef",
               "clear-selection must not mutate text");
@@ -203,23 +203,23 @@ package body Editor.Selection.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "xx Execute_Command Foo.Bar A_B2");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 5, Anchor => 5, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Select_Word);
 
-      Assert (S.Carets (S.Carets.First_Index).Anchor = 3,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 3,
               "current-word must anchor at token start");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 18,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 18,
               "current-word must place caret at token end");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
       Assert (To_String (Editor.Clipboard.Get_Text) = "Execute_Command",
               "current-word then copy must copy exactly the selected token");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 23, Anchor => 23, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Select_Word);
@@ -227,8 +227,8 @@ package body Editor.Selection.Tests is
       Assert (To_String (Editor.Clipboard.Get_Text) = "Bar",
               "caret after Foo dot must select only Bar");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 27, Anchor => 27, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Select_Word);
@@ -244,18 +244,18 @@ package body Editor.Selection.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc . def");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 3, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          (Pos => 4, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Select_Word);
 
-      Assert (S.Carets (S.Carets.First_Index).Anchor = 0
-              and then S.Carets (S.Carets.First_Index).Pos = 4,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 0
+              and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 4,
               "current-word failure on punctuation/space must preserve existing selection");
       Assert (Last_Message_Text (S) = "No selectable word at cursor",
               "current-word failure must report a deterministic no-op message");
@@ -274,8 +274,8 @@ package body Editor.Selection.Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
 
-      Assert (S.Carets (S.Carets.First_Index).Anchor = 0
-              and then S.Carets (S.Carets.First_Index).Pos = 0,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 0
+              and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 0,
               "select-all on empty buffer must leave a valid empty range");
       Assert (not Editor.Selection.Has_Selection (S),
               "empty buffer must not expose an active selection");
@@ -294,16 +294,16 @@ package body Editor.Selection.Tests is
       Editor.State.Load_Text (S, "Run(); Execute_Command A_B2");
       Editor.Clipboard.Clear;
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 3, Anchor => 3, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Last_Message_Text (S) = "No selectable word at cursor",
               "caret on punctuation must not select preceding word");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 13, Anchor => 13, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Select_Word);
@@ -311,8 +311,8 @@ package body Editor.Selection.Tests is
       Assert (To_String (Editor.Clipboard.Get_Text) = "Execute_Command",
               "underscore token must be copied exactly after current-word");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 27, Anchor => 27, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Select_Word);
@@ -329,8 +329,8 @@ package body Editor.Selection.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("old"));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 99, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Assert (not Editor.Selection.Has_Selection (S),
@@ -353,8 +353,8 @@ package body Editor.Selection.Tests is
       Editor.State.Load_Text (S, "A");
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 1, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Editor.Executor.Execute_No_Log (S, Paste ("B"));
@@ -362,8 +362,8 @@ package body Editor.Selection.Tests is
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "precondition: undo must leave one redo entry");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 1, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Clear);
 
@@ -389,8 +389,8 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Editor.State.Load_Text (S, "Beta");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 4, Anchor => 4, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
@@ -411,8 +411,8 @@ package body Editor.Selection.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha Beta_2 alpha");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 8, Anchor => 8, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Editor.Executor.Execute_Command
@@ -444,10 +444,10 @@ package body Editor.Selection.Tests is
       Why    : String)
    is
    begin
-      Assert (S.Carets.Length > 0, Why & ": expected a primary caret");
-      Assert (Natural (S.Carets (S.Carets.First_Index).Anchor) = Anchor,
+      Assert (S.Caret.Carets.Length > 0, Why & ": expected a primary caret");
+      Assert (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor) = Anchor,
               Why & ": wrong selection anchor");
-      Assert (Natural (S.Carets (S.Carets.First_Index).Pos) = Pos,
+      Assert (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) = Pos,
               Why & ": wrong selection caret position");
    end Assert_Primary_Range;
 
@@ -582,8 +582,8 @@ package body Editor.Selection.Tests is
       Editor.Clipboard.Set_Text (To_Unbounded_String ("X"));
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 5, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
@@ -616,38 +616,38 @@ package body Editor.Selection.Tests is
         (S, "Execute_Command A_B2 Foo.Bar Run(); x 123abc abc123 snake_case_42 leading trailing");
       Editor.Clipboard.Clear;
 
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "Execute_Command",
               "current-word at token start must include underscore token");
 
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(Pos => 18, Anchor => 18, Virtual_Column => 0, Anchor_Virtual_Column => 0));
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(Pos => 18, Anchor => 18, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "A_B2",
               "current-word on digit/underscore token must select A_B2");
 
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(Pos => 24, Anchor => 24, Virtual_Column => 0, Anchor_Virtual_Column => 0));
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(Pos => 24, Anchor => 24, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "Foo",
               "current-word before dot must select only Foo");
 
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(Pos => 28, Anchor => 28, Virtual_Column => 0, Anchor_Virtual_Column => 0));
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(Pos => 28, Anchor => 28, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "Bar",
               "current-word after dot must select only Bar");
 
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(Pos => 34, Anchor => 34, Virtual_Column => 0, Anchor_Virtual_Column => 0));
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(Pos => 34, Anchor => 34, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Last_Message_Text (S) = "No selectable word at cursor",
               "current-word on semicolon/punctuation must fail deterministically");
 
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(Pos => 56, Anchor => 56, Virtual_Column => 0, Anchor_Virtual_Column => 0));
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(Pos => 56, Anchor => 56, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Assert (Selected_Text_By_Copy (S) = "snake_case_42",
               "current-word must preserve full snake_case_42 token");
@@ -662,8 +662,8 @@ package body Editor.Selection.Tests is
       Editor.State.Load_Text (S, "call Execute_Command;");
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(Pos => 8, Anchor => 8, Virtual_Column => 0, Anchor_Virtual_Column => 0));
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(Pos => 8, Anchor => 8, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
@@ -697,8 +697,8 @@ package body Editor.Selection.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha Beta Beta Gamma");
       S.Search.Active_Replace_Text := To_Unbounded_String ("Gamma");
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(Pos => 8, Anchor => 8, Virtual_Column => 0, Anchor_Virtual_Column => 0));
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(Pos => 8, Anchor => 8, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
       Assert (To_String (S.Search.Active_Find_Query) = "",
@@ -789,8 +789,8 @@ package body Editor.Selection.Tests is
       Editor.State.Load_Text (S, "A");
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(Pos => 1, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(Pos => 1, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_No_Log (S, Paste ("B"));
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Redo_Count := Natural (Editor.History.Redo_Stack.Length);
@@ -798,8 +798,8 @@ package body Editor.Selection.Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_All);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Selection_Clear);
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Word);
 
       Assert (Natural (Editor.History.Redo_Stack.Length) = Redo_Count,
@@ -821,8 +821,8 @@ package body Editor.Selection.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Before_Text);
       Editor.Clipboard.Set_Text (To_Unbounded_String (Before_Clip));
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(Pos => 5, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(Pos => 5, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Copy);
       Assert (Editor.Commands.Availability_Metadata.Is_Available (A),
@@ -908,8 +908,8 @@ package body Editor.Selection.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha Beta");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 6, Anchor => 10, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Status := Editor.Selection.Validate_Active_Selection_Range (S, Selection_Range);
@@ -920,15 +920,15 @@ package body Editor.Selection.Tests is
       Assert (To_String (Editor.Selection.Extract_Selected_Text (S)) = "Beta",
               "canonical extraction must read active-buffer text only");
 
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          (Pos => 4, Anchor => 4, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Status := Editor.Selection.Validate_Active_Selection_Range (S, Selection_Range);
       Assert (Status = Editor.Selection.Selection_Empty,
               "collapsed range is no selected text");
 
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          (Pos => 99, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Status := Editor.Selection.Validate_Active_Selection_Range (S, Selection_Range);
       Assert (Status = Editor.Selection.Selection_Invalid,
@@ -945,8 +945,8 @@ package body Editor.Selection.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha Beta Gamma");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("old"));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 10, Anchor => 6, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Copy);
@@ -956,8 +956,8 @@ package body Editor.Selection.Tests is
       Assert (To_String (S.Search.Active_Find_Query) = "Beta",
               "find-from-selection must consume canonical selected text");
 
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          (Pos => 99, Anchor => 6, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Clipboard.Set_Text (To_Unbounded_String ("old"));
       S.Search.Active_Find_Query := To_Unbounded_String ("old-query");
@@ -982,15 +982,15 @@ package body Editor.Selection.Tests is
       Assert (Natural (Selection_Range.Low) = 0 and then Natural (Selection_Range.High) = 21,
               "select-all helper must cover current in-memory text");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 4, Anchor => 4, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Selection_Range := Editor.Selection.Current_Word_Range_At_Caret (S, Found);
       Assert (Found and then Natural (Selection_Range.Low) = 4 and then Natural (Selection_Range.High) = 7,
               "current-word helper must stop at dotted-name boundary");
 
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          (Pos => 8, Anchor => 8, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Selection_Range := Editor.Selection.Current_Word_Range_At_Caret (S, Found);
       Assert (Found and then Natural (Selection_Range.Low) = 8 and then Natural (Selection_Range.High) = 21,
@@ -1007,10 +1007,10 @@ package body Editor.Selection.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha Beta Gamma");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      S.Carets.Append
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 6, Anchor => 10, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Copy);
@@ -1022,8 +1022,8 @@ package body Editor.Selection.Tests is
       Assert (Snapshot.Selection_Count = 0,
               "render snapshot must ignore secondary previous selection ranges");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 99, Anchor => 6, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       A := Editor.Executor.Command_Availability (S, Editor.Command_Ids.Command_Copy);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (A),
@@ -1045,9 +1045,9 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Move_Left (Shift => True));
 
-      Assert (S.Carets (0).Anchor /= S.Carets (0).Pos, "Selection active");
-      Assert (S.Carets (0).Anchor = 1, "Anchor captured");
-      Assert (S.Carets (0).Pos = 0, "End follows caret");
+      Assert (S.Caret.Carets (0).Anchor /= S.Caret.Carets (0).Pos, "Selection active");
+      Assert (S.Caret.Carets (0).Anchor = 1, "Anchor captured");
+      Assert (S.Caret.Carets (0).Pos = 0, "End follows caret");
    end Test_Start_Selection;
 
    procedure Test_Extend_Selection
@@ -1064,9 +1064,9 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Move_Left (Shift => True));
 
-      Assert (S.Carets (0).Anchor /= S.Carets (0).Pos, "Selection active");
-      Assert (S.Carets (0).Anchor = 2, "Anchor stable");
-      Assert (S.Carets (0).Pos = 0, "End equals caret");
+      Assert (S.Caret.Carets (0).Anchor /= S.Caret.Carets (0).Pos, "Selection active");
+      Assert (S.Caret.Carets (0).Anchor = 2, "Anchor stable");
+      Assert (S.Caret.Carets (0).Pos = 0, "End equals caret");
    end Test_Extend_Selection;
 
    procedure Test_Reverse_Selection
@@ -1083,9 +1083,9 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Move_Left (Shift => True));
 
-      Assert (S.Carets (0).Anchor /= S.Carets (0).Pos, "Selection active");
-      Assert (S.Carets (0).Anchor = 2, "Anchor unchanged");
-      Assert (S.Carets (0).Pos < S.Carets (0).Anchor,
+      Assert (S.Caret.Carets (0).Anchor /= S.Caret.Carets (0).Pos, "Selection active");
+      Assert (S.Caret.Carets (0).Anchor = 2, "Anchor unchanged");
+      Assert (S.Caret.Carets (0).Pos < S.Caret.Carets (0).Anchor,
               "Selection may cross anchor");
    end Test_Reverse_Selection;
 
@@ -1103,7 +1103,7 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Move_Right (Shift => False));
 
-      Assert (S.Carets (0).Anchor = S.Carets (0).Pos, "Selection collapsed");
+      Assert (S.Caret.Carets (0).Anchor = S.Caret.Carets (0).Pos, "Selection collapsed");
    end Test_Collapse_Selection;
 
    procedure Test_Replace_Selection_Insert
@@ -1127,7 +1127,7 @@ package body Editor.Selection.Tests is
 
       Assert (Text_Buffer.Length (S.Buffer) = 2,
               "Replace shrinks buffer");
-      Assert (S.Carets (0).Anchor = S.Carets (0).Pos,
+      Assert (S.Caret.Carets (0).Anchor = S.Caret.Carets (0).Pos,
               "Selection collapsed after replace");
    end Test_Replace_Selection_Insert;
 
@@ -1152,7 +1152,7 @@ package body Editor.Selection.Tests is
 
       Assert (Text_Buffer.Length (S.Buffer) = 1,
               "Delete removes span");
-      Assert (S.Carets (0).Anchor = S.Carets (0).Pos,
+      Assert (S.Caret.Carets (0).Anchor = S.Caret.Carets (0).Pos,
               "Selection collapsed");
    end Test_Delete_Selection;
 
@@ -1174,10 +1174,10 @@ package body Editor.Selection.Tests is
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Undo);
 
-      Assert (S.Carets (0).Anchor /= S.Carets (0).Pos,
+      Assert (S.Caret.Carets (0).Anchor /= S.Caret.Carets (0).Pos,
               "Undo restores snapshot");
-      Assert (S.Carets (0).Anchor = 1, "Anchor restored");
-      Assert (S.Carets (0).Pos = 0, "End restored");
+      Assert (S.Caret.Carets (0).Anchor = 1, "Anchor restored");
+      Assert (S.Caret.Carets (0).Pos = 0, "End restored");
    end Test_Undo_Selection;
 
    procedure Test_Rectangle_Selection_Creates_One_Caret_Per_Line
@@ -1202,10 +1202,10 @@ package body Editor.Selection.Tests is
       Cmd.Click_Y := Natural (Editor.Layout.Text_Viewport_Y (Layout)) + 2 * Editor.Layout.Cell_H;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (S.Carets.Length = 3,
+      Assert (S.Caret.Carets.Length = 3,
             "Rectangle selection must create one caret per touched line");
 
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          Assert (C.Anchor /= C.Pos,
                "Each rectangle caret must represent a selection span");
       end loop;
@@ -1229,20 +1229,20 @@ package body Editor.Selection.Tests is
       --  abcd  => select "bc"  indices 1..3
       --  efgh  => select "fg"  indices 6..8
       --  ijkl  => select "jk"  indices 11..13
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 3,
          Anchor => 1,
          Virtual_Column => 0,
          Anchor_Virtual_Column => 0
       ));
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 8,
          Anchor => 6,
          Virtual_Column => 0,
          Anchor_Virtual_Column => 0
       ));
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 13,
          Anchor => 11,
          Virtual_Column => 0,
@@ -1287,14 +1287,14 @@ package body Editor.Selection.Tests is
                   "efgh"));
 
       --  Zero-width rectangle carets at start of both lines.
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 0,
          Anchor => 0,
          Virtual_Column => 0,
          Anchor_Virtual_Column => 0
       ));
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 5,
          Anchor => 5,
          Virtual_Column => 0,
@@ -1350,8 +1350,8 @@ package body Editor.Selection.Tests is
 
       Editor.Executor.Execute_No_Log (S, Paste ("abc"));
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
       (Caret_State'(
          Pos => 3,
          Anchor => 3,
@@ -1384,8 +1384,8 @@ package body Editor.Selection.Tests is
 
       Editor.Executor.Execute_No_Log (S, Paste ("abc"));
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
       (Caret_State'(
          Pos => 3,
          Anchor => 3,
@@ -1402,10 +1402,10 @@ package body Editor.Selection.Tests is
       Assert (Text_Buffer.Element (S.Buffer, 4) = 'X',
             "Canonical text input inserts at the physical caret");
 
-      Assert (S.Carets.Length = 1,
+      Assert (S.Caret.Carets.Length = 1,
             "Canonical text input preserves a single caret");
 
-      Assert (S.Carets (S.Carets.First_Index).Virtual_Column = 0,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Virtual_Column = 0,
             "Canonical text input clears virtual-column insertion state");
    end Test_Virtual_Column_Insert_Text_Input;
 
@@ -1422,14 +1422,14 @@ package body Editor.Selection.Tests is
 
       --  End of first line at physical pos 3, virtual col 5.
       --  End of second line at physical pos 6, virtual col 5.
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 3,
          Anchor => 3,
          Virtual_Column => 5,
          Anchor_Virtual_Column => 0
       ));
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 6,
          Anchor => 6,
          Virtual_Column => 5,
@@ -1448,7 +1448,7 @@ package body Editor.Selection.Tests is
       Assert (Text_Buffer.Element (S.Buffer, 4) = ASCII.LF,
             "Rejected multi-caret insertion must preserve the original text");
 
-      Assert (S.Carets.Length = 2,
+      Assert (S.Caret.Carets.Length = 2,
             "Rejected multi-caret insertion preserves caret state for explicit cleanup");
    end Test_Multi_Caret_Virtual_Column_Insert_Text_Input;
 
@@ -1462,20 +1462,20 @@ package body Editor.Selection.Tests is
 
       Editor.Executor.Execute_No_Log (S, Paste ("abc"));
 
-      Assert (S.Carets (0).Pos = 3,
+      Assert (S.Caret.Carets (0).Pos = 3,
             "Precondition: paste leaves caret at physical EOL");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Move_Right);
 
-      Assert (S.Carets (0).Pos = 3,
+      Assert (S.Caret.Carets (0).Pos = 3,
             "Virtual movement must not move physical position");
 
-      Assert (S.Carets (0).Virtual_Column = 4,
+      Assert (S.Caret.Carets (0).Virtual_Column = 4,
             "Move_Right at EOL must enter virtual column 4");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Move_Right);
 
-      Assert (S.Carets (0).Virtual_Column = 5,
+      Assert (S.Caret.Carets (0).Virtual_Column = 5,
             "Second virtual Move_Right must advance virtual column");
    end Test_Move_Right_Creates_Virtual_Column;
 
@@ -1493,28 +1493,28 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Move_Right);
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Move_Right);
 
-      Assert (S.Carets (0).Virtual_Column = 5,
+      Assert (S.Caret.Carets (0).Virtual_Column = 5,
             "Precondition: must be in virtual column 5");
 
       --  step back inside virtual space
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Move_Left);
 
-      Assert (S.Carets (0).Virtual_Column = 4,
+      Assert (S.Caret.Carets (0).Virtual_Column = 4,
             "Move_Left must decrease virtual column");
 
       --  leave virtual space
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Move_Left);
 
-      Assert (S.Carets (0).Virtual_Column = 0,
+      Assert (S.Caret.Carets (0).Virtual_Column = 0,
             "Move_Left must exit virtual space");
 
-      Assert (S.Carets (0).Pos = 3,
+      Assert (S.Caret.Carets (0).Pos = 3,
             "Caret must be at physical EOL");
 
       --  now normal movement
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Move_Left);
 
-      Assert (S.Carets (0).Pos = 2,
+      Assert (S.Caret.Carets (0).Pos = 2,
             "Move_Left must move physically after leaving virtual space");
    end Test_Move_Left_Leaves_Virtual_Column;
 
@@ -1531,15 +1531,15 @@ package body Editor.Selection.Tests is
 
       --  Paste leaves caret at end of second line.
       --  Move home/end setup manually to first line EOL for clarity.
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos            => 3,
          Anchor         => 3,
          Virtual_Column => 5,
          Anchor_Virtual_Column => 0
       ));
 
-      S.Preferred_Column := 5;
+      S.Caret.Preferred_Column := 5;
 
       declare
          Cmd : Editor.Commands.Payloads.Command;
@@ -1548,10 +1548,10 @@ package body Editor.Selection.Tests is
          Editor.Executor.Execute_No_Log (S, Cmd);
       end;
 
-      Assert (S.Carets (0).Pos = 6,
+      Assert (S.Caret.Carets (0).Pos = 6,
             "Move_Down must clamp physical position to second-line EOL");
 
-      Assert (S.Carets (0).Virtual_Column = 5,
+      Assert (S.Caret.Carets (0).Virtual_Column = 5,
             "Move_Down must preserve virtual column on shorter line");
    end Test_Move_Down_Preserves_Virtual_Column;
 
@@ -1568,23 +1568,23 @@ package body Editor.Selection.Tests is
       (S, Paste ("abc" & ASCII.LF & "de"));
 
       --  place caret on second line, virtual column 5
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 6,
          Anchor => 6,
          Virtual_Column => 5,
          Anchor_Virtual_Column => 0
       ));
 
-      S.Preferred_Column := 5;
+      S.Caret.Preferred_Column := 5;
 
       Cmd.Kind := Editor.Command_Kinds.Move_Up;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (S.Carets (0).Pos = 3,
+      Assert (S.Caret.Carets (0).Pos = 3,
             "Move_Up must clamp to first-line EOL");
 
-      Assert (S.Carets (0).Virtual_Column = 5,
+      Assert (S.Caret.Carets (0).Virtual_Column = 5,
             "Move_Up must preserve virtual column");
    end Test_Move_Up_Preserves_Virtual_Column;
 
@@ -1608,7 +1608,7 @@ package body Editor.Selection.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       declare
-         C : constant Caret_State := S.Carets (0);
+         C : constant Caret_State := S.Caret.Carets (0);
       begin
          Assert (C.Virtual_Column = 5,
                "Caret must be in virtual column 5");
@@ -1655,7 +1655,7 @@ package body Editor.Selection.Tests is
          Anchor_Col => 1,
          Cursor_Row => 2,
          Cursor_Col => 3);
-      S.Rect_Select_Active := True;
+      S.Caret.Rect_Select_Active := True;
       Editor.Rectangle_Selection.Build_Carets (S, R);
 
       Editor.Executor.Execute_No_Log
@@ -1681,7 +1681,7 @@ package body Editor.Selection.Tests is
          Anchor_Col => 1,
          Cursor_Row => 2,
          Cursor_Col => 3);
-      S.Rect_Select_Active := True;
+      S.Caret.Rect_Select_Active := True;
       Editor.Rectangle_Selection.Build_Carets (S, R);
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Delete (0));
@@ -1916,16 +1916,16 @@ package body Editor.Selection.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "defg");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 5, Anchor => 5, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Cmd.Kind := Editor.Command_Kinds.Select_Line;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = 4
-         and then S.Carets (S.Carets.First_Index).Pos = 8,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 4
+         and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 8,
          "Select Line command must select the current last line boundaries");
       Assert
         (Text_Buffer.Length (S.Buffer) = 8,
@@ -1946,20 +1946,20 @@ package body Editor.Selection.Tests is
       Editor.Executor.Selection_Commands.Execute_Extend_Selection_To_Line (S, 1);
 
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = Editor.State.Line_Start (S, 1),
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Editor.State.Line_Start (S, 1),
          "Upward line extension must leave the cursor at the target line start");
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = Editor.State.Line_Start (S, 3),
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = Editor.State.Line_Start (S, 3),
          "Upward line extension must anchor at the far line boundary");
 
       Editor.Executor.Selection_Commands.Execute_Select_Line_At (S, 1);
       Editor.Executor.Selection_Commands.Execute_Extend_Selection_To_Line (S, 3);
 
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = Editor.State.Line_Start (S, 1),
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = Editor.State.Line_Start (S, 1),
          "Downward line extension must keep the anchor at the start boundary");
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = Editor.State.Line_End (S, 3),
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Editor.State.Line_End (S, 3),
          "Downward line extension through the final line must end at final line length");
    end Test_Extend_Line_Selection_Preserves_Direction;
 
@@ -1971,15 +1971,15 @@ package body Editor.Selection.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 2, Anchor => 2, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Cmd.Kind := Editor.Command_Kinds.Select_Word;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = 0
-         and then S.Carets (S.Carets.First_Index).Pos = 5,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 0
+         and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 5,
          "Select Word command must select the primary caret word");
       Assert
         (Text_Buffer.Length (S.Buffer) = 10,
@@ -1998,9 +1998,9 @@ package body Editor.Selection.Tests is
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Move_Left);
 
-      Assert (S.Carets (0).Pos = 1,
+      Assert (S.Caret.Carets (0).Pos = 1,
               "Move_Left must collapse to selection start");
-      Assert (S.Carets (0).Anchor = 1,
+      Assert (S.Caret.Carets (0).Anchor = 1,
               "Move_Left must clear selection after collapse");
    end Test_Move_Left_Collapses_To_Selection_Start;
 
@@ -2017,9 +2017,9 @@ package body Editor.Selection.Tests is
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Move_Right);
 
-      Assert (S.Carets (0).Pos = 3,
+      Assert (S.Caret.Carets (0).Pos = 3,
               "Move_Right must collapse to selection end");
-      Assert (S.Carets (0).Anchor = 3,
+      Assert (S.Caret.Carets (0).Anchor = 3,
               "Move_Right must clear selection after collapse");
    end Test_Move_Right_Collapses_To_Selection_End;
 
@@ -2032,8 +2032,8 @@ package body Editor.Selection.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abc" & ASCII.LF & "def"));
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos => 5,
             Anchor => 1,
@@ -2043,9 +2043,9 @@ package body Editor.Selection.Tests is
       Cmd.Kind := Editor.Command_Kinds.Move_Line_End;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (S.Carets (0).Pos = 7,
+      Assert (S.Caret.Carets (0).Pos = 7,
               "Move_Line_End must collapse to the active line end");
-      Assert (S.Carets (0).Anchor = 7,
+      Assert (S.Caret.Carets (0).Anchor = 7,
               "Move_Line_End must clear selection after collapse");
    end Test_Move_Line_End_Collapses_To_Line_End;
 
@@ -2058,22 +2058,22 @@ package body Editor.Selection.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abc" & ASCII.LF & "def"));
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos => 1,
             Anchor => 1,
             Virtual_Column => 0,
             Anchor_Virtual_Column => 0));
-      S.Preferred_Column := 1;
+      S.Caret.Preferred_Column := 1;
 
       Cmd.Kind := Editor.Command_Kinds.Move_Down;
       Cmd.Shift := True;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (S.Carets (0).Pos = 5,
+      Assert (S.Caret.Carets (0).Pos = 5,
               "Shift-Down must move caret to matching column on next line");
-      Assert (S.Carets (0).Anchor = 1,
+      Assert (S.Caret.Carets (0).Anchor = 1,
               "Shift-Down must preserve the original selection anchor");
    end Test_Shift_Down_Extends_Selection;
 
@@ -2090,8 +2090,8 @@ package body Editor.Selection.Tests is
 
       --  Reversed anchor/focus must be counted through the same normalized
       --  active selection range used by clipboard and render projection.
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 0, Anchor => 4, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Assert
@@ -2101,8 +2101,8 @@ package body Editor.Selection.Tests is
         (Editor.Selection.Selected_Line_Count (S) = 1,
          "full first-line selection must count one logical line");
 
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          (Pos => 0, Anchor => 5, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Assert
@@ -2119,8 +2119,8 @@ package body Editor.Selection.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(Pos => 1, Anchor => 99, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Assert

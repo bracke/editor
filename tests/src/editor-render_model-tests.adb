@@ -657,8 +657,8 @@ package body Editor.Render_Model.Tests is
 
       Editor.Executor.Execute_No_Log (S, Paste ("abc"));
 
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos                   => 3,
          Anchor                => 3,
          Virtual_Column        => 5,
@@ -858,8 +858,8 @@ package body Editor.Render_Model.Tests is
          Editor.Executor.Execute_No_Log (S, Paste ("abcd" & ASCII.LF));
       end loop;
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
       (Caret_State'(
          Pos                   => 0,
          Anchor                => 4,
@@ -927,8 +927,8 @@ package body Editor.Render_Model.Tests is
 
       --  Make a selection near the top; after scroll it should either be clipped
       --  or not emitted below/above viewport.
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
       (Caret_State'(
          Pos                   => 0,
          Anchor                => 4,
@@ -1004,8 +1004,8 @@ package body Editor.Render_Model.Tests is
          Editor.Executor.Execute_No_Log (S, Paste ("x"));
       end loop;
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
       (Caret_State'(
          Pos                   => 0,
          Anchor                => Cursor_Index (Text_Buffer.Length (S.Buffer)),
@@ -1045,8 +1045,8 @@ package body Editor.Render_Model.Tests is
          Editor.Executor.Execute_No_Log (S, Paste ("x" & ASCII.LF));
       end loop;
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
       (Caret_State'
          (Pos                   => 0,
             Anchor                => 0,
@@ -1079,8 +1079,8 @@ package body Editor.Render_Model.Tests is
          Editor.Executor.Execute_No_Log (S, Paste ("abcd" & ASCII.LF));
       end loop;
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
       (Caret_State'(
          Pos                   => 0,
          Anchor                => Cursor_Index (Text_Buffer.Length (S.Buffer)),
@@ -1184,8 +1184,8 @@ package body Editor.Render_Model.Tests is
                   "cc"));
 
       --  Caret on second line. Packet builder owns scroll adjustment.
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
       (Caret_State'
          (Pos                   => 3,
             Anchor                => 3,
@@ -1237,8 +1237,8 @@ package body Editor.Render_Model.Tests is
       (S, Paste ("a" & ASCII.LF & "b"));
 
       --  caret on second line
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
       (Caret_State'(Pos => 2, Anchor => 2, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Set_Render_State_For_Test (S);
@@ -1514,8 +1514,8 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abcdefghijklmnopqrstuvwx"));
       Editor.State.Add_Diagnostic (S, 5, 9, Editor.Diagnostics.Hint);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 6,
             Anchor                => 6,
@@ -1619,8 +1619,8 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abcdef"));
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
       (Caret_State'
          (Pos                   => 4,
           Anchor                => 1,
@@ -1979,8 +1979,8 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("line 1" & ASCII.LF & "line 2"));
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
       (Caret_State'
          (Pos                   => 3,
           Anchor                => 10,
@@ -2616,8 +2616,8 @@ package body Editor.Render_Model.Tests is
    begin
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("procedure X is"));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 9,
             Anchor                => 0,
@@ -2973,8 +2973,8 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abcdef"));
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 4,
             Anchor                => 1,
@@ -3192,8 +3192,8 @@ package body Editor.Render_Model.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Long_Line);
 
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'
         (Pos                   => 15_000,
          Anchor                => 15_000,
          Virtual_Column        => 0,
@@ -3295,8 +3295,8 @@ package body Editor.Render_Model.Tests is
 
       Editor.State.Load_Text (S, To_String (Text));
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => Cursor_Index (Text_Buffer.Length (S.Buffer)),
             Anchor                => 0,
@@ -3427,8 +3427,8 @@ package body Editor.Render_Model.Tests is
    begin
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abcdefghi"));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos => 5,
             Anchor => 5,
@@ -3463,8 +3463,8 @@ package body Editor.Render_Model.Tests is
    begin
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abcdefghi"));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos => 6,
             Anchor => 2,
@@ -3542,14 +3542,14 @@ package body Editor.Render_Model.Tests is
    begin
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abcdefghi"));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos => 1,
             Anchor => 1,
             Virtual_Column => 0,
             Anchor_Virtual_Column => 0));
-      S.Preferred_Column := 1;
+      S.Caret.Preferred_Column := 1;
 
       Configure_Wrap_Test_Viewport (1, 4);
       Cmd.Kind := Editor.Command_Kinds.Move_Down;
@@ -3560,7 +3560,7 @@ package body Editor.Render_Model.Tests is
       Cmd.Click_Y := 0;
       Editor.Executor.Execute_No_Log (S, Cmd);
 
-      Assert (S.Carets (S.Carets.First_Index).Pos = 5,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 5,
               "Move_Down in wrap mode must move to next visual row within the same logical line");
 
       Editor.View.Set_Wrap_Mode (Editor.Wrap.Wrap_None);
@@ -3721,8 +3721,8 @@ package body Editor.Render_Model.Tests is
       Reset_Cursor_Config;
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abc"));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 3,
             Anchor                => 3,
@@ -3746,14 +3746,14 @@ package body Editor.Render_Model.Tests is
       Reset_Cursor_Config;
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("abc"));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 0,
             Anchor                => 0,
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
-      S.Carets.Append
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 2,
             Anchor                => 2,
@@ -4146,8 +4146,8 @@ package body Editor.Render_Model.Tests is
    begin
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste ("a" & ASCII.LF & "b" & ASCII.LF & "c"));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos => 2,
             Anchor => 2,
@@ -4280,8 +4280,8 @@ package body Editor.Render_Model.Tests is
       Editor.Minimap.Set_Current (Config);
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste (Many_Lines (100)));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 0,
             Anchor                => 0,
@@ -4325,8 +4325,8 @@ package body Editor.Render_Model.Tests is
       Editor.Minimap.Set_Current (Config);
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste (Many_Lines (100)));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 0,
             Anchor                => 0,
@@ -4418,8 +4418,8 @@ package body Editor.Render_Model.Tests is
       Editor.Minimap.Set_Current (Config);
       Editor.State.Init (S);
       Editor.Executor.Execute_No_Log (S, Paste (Many_Lines (100)));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 0,
             Anchor                => 0,

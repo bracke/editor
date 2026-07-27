@@ -26,7 +26,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
    begin
       return Editor.Overlay_Focus.Is_Active
         (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
-        and then Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher);
+        and then Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher);
    end Active_Buffer_Switcher_Overlay;
 
    function Selected_Row
@@ -77,7 +77,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
       if not Active_Buffer_Switcher_Overlay (S) then
          return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
       elsif Require_Open
-        and then not Editor.Buffer_Switcher.Has_Preview (S.Buffer_Switcher)
+        and then not Editor.Buffer_Switcher.Has_Preview (S.Surface.Buffer_Switcher)
       then
          return Editor.Commands.Availability_Metadata.Unavailable ("Switcher preview is hidden");
       elsif Require_Row then
@@ -126,7 +126,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Buffer_Switcher.Has_Preview (S.Buffer_Switcher) then
+      if Editor.Buffer_Switcher.Has_Preview (S.Surface.Buffer_Switcher) then
          Execute_Buffer_Switcher_Preview_Hide (S);
       else
          Execute_Buffer_Switcher_Preview_Show (S);
@@ -145,9 +145,9 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
          return;
       end if;
 
-      Editor.Buffer_Switcher.Show_Preview (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Show_Preview (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Preview_Target
-        (S.Buffer_Switcher, Row.Id,
+        (S.Surface.Buffer_Switcher, Row.Id,
          Editor.Executor.Buffer_Switcher_Shared.Primary_Cursor_Line_Of_Buffer
            (Row.Id));
       Editor.Executor.Shared_Services.Report_Info (S, "Switcher preview shown");
@@ -158,7 +158,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Buffer_Switcher.Hide_Preview (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Hide_Preview (S.Surface.Buffer_Switcher);
       Editor.Executor.Shared_Services.Report_Info (S, "Switcher preview hidden");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Preview_Hide;
@@ -167,7 +167,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Buffer_Switcher.Scroll_Preview_Next_Line (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Scroll_Preview_Next_Line (S.Surface.Buffer_Switcher);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Preview_Next_Line;
 
@@ -175,7 +175,7 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Buffer_Switcher.Scroll_Preview_Previous_Line (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Scroll_Preview_Previous_Line (S.Surface.Buffer_Switcher);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Preview_Previous_Line;
 
@@ -191,11 +191,11 @@ package body Editor.Executor.Buffer_Switcher_Preview_Commands is
          return;
       end if;
 
-      if not Editor.Buffer_Switcher.Has_Preview (S.Buffer_Switcher) then
-         Editor.Buffer_Switcher.Show_Preview (S.Buffer_Switcher);
+      if not Editor.Buffer_Switcher.Has_Preview (S.Surface.Buffer_Switcher) then
+         Editor.Buffer_Switcher.Show_Preview (S.Surface.Buffer_Switcher);
       end if;
       Editor.Buffer_Switcher.Set_Preview_Target
-        (S.Buffer_Switcher, Row.Id,
+        (S.Surface.Buffer_Switcher, Row.Id,
          Editor.Executor.Buffer_Switcher_Shared.Primary_Cursor_Line_Of_Buffer
            (Row.Id));
       Editor.Executor.Shared_Services.Report_Info (S, "Preview at cursor");

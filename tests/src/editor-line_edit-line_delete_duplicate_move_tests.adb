@@ -52,8 +52,8 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Pos : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Pos,
             Anchor                => Pos,
@@ -67,8 +67,8 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Pos    : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Pos,
             Anchor                => Anchor,
@@ -112,9 +112,9 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       Row : Natural := 0;
       Col : Natural := 0;
    begin
-      Assert (S.Carets.Length > 0, Why & ": expected a caret");
+      Assert (S.Caret.Carets.Length > 0, Why & ": expected a caret");
       Editor.Navigation.Line_Column_For_Index
-        (S, Natural (S.Carets (S.Carets.First_Index).Pos), Row, Col);
+        (S, Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos), Row, Col);
       Assert (Row = Expected_Row, Why & ": caret row mismatch");
       Assert (Col = Expected_Col, Why & ": caret column mismatch");
    end Assert_Caret_Row_Col;
@@ -276,7 +276,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
       end if;
 
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               Why & ": text-changing word delete must create one undo entry");
@@ -360,10 +360,10 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
         (Editor.State.Line_Count (S) >= 1 or else Text_Buffer.Length (S.Buffer) = 0,
          Why & ": logical line index must remain valid");
       Assert
-        (S.Carets.Length > 0,
+        (S.Caret.Carets.Length > 0,
          Why & ": line edit must leave a caret");
       Assert
-        (Natural (S.Carets (S.Carets.First_Index).Pos) <= Text_Buffer.Length (S.Buffer),
+        (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) <= Text_Buffer.Length (S.Buffer),
          Why & ": caret must remain inside active buffer");
       Assert
         (not Editor.Selection.Has_Selection (S),
@@ -649,7 +649,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
          "alpha" & ASCII.LF & ASCII.LF & "omega",
          "delete-line must remove a whitespace-only line exactly");
       Assert_Caret_Row_Col (S, 1, 0, "delete whitespace-only line");
-      Assert (S.Preferred_Column = 0,
+      Assert (S.Caret.Preferred_Column = 0,
               "delete-line must align preferred column with clamped caret");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "delete whitespace-only line must create one undo entry");
@@ -680,7 +680,7 @@ package body Editor.Line_Edit.Line_Delete_Duplicate_Move_Tests is
          "longer" & ASCII.LF & "  " & ASCII.LF & "  " & ASCII.LF & "x",
          "duplicate-line must duplicate whitespace-only line exactly");
       Assert_Caret_Row_Col (S, 2, 2, "duplicate whitespace-only line");
-      Assert (S.Preferred_Column = 2,
+      Assert (S.Caret.Preferred_Column = 2,
               "duplicate-line must align preferred column with duplicated line caret");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
@@ -1389,7 +1389,7 @@ procedure Test_Line_Comment_Command_Descriptors
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Before_Dirty := Editor.State.Is_Dirty (S);
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Comment_Line);
       Assert (Message_Text (S) = "No caret location",
               "completeness comment-line without a caret must report no caret location");
@@ -1663,14 +1663,14 @@ procedure Test_Line_Comment_Command_Descriptors
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 5);
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
-      Before_Caret := S.Carets (S.Carets.First_Index).Pos;
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
               "split availability must not mutate text");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Caret,
               "split availability must not move caret");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo,
               "split availability must not mutate undo stack");

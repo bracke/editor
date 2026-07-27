@@ -94,7 +94,7 @@ package body Editor.Executor.Navigation_Commands is
       Col : Natural := 0;
    begin
       if not Editor.State.Has_Active_Buffer (S)
-        or else S.Carets.Length = 0
+        or else S.Caret.Carets.Length = 0
         or else Editor.State.Line_Count (S) = 0
       then
          return (others => <>);
@@ -437,8 +437,8 @@ package body Editor.Executor.Navigation_Commands is
    begin
       Editor.Executor.Activate_Overlay
         (S, Editor.Overlay_Focus.Go_To_Line_Overlay);
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Clear_Error (S.Go_To_Line);
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Clear_Error (S.Surface.Go_To_Line);
       Editor.Executor.Shared_Services.Report_Info (S, "Go To Line shown");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Open_Goto_Line;
@@ -447,7 +447,7 @@ package body Editor.Executor.Navigation_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Go_To_Line.Is_Open (S.Go_To_Line)
+      if Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line)
         and then Editor.Overlay_Focus.Is_Active
           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay)
       then
@@ -471,7 +471,7 @@ package body Editor.Executor.Navigation_Commands is
       if not Editor.State.Has_Active_Buffer (S) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No active buffer.");
          return;
-      elsif S.Carets.Length = 0 or else Editor.State.Line_Count (S) = 0 then
+      elsif S.Caret.Carets.Length = 0 or else Editor.State.Line_Count (S) = 0 then
          Editor.Executor.Shared_Services.Report_Warning (S, "No current caret location");
          return;
       end if;
@@ -488,8 +488,8 @@ package body Editor.Executor.Navigation_Commands is
 
       Editor.Executor.Activate_Overlay
         (S, Editor.Overlay_Focus.Go_To_Line_Overlay);
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, Number_Image (Location.Line));
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, Number_Image (Location.Line));
       Editor.Executor.Shared_Services.Report_Info
         (S, "Go To Line target: " & Number_Image (Location.Line));
       Editor.Render_Cache.Invalidate_All;
@@ -504,9 +504,9 @@ package body Editor.Executor.Navigation_Commands is
       then
          Editor.Executor.Dismiss_Active_Overlay
            (S, Editor.Overlay_Focus.Dismiss_Command);
-         Editor.Go_To_Line.Clear (S.Go_To_Line);
+         Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
       else
-         Editor.Go_To_Line.Clear (S.Go_To_Line);
+         Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
       end if;
       Editor.Executor.Shared_Services.Report_Info (S, "Go To Line hidden");
       Editor.Render_Cache.Invalidate_All;
@@ -540,7 +540,7 @@ package body Editor.Executor.Navigation_Commands is
 
       procedure Report_Goto_Line_Error (Text : String) is
       begin
-         Editor.Go_To_Line.Set_Error (S.Go_To_Line, Text);
+         Editor.Go_To_Line.Set_Error (S.Surface.Go_To_Line, Text);
          Editor.Executor.Shared_Services.Report_Warning (S, Text);
          Editor.Render_Cache.Invalidate_All;
       end Report_Goto_Line_Error;
@@ -564,13 +564,13 @@ package body Editor.Executor.Navigation_Commands is
          end if;
       end Same_Goto_Target;
    begin
-      if not Editor.Go_To_Line.Is_Open (S.Go_To_Line) then
+      if not Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line) then
          Report_Goto_Line_Error ("No active overlay");
          return;
       end if;
 
       if Ada.Strings.Fixed.Trim
-        (Editor.Go_To_Line.Text (S.Go_To_Line), Ada.Strings.Both)'Length = 0
+        (Editor.Go_To_Line.Text (S.Surface.Go_To_Line), Ada.Strings.Both)'Length = 0
       then
          Report_Goto_Line_Error ("No go-to-line target");
          return;
@@ -584,7 +584,7 @@ package body Editor.Executor.Navigation_Commands is
       declare
          Result : constant Editor.Go_To_Line.Go_To_Line_Validation_Result :=
            Editor.Go_To_Line.Validate
-             (S.Go_To_Line, Editor.State.Line_Count (S));
+             (S.Surface.Go_To_Line, Editor.State.Line_Count (S));
       begin
          case Result.Status is
             when Editor.Go_To_Line.Go_To_Line_Empty =>
@@ -626,9 +626,9 @@ package body Editor.Executor.Navigation_Commands is
             then
                Editor.Executor.Dismiss_Active_Overlay
                  (S, Editor.Overlay_Focus.Dismiss_Accept);
-               Editor.Go_To_Line.Clear (S.Go_To_Line);
+               Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
             else
-               Editor.Go_To_Line.Clear (S.Go_To_Line);
+               Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
             end if;
 
             Editor.Executor.Shared_Services.Report_Info
@@ -647,9 +647,9 @@ package body Editor.Executor.Navigation_Commands is
          then
             Editor.Executor.Dismiss_Active_Overlay
               (S, Editor.Overlay_Focus.Dismiss_Accept);
-            Editor.Go_To_Line.Clear (S.Go_To_Line);
+            Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
          else
-            Editor.Go_To_Line.Clear (S.Go_To_Line);
+            Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
          end if;
 
          Editor.Executor.Shared_Services.Report_Success
@@ -663,8 +663,8 @@ package body Editor.Executor.Navigation_Commands is
       Text : String)
    is
    begin
-      if Editor.Go_To_Line.Is_Open (S.Go_To_Line) then
-         Editor.Go_To_Line.Set_Text (S.Go_To_Line, Text);
+      if Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line) then
+         Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, Text);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Execute_Goto_Line_Set_Query;
@@ -673,14 +673,14 @@ package body Editor.Executor.Navigation_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Go_To_Line.Is_Open (S.Go_To_Line) then
+      if Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line) then
          if Ada.Strings.Fixed.Trim
-           (Editor.Go_To_Line.Text (S.Go_To_Line), Ada.Strings.Both)'Length = 0
+           (Editor.Go_To_Line.Text (S.Surface.Go_To_Line), Ada.Strings.Both)'Length = 0
          then
-            Editor.Go_To_Line.Clear_Error (S.Go_To_Line);
+            Editor.Go_To_Line.Clear_Error (S.Surface.Go_To_Line);
             Editor.Executor.Shared_Services.Report_Info (S, "No go-to-line query to clear");
          else
-            Editor.Go_To_Line.Set_Text (S.Go_To_Line, "");
+            Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "");
             Editor.Executor.Shared_Services.Report_Info (S, "Go To Line query cleared");
          end if;
          Editor.Render_Cache.Invalidate_All;
@@ -692,8 +692,8 @@ package body Editor.Executor.Navigation_Commands is
       Text : String)
    is
    begin
-      if Editor.Go_To_Line.Is_Open (S.Go_To_Line) then
-         Editor.Go_To_Line.Insert_Text (S.Go_To_Line, Text);
+      if Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line) then
+         Editor.Go_To_Line.Insert_Text (S.Surface.Go_To_Line, Text);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Execute_Goto_Line_Insert_Text;
@@ -702,8 +702,8 @@ package body Editor.Executor.Navigation_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Go_To_Line.Is_Open (S.Go_To_Line) then
-         Editor.Go_To_Line.Backspace (S.Go_To_Line);
+      if Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line) then
+         Editor.Go_To_Line.Backspace (S.Surface.Go_To_Line);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Execute_Goto_Line_Backspace;
@@ -712,8 +712,8 @@ package body Editor.Executor.Navigation_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Go_To_Line.Is_Open (S.Go_To_Line) then
-         Editor.Go_To_Line.Delete_Forward (S.Go_To_Line);
+      if Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line) then
+         Editor.Go_To_Line.Delete_Forward (S.Surface.Go_To_Line);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Execute_Goto_Line_Delete_Forward;

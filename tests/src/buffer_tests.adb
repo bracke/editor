@@ -105,23 +105,23 @@ package body Buffer_Tests is
       Cursor_Index (Text_Buffer.Length (S.Buffer));
    begin
       Assert
-      (S.Carets.Length > 0,
+      (S.Caret.Carets.Length > 0,
          Message & ": must have at least one caret");
 
-      for I in S.Carets.First_Index .. S.Carets.Last_Index loop
+      for I in S.Caret.Carets.First_Index .. S.Caret.Carets.Last_Index loop
          Assert
-         (S.Carets (I).Pos <= Len,
+         (S.Caret.Carets (I).Pos <= Len,
             Message & ": caret pos out of bounds");
 
          Assert
-         (S.Carets (I).Anchor <= Len,
+         (S.Caret.Carets (I).Anchor <= Len,
             Message & ": caret anchor out of bounds");
       end loop;
 
-      if S.Carets.Length > 1 then
-         for I in S.Carets.First_Index .. S.Carets.Last_Index - 1 loop
+      if S.Caret.Carets.Length > 1 then
+         for I in S.Caret.Carets.First_Index .. S.Caret.Carets.Last_Index - 1 loop
             Assert
-            (S.Carets (I).Pos <= S.Carets (I + 1).Pos,
+            (S.Caret.Carets (I).Pos <= S.Caret.Carets (I + 1).Pos,
                Message & ": carets must be sorted");
          end loop;
       end if;

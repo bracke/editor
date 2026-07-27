@@ -60,10 +60,10 @@ package body Editor.Executor.Command_Kind_Input_Commands is
                   Editor.Executor.Navigation_Commands
                     .Execute_Goto_Line_Delete_Forward (S);
                when Goto_Line_Move_Cursor_Left =>
-                  Editor.Go_To_Line.Move_Cursor_Left (S.Go_To_Line);
+                  Editor.Go_To_Line.Move_Cursor_Left (S.Surface.Go_To_Line);
                   Editor.Render_Cache.Invalidate_All;
                when Goto_Line_Move_Cursor_Right =>
-                  Editor.Go_To_Line.Move_Cursor_Right (S.Go_To_Line);
+                  Editor.Go_To_Line.Move_Cursor_Right (S.Surface.Go_To_Line);
                   Editor.Render_Cache.Invalidate_All;
                when others =>
                   null;

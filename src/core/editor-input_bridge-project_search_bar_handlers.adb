@@ -46,12 +46,12 @@ package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
       case Cmd.Kind is
          when Editor.Command_Kinds.Insert_Text_Input =>
             if Cmd.Ctrl and then (Cmd.Ch = 'a' or else Cmd.Ch = 'A') then
-               Editor.Project_Search_Bar.Select_All (S.Project_Search_Bar);
+               Editor.Project_Search_Bar.Select_All (S.Surface.Project_Search_Bar);
                Editor.Render_Cache.Invalidate_All;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                Execute (Editor.Command_Ids.Command_Run_Project_Search_From_Bar);
             elsif Cmd.Ch = ASCII.HT then
-               Editor.Project_Search_Bar.Toggle_Active_Field (S.Project_Search_Bar);
+               Editor.Project_Search_Bar.Toggle_Active_Field (S.Surface.Project_Search_Bar);
                Sync_Replace_Mode.all;
                Editor.Render_Cache.Invalidate_All;
             elsif Length (Cmd.Text) > 0 then
@@ -90,22 +90,22 @@ package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
             return True;
 
          when Editor.Command_Kinds.Move_Left =>
-            Editor.Project_Search_Bar.Move_Cursor_Left (S.Project_Search_Bar);
+            Editor.Project_Search_Bar.Move_Cursor_Left (S.Surface.Project_Search_Bar);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
          when Editor.Command_Kinds.Move_Right =>
-            Editor.Project_Search_Bar.Move_Cursor_Right (S.Project_Search_Bar);
+            Editor.Project_Search_Bar.Move_Cursor_Right (S.Surface.Project_Search_Bar);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
          when Editor.Command_Kinds.Move_Home | Editor.Command_Kinds.Move_Line_Start =>
-            Editor.Project_Search_Bar.Move_Cursor_Start (S.Project_Search_Bar);
+            Editor.Project_Search_Bar.Move_Cursor_Start (S.Surface.Project_Search_Bar);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
          when Editor.Command_Kinds.Move_End | Editor.Command_Kinds.Move_Line_End =>
-            Editor.Project_Search_Bar.Move_Cursor_End (S.Project_Search_Bar);
+            Editor.Project_Search_Bar.Move_Cursor_End (S.Surface.Project_Search_Bar);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
@@ -195,7 +195,7 @@ package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
 
          when Editor.Command_Kinds.Move_To_Point =>
             Hit := Editor.Project_Search_Bar.Hit_Test
-              (Message_Body, Config, S.Project_Search_Bar,
+              (Message_Body, Config, S.Surface.Project_Search_Bar,
                Integer (Cmd.Click_X), Integer (Cmd.Click_Y),
                Editor.Layout.Cell_W, Editor.Layout.Cell_H);
             case Hit.Zone is
@@ -204,7 +204,7 @@ package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
                     (S, Editor.Overlay_Focus.Dismiss_Outside_Click);
                   return False;
                when Editor.Project_Search_Bar.Project_Search_Query_Field_Zone =>
-                  Editor.Project_Search_Bar.Focus_Query_Field (S.Project_Search_Bar);
+                  Editor.Project_Search_Bar.Focus_Query_Field (S.Surface.Project_Search_Bar);
                   declare
                      G : constant Editor.Layout.Rect :=
                        Editor.Project_Search_Bar.Geometry
@@ -223,10 +223,10 @@ package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
                                       / Integer (Editor.Layout.Cell_W)));
                   begin
                      Editor.Project_Search_Bar.Set_Cursor_From_Visible_Column
-                       (S.Project_Search_Bar, Visible_Column, Field_Cols);
+                       (S.Surface.Project_Search_Bar, Visible_Column, Field_Cols);
                   end;
                when Editor.Project_Search_Bar.Project_Search_Replace_Field_Zone =>
-                  Editor.Project_Search_Bar.Focus_Replace_Field (S.Project_Search_Bar);
+                  Editor.Project_Search_Bar.Focus_Replace_Field (S.Surface.Project_Search_Bar);
                   Sync_Replace_Mode.all;
                   declare
                      G : constant Editor.Layout.Rect :=
@@ -246,7 +246,7 @@ package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
                                       / Integer (Editor.Layout.Cell_W)));
                   begin
                      Editor.Project_Search_Bar.Set_Cursor_From_Visible_Column
-                       (S.Project_Search_Bar, Visible_Column, Field_Cols);
+                       (S.Surface.Project_Search_Bar, Visible_Column, Field_Cols);
                   end;
                when Editor.Project_Search_Bar.Project_Search_Run_Button_Zone =>
                   Execute (Editor.Command_Ids.Command_Run_Project_Search_From_Bar);
@@ -262,7 +262,7 @@ package body Editor.Input_Bridge.Project_Search_Bar_Handlers is
 
          when Editor.Command_Kinds.Pointer_Hover =>
             Hit := Editor.Project_Search_Bar.Hit_Test
-              (Message_Body, Config, S.Project_Search_Bar,
+              (Message_Body, Config, S.Surface.Project_Search_Bar,
                Integer (Cmd.Click_X), Integer (Cmd.Click_Y),
                Editor.Layout.Cell_W, Editor.Layout.Cell_H);
             return Hit.Zone /= Editor.Project_Search_Bar.Outside_Project_Search_Bar;

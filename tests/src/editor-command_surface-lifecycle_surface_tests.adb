@@ -580,10 +580,10 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
             raise;
       end;
 
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Node_Id := Editor.File_Tree.Find_By_Path (S.File_Tree, File_Path, Found);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      Node_Id := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, File_Path, Found);
       Assert (Found, "fixture must scan a.txt");
-      Node := Editor.File_Tree.Node (S.File_Tree, Node_Id);
+      Node := Editor.File_Tree.Node (S.Surface.File_Tree, Node_Id);
       Path := To_Unbounded_String (File_Path);
    end Prepare_File_Tree;
 
@@ -837,9 +837,9 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Prepare_File_Tree (S, Path, Node);
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node.Id, Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node.Id, Found);
       Assert (Found, "fixture must map scanned file to visible row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := Path;

@@ -744,7 +744,7 @@ package body Editor.Outline.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "@outline procedure Dirty_Run" & ASCII.LF & "body");
       Editor.State.Set_Dirty (S, True);
-      Caret_Count_Before := Natural (S.Carets.Length);
+      Caret_Count_Before := Natural (S.Caret.Carets.Length);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Refresh_Outline);
 
       Assert (Editor.State.Is_Dirty (S),
@@ -752,7 +752,7 @@ package body Editor.Outline.Tests is
       Assert (Editor.State.Current_Text (S) =
                 "@outline procedure Dirty_Run" & ASCII.LF & "body",
               "refresh outline does not save or mutate buffer text");
-      Assert (Natural (S.Carets.Length) = Caret_Count_Before,
+      Assert (Natural (S.Caret.Carets.Length) = Caret_Count_Before,
               "refresh outline does not alter caret count");
       Assert (Item_Count (S.Outline) = 1,
               "dirty buffer extraction reads current in-memory text");
@@ -832,7 +832,7 @@ package body Editor.Outline.Tests is
          Row : Natural := 0;
          Col : Natural := 0;
       begin
-         Editor.State.Row_Col_For_Index (S, S.Carets (0).Pos, Row, Col);
+         Editor.State.Row_Col_For_Index (S, S.Caret.Carets (0).Pos, Row, Col);
          Assert (Row = 1 and then Col = 0,
                  "open selected extracted item navigates to target line");
       end;
@@ -1838,13 +1838,13 @@ package body Editor.Outline.Tests is
       Assert (not Editor.Feature_Panel.Row_Is_Selectable (S.Panel.Feature_Panel, 1),
               "empty-state rows are not selectable symbols");
 
-      Before := S.Carets (0).Pos;
+      Before := S.Caret.Carets (0).Pos;
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status /= Editor.Executor.Command_Executed,
               "activating an empty-state row does not navigate");
-      Assert (S.Carets (0).Pos = Before,
+      Assert (S.Caret.Carets (0).Pos = Before,
               "empty-state activation leaves the caret unchanged");
    end Test_Empty_States_Are_Display_Only;
 

@@ -40,7 +40,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
    begin
       return Editor.Overlay_Focus.Is_Active
         (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
-        and then Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher);
+        and then Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher);
    end Active_Buffer_Switcher_Overlay;
 
    function Selected_Row
@@ -62,7 +62,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
    begin
       if not Active_Buffer_Switcher_Overlay (S) then
          return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
-      elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) /=
+      elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Surface.Buffer_Switcher) /=
         Editor.Buffer_Switcher.Reviews.Pending_Marked_Close
       then
          return Editor.Commands.Availability_Metadata.Unavailable ("No pending marked action");
@@ -84,7 +84,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
               ("No selected pending close target");
          end if;
       elsif not Editor.Buffer_Switcher.Is_Pending_Marked_Close_Target
-        (S.Buffer_Switcher, Row.Id)
+        (S.Surface.Buffer_Switcher, Row.Id)
       then
          return Editor.Commands.Availability_Metadata.Unavailable
            ("Selected buffer is not a pending close target");
@@ -96,7 +96,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
            ("Selected pending close target is not dirty");
       elsif Required_Pruned
         and then not Editor.Buffer_Switcher.Is_Pruned_Pending_Marked_Close_Target
-          (S.Buffer_Switcher, Row.Id)
+          (S.Surface.Buffer_Switcher, Row.Id)
       then
          return Editor.Commands.Availability_Metadata.Unavailable
            ("Selected buffer is not a pruned pending close target");
@@ -137,12 +137,12 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
          when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Restore_Last_Pruned =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
-            elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
+            elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Surface.Buffer_Switcher) =
               Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No pending marked action");
             elsif not Editor.Buffer_Switcher.Has_Pruned_Pending_Marked_Close_Targets
-              (S.Buffer_Switcher)
+              (S.Surface.Buffer_Switcher)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No pruned pending close targets");
@@ -153,18 +153,18 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Previous =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
-            elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
+            elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Surface.Buffer_Switcher) =
               Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No pending marked action");
-            elsif Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
+            elsif Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No pending marked targets remain open");
             end if;
-            for I in 1 .. Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) loop
+            for I in 1 .. Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) loop
                if Editor.Buffer_Switcher.Row_Is_Pending_Marked_Target
-                 (S.Buffer_Switcher,
-                  Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, I).Id)
+                 (S.Surface.Buffer_Switcher,
+                  Editor.Buffer_Switcher.Row_At (S.Surface.Buffer_Switcher, I).Id)
                then
                   return Editor.Commands.Availability_Metadata.Available;
                end if;
@@ -176,19 +176,19 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Previous =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
-            elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
+            elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Surface.Buffer_Switcher) =
               Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No pending marked action");
             end if;
-            for I in 1 .. Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) loop
+            for I in 1 .. Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) loop
                declare
                   Row : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
-                    Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, I);
+                    Editor.Buffer_Switcher.Row_At (S.Surface.Buffer_Switcher, I);
                begin
                   if Row.Is_Dirty
                     and then Editor.Buffer_Switcher.Row_Is_Pending_Marked_Target
-                      (S.Buffer_Switcher, Row.Id)
+                      (S.Surface.Buffer_Switcher, Row.Id)
                   then
                      return Editor.Commands.Availability_Metadata.Available;
                   end if;
@@ -200,12 +200,12 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
          when Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Preview =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
-            elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) /=
+            elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Surface.Buffer_Switcher) /=
               Editor.Buffer_Switcher.Reviews.Pending_Marked_Close
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No pending marked action");
             elsif Editor.Buffer_Switcher.Pending_Marked_Open_Dirty_Count
-              (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI) = 0
+              (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No dirty pending close targets");
@@ -216,7 +216,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune
-              (S.Buffer_Switcher)
+              (S.Surface.Buffer_Switcher)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No pending dirty-prune action");
@@ -227,12 +227,12 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune_Apply
-              (S.Buffer_Switcher)
+              (S.Surface.Buffer_Switcher)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No pending dirty-prune apply confirmation");
             elsif Editor.Buffer_Switcher.Applicable_Dirty_Pending_Marked_Close_Prune_Apply_Target_Count
-              (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI) = 0
+              (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No applicable dirty-prune apply targets");
@@ -256,9 +256,9 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune_Apply
-              (S.Buffer_Switcher)
+              (S.Surface.Buffer_Switcher)
               and then not Editor.Buffer_Switcher.Has_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Targets
-                (S.Buffer_Switcher)
+                (S.Surface.Buffer_Switcher)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No pending dirty-prune apply confirmation");
@@ -274,7 +274,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune
-              (S.Buffer_Switcher)
+              (S.Surface.Buffer_Switcher)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No pending dirty-prune action");
@@ -285,7 +285,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Prune_Review
-              (S.Buffer_Switcher)
+              (S.Surface.Buffer_Switcher)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("Dirty-prune preview review is not active");
@@ -296,7 +296,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune
-              (S.Buffer_Switcher)
+              (S.Surface.Buffer_Switcher)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No pending dirty-prune action");
@@ -310,7 +310,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
                      return Editor.Commands.Availability_Metadata.Unavailable
                        ("No selected dirty-prune preview target");
                   elsif not Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Target
-                    (S.Buffer_Switcher, Row.Id)
+                    (S.Surface.Buffer_Switcher, Row.Id)
                   then
                      return Editor.Commands.Availability_Metadata.Unavailable
                        ("Selected buffer is not a dirty-prune preview target");
@@ -323,10 +323,10 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Removed_Dirty_Pending_Marked_Close_Prune_Targets
-              (S.Buffer_Switcher)
+              (S.Surface.Buffer_Switcher)
             then
                if Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune
-                 (S.Buffer_Switcher)
+                 (S.Surface.Buffer_Switcher)
                then
                   return Editor.Commands.Availability_Metadata.Unavailable
                     ("No removed dirty-prune preview targets");
@@ -341,9 +341,9 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune
-              (S.Buffer_Switcher)
+              (S.Surface.Buffer_Switcher)
               and then not Editor.Buffer_Switcher.Has_Removed_Dirty_Pending_Marked_Close_Prune_Targets
-                (S.Buffer_Switcher)
+                (S.Surface.Buffer_Switcher)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No pending dirty-prune action");
@@ -355,10 +355,10 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Removed_Dirty_Pending_Marked_Close_Prune_Targets
-              (S.Buffer_Switcher)
+              (S.Surface.Buffer_Switcher)
             then
                if Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune
-                 (S.Buffer_Switcher)
+                 (S.Surface.Buffer_Switcher)
                then
                   return Editor.Commands.Availability_Metadata.Unavailable
                     ("No open removed dirty-prune preview targets");
@@ -373,12 +373,12 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune
-              (S.Buffer_Switcher)
+              (S.Surface.Buffer_Switcher)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No pending dirty-prune action");
             elsif not Editor.Buffer_Switcher.Has_Stale_Dirty_Pending_Marked_Close_Prune_Targets
-              (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI)
+              (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No stale dirty-prune preview targets");
@@ -389,7 +389,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Dirty_Pending_Marked_Close_Prune
-              (S.Buffer_Switcher)
+              (S.Surface.Buffer_Switcher)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No pending dirty-prune action");
@@ -402,22 +402,22 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             | Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Review_Show =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
-            elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
+            elsif Editor.Buffer_Switcher.Pending_Marked_Action (S.Surface.Buffer_Switcher) =
               Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No pending marked action");
             elsif not Editor.Buffer_Switcher.Has_Pruned_Pending_Marked_Close_Targets
-              (S.Buffer_Switcher)
+              (S.Surface.Buffer_Switcher)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No pruned pending close targets");
             elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Next
               or else Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Pruned_Previous
             then
-               for I in 1 .. Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) loop
+               for I in 1 .. Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) loop
                   if Editor.Buffer_Switcher.Is_Pruned_Pending_Marked_Close_Target
-                    (S.Buffer_Switcher,
-                     Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, I).Id)
+                    (S.Surface.Buffer_Switcher,
+                     Editor.Buffer_Switcher.Row_At (S.Surface.Buffer_Switcher, I).Id)
                   then
                      return Editor.Commands.Availability_Metadata.Available;
                   end if;
@@ -431,7 +431,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Editor.Buffer_Switcher.Has_Pruned_Pending_Marked_Review
-              (S.Buffer_Switcher)
+              (S.Surface.Buffer_Switcher)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("Pruned pending review not active");
@@ -448,10 +448,10 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
      (S : in out Editor.State.State_Type)
    is
       Captured_Count : constant Natural :=
-        Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher);
+        Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Surface.Buffer_Switcher);
       Open_Count : Natural := 0;
    begin
-      if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
+      if Editor.Buffer_Switcher.Pending_Marked_Action (S.Surface.Buffer_Switcher) =
         Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
       then
          Editor.Executor.Shared_Services.Report_Info (S, "No pending marked action");
@@ -460,7 +460,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Open_Count := Editor.Buffer_Switcher.Pending_Marked_Open_Count
-        (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI);
+        (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI);
       Editor.Executor.Shared_Services.Report_Info
         (S, "Pending marked close:" & Natural'Image (Captured_Count)
          & " targets;" & Natural'Image (Open_Count) & " still open");
@@ -474,25 +474,25 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
    begin
       if Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Show then
          Editor.Buffer_Switcher.Show_Dirty_Prune_Apply_Review
-           (S.Buffer_Switcher);
+           (S.Surface.Buffer_Switcher);
          Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
          Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
          Report_Success (S, "Dirty-prune apply review shown");
       elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Hide then
          Editor.Buffer_Switcher.Hide_Dirty_Prune_Apply_Review
-           (S.Buffer_Switcher);
+           (S.Surface.Buffer_Switcher);
          Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
          Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
          Report_Success (S, "Dirty-prune apply review hidden");
       elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Review_Toggle then
          Editor.Buffer_Switcher.Toggle_Dirty_Prune_Apply_Review
-           (S.Buffer_Switcher);
+           (S.Surface.Buffer_Switcher);
          Editor.Executor.Buffer_Switcher_Shared.Recompute_Buffer_Switcher (S);
          Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
          Report_Success (S, "Dirty-prune apply review toggled");
       elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Next then
          if Editor.Buffer_Switcher.Select_Next_Removed_Dirty_Prune_Apply_Target
-           (S.Buffer_Switcher)
+           (S.Surface.Buffer_Switcher)
          then
             Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
             Report_Success
@@ -502,7 +502,7 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
          end if;
       elsif Id = Editor.Command_Ids.Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Removed_Previous then
          if Editor.Buffer_Switcher.Select_Previous_Removed_Dirty_Prune_Apply_Target
-           (S.Buffer_Switcher)
+           (S.Surface.Buffer_Switcher)
          then
             Editor.Executor.Buffer_Switcher_Shared.Normalize_Switcher_Preview_Target (S);
             Report_Success
@@ -518,11 +518,11 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             "Dirty-prune apply stale targets:"
             & Natural'Image
               (Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Apply_Stale_Target_Count
-                 (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI))
+                 (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI))
             & " of"
             & Natural'Image
               (Editor.Buffer_Switcher.Dirty_Pending_Marked_Close_Prune_Apply_Target_Count
-                 (S.Buffer_Switcher)));
+                 (S.Surface.Buffer_Switcher)));
       else
          Editor.Buffers.Ensure_Global_Registry (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
@@ -531,11 +531,11 @@ package body Editor.Executor.Buffer_Switcher_Pending_Mark_Commands is
             "Removed dirty-prune apply targets:"
             & Natural'Image
               (Editor.Buffer_Switcher.Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target_Count
-                 (S.Buffer_Switcher))
+                 (S.Surface.Buffer_Switcher))
             & ";"
             & Natural'Image
               (Editor.Buffer_Switcher.Open_Removed_Dirty_Pending_Marked_Close_Prune_Apply_Target_Count
-                 (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI))
+                 (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI))
             & " still open");
       end if;
    end Execute_Apply_Inspection_Command;

@@ -923,7 +923,7 @@ package body Editor.Outline.Filter_Tests is
               "mouse activation stores the mapped outline row as selection");
       Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 1,
               "mouse activation keeps the visible panel row selected");
-      Editor.State.Row_Col_For_Index (S, S.Carets (0).Pos, Row, Col);
+      Editor.State.Row_Col_For_Index (S, S.Caret.Carets (0).Pos, Row, Col);
       Assert (Row = 2 and then Col = 0,
               "activation navigates to the filtered symbol target");
    end Test_Filtered_Mouse_Activation_Uses_Current_Projection;

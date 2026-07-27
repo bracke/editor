@@ -28,10 +28,10 @@ package body Editor.State.Tests is
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (0, 'a'));
 
-      Assert (S.Carets (0).Pos <= Text_Buffer.Length (S.Buffer) + 1,
+      Assert (S.Caret.Carets (0).Pos <= Text_Buffer.Length (S.Buffer) + 1,
               "Caret position must remain valid after execution");
 
-      Assert (S.Carets (0).Anchor <= Text_Buffer.Length (S.Buffer) + 1,
+      Assert (S.Caret.Carets (0).Anchor <= Text_Buffer.Length (S.Buffer) + 1,
               "Caret anchor must remain valid after execution");
    end Test_Caret_Validity;
 
@@ -98,7 +98,7 @@ package body Editor.State.Tests is
       Editor.Recent_Projects.Set_Config_Directory_For_Tests (Config_Dir);
       Editor.State.Init (S);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Result);
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Editor.Pending_Transitions.Set_Pending
         (S.Pending_Transitions, Target, Summary);
       Editor.Recent_Projects.Add_Or_Promote

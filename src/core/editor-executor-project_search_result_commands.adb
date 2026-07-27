@@ -82,27 +82,27 @@ package body Editor.Executor.Project_Search_Result_Commands is
       Options : constant Editor.Project_Search.Project_Search_Options :=
         (others => <>);
       Query   : constant String :=
-        (if Editor.Project_Search.Has_Query (S.Project_Search) then
-            Editor.Project_Search.Query (S.Project_Search)
+        (if Editor.Project_Search.Has_Query (S.Surface.Project_Search) then
+            Editor.Project_Search.Query (S.Surface.Project_Search)
          else
             "");
       Had_Replace_Preview : constant Boolean :=
-        Editor.Project_Search.Replace_Preview_Count (S.Project_Search) > 0;
+        Editor.Project_Search.Replace_Preview_Count (S.Surface.Project_Search) > 0;
    begin
-      Editor.Project_Search.Mark_Stale (S.Project_Search);
+      Editor.Project_Search.Mark_Stale (S.Surface.Project_Search);
       if Query'Length > 0 and then Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Project_Search.Search_Project
-           (State   => S.Project_Search,
-            Tree    => S.File_Tree,
+           (State   => S.Surface.Project_Search,
+            Tree    => S.Surface.File_Tree,
             Reader  => Read_Search_File'Access,
             Options => Options);
-         Editor.Project_Search.Clear_Stale (S.Project_Search);
+         Editor.Project_Search.Clear_Stale (S.Surface.Project_Search);
          Editor.Executor.Project_Search_Replace_Commands
            .Refresh_Project_Search_Replace_After_File_Lifecycle
              (S, Had_Replace_Preview);
       else
-         Editor.Project_Search.Clear_Results_Preserve_Query (S.Project_Search);
-         Editor.Project_Search.Clear_Stale (S.Project_Search);
+         Editor.Project_Search.Clear_Results_Preserve_Query (S.Surface.Project_Search);
+         Editor.Project_Search.Clear_Stale (S.Surface.Project_Search);
       end if;
    end Refresh_Project_Search_After_File_Lifecycle;
 
@@ -110,8 +110,8 @@ package body Editor.Executor.Project_Search_Result_Commands is
      (S : Editor.State.State_Type) return Natural
    is
    begin
-      if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0 then
-         return Editor.File_Tree.File_Node_Count (S.File_Tree);
+      if Editor.File_Tree.File_Node_Count (S.Surface.File_Tree) > 0 then
+         return Editor.File_Tree.File_Node_Count (S.Surface.File_Tree);
       elsif Editor.Project.Has_Project (S.Project_Runtime.Project) then
          return Editor.Project.Known_File_Count (S.Project_Runtime.Project);
       else
@@ -150,9 +150,9 @@ package body Editor.Executor.Project_Search_Result_Commands is
       Options : constant Editor.Project_Search.Project_Search_Options := (others => <>);
 
       function Search_Summary_Message return String is
-         Matches : constant Natural := Editor.Project_Search.Result_Count (S.Project_Search);
-         Files   : constant Natural := Editor.Project_Search.Files_With_Matches (S.Project_Search);
-         Skipped : constant Natural := Editor.Project_Search.Skipped_File_Count (S.Project_Search);
+         Matches : constant Natural := Editor.Project_Search.Result_Count (S.Surface.Project_Search);
+         Files   : constant Natural := Editor.Project_Search.Files_With_Matches (S.Surface.Project_Search);
+         Skipped : constant Natural := Editor.Project_Search.Skipped_File_Count (S.Surface.Project_Search);
          Text    : Unbounded_String;
       begin
          if Matches = 0 then
@@ -167,70 +167,70 @@ package body Editor.Executor.Project_Search_Result_Commands is
          end if;
         Append (Text, "; searched "
            & Editor.Image_Helpers.Trim_Image
-               (Editor.Project_Search.Files_Searched (S.Project_Search))
+               (Editor.Project_Search.Files_Searched (S.Surface.Project_Search))
            & " files");
 
          if Skipped > 0 then
             Append (Text, "; skipped " & Editor.Image_Helpers.Trim_Image (Skipped));
-            if Editor.Project_Search.Skipped_Missing_Count (S.Project_Search) > 0 then
+            if Editor.Project_Search.Skipped_Missing_Count (S.Surface.Project_Search) > 0 then
                Append
                  (Text,
                   " missing="
                   & Editor.Image_Helpers.Trim_Image
-                      (Editor.Project_Search.Skipped_Missing_Count (S.Project_Search)));
+                      (Editor.Project_Search.Skipped_Missing_Count (S.Surface.Project_Search)));
             end if;
-            if Editor.Project_Search.Skipped_Large_Count (S.Project_Search) > 0 then
+            if Editor.Project_Search.Skipped_Large_Count (S.Surface.Project_Search) > 0 then
                Append
                  (Text,
                   " large="
                   & Editor.Image_Helpers.Trim_Image
-                      (Editor.Project_Search.Skipped_Large_Count (S.Project_Search)));
+                      (Editor.Project_Search.Skipped_Large_Count (S.Surface.Project_Search)));
             end if;
-            if Editor.Project_Search.Skipped_Binary_Count (S.Project_Search) > 0 then
+            if Editor.Project_Search.Skipped_Binary_Count (S.Surface.Project_Search) > 0 then
                Append
                  (Text,
                   " binary="
                   & Editor.Image_Helpers.Trim_Image
-                      (Editor.Project_Search.Skipped_Binary_Count (S.Project_Search)));
+                      (Editor.Project_Search.Skipped_Binary_Count (S.Surface.Project_Search)));
             end if;
-            if Editor.Project_Search.Read_Error_Count (S.Project_Search) > 0 then
+            if Editor.Project_Search.Read_Error_Count (S.Surface.Project_Search) > 0 then
                Append
                  (Text,
                   " unreadable="
                   & Editor.Image_Helpers.Trim_Image
-                      (Editor.Project_Search.Read_Error_Count (S.Project_Search)));
+                      (Editor.Project_Search.Read_Error_Count (S.Surface.Project_Search)));
             end if;
          end if;
-         if Editor.Project_Search.Was_Truncated (S.Project_Search) then
+         if Editor.Project_Search.Was_Truncated (S.Surface.Project_Search) then
             Append (Text, "; result limit reached");
-            if Editor.Project_Search.Matches_Truncated_Count (S.Project_Search) > 0 then
+            if Editor.Project_Search.Matches_Truncated_Count (S.Surface.Project_Search) > 0 then
                Append
                  (Text,
                   ": truncated "
                   & Editor.Image_Helpers.Trim_Image
-                      (Editor.Project_Search.Matches_Truncated_Count (S.Project_Search))
+                      (Editor.Project_Search.Matches_Truncated_Count (S.Surface.Project_Search))
                   & " matches");
             end if;
          end if;
          return To_String (Text);
       end Search_Summary_Message;
    begin
-      Editor.Project_Search.Set_Query (S.Project_Search, Query);
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, Query);
       Show_Search_Results_Panel (S);
 
       if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Project_Search.Set_Status
-           (S.Project_Search, Editor.Project_Search.Project_Search_No_Project);
+           (S.Surface.Project_Search, Editor.Project_Search.Project_Search_No_Project);
          Report_Warning (S, "No project open");
          return;
       elsif Project_Search_File_Count (S) = 0 then
          Editor.Project_Search.Set_Status
-           (S.Project_Search, Editor.Project_Search.Project_Search_No_Files);
+           (S.Surface.Project_Search, Editor.Project_Search.Project_Search_No_Files);
          Report_Warning (S, "No project files available.");
          return;
       elsif Query'Length = 0 then
          Editor.Project_Search.Set_Status
-           (S.Project_Search, Editor.Project_Search.Project_Search_Empty_Query);
+           (S.Surface.Project_Search, Editor.Project_Search.Project_Search_Empty_Query);
          Report_Info (S, "No project search query");
          return;
       end if;
@@ -238,35 +238,35 @@ package body Editor.Executor.Project_Search_Result_Commands is
       for Ch of Query loop
          if Ch = ASCII.LF or else Ch = ASCII.CR then
             Editor.Project_Search.Set_Status
-              (S.Project_Search, Editor.Project_Search.Project_Search_Empty_Query);
+              (S.Surface.Project_Search, Editor.Project_Search.Project_Search_Empty_Query);
             Report_Warning (S, "No project search query");
             return;
          end if;
       end loop;
 
-      if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0 then
+      if Editor.File_Tree.File_Node_Count (S.Surface.File_Tree) > 0 then
          Editor.Project_Search.Search_Project
-           (State   => S.Project_Search,
-            Tree    => S.File_Tree,
+           (State   => S.Surface.Project_Search,
+            Tree    => S.Surface.File_Tree,
             Reader  => Read_Search_File'Access,
             Options => Options);
       else
          Editor.Project_Search.Search_Known_Project_Files
-           (State   => S.Project_Search,
+           (State   => S.Surface.Project_Search,
             Project => S.Project_Runtime.Project,
             Options => Options);
       end if;
 
       Editor.Executor.Search_Results_Commands.Ensure_Search_Result_Visible (S);
-      if Editor.Project_Search.Status (S.Project_Search)
+      if Editor.Project_Search.Status (S.Surface.Project_Search)
         = Editor.Project_Search.Project_Search_Invalid_Regex
       then
          Report_Warning
            (S, "Invalid regex"
-            & (if Editor.Project_Search.Regex_Error (S.Project_Search)'Length > 0
-               then ": " & Editor.Project_Search.Regex_Error (S.Project_Search)
+            & (if Editor.Project_Search.Regex_Error (S.Surface.Project_Search)'Length > 0
+               then ": " & Editor.Project_Search.Regex_Error (S.Surface.Project_Search)
                else ""));
-      elsif Editor.Project_Search.Eligible_File_Count (S.Project_Search) = 0 then
+      elsif Editor.Project_Search.Eligible_File_Count (S.Surface.Project_Search) = 0 then
          Report_Info (S, "No project files match search scope");
       else
          Report_Info (S, Search_Summary_Message);
@@ -277,19 +277,19 @@ package body Editor.Executor.Project_Search_Result_Commands is
      (S : in out Editor.State.State_Type)
    is
       Query : constant String :=
-        (if Editor.Project_Search.Has_Query (S.Project_Search) then
-            Editor.Project_Search.Query (S.Project_Search)
+        (if Editor.Project_Search.Has_Query (S.Surface.Project_Search) then
+            Editor.Project_Search.Query (S.Surface.Project_Search)
          else
-            Editor.Project_Search_Bar.Query_Text (S.Project_Search_Bar));
+            Editor.Project_Search_Bar.Query_Text (S.Surface.Project_Search_Bar));
    begin
       if Query'Length = 0 then
          Report_Info (S, "No project search query");
          Editor.Project_Search.Set_Status
-           (S.Project_Search, Editor.Project_Search.Project_Search_Empty_Query);
+           (S.Surface.Project_Search, Editor.Project_Search.Project_Search_Empty_Query);
          Show_Search_Results_Panel (S);
       else
          Execute_Run_Project_Search (S, Query);
-         Editor.Project_Search.Clear_Stale (S.Project_Search);
+         Editor.Project_Search.Clear_Stale (S.Surface.Project_Search);
       end if;
    end Execute_Rerun_Project_Search;
 
@@ -492,16 +492,16 @@ package body Editor.Executor.Project_Search_Result_Commands is
    begin
       if Set_Scope then
          Editor.Project_Search.Set_Path_Scope
-           (S.Project_Search, Scope_Text, Valid);
+           (S.Surface.Project_Search, Scope_Text, Valid);
          if not Valid then
             Report_Warning (S, "Active buffer is not a known project file");
             return;
          end if;
       end if;
 
-      Editor.Project_Search_Bar.Set_Query_Text (S.Project_Search_Bar, Query);
+      Editor.Project_Search_Bar.Set_Query_Text (S.Surface.Project_Search_Bar, Query);
       Execute_Run_Project_Search (S, Query);
-      Editor.Project_Search.Clear_Stale (S.Project_Search);
+      Editor.Project_Search.Clear_Stale (S.Surface.Project_Search);
    end Run_Project_Search_From_Context;
 
    procedure Execute_Project_Search_From_Selection
@@ -597,10 +597,10 @@ package body Editor.Executor.Project_Search_Result_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Project_Search.Clear (S.Project_Search);
-      if Editor.Project_Search_Bar.Is_Open (S.Project_Search_Bar) then
-         Editor.Project_Search_Bar.Set_Query_Text (S.Project_Search_Bar, "");
-         Editor.Project_Search_Bar.Set_Replace_Text (S.Project_Search_Bar, "");
+      Editor.Project_Search.Clear (S.Surface.Project_Search);
+      if Editor.Project_Search_Bar.Is_Open (S.Surface.Project_Search_Bar) then
+         Editor.Project_Search_Bar.Set_Query_Text (S.Surface.Project_Search_Bar, "");
+         Editor.Project_Search_Bar.Set_Replace_Text (S.Surface.Project_Search_Bar, "");
       end if;
       Show_Search_Results_Panel (S);
       Report_Info (S, "Project search query cleared");
@@ -640,10 +640,10 @@ package body Editor.Executor.Project_Search_Result_Commands is
             return False;
          end if;
 
-         if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0
+         if Editor.File_Tree.File_Node_Count (S.Surface.File_Tree) > 0
            and then Result.File_Node_Id /= Editor.File_Tree.No_File_Tree_Node
          then
-            return Editor.File_Tree.Contains (S.File_Tree, Result.File_Node_Id);
+            return Editor.File_Tree.Contains (S.Surface.File_Tree, Result.File_Node_Id);
          end if;
 
          for I in 1 .. Editor.Project.Known_File_Count (S.Project_Runtime.Project) loop
@@ -662,7 +662,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
          return False;
       end Result_Target_Is_Current_Project_File;
    begin
-      if Editor.Project_Search.Is_Stale (S.Project_Search) then
+      if Editor.Project_Search.Is_Stale (S.Surface.Project_Search) then
          Report_Warning (S, "Search result is stale; run Project Search again.");
          Show_Search_Results_Panel (S);
          return;
@@ -722,14 +722,14 @@ package body Editor.Executor.Project_Search_Result_Commands is
       End_Index := Editor.Cursors.Cursor_Index
         (Editor.Navigation.Index_For_Line_Column (S, Target_Row, End_Column));
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => End_Index,
            Anchor                => Target_Index,
            Virtual_Column        => 0,
            Anchor_Virtual_Column => 0));
-      S.Preferred_Column := End_Column;
+      S.Caret.Preferred_Column := End_Column;
 
       Editor.Executor.Record_Navigation_If_Target_Changed
         (S, Before_Location,
@@ -781,15 +781,15 @@ package body Editor.Executor.Project_Search_Result_Commands is
       Result : Editor.Project_Search.Project_Search_Result;
    begin
       if Result_Index = 0
-        or else Result_Index > Editor.Project_Search.Result_Count (S.Project_Search)
+        or else Result_Index > Editor.Project_Search.Result_Count (S.Surface.Project_Search)
       then
          Report_Warning (S, "No search result selected.");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 
-      Editor.Project_Search.Set_Selected_Result_Index (S.Project_Search, Result_Index);
-      Result := Editor.Project_Search.Result_At (S.Project_Search, Positive (Result_Index));
+      Editor.Project_Search.Set_Selected_Result_Index (S.Surface.Project_Search, Result_Index);
+      Result := Editor.Project_Search.Result_At (S.Surface.Project_Search, Positive (Result_Index));
       Jump_To_Project_Search_Result (S, Result);
    end Execute_Open_Project_Search_Result;
 
@@ -798,7 +798,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
    is
       Found  : Boolean := False;
       Result : constant Editor.Project_Search.Project_Search_Result :=
-        Editor.Project_Search.Selected_Result (S.Project_Search, Found);
+        Editor.Project_Search.Selected_Result (S.Surface.Project_Search, Found);
    begin
       if Found then
          Jump_To_Project_Search_Result (S, Result);
@@ -812,11 +812,11 @@ package body Editor.Executor.Project_Search_Result_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+      if Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0 then
          Report_Info (S, "No project search results");
       else
          Editor.Project_Search.Move_Selected_Result
-           (S.Project_Search, Editor.Project_Search.Next_Result, True);
+           (S.Surface.Project_Search, Editor.Project_Search.Next_Result, True);
          Editor.Executor.Search_Results_Commands.Ensure_Search_Result_Visible (S);
          Show_Search_Results_Panel (S);
       end if;
@@ -827,11 +827,11 @@ package body Editor.Executor.Project_Search_Result_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+      if Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0 then
          Report_Info (S, "No project search results");
       else
          Editor.Project_Search.Move_Selected_Result
-           (S.Project_Search, Editor.Project_Search.Previous_Result, True);
+           (S.Surface.Project_Search, Editor.Project_Search.Previous_Result, True);
          Editor.Executor.Search_Results_Commands.Ensure_Search_Result_Visible (S);
          Show_Search_Results_Panel (S);
       end if;
@@ -842,13 +842,13 @@ package body Editor.Executor.Project_Search_Result_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+      if Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0 then
          Report_Info (S, "No project search results");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
       Editor.Project_Search.Move_Selected_Result
-        (S.Project_Search, Editor.Project_Search.Next_Result, True);
+        (S.Surface.Project_Search, Editor.Project_Search.Next_Result, True);
       Editor.Executor.Search_Results_Commands.Ensure_Search_Result_Visible (S);
       Show_Search_Results_Panel (S);
       Report_Info (S, "Selected next project search result");
@@ -859,13 +859,13 @@ package body Editor.Executor.Project_Search_Result_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+      if Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0 then
          Report_Info (S, "No project search results");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
       Editor.Project_Search.Move_Selected_Result
-        (S.Project_Search, Editor.Project_Search.Previous_Result, True);
+        (S.Surface.Project_Search, Editor.Project_Search.Previous_Result, True);
       Editor.Executor.Search_Results_Commands.Ensure_Search_Result_Visible (S);
       Show_Search_Results_Panel (S);
       Report_Info (S, "Selected previous project search result");
@@ -876,13 +876,13 @@ package body Editor.Executor.Project_Search_Result_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+      if Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0 then
          Report_Info (S, "No project search results");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 
-      Editor.Project_Search.Select_First_Result (S.Project_Search);
+      Editor.Project_Search.Select_First_Result (S.Surface.Project_Search);
       Editor.Executor.Search_Results_Commands.Ensure_Search_Result_Visible (S);
       Show_Search_Results_Panel (S);
       Report_Info (S, "Selected first project search result");
@@ -893,13 +893,13 @@ package body Editor.Executor.Project_Search_Result_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+      if Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0 then
          Report_Info (S, "No project search results");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 
-      Editor.Project_Search.Select_Last_Result (S.Project_Search);
+      Editor.Project_Search.Select_Last_Result (S.Surface.Project_Search);
       Editor.Executor.Search_Results_Commands.Ensure_Search_Result_Visible (S);
       Show_Search_Results_Panel (S);
       Report_Info (S, "Selected last project search result");
@@ -921,7 +921,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
          Report_Info (S, "No active buffer.");
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+      elsif Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0 then
          Report_Info (S, "No project search results");
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -936,7 +936,7 @@ package body Editor.Executor.Project_Search_Result_Commands is
       end if;
 
       Selected := Editor.Project_Search.Select_First_Result_For_Path
-        (S.Project_Search, Path);
+        (S.Surface.Project_Search, Path);
       if not Selected then
          Report_Info (S, "No project search result for active file");
          Editor.Render_Cache.Invalidate_All;
@@ -944,8 +944,8 @@ package body Editor.Executor.Project_Search_Result_Commands is
       end if;
 
       Result := Editor.Project_Search.Result_At
-        (S.Project_Search,
-         Positive (Editor.Project_Search.Selected_Result_Index (S.Project_Search)));
+        (S.Surface.Project_Search,
+         Positive (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search)));
       Editor.Executor.Search_Results_Commands.Ensure_Search_Result_Visible (S);
       Show_Search_Results_Panel (S);
       Report_Info

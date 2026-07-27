@@ -405,7 +405,7 @@ package body Editor.Project.Tests is
       Editor.State.Init (S);
 
       Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
-      Assert (Editor.File_Tree.Is_Empty (S.File_Tree),
+      Assert (Editor.File_Tree.Is_Empty (S.Surface.File_Tree),
               "Refresh without a project must leave the file tree empty");
       Assert (Last_Message_Text (S) = "No project open.",
               "Refresh without a project must publish a deterministic warning");
@@ -413,12 +413,12 @@ package body Editor.Project.Tests is
       Ada.Directories.Create_Directory (Root);
       Write_Bytes (File_P, "file");
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Editor.File_Tree.Clear (S.File_Tree);
+      Editor.File_Tree.Clear (S.Surface.File_Tree);
       Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
 
-      Assert (not Editor.File_Tree.Is_Empty (S.File_Tree),
+      Assert (not Editor.File_Tree.Is_Empty (S.Surface.File_Tree),
               "Refresh with an active project must scan the tree");
-      Assert (Editor.File_Tree.Node_Count (S.File_Tree) = 2,
+      Assert (Editor.File_Tree.Node_Count (S.Surface.File_Tree) = 2,
               "Refresh must replace the file tree with scanned nodes");
       Assert (Last_Message_Text (S) = "File tree refreshed",
               "Refresh success must publish a success message");
@@ -454,7 +454,7 @@ package body Editor.Project.Tests is
       begin
          declare
             Node : constant Editor.File_Tree.File_Tree_Node_Id :=
-              Editor.File_Tree.Find_By_Path (S.File_Tree, Relative, Found);
+              Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, Relative, Found);
             pragma Unreferenced (Node);
          begin
             Assert
@@ -494,9 +494,9 @@ package body Editor.Project.Tests is
 
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search
         (S, "needle");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) > 0,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) > 0,
               "initial project search should see the seeded matches");
-      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+      Assert (not Editor.Project_Search.Is_Stale (S.Surface.Project_Search),
               "initial project search should be coherent");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Save_As_Source);
@@ -505,9 +505,9 @@ package body Editor.Project.Tests is
       Assert_Project_File_State ("src/save_as_new.adb", True, "save-as adds target");
       Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/save_as_new.adb"),
               "save-as target must not be promoted to retained project search source");
-      Assert (Project_Search_Has_Result_Path (S.Project_Search, "src/save_as_new.adb"),
+      Assert (Project_Search_Has_Result_Path (S.Surface.Project_Search, "src/save_as_new.adb"),
               "save-as target should appear in refreshed project search results");
-      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+      Assert (not Editor.Project_Search.Is_Stale (S.Surface.Project_Search),
               "save-as should leave refreshed search results coherent");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Rename_Source);
@@ -516,11 +516,11 @@ package body Editor.Project.Tests is
       Assert_Project_File_State ("src/rename_new.adb", True, "rename adds target");
       Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/rename_new.adb"),
               "rename target must not be promoted to retained project search source");
-      Assert (not Project_Search_Has_Result_Path (S.Project_Search, "src/rename.adb"),
+      Assert (not Project_Search_Has_Result_Path (S.Surface.Project_Search, "src/rename.adb"),
               "rename should remove the old search result path");
-      Assert (Project_Search_Has_Result_Path (S.Project_Search, "src/rename_new.adb"),
+      Assert (Project_Search_Has_Result_Path (S.Surface.Project_Search, "src/rename_new.adb"),
               "rename should add the new search result path");
-      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+      Assert (not Editor.Project_Search.Is_Stale (S.Surface.Project_Search),
               "rename should leave refreshed search results coherent");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Copy_Source);
@@ -529,9 +529,9 @@ package body Editor.Project.Tests is
       Assert_Project_File_State ("src/copy_new.adb", True, "copy adds target");
       Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/copy_new.adb"),
               "copy target must not be promoted to retained project search source");
-      Assert (Project_Search_Has_Result_Path (S.Project_Search, "src/copy_new.adb"),
+      Assert (Project_Search_Has_Result_Path (S.Surface.Project_Search, "src/copy_new.adb"),
               "copy target should appear in refreshed project search results");
-      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+      Assert (not Editor.Project_Search.Is_Stale (S.Surface.Project_Search),
               "copy should leave refreshed search results coherent");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Move_Source);
@@ -540,26 +540,26 @@ package body Editor.Project.Tests is
       Assert_Project_File_State ("src/move_new.adb", True, "move adds target");
       Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/move_new.adb"),
               "move target must not be promoted to retained project search source");
-      Assert (not Project_Search_Has_Result_Path (S.Project_Search, "src/move.adb"),
+      Assert (not Project_Search_Has_Result_Path (S.Surface.Project_Search, "src/move.adb"),
               "move should remove the old search result path");
-      Assert (Project_Search_Has_Result_Path (S.Project_Search, "src/move_new.adb"),
+      Assert (Project_Search_Has_Result_Path (S.Surface.Project_Search, "src/move_new.adb"),
               "move should add the new search result path");
-      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+      Assert (not Editor.Project_Search.Is_Stale (S.Surface.Project_Search),
               "move should leave refreshed search results coherent");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Delete_Source);
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Assert_Project_File_State ("src/delete.adb", False, "delete removes source");
-      Assert (not Project_Search_Has_Result_Path (S.Project_Search, "src/delete.adb"),
+      Assert (not Project_Search_Has_Result_Path (S.Surface.Project_Search, "src/delete.adb"),
               "delete should remove the deleted search result path");
-      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+      Assert (not Editor.Project_Search.Is_Stale (S.Surface.Project_Search),
               "delete should leave refreshed search results coherent");
 
       Write_Bytes (Refresh_Added, "refresh needle");
       Editor.Executor.Project_File_Index_Commands.Execute_Refresh_Project_Files (S);
-      Assert (Project_Search_Has_Result_Path (S.Project_Search, "src/refresh_added.adb"),
+      Assert (Project_Search_Has_Result_Path (S.Surface.Project_Search, "src/refresh_added.adb"),
               "project-files refresh should surface the new search result path");
-      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+      Assert (not Editor.Project_Search.Is_Stale (S.Surface.Project_Search),
               "project-files refresh should leave project search coherent");
 
       Editor.Buffers.Reset_Global_For_Test;
@@ -623,26 +623,26 @@ package body Editor.Project.Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Before := To_Unbounded_String (Editor.Project.Root_Path (S.Project_Runtime.Project));
-      Folder_Id := Editor.File_Tree.Find_By_Path (S.File_Tree, "folder", Found);
+      Folder_Id := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "folder", Found);
       Assert (Found,
               "Test setup must scan the project folder into the file tree");
-      Editor.File_Tree.Set_Expanded (S.File_Tree, Folder_Id, True);
-      Rows_Before := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
+      Editor.File_Tree.Set_Expanded (S.Surface.File_Tree, Folder_Id, True);
+      Rows_Before := Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree);
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, First);
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = To_String (Before),
               "Switching to another buffer must preserve editor-global project");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Rows_Before,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) = Rows_Before,
               "Switching to another buffer must preserve editor-global file tree rows");
-      Assert (Editor.File_Tree.Node (S.File_Tree, Folder_Id).Is_Expanded,
+      Assert (Editor.File_Tree.Node (S.Surface.File_Tree, Folder_Id).Is_Expanded,
               "Switching to another buffer must preserve file tree expansion state");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Second);
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = To_String (Before),
               "Switching back must preserve editor-global project");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Rows_Before,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) = Rows_Before,
               "Switching back must preserve editor-global file tree rows");
-      Assert (Editor.File_Tree.Node (S.File_Tree, Folder_Id).Is_Expanded,
+      Assert (Editor.File_Tree.Node (S.Surface.File_Tree, Folder_Id).Is_Expanded,
               "Switching back must preserve file tree expansion state");
 
       Remove_If_Exists (Nested);
@@ -1014,8 +1014,8 @@ package body Editor.Project.Tests is
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "panels/view.adb");
-      Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/");
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "panels/view.adb");
+      Editor.Quick_Open.Set_Path_Scope (S.Surface.Quick_Open, "src/");
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
 
@@ -1030,7 +1030,7 @@ package body Editor.Project.Tests is
               "create-with-parents must not add created directories as known files");
       Assert (Last_Message_Text (S) = "Created src/panels/view.adb",
               "create-with-parents must emit one concise create message");
-      Assert (not Editor.Quick_Open.Is_Open (S.Quick_Open),
+      Assert (not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open),
               "successful create/open must hide Quick Open under the existing policy");
       Remove_If_Exists (Root);
    end Test_Quick_Open_Create_With_Parents_Creates_File;
@@ -1052,8 +1052,8 @@ package body Editor.Project.Tests is
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "panels/sidebar/view.adb");
-      Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/");
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "panels/sidebar/view.adb");
+      Editor.Quick_Open.Set_Path_Scope (S.Surface.Quick_Open, "src/");
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
 
@@ -1090,8 +1090,8 @@ package body Editor.Project.Tests is
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "panels/sidebar/view.adb");
-      Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/");
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "panels/sidebar/view.adb");
+      Editor.Quick_Open.Set_Path_Scope (S.Surface.Quick_Open, "src/");
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
 
@@ -1099,7 +1099,7 @@ package body Editor.Project.Tests is
               "file parent conflict must emit deterministic parent-not-directory message");
       Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/panels/sidebar/view.adb"),
               "file parent conflict must not insert the target into known project files");
-      Assert (Editor.Quick_Open.Is_Open (S.Quick_Open),
+      Assert (Editor.Quick_Open.Is_Open (S.Surface.Quick_Open),
               "failed create-with-parents must preserve Quick Open visibility");
       Remove_If_Exists (Root);
    end Test_Quick_Open_Create_With_Parents_Rejects_File_Parent;
@@ -1121,7 +1121,7 @@ package body Editor.Project.Tests is
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "generated/view.adb");
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "generated/view.adb");
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_With_Parents_From_Query (S);
 
@@ -1155,7 +1155,7 @@ package body Editor.Project.Tests is
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "generated/view.adb");
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "generated/view.adb");
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_From_Query (S);
 
@@ -1165,8 +1165,8 @@ package body Editor.Project.Tests is
               "ignored create-from-query target must not be created");
       Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "generated/view.adb"),
               "ignored create-from-query target must not be inserted into known files");
-      Assert (Editor.Quick_Open.Is_Open (S.Quick_Open)
-              and then Editor.Quick_Open.Query_Text (S.Quick_Open) = "generated/view.adb",
+      Assert (Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
+              and then Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = "generated/view.adb",
               "ignored create-from-query failure must preserve Quick Open state");
       Remove_If_Exists (Root);
    exception
@@ -1191,8 +1191,8 @@ package body Editor.Project.Tests is
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "panels/view.adb");
-      Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/");
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "panels/view.adb");
+      Editor.Quick_Open.Set_Path_Scope (S.Surface.Quick_Open, "src/");
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_From_Query (S);
 
@@ -1227,8 +1227,8 @@ package body Editor.Project.Tests is
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
-      Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/editor/");
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "new_panel.adb");
+      Editor.Quick_Open.Set_Path_Scope (S.Surface.Quick_Open, "src/editor/");
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "new_panel.adb");
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_From_Query (S);
 
@@ -1240,7 +1240,7 @@ package body Editor.Project.Tests is
               "create-from-query must insert exactly one known file");
       Assert (Last_Message_Text (S) = "Created src/editor/new_panel.adb",
               "create-from-query success must emit one create message");
-      Assert (not Editor.Quick_Open.Is_Open (S.Quick_Open),
+      Assert (not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open),
               "create/open success must hide Quick Open under existing policy");
 
       Editor.Project.Refresh_Known_Files (S.Project_Runtime.Project, Refresh);
@@ -1281,9 +1281,9 @@ package body Editor.Project.Tests is
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
-      Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/");
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "panels/sidebar/view.adb");
-      Editor.Quick_Open.Toggle_Priority_Mode (S.Quick_Open);
+      Editor.Quick_Open.Set_Path_Scope (S.Surface.Quick_Open, "src/");
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "panels/sidebar/view.adb");
+      Editor.Quick_Open.Toggle_Priority_Mode (S.Surface.Quick_Open);
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Create_From_Query (S);
 
@@ -1291,10 +1291,10 @@ package body Editor.Project.Tests is
               "narrow create failure must not create missing parent directories");
       Assert (not Ada.Directories.Exists (File_Path),
               "narrow create failure must not create target file");
-      Assert (Editor.Quick_Open.Is_Open (S.Quick_Open)
-              and then Editor.Quick_Open.Path_Scope (S.Quick_Open) = "src/"
-              and then Editor.Quick_Open.Query_Text (S.Quick_Open) = "panels/sidebar/view.adb"
-              and then Editor.Quick_Open.Priority_Mode (S.Quick_Open) = Editor.Quick_Open.Open_Recent,
+      Assert (Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
+              and then Editor.Quick_Open.Path_Scope (S.Surface.Quick_Open) = "src/"
+              and then Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = "panels/sidebar/view.adb"
+              and then Editor.Quick_Open.Priority_Mode (S.Surface.Quick_Open) = Editor.Quick_Open.Open_Recent,
               "narrow create failure must preserve Quick Open transient state");
       Assert (Editor.Project.Known_File_Count (S.Project_Runtime.Project) = 0,
               "narrow create failure must not mutate known files");

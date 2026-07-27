@@ -19,8 +19,8 @@ package body Editor.Executor.Quick_Open_Input_Commands is
      (S : Editor.State.State_Type) return Natural
    is
    begin
-      if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0 then
-         return Editor.File_Tree.File_Node_Count (S.File_Tree);
+      if Editor.File_Tree.File_Node_Count (S.Surface.File_Tree) > 0 then
+         return Editor.File_Tree.File_Node_Count (S.Surface.File_Tree);
       elsif Editor.Project.Has_Project (S.Project_Runtime.Project) then
          return Editor.Project.Known_File_Count (S.Project_Runtime.Project);
       else
@@ -40,7 +40,7 @@ package body Editor.Executor.Quick_Open_Input_Commands is
    is
    begin
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.File_Tree, Default_Quick_Open_Config);
+        (S.Surface.Quick_Open, S.Surface.File_Tree, Default_Quick_Open_Config);
       Editor.Render_Cache.Invalidate_All;
    end Recompute_Quick_Open;
 
@@ -49,10 +49,10 @@ package body Editor.Executor.Quick_Open_Input_Commands is
       Text : String)
    is
    begin
-      if Editor.Quick_Open.Is_Open (S.Quick_Open) then
-         Editor.Quick_Open.Set_Query_Text (S.Quick_Open, Text);
+      if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
+         Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, Text);
          Recompute_Quick_Open (S);
-         if Editor.Quick_Open.Result_Count (S.Quick_Open) = 0 then
+         if Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) = 0 then
             if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
                Report_Info (S, "No project open");
             elsif Quick_Open_File_Count (S) = 0 then
@@ -70,11 +70,11 @@ package body Editor.Executor.Quick_Open_Input_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Quick_Open.Is_Open (S.Quick_Open) then
-         if Editor.Quick_Open.Query_Text (S.Quick_Open)'Length = 0 then
+      if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
+         if Editor.Quick_Open.Query_Text (S.Surface.Quick_Open)'Length = 0 then
             Report_Info (S, "No Quick Open query to clear");
          else
-            Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "");
+            Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "");
             Recompute_Quick_Open (S);
             Report_Info (S, "Quick Open query cleared");
          end if;
@@ -85,18 +85,18 @@ package body Editor.Executor.Quick_Open_Input_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+      if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
          if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
          end if;
 
-         Editor.Quick_Open.Cycle_File_Kind_Next (S.Quick_Open);
+         Editor.Quick_Open.Cycle_File_Kind_Next (S.Surface.Quick_Open);
          Recompute_Quick_Open (S);
          Report_Info (S, "Quick Open filter: " &
            Editor.Quick_Open.File_Kind_Filter_Name
-             (Editor.Quick_Open.File_Kind_Filter (S.Quick_Open)));
+             (Editor.Quick_Open.File_Kind_Filter (S.Surface.Quick_Open)));
       end if;
    end Execute_Quick_Open_Kind_Next;
 
@@ -104,18 +104,18 @@ package body Editor.Executor.Quick_Open_Input_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+      if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
          if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
          end if;
 
-         Editor.Quick_Open.Cycle_File_Kind_Previous (S.Quick_Open);
+         Editor.Quick_Open.Cycle_File_Kind_Previous (S.Surface.Quick_Open);
          Recompute_Quick_Open (S);
          Report_Info (S, "Quick Open filter: " &
            Editor.Quick_Open.File_Kind_Filter_Name
-             (Editor.Quick_Open.File_Kind_Filter (S.Quick_Open)));
+             (Editor.Quick_Open.File_Kind_Filter (S.Surface.Quick_Open)));
       end if;
    end Execute_Quick_Open_Kind_Previous;
 
@@ -123,17 +123,17 @@ package body Editor.Executor.Quick_Open_Input_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+      if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
          if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
-         elsif Editor.Quick_Open.File_Kind_Filter (S.Quick_Open) =
+         elsif Editor.Quick_Open.File_Kind_Filter (S.Surface.Quick_Open) =
            Editor.Quick_Open.All_Files
          then
             Report_Info (S, "No Quick Open file-kind filter to clear");
          else
-            Editor.Quick_Open.Clear_File_Kind_Filter (S.Quick_Open);
+            Editor.Quick_Open.Clear_File_Kind_Filter (S.Surface.Quick_Open);
             Recompute_Quick_Open (S);
             Report_Info (S, "Quick Open filter: All");
          end if;
@@ -150,17 +150,17 @@ package body Editor.Executor.Quick_Open_Input_Commands is
          return;
       elsif not Editor.Overlay_Focus.Is_Active
         (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
-        or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+        or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
       then
          Report_Info (S, "Quick Open is not visible");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 
-      Editor.Quick_Open.Toggle_Priority_Mode (S.Quick_Open);
+      Editor.Quick_Open.Toggle_Priority_Mode (S.Surface.Quick_Open);
       Recompute_Quick_Open (S);
 
-      case Editor.Quick_Open.Priority_Mode (S.Quick_Open) is
+      case Editor.Quick_Open.Priority_Mode (S.Surface.Quick_Open) is
          when Editor.Quick_Open.Open_Recent =>
             Report_Info (S, "Quick Open priority: Open/Recent");
          when Editor.Quick_Open.Path =>
@@ -179,12 +179,12 @@ package body Editor.Executor.Quick_Open_Input_Commands is
          return;
       elsif not Editor.Overlay_Focus.Is_Active
         (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
-        or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+        or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
       then
          Report_Info (S, "Quick Open is not visible");
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif Editor.Quick_Open.Priority_Mode (S.Quick_Open) =
+      elsif Editor.Quick_Open.Priority_Mode (S.Surface.Quick_Open) =
         Editor.Quick_Open.Path
       then
          Report_Info (S, "Quick Open priority already Path");
@@ -192,7 +192,7 @@ package body Editor.Executor.Quick_Open_Input_Commands is
          return;
       end if;
 
-      Editor.Quick_Open.Clear_Priority_Mode (S.Quick_Open);
+      Editor.Quick_Open.Clear_Priority_Mode (S.Surface.Quick_Open);
       Recompute_Quick_Open (S);
       Report_Info (S, "Quick Open priority: Path");
       Editor.Render_Cache.Invalidate_All;
@@ -203,8 +203,8 @@ package body Editor.Executor.Quick_Open_Input_Commands is
       Text : String)
    is
    begin
-      if Editor.Quick_Open.Is_Open (S.Quick_Open) then
-         Editor.Quick_Open.Insert_Text (S.Quick_Open, Text);
+      if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
+         Editor.Quick_Open.Insert_Text (S.Surface.Quick_Open, Text);
          Recompute_Quick_Open (S);
       end if;
    end Execute_Quick_Open_Insert_Text;
@@ -213,8 +213,8 @@ package body Editor.Executor.Quick_Open_Input_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Quick_Open.Is_Open (S.Quick_Open) then
-         Editor.Quick_Open.Backspace (S.Quick_Open);
+      if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
+         Editor.Quick_Open.Backspace (S.Surface.Quick_Open);
          Recompute_Quick_Open (S);
       end if;
    end Execute_Quick_Open_Backspace;
@@ -223,8 +223,8 @@ package body Editor.Executor.Quick_Open_Input_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Quick_Open.Is_Open (S.Quick_Open) then
-         Editor.Quick_Open.Delete_Forward (S.Quick_Open);
+      if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
+         Editor.Quick_Open.Delete_Forward (S.Surface.Quick_Open);
          Recompute_Quick_Open (S);
       end if;
    end Execute_Quick_Open_Delete_Forward;
@@ -233,7 +233,7 @@ package body Editor.Executor.Quick_Open_Input_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Quick_Open.Move_Cursor_Left (S.Quick_Open);
+      Editor.Quick_Open.Move_Cursor_Left (S.Surface.Quick_Open);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Quick_Open_Move_Cursor_Left;
 
@@ -241,7 +241,7 @@ package body Editor.Executor.Quick_Open_Input_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Quick_Open.Move_Cursor_Right (S.Quick_Open);
+      Editor.Quick_Open.Move_Cursor_Right (S.Surface.Quick_Open);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Quick_Open_Move_Cursor_Right;
 

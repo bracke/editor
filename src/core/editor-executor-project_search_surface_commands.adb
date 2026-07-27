@@ -33,10 +33,10 @@ package body Editor.Executor.Project_Search_Surface_Commands is
    begin
       Activate_Overlay (S, Editor.Overlay_Focus.Project_Search_Bar_Overlay);
       Editor.Project_Search_Bar.Set_Query_Text
-        (S.Project_Search_Bar, Editor.Project_Search.Query (S.Project_Search));
+        (S.Surface.Project_Search_Bar, Editor.Project_Search.Query (S.Surface.Project_Search));
       Editor.Project_Search_Bar.Set_Replace_Text
-        (S.Project_Search_Bar, Editor.Project_Search.Replace_Text (S.Project_Search));
-      Editor.Project_Search_Bar.Open (S.Project_Search_Bar);
+        (S.Surface.Project_Search_Bar, Editor.Project_Search.Replace_Text (S.Surface.Project_Search));
+      Editor.Project_Search_Bar.Open (S.Surface.Project_Search_Bar);
       Editor.Render_Cache.Invalidate_All;
       Report_Info (S, "Project Search shown.");
    end Execute_Open_Project_Search_Bar;
@@ -51,7 +51,7 @@ package body Editor.Executor.Project_Search_Surface_Commands is
          Dismiss_Active_Overlay
            (S, Editor.Overlay_Focus.Dismiss_Command);
       else
-         Editor.Project_Search_Bar.Close (S.Project_Search_Bar);
+         Editor.Project_Search_Bar.Close (S.Surface.Project_Search_Bar);
          Editor.Render_Cache.Invalidate_All;
       end if;
       Report_Info (S, "Project Search hidden.");
@@ -61,7 +61,7 @@ package body Editor.Executor.Project_Search_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search_Bar.Is_Open (S.Project_Search_Bar)
+      if Editor.Project_Search_Bar.Is_Open (S.Surface.Project_Search_Bar)
         and then Editor.Overlay_Focus.Is_Active
           (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Project_Search_Bar_Overlay)
       then
@@ -76,10 +76,10 @@ package body Editor.Executor.Project_Search_Surface_Commands is
    is
    begin
       Editor.Project_Search.Set_Replace_Text
-        (S.Project_Search, Editor.Project_Search_Bar.Replace_Text (S.Project_Search_Bar));
+        (S.Surface.Project_Search, Editor.Project_Search_Bar.Replace_Text (S.Surface.Project_Search_Bar));
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search
-        (S, Editor.Project_Search_Bar.Query_Text (S.Project_Search_Bar));
-      Editor.Project_Search_Bar.Open (S.Project_Search_Bar);
+        (S, Editor.Project_Search_Bar.Query_Text (S.Surface.Project_Search_Bar));
+      Editor.Project_Search_Bar.Open (S.Surface.Project_Search_Bar);
    end Execute_Run_Project_Search_From_Bar;
 
    procedure Sync_Project_Search_Bar_Input
@@ -87,13 +87,13 @@ package body Editor.Executor.Project_Search_Surface_Commands is
    is
    begin
       Editor.Project_Search.Set_Query
-        (S.Project_Search, Editor.Project_Search_Bar.Query_Text (S.Project_Search_Bar));
+        (S.Surface.Project_Search, Editor.Project_Search_Bar.Query_Text (S.Surface.Project_Search_Bar));
       Editor.Project_Search.Set_Replace_Text
-        (S.Project_Search, Editor.Project_Search_Bar.Replace_Text (S.Project_Search_Bar));
-      if Editor.Project_Search_Bar.Active_Field (S.Project_Search_Bar)
+        (S.Surface.Project_Search, Editor.Project_Search_Bar.Replace_Text (S.Surface.Project_Search_Bar));
+      if Editor.Project_Search_Bar.Active_Field (S.Surface.Project_Search_Bar)
         = Editor.Project_Search_Bar.Project_Search_Replace_Field
       then
-         Editor.Project_Search.Set_Replace_Mode_Active (S.Project_Search, True);
+         Editor.Project_Search.Set_Replace_Mode_Active (S.Surface.Project_Search, True);
       end if;
    end Sync_Project_Search_Bar_Input;
 
@@ -102,8 +102,8 @@ package body Editor.Executor.Project_Search_Surface_Commands is
       Text : String)
    is
    begin
-      if Editor.Project_Search_Bar.Is_Open (S.Project_Search_Bar) then
-         Editor.Project_Search_Bar.Insert_Text (S.Project_Search_Bar, Text);
+      if Editor.Project_Search_Bar.Is_Open (S.Surface.Project_Search_Bar) then
+         Editor.Project_Search_Bar.Insert_Text (S.Surface.Project_Search_Bar, Text);
          Sync_Project_Search_Bar_Input (S);
          Editor.Render_Cache.Invalidate_All;
       end if;
@@ -113,8 +113,8 @@ package body Editor.Executor.Project_Search_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search_Bar.Is_Open (S.Project_Search_Bar) then
-         Editor.Project_Search_Bar.Backspace (S.Project_Search_Bar);
+      if Editor.Project_Search_Bar.Is_Open (S.Surface.Project_Search_Bar) then
+         Editor.Project_Search_Bar.Backspace (S.Surface.Project_Search_Bar);
          Sync_Project_Search_Bar_Input (S);
          Editor.Render_Cache.Invalidate_All;
       end if;
@@ -124,8 +124,8 @@ package body Editor.Executor.Project_Search_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search_Bar.Is_Open (S.Project_Search_Bar) then
-         Editor.Project_Search_Bar.Delete_Forward (S.Project_Search_Bar);
+      if Editor.Project_Search_Bar.Is_Open (S.Surface.Project_Search_Bar) then
+         Editor.Project_Search_Bar.Delete_Forward (S.Surface.Project_Search_Bar);
          Sync_Project_Search_Bar_Input (S);
          Editor.Render_Cache.Invalidate_All;
       end if;

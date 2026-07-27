@@ -580,10 +580,10 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Tests is
             raise;
       end;
 
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Node_Id := Editor.File_Tree.Find_By_Path (S.File_Tree, File_Path, Found);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      Node_Id := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, File_Path, Found);
       Assert (Found, "fixture must scan a.txt");
-      Node := Editor.File_Tree.Node (S.File_Tree, Node_Id);
+      Node := Editor.File_Tree.Node (S.Surface.File_Tree, Node_Id);
       Path := To_Unbounded_String (File_Path);
    end Prepare_File_Tree;
 

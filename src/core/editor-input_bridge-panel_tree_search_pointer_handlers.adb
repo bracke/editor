@@ -67,8 +67,8 @@ package body Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers is
       Hit := Editor.File_Tree_View.Hit_Test
         (Geometry => Geometry,
          Config   => Layout.File_Tree_View,
-         Tree     => S.File_Tree,
-         State    => S.File_Tree_View,
+         Tree     => S.Surface.File_Tree,
+         State    => S.Surface.File_Tree_View,
          X        => Integer (Cmd.Click_X),
          Y        => Integer (Cmd.Click_Y));
 
@@ -79,7 +79,7 @@ package body Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers is
             declare
                Action : constant Editor.File_Tree_View.File_Tree_Action :=
                  Editor.File_Tree_View.Action_For_Hit
-                   (Layout.File_Tree_View, S.File_Tree, Hit);
+                   (Layout.File_Tree_View, S.Surface.File_Tree, Hit);
             begin
                Editor.Focus_Management.Set_Focus_Owner
                  (S, Editor.Focus_Management.Focus_File_Tree);
@@ -128,7 +128,7 @@ package body Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers is
 
       Snapshot := Editor.Search_Results.Visible_Snapshot
         (Editor.Search_Results.Build_Snapshot
-           (S.Project_Search, Config,
+           (S.Surface.Project_Search, Config,
             Editor.Buffers.Global_Registry_For_UI),
          S.Panel.Search_Results_View,
          (if Editor.Layout.Cell_H = 0 then 0 else Panel.Height / Editor.Layout.Cell_H));
@@ -160,7 +160,7 @@ package body Editor.Input_Bridge.Panel_Tree_Search_Pointer_Handlers is
                begin
                   if Found then
                      Editor.Project_Search.Set_Selected_Result_Index
-                       (S.Project_Search, First);
+                       (S.Surface.Project_Search, First);
                      Editor.Render_Cache.Invalidate_All;
                   end if;
                end;

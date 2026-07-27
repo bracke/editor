@@ -67,9 +67,9 @@ package body Editor.Executor.Quick_Open_Context_Commands is
       then
          Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       end if;
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, Query);
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, Query);
       Editor.Executor.Quick_Open_Commands.Recompute_Quick_Open (S);
-      Editor.Quick_Open.Select_Path (S.Quick_Open, Path, Selected);
+      Editor.Quick_Open.Select_Path (S.Surface.Quick_Open, Path, Selected);
 
       if Selected then
          Editor.Executor.Shared_Services.Report_Info (S, "Quick Open selected active file: " & Path);
@@ -85,7 +85,7 @@ package body Editor.Executor.Quick_Open_Context_Commands is
       Found_Path : Boolean := False;
       Selected   : Boolean := False;
       Keep_Open_Recent_Priority : constant Boolean :=
-        Editor.Quick_Open.Priority_Mode (S.Quick_Open) =
+        Editor.Quick_Open.Priority_Mode (S.Surface.Quick_Open) =
         Editor.Quick_Open.Open_Recent;
       Path       : constant String := Editor.Executor.Active_Buffer_Known_Project_File (S, Found_Path);
       Scope      : constant String := Editor.Quick_Open.Directory_Scope_Of_Path (Path);
@@ -106,17 +106,17 @@ package body Editor.Executor.Quick_Open_Context_Commands is
 
       Editor.Executor.Activate_Overlay (S, Editor.Overlay_Focus.Quick_Open_Overlay);
       if Keep_Open_Recent_Priority
-        and then Editor.Quick_Open.Priority_Mode (S.Quick_Open) =
+        and then Editor.Quick_Open.Priority_Mode (S.Surface.Quick_Open) =
           Editor.Quick_Open.Path
       then
-         Editor.Quick_Open.Toggle_Priority_Mode (S.Quick_Open);
+         Editor.Quick_Open.Toggle_Priority_Mode (S.Surface.Quick_Open);
       end if;
       Editor.Quick_Open.Set_Query_Text
-        (S.Quick_Open, Quick_Open_Reveal_Query_For_Path (Path));
-      Editor.Quick_Open.Clear_File_Kind_Filter (S.Quick_Open);
-      Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, Scope);
+        (S.Surface.Quick_Open, Quick_Open_Reveal_Query_For_Path (Path));
+      Editor.Quick_Open.Clear_File_Kind_Filter (S.Surface.Quick_Open);
+      Editor.Quick_Open.Set_Path_Scope (S.Surface.Quick_Open, Scope);
       Editor.Executor.Quick_Open_Commands.Recompute_Quick_Open (S);
-      Editor.Quick_Open.Select_Path (S.Quick_Open, Path, Selected);
+      Editor.Quick_Open.Select_Path (S.Surface.Quick_Open, Path, Selected);
 
       if not Selected then
          Editor.Executor.Shared_Services.Report_Info (S, "Active buffer is not a known project file");

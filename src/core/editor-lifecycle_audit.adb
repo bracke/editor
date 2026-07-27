@@ -118,7 +118,7 @@ package body Editor.Lifecycle_Audit is
       Buffer_Count   : Natural := Registry_Count;
       Active_Exists  : Boolean := False;
       Search_View    : constant Editor.Search_Results.Search_Results_Snapshot :=
-        Editor.Search_Results.Build_Snapshot (State.Project_Search, (others => <>));
+        Editor.Search_Results.Build_Snapshot (State.Surface.Project_Search, (others => <>));
       Pending_Kind   : constant Editor.Pending_Transitions.Pending_Transition_Kind :=
         Editor.Pending_Transitions.Target_Kind (State.Pending_Transitions);
    begin
@@ -145,9 +145,9 @@ package body Editor.Lifecycle_Audit is
          Dirty_File_Backed_Count     => File_Dirty,
          Dirty_Untitled_Count        => Untitled_Dirty,
          Active_Buffer_Exists        => Active_Exists,
-         File_Tree_Node_Count        => Editor.File_Tree.Node_Count (State.File_Tree),
-         File_Tree_Expansion_Count   => Editor.File_Tree.Expanded_Node_Count (State.File_Tree),
-         Project_Search_Result_Count => Editor.Project_Search.Result_Count (State.Project_Search),
+         File_Tree_Node_Count        => Editor.File_Tree.Node_Count (State.Surface.File_Tree),
+         File_Tree_Expansion_Count   => Editor.File_Tree.Expanded_Node_Count (State.Surface.File_Tree),
+         Project_Search_Result_Count => Editor.Project_Search.Result_Count (State.Surface.Project_Search),
          Search_Results_Row_Count    => Editor.Search_Results.Row_Count (Search_View),
          Recent_Project_Count        => Editor.Recent_Projects.Count (State.Project_Runtime.Recent_Projects),
          Has_Pending_Transition      => Editor.Pending_Transitions.Has_Pending (State.Pending_Transitions),

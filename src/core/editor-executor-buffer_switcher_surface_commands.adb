@@ -35,7 +35,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
    begin
       return Editor.Overlay_Focus.Is_Active
         (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
-        and then Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher);
+        and then Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher);
    end Active_Buffer_Switcher_Overlay;
 
    function Selected_Row
@@ -128,7 +128,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
             | Editor.Command_Ids.Command_Buffer_Switcher_Previous_Result =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
-            elsif Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
+            elsif Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No buffer selected");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -185,11 +185,11 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
       Count  : constant Natural :=
-        Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher);
+        Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher);
       Filter : constant String :=
-        Editor.Buffer_Switcher.Filter_Text (S.Buffer_Switcher);
+        Editor.Buffer_Switcher.Filter_Text (S.Surface.Buffer_Switcher);
       Metadata_Filter : constant String :=
-        Editor.Buffer_Switcher.Metadata_Filter_Description (S.Buffer_Switcher);
+        Editor.Buffer_Switcher.Metadata_Filter_Description (S.Surface.Buffer_Switcher);
    begin
       if Count = 0 then
          if Metadata_Filter'Length > 0 then
@@ -230,7 +230,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
          Editor.Executor.Dismiss_Active_Overlay
            (S, Editor.Overlay_Focus.Dismiss_Command);
       else
-         Editor.Buffer_Switcher.Close (S.Buffer_Switcher);
+         Editor.Buffer_Switcher.Close (S.Surface.Buffer_Switcher);
          Editor.Render_Cache.Invalidate_All;
       end if;
    end Execute_Close_Buffer_Switcher;
@@ -240,7 +240,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
    is
       Found : Boolean := False;
       Row   : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
-        Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
+        Editor.Buffer_Switcher.Selected_Row (S.Surface.Buffer_Switcher, Found);
    begin
       Editor.Executor.Clear_Restore_Feedback_Current (S);
       if not Found or else Row.Id = Editor.Buffers.No_Buffer then
@@ -259,7 +259,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
          Editor.Executor.Dismiss_Active_Overlay
            (S, Editor.Overlay_Focus.Dismiss_Accept);
       else
-         Editor.Buffer_Switcher.Close (S.Buffer_Switcher);
+         Editor.Buffer_Switcher.Close (S.Surface.Buffer_Switcher);
       end if;
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Row.Id, Emit_Feedback => False);
       Editor.Focus_Management.Restore_Focus_To_Editor (S);
@@ -271,7 +271,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Buffer_Switcher.Move_Selection_Down (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Move_Selection_Down (S.Surface.Buffer_Switcher);
       Normalize_Switcher_Preview_Target (S);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Next_Result;
@@ -280,7 +280,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Buffer_Switcher.Move_Selection_Up (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Move_Selection_Up (S.Surface.Buffer_Switcher);
       Normalize_Switcher_Preview_Target (S);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Previous_Result;
@@ -290,8 +290,8 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
       Text : String)
    is
    begin
-      if Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
-         Editor.Buffer_Switcher.Insert_Text (S.Buffer_Switcher, Text);
+      if Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher) then
+         Editor.Buffer_Switcher.Insert_Text (S.Surface.Buffer_Switcher, Text);
          Recompute_Buffer_Switcher (S);
          Report_Buffer_Switcher_Count (S);
       end if;
@@ -301,8 +301,8 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
-         Editor.Buffer_Switcher.Backspace (S.Buffer_Switcher);
+      if Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher) then
+         Editor.Buffer_Switcher.Backspace (S.Surface.Buffer_Switcher);
          Recompute_Buffer_Switcher (S);
          Report_Buffer_Switcher_Count (S);
       end if;
@@ -312,8 +312,8 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
-         Editor.Buffer_Switcher.Delete_Forward (S.Buffer_Switcher);
+      if Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher) then
+         Editor.Buffer_Switcher.Delete_Forward (S.Surface.Buffer_Switcher);
          Recompute_Buffer_Switcher (S);
          Report_Buffer_Switcher_Count (S);
       end if;
@@ -323,7 +323,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Buffer_Switcher.Move_Cursor_Left (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Move_Cursor_Left (S.Surface.Buffer_Switcher);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Move_Cursor_Left;
 
@@ -331,7 +331,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Buffer_Switcher.Move_Cursor_Right (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Move_Cursor_Right (S.Surface.Buffer_Switcher);
       Editor.Render_Cache.Invalidate_All;
    end Execute_Buffer_Switcher_Move_Cursor_Right;
 
@@ -339,8 +339,8 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Buffer_Switcher.Clear_Metadata_Filter (S.Buffer_Switcher);
-      if Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
+      Editor.Buffer_Switcher.Clear_Metadata_Filter (S.Surface.Buffer_Switcher);
+      if Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher) then
          Recompute_Buffer_Switcher (S);
       else
          Editor.Render_Cache.Invalidate_All;
@@ -352,8 +352,8 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Buffer_Switcher.Set_Pinned_Filter (S.Buffer_Switcher);
-      if not Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
+      Editor.Buffer_Switcher.Set_Pinned_Filter (S.Surface.Buffer_Switcher);
+      if not Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher) then
          Editor.Executor.Clear_Restore_Feedback_Current (S);
          Editor.Executor.Activate_Overlay (S, Editor.Overlay_Focus.Buffer_Switcher_Overlay);
       end if;
@@ -373,8 +373,8 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
       elsif Group'Length = 0 then
          Editor.Executor.Shared_Services.Report_Info (S, "No group name");
       else
-         Editor.Buffer_Switcher.Set_Group_Filter (S.Buffer_Switcher, Group);
-         if not Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
+         Editor.Buffer_Switcher.Set_Group_Filter (S.Surface.Buffer_Switcher, Group);
+         if not Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher) then
             Editor.Executor.Clear_Restore_Feedback_Current (S);
             Editor.Executor.Activate_Overlay (S, Editor.Overlay_Focus.Buffer_Switcher_Overlay);
          end if;
@@ -406,8 +406,8 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
       elsif Text'Length = 0 then
          Editor.Executor.Shared_Services.Report_Info (S, "No buffer label");
       else
-         Editor.Buffer_Switcher.Set_Label_Filter (S.Buffer_Switcher, Text);
-         if not Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
+         Editor.Buffer_Switcher.Set_Label_Filter (S.Surface.Buffer_Switcher, Text);
+         if not Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher) then
             Editor.Executor.Clear_Restore_Feedback_Current (S);
             Editor.Executor.Activate_Overlay (S, Editor.Overlay_Focus.Buffer_Switcher_Overlay);
          end if;
@@ -420,8 +420,8 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Buffer_Switcher.Set_Noted_Filter (S.Buffer_Switcher);
-      if not Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
+      Editor.Buffer_Switcher.Set_Noted_Filter (S.Surface.Buffer_Switcher);
+      if not Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher) then
          Editor.Executor.Clear_Restore_Feedback_Current (S);
          Editor.Executor.Activate_Overlay (S, Editor.Overlay_Focus.Buffer_Switcher_Overlay);
       end if;
@@ -435,7 +435,7 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
    begin
       Editor.Executor.Shared_Services.Report_Info
         (S, "Switcher sort: " &
-         Editor.Buffer_Switcher.Sort_Mode_Description (S.Buffer_Switcher));
+         Editor.Buffer_Switcher.Sort_Mode_Description (S.Surface.Buffer_Switcher));
    end Report_Buffer_Switcher_Sort;
 
    procedure Execute_Buffer_Switcher_Sort
@@ -443,8 +443,8 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
       Mode : Editor.Buffer_Switcher.Filters.Switcher_Sort_Mode)
    is
    begin
-      Editor.Buffer_Switcher.Set_Sort_Mode (S.Buffer_Switcher, Mode);
-      if Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
+      Editor.Buffer_Switcher.Set_Sort_Mode (S.Surface.Buffer_Switcher, Mode);
+      if Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher) then
          Recompute_Buffer_Switcher (S);
       else
          Editor.Render_Cache.Invalidate_All;
@@ -456,8 +456,8 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Buffer_Switcher.Next_Sort_Mode (S.Buffer_Switcher);
-      if Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
+      Editor.Buffer_Switcher.Next_Sort_Mode (S.Surface.Buffer_Switcher);
+      if Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher) then
          Recompute_Buffer_Switcher (S);
       else
          Editor.Render_Cache.Invalidate_All;
@@ -469,8 +469,8 @@ package body Editor.Executor.Buffer_Switcher_Surface_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Buffer_Switcher.Previous_Sort_Mode (S.Buffer_Switcher);
-      if Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher) then
+      Editor.Buffer_Switcher.Previous_Sort_Mode (S.Surface.Buffer_Switcher);
+      if Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher) then
          Recompute_Buffer_Switcher (S);
       else
          Editor.Render_Cache.Invalidate_All;

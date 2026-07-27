@@ -59,8 +59,8 @@ package body Editor.Line_Edit.Tests is
       Pos : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Pos,
             Anchor                => Pos,
@@ -74,8 +74,8 @@ package body Editor.Line_Edit.Tests is
       Pos    : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Pos,
             Anchor                => Anchor,
@@ -119,9 +119,9 @@ package body Editor.Line_Edit.Tests is
       Row : Natural := 0;
       Col : Natural := 0;
    begin
-      Assert (S.Carets.Length > 0, Why & ": expected a caret");
+      Assert (S.Caret.Carets.Length > 0, Why & ": expected a caret");
       Editor.Navigation.Line_Column_For_Index
-        (S, Natural (S.Carets (S.Carets.First_Index).Pos), Row, Col);
+        (S, Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos), Row, Col);
       Assert (Row = Expected_Row, Why & ": caret row mismatch");
       Assert (Col = Expected_Col, Why & ": caret column mismatch");
    end Assert_Caret_Row_Col;
@@ -283,7 +283,7 @@ package body Editor.Line_Edit.Tests is
       end if;
 
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               Why & ": text-changing word delete must create one undo entry");
@@ -463,7 +463,7 @@ package body Editor.Line_Edit.Tests is
       Editor.History.Redo_Stack.Clear;
       Set_Caret (S, 4);
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
-      Before_Caret := S.Carets (S.Carets.First_Index).Pos;
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
       Before_Dirty := Editor.State.Is_Dirty (S);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
@@ -480,7 +480,7 @@ package body Editor.Line_Edit.Tests is
 
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
               "line-command availability must not mutate buffer text");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Caret,
               "line-command availability must not move caret");
       Assert (Editor.State.Is_Dirty (S) = Before_Dirty,
               "line-command availability must not change dirty state");
@@ -551,10 +551,10 @@ package body Editor.Line_Edit.Tests is
         (Editor.State.Line_Count (S) >= 1 or else Text_Buffer.Length (S.Buffer) = 0,
          Why & ": logical line index must remain valid");
       Assert
-        (S.Carets.Length > 0,
+        (S.Caret.Carets.Length > 0,
          Why & ": line edit must leave a caret");
       Assert
-        (Natural (S.Carets (S.Carets.First_Index).Pos) <= Text_Buffer.Length (S.Buffer),
+        (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) <= Text_Buffer.Length (S.Buffer),
          Why & ": caret must remain inside active buffer");
       Assert
         (not Editor.Selection.Has_Selection (S),
@@ -943,7 +943,7 @@ package body Editor.Line_Edit.Tests is
       Assert (not Found and then Id = Editor.Command_Ids.No_Command,
               "tabs-to-spaces command must remain absent");
 
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Indent_Increase);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable
@@ -1001,7 +1001,7 @@ package body Editor.Line_Edit.Tests is
       S.Search.Active_Replace_Text := To_Unbounded_String ("REPL");
       Set_Primary_Selection (S, 0, 5);
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
-      Before_Caret := S.Carets (S.Carets.First_Index).Pos;
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
       Before_Dirty := Editor.State.Is_Dirty (S);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
@@ -1021,7 +1021,7 @@ package body Editor.Line_Edit.Tests is
               "render snapshot must derive length from canonical buffer text");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
               "render/availability/workspace snapshot must not mutate buffer text");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Caret,
               "render/availability/workspace snapshot must not move caret");
       Assert (Editor.Selection.Has_Selection (S),
               "render/availability/workspace snapshot must not clear selection");
@@ -1184,7 +1184,7 @@ package body Editor.Line_Edit.Tests is
       Assert (Message_Text (No_Buffer) = "No active buffer.",
               "line-comment execution without an active buffer must report canonical no-active-buffer message");
 
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Toggle_Line_Comment);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
@@ -1597,7 +1597,7 @@ package body Editor.Line_Edit.Tests is
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
-      Before_Caret := S.Carets (S.Carets.First_Index).Pos;
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Comment_Line);
@@ -1630,7 +1630,7 @@ package body Editor.Line_Edit.Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
               "completeness read-only paths must not mutate history stacks");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Caret,
               "completeness read-only paths must not move caret");
       Assert (Editor.Clipboard.Has_Text
               and then To_String (Editor.Clipboard.Get_Text) = "CLIP",
@@ -1774,7 +1774,7 @@ package body Editor.Line_Edit.Tests is
       Before_Replace := S.Search.Active_Replace_Text;
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
-      Before_Caret := S.Carets (S.Carets.First_Index).Pos;
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Comment_Line);
@@ -1798,7 +1798,7 @@ package body Editor.Line_Edit.Tests is
               and then Editor.Selection.Has_Selection (S)
               and then Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo
-              and then S.Carets (S.Carets.First_Index).Pos = Before_Caret,
+              and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Caret,
               "render/availability paths must not mutate editor state");
 
       Editor.State.Init (No_Buffer);
@@ -1892,7 +1892,7 @@ package body Editor.Line_Edit.Tests is
          Editor.State.Init (S);
          Editor.State.Load_Text (S, "AlphaBeta");
          Editor.State.Set_Dirty (S, False);
-         S.Carets.Clear;
+         S.Caret.Carets.Clear;
          Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
          Avail := Editor.Executor.Command_Availability
            (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
@@ -2108,7 +2108,7 @@ package body Editor.Line_Edit.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "AlphaBeta");
       Editor.State.Set_Dirty (S, False);
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Line_Split_At_Caret);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
@@ -2168,10 +2168,10 @@ package body Editor.Line_Edit.Tests is
       Editor.Clipboard.Set_Text (Before_Clip);
       Set_Primary_Selection (S, 0, 4);
       declare
-         C : Editor.Cursors.Caret_State := S.Carets (S.Carets.First_Index);
+         C : Editor.Cursors.Caret_State := S.Caret.Carets (S.Caret.Carets.First_Index);
       begin
          C.Pos := Cursor_Index (Text_Buffer.Length (S.Buffer) + 25);
-         S.Carets.Replace_Element (S.Carets.First_Index, C);
+         S.Caret.Carets.Replace_Element (S.Caret.Carets.First_Index, C);
       end;
       S.Search.Active_Find_Query := To_Unbounded_String ("Alpha");
       S.Search.Active_Replace_Text := To_Unbounded_String ("Omega");
@@ -2185,8 +2185,8 @@ package body Editor.Line_Edit.Tests is
       Assert (R.Length = Text_Buffer.Length (S.Buffer),
               "render snapshot length derives from unchanged canonical buffer");
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = 0
-         and then Natural (S.Carets (S.Carets.First_Index).Pos) =
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 0
+         and then Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) =
            Text_Buffer.Length (S.Buffer) + 25,
          "render snapshot must not repair stale selection endpoints before split command");
       Assert (Editor.Clipboard.Get_Text = Before_Clip,
@@ -2270,7 +2270,7 @@ package body Editor.Line_Edit.Tests is
       end if;
 
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               Why & ": character delete must create one undo entry");
@@ -2391,7 +2391,7 @@ package body Editor.Line_Edit.Tests is
       end if;
 
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               Why & ": text-changing Character Delete must create one undo entry");
@@ -2552,7 +2552,7 @@ package body Editor.Line_Edit.Tests is
       Assert (Message_Text (S) = "Deleted selection", Why & ": message mismatch");
       Assert (not Editor.Selection.Has_Selection (S), Why & ": selection must collapse");
       Assert
-        (Natural (S.Carets (S.Carets.First_Index).Pos) =
+        (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) =
          Natural (Cursor_Index'Min (Anchor, Pos)),
          Why & ": caret must land at normalized deletion start");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
@@ -2656,8 +2656,8 @@ package body Editor.Line_Edit.Tests is
    is
    begin
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets.Length = 1, Why & ": expected exactly one primary caret");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets.Length = 1, Why & ": expected exactly one primary caret");
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret must end at canonical inserted payload end");
       Assert (not Editor.Selection.Has_Selection (S),
               Why & ": successful Text Insert must clear/collapse selection");

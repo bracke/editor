@@ -115,11 +115,11 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
 
       Assert
-        (Editor.Project_Search.Result_Count (S.Project_Search) = 1
-         and then Editor.Project_Search.Status (S.Project_Search) =
+        (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1
+         and then Editor.Project_Search.Status (S.Surface.Project_Search) =
            Editor.Project_Search.Project_Search_Ok,
          "fixture search should start with one matching file");
-      Result := Editor.Project_Search.Result_At (S.Project_Search, 1);
+      Result := Editor.Project_Search.Result_At (S.Surface.Project_Search, 1);
       Assert
         (To_String (Result.Relative_Path) = "needle.txt",
          "initial search result should point at the original file");
@@ -133,11 +133,11 @@ package body Editor.Executor.Search_Tests is
          "rename should update the filesystem target");
 
       Assert
-        (Editor.Project_Search.Result_Count (S.Project_Search) = 1
-         and then Editor.Project_Search.Status (S.Project_Search) =
+        (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1
+         and then Editor.Project_Search.Status (S.Surface.Project_Search) =
            Editor.Project_Search.Project_Search_Ok,
          "rename should keep project search results live");
-      Result := Editor.Project_Search.Result_At (S.Project_Search, 1);
+      Result := Editor.Project_Search.Result_At (S.Surface.Project_Search, 1);
       Assert
         (To_String (Result.Relative_Path) = "renamed.txt",
          "project search should refresh to the renamed file path");
@@ -172,16 +172,16 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
-      Editor.Project_Search.Set_Replace_Text (S.Project_Search, "pin");
+      Editor.Project_Search.Set_Replace_Text (S.Surface.Project_Search, "pin");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Project_Search_Replace_Preview);
 
       Assert
-        (Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 1
-         and then Editor.Project_Search.Replace_Preview_Status (S.Project_Search) =
+        (Editor.Project_Search.Replace_Preview_Count (S.Surface.Project_Search) = 1
+         and then Editor.Project_Search.Replace_Preview_Status (S.Surface.Project_Search) =
            Editor.Project_Search.Project_Replace_Preview_Ok,
          "replace preview setup should start with one fresh row");
-      Row := Editor.Project_Search.Replace_Preview_Row_At (S.Project_Search, 1);
+      Row := Editor.Project_Search.Replace_Preview_Row_At (S.Surface.Project_Search, 1);
       Assert
         (To_String (Row.Relative_Path) = "needle.txt"
          and then not Row.Stale,
@@ -195,11 +195,11 @@ package body Editor.Executor.Search_Tests is
          and then not Ada.Directories.Exists (Original),
          "rename should update the filesystem target");
       Assert
-        (Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 1
-         and then Editor.Project_Search.Replace_Preview_Status (S.Project_Search) =
+        (Editor.Project_Search.Replace_Preview_Count (S.Surface.Project_Search) = 1
+         and then Editor.Project_Search.Replace_Preview_Status (S.Surface.Project_Search) =
            Editor.Project_Search.Project_Replace_Preview_Ok,
          "rename should keep the replace preview live");
-      Row := Editor.Project_Search.Replace_Preview_Row_At (S.Project_Search, 1);
+      Row := Editor.Project_Search.Replace_Preview_Row_At (S.Surface.Project_Search, 1);
       Assert
         (To_String (Row.Relative_Path) = "renamed.txt"
          and then not Row.Stale
@@ -235,16 +235,16 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Search_Results_Commands.Execute_Focus_Search_Results (S);
 
       Assert
-        (Editor.Project_Search.Result_Count (S.Project_Search) = 3,
+        (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 3,
          "multi-result fixture should produce three results");
       Assert
-        (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 1,
+        (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = 1,
          "search should start with the first result selected");
 
       Editor.Executor.Search_Results_Commands.Execute_Search_Results_Move_Down (S);
 
       Assert
-        (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 2,
+        (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = 2,
          "focused Down should move Search Results selection only");
       Assert
         (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "Untitled",
@@ -258,7 +258,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Search_Results_Commands.Execute_Search_Results_Move_Up (S);
 
       Assert
-        (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 1,
+        (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = 1,
          "focused Up should not wrap past the first result");
 
       Cleanup_Project_Search_Multi_Fixture (Root);
@@ -291,7 +291,7 @@ package body Editor.Executor.Search_Tests is
         (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "needle_multi.txt",
          "Enter should open the selected Search Results match");
       Assert
-        (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 2,
+        (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = 2,
          "ordinary Search Results Enter keeps project-search row selection as activation source");
       Assert
         (not Editor.State.Has_Pending_Quick_Fix_Workflow (S),
@@ -355,7 +355,7 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
 
       Assert
-        (Editor.Project_Search.Status (S.Project_Search) =
+        (Editor.Project_Search.Status (S.Surface.Project_Search) =
            Editor.Project_Search.Project_Search_No_Project,
          "project search without an open project should report No_Project status");
       Assert
@@ -384,11 +384,11 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
 
       Assert
-        (Editor.Project_Search.Status (S.Project_Search) =
+        (Editor.Project_Search.Status (S.Surface.Project_Search) =
            Editor.Project_Search.Project_Search_Ok,
          "project search over fixture should complete with Ok status");
       Assert
-        (Editor.Project_Search.Result_Count (S.Project_Search) = 1,
+        (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1,
          "project search fixture should produce one result");
       Assert
         (Editor.Panels.Active_Bottom_Content (S.Panels) =
@@ -401,8 +401,8 @@ package body Editor.Executor.Search_Tests is
         (To_String (S.Buffer_Lifecycle.File_Info.Display_Name) = "needle.txt",
          "opening selected project search result should activate the matching file");
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = 11
-         and then S.Carets (S.Carets.First_Index).Pos = 17,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 11
+         and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 17,
          "opening selected project search result should select the matched text range");
       Assert
         (not S.Buffer_Lifecycle.File_Info.Dirty,
@@ -431,13 +431,13 @@ package body Editor.Executor.Search_Tests is
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 2,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 2,
               "replace-all setup should find matches in both files");
 
-      Editor.Project_Search.Set_Replace_Text (S.Project_Search, "pin");
+      Editor.Project_Search.Set_Replace_Text (S.Surface.Project_Search, "pin");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Project_Search_Replace_Preview);
-      Assert (Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 2,
+      Assert (Editor.Project_Search.Replace_Preview_Count (S.Surface.Project_Search) = 2,
               "replace-all setup should preview both file matches");
 
       Editor.Executor.Execute_Command
@@ -449,7 +449,7 @@ package body Editor.Executor.Search_Tests is
               "replace all should continue after the first changed file stales preview rows");
       Assert (Editor.Buffers.Global_Dirty_File_Backed_Buffer_Count = 2,
               "replace all should dirty every changed file-backed buffer");
-      Assert (Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search),
+      Assert (Editor.Project_Search.Replace_Preview_Is_Stale (S.Surface.Project_Search),
               "replace all should leave the used preview stale after mutation");
 
       Remove_File_If_Exists (Ada.Directories.Compose (Root, "a.txt"));
@@ -484,10 +484,10 @@ package body Editor.Executor.Search_Tests is
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1,
               "UTF-8 setup should find the literal match after a multibyte prefix");
 
-      Editor.Project_Search.Set_Replace_Text (S.Project_Search, "pin");
+      Editor.Project_Search.Set_Replace_Text (S.Surface.Project_Search, "pin");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Project_Search_Replace_Preview);
       Editor.Executor.Execute_Command
@@ -540,16 +540,16 @@ package body Editor.Executor.Search_Tests is
               "setup should keep the target file open and dirty");
 
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1,
               "dirty-preview setup should still find the on-disk match");
 
-      Editor.Project_Search.Set_Replace_Text (S.Project_Search, "pin");
+      Editor.Project_Search.Set_Replace_Text (S.Surface.Project_Search, "pin");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Project_Search_Replace_Preview);
 
-      Assert (Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search),
+      Assert (Editor.Project_Search.Replace_Preview_Is_Stale (S.Surface.Project_Search),
               "replacement preview rows for open dirty target buffers must be stale immediately");
-      Assert (Editor.Project_Search.Included_Replacement_Count (S.Project_Search) = 0,
+      Assert (Editor.Project_Search.Included_Replacement_Count (S.Surface.Project_Search) = 0,
               "stale dirty-buffer preview rows must not remain included");
 
       Remove_File_If_Exists (Path);
@@ -580,8 +580,8 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => 25,
           Anchor                => 10,
@@ -590,14 +590,14 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Search_Result_Commands.Execute_Project_Search_From_Selection (S);
 
-      Assert (Editor.Project_Search.Query (S.Project_Search) = "Execute_Command",
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = "Execute_Command",
               "selection search must set the derived query");
-      Assert (Editor.Project_Search.Status (S.Project_Search) =
+      Assert (Editor.Project_Search.Status (S.Surface.Project_Search) =
                 Editor.Project_Search.Project_Search_Ok,
               "selection search must run the bounded project search");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) >= 2,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) >= 2,
               "selection search should find project-wide matches");
-      Assert (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = 1,
               "selection search should select the first result");
 
       Cleanup_Project_Search_Context_Fixture (Root);
@@ -626,8 +626,8 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => 18,
           Anchor                => 18,
@@ -636,9 +636,9 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Search_Result_Commands.Execute_Project_Search_From_Active_Word (S);
 
-      Assert (Editor.Project_Search.Query (S.Project_Search) = "Execute_Command",
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = "Execute_Command",
               "active-word search must expand [A-Za-z0-9_]+ token");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) >= 2,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) >= 2,
               "active-word search must run project-wide search");
 
       Cleanup_Project_Search_Context_Fixture (Root);
@@ -669,27 +669,27 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Set_Buffer_Text (S, "Foo.Bar");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => 4,
           Anchor                => 4,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
       Editor.Executor.Project_Search_Result_Commands.Execute_Project_Search_From_Active_Word (S);
-      Assert (Editor.Project_Search.Query (S.Project_Search) = "Bar",
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = "Bar",
               "active-word extraction should use the token under the caret after a dot");
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "before");
-      S.Carets.Clear;
-      S.Carets.Append
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "before");
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => 3,
           Anchor                => 3,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
       Editor.Executor.Project_Search_Result_Commands.Execute_Project_Search_From_Active_Word (S);
-      Assert (Editor.Project_Search.Query (S.Project_Search) = "before",
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = "before",
               "caret on punctuation must not back up to the previous token");
       Assert (Latest_Message_Text (S) = "No searchable text at cursor",
               "caret on dotted separator should report no searchable text");
@@ -720,8 +720,8 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => 18,
           Anchor                => 18,
@@ -730,11 +730,11 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Search_Result_Commands.Execute_Project_Search_Active_Directory (S);
 
-      Assert (Editor.Project_Search.Query (S.Project_Search) = "Execute_Command",
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = "Execute_Command",
               "active-directory search must derive the context query");
-      Assert (Editor.Project_Search.Path_Scope (S.Project_Search) = "src/editor/",
+      Assert (Editor.Project_Search.Path_Scope (S.Surface.Project_Search) = "src/editor/",
               "active-directory search must set containing directory scope");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 2,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 2,
               "active-directory search must not include sibling directories");
 
       Cleanup_Project_Search_Context_Fixture (Root);
@@ -764,9 +764,9 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-      Editor.Project_Search.Set_Query (S.Project_Search, Before_Query);
-      S.Carets.Clear;
-      S.Carets.Append
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, Before_Query);
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => 9,
           Anchor                => 9,
@@ -775,7 +775,7 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Search_Result_Commands.Execute_Project_Search_From_Active_Word (S);
 
-      Assert (Editor.Project_Search.Query (S.Project_Search) = Before_Query,
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = Before_Query,
               "punctuation failure must preserve previous query");
       Assert (Latest_Message_Text (S) = "No searchable text at cursor",
               "punctuation failure must report deterministic no-op");
@@ -810,12 +810,12 @@ package body Editor.Executor.Search_Tests is
       Before_Display := S.Buffer_Lifecycle.File_Info.Display_Name;
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "Execute_Command");
 
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 4,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 4,
               "first/last fixture should expose four stored results");
 
       Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Project_Search_Result_Commands.Execute_Last_Project_Search_Result (S);
-      Assert (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 4,
+      Assert (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = 4,
               "last command should select the final stored result");
       Assert (Latest_Message_Text (S) = "Selected last project search result",
               "last command should emit the expected navigation message");
@@ -824,7 +824,7 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Project_Search_Result_Commands.Execute_First_Project_Search_Result (S);
-      Assert (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = 1,
               "first command should select the first stored result");
       Assert (Latest_Message_Text (S) = "Selected first project search result",
               "first command should emit the expected navigation message");
@@ -862,17 +862,17 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "Execute_Command");
       Found := Editor.Project_Search.Select_First_Result_For_Path
-        (S.Project_Search, "src/other/other.adb");
+        (S.Surface.Project_Search, "src/other/other.adb");
       Assert (Found,
               "setup should select a result outside the active file");
 
       Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Project_Search_Result_Commands.Execute_Reveal_Active_Project_Search_Result (S);
       Result := Editor.Project_Search.Result_At
-        (S.Project_Search,
-         Positive (Editor.Project_Search.Selected_Result_Index (S.Project_Search)));
+        (S.Surface.Project_Search,
+         Positive (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search)));
 
-      Assert (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = 1,
               "reveal-active should select the first result for the active file");
       Assert (To_String (Result.Relative_Path) = "src/editor/executor.adb",
               "reveal-active should use structured result identities, not rendered rows");
@@ -882,7 +882,7 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Project_Search_Result_Commands.Execute_Reveal_Active_Project_Search_Result (S);
-      Assert (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = 1,
               "reveal-active should preserve a selection already in the active file");
 
       Cleanup_Project_Search_Context_Fixture (Root);
@@ -907,27 +907,27 @@ package body Editor.Executor.Search_Tests is
       Build_Project_Search_Context_Fixture (Root);
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Editor.Project_Search.Cycle_File_Kind_Filter (S.Project_Search, True);
-      Editor.Project_Search.Set_Case_Sensitive (S.Project_Search, True);
+      Editor.Project_Search.Cycle_File_Kind_Filter (S.Surface.Project_Search, True);
+      Editor.Project_Search.Set_Case_Sensitive (S.Surface.Project_Search, True);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "Execute_Command");
 
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 4,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 4,
               "scope setup should have current results before scoping");
       Editor.Messages.Clear (S.Panel.Messages);
       Editor.Executor.Search_Commands.Execute_Project_Search_Scope_Selected_Directory (S);
 
-      Assert (Editor.Project_Search.Path_Scope (S.Project_Search) = "src/editor/",
+      Assert (Editor.Project_Search.Path_Scope (S.Surface.Project_Search) = "src/editor/",
               "scope-selected should derive scope from the selected result directory");
-      Assert (Editor.Project_Search.Query (S.Project_Search) = "Execute_Command",
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = "Execute_Command",
               "scope-selected should preserve the current Project Search query");
-      Assert (Editor.Project_Search.File_Kind_Filter (S.Project_Search) =
+      Assert (Editor.Project_Search.File_Kind_Filter (S.Surface.Project_Search) =
                 Editor.Project_Search.Project_Search_Kind_Ada,
               "scope-selected should preserve the Project Search kind filter");
-      Assert (Editor.Project_Search.Case_Sensitive (S.Project_Search),
+      Assert (Editor.Project_Search.Case_Sensitive (S.Surface.Project_Search),
               "scope-selected should preserve case sensitivity");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 0
-              and then Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 0
-              and then Editor.Project_Search.Status (S.Project_Search) =
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0
+              and then Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = 0
+              and then Editor.Project_Search.Status (S.Surface.Project_Search) =
                 Editor.Project_Search.Project_Search_Idle,
               "scope-selected should clear stale results, selection, and summary");
       Assert (Latest_Message_Text (S) = "Project search scope: src/editor/",
@@ -1020,15 +1020,15 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
-      Before_Count := Editor.Project_Search.Result_Count (S.Project_Search);
-      Before_Selected := Editor.Project_Search.Selected_Result_Index (S.Project_Search);
+      Before_Count := Editor.Project_Search.Result_Count (S.Surface.Project_Search);
+      Before_Selected := Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search);
       Remove_File_If_Exists (Ada.Directories.Compose (Root, "needle.txt"));
       Editor.Messages.Clear (S.Panel.Messages);
 
       Editor.Executor.Project_Search_Result_Commands.Execute_Open_Selected_Project_Search_Result (S);
 
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = Before_Count
-              and then Editor.Project_Search.Selected_Result_Index (S.Project_Search) = Before_Selected,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = Before_Count
+              and then Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = Before_Selected,
               "stale open failure should preserve search results and selection");
       Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
               "stale open failure should emit exactly one primary message");
@@ -1058,8 +1058,8 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
-      Before_Count := Editor.Project_Search.Result_Count (S.Project_Search);
-      Before_Selected := Editor.Project_Search.Selected_Result_Index (S.Project_Search);
+      Before_Count := Editor.Project_Search.Result_Count (S.Surface.Project_Search);
+      Before_Selected := Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search);
 
       --  Simulate an external/project lifecycle drift that leaves the searched
       --  file present but removes the retained result row.  Activation must not
@@ -1069,8 +1069,8 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Search_Result_Commands.Execute_Open_Selected_Project_Search_Result (S);
 
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = Before_Count
-              and then Editor.Project_Search.Selected_Result_Index (S.Project_Search) = Before_Selected,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = Before_Count
+              and then Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = Before_Selected,
               "out-of-range activation should preserve search results and selection");
       Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
               "out-of-range activation should emit exactly one primary message");
@@ -1099,16 +1099,16 @@ package body Editor.Executor.Search_Tests is
       Init_Executor_Test_State (S);
       Build_Project_Search_Fixture (Root);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
-      Editor.Quick_Open.Open (S.Quick_Open);
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
 
       Editor.Executor.Project_Search_Surface_Commands.Execute_Open_Project_Search_Bar (S);
 
-      Assert (Editor.Project_Search_Bar.Is_Open (S.Project_Search_Bar),
+      Assert (Editor.Project_Search_Bar.Is_Open (S.Surface.Project_Search_Bar),
               "opening project-search bar should open the bar");
-      Assert (not Editor.Quick_Open.Is_Open (S.Quick_Open),
+      Assert (not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open),
               "opening project-search bar should close quick open");
-      Assert (Editor.Project_Search_Bar.Query_Text (S.Project_Search_Bar) = "needle",
+      Assert (Editor.Project_Search_Bar.Query_Text (S.Surface.Project_Search_Bar) = "needle",
               "opening project-search bar should mirror current project-search query");
       Cleanup_Project_Search_Fixture (Root);
    end Test_Open_Project_Search_Bar;
@@ -1121,16 +1121,16 @@ package body Editor.Executor.Search_Tests is
    begin
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Search_Surface_Commands.Execute_Open_Project_Search_Bar (S);
-      Editor.Project_Search_Bar.Set_Query_Text (S.Project_Search_Bar, "needle");
+      Editor.Project_Search_Bar.Set_Query_Text (S.Surface.Project_Search_Bar, "needle");
 
       Editor.Executor.Project_Search_Surface_Commands.Execute_Run_Project_Search_From_Bar (S);
 
-      Assert (Editor.Project_Search.Query (S.Project_Search) = "needle",
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = "needle",
               "running from bar should copy bar query to Project_Search");
-      Assert (Editor.Project_Search.Status (S.Project_Search) =
+      Assert (Editor.Project_Search.Status (S.Surface.Project_Search) =
                 Editor.Project_Search.Project_Search_No_Project,
               "running from bar without a project should report no-project deterministically");
-      Assert (Editor.Project_Search_Bar.Is_Open (S.Project_Search_Bar),
+      Assert (Editor.Project_Search_Bar.Is_Open (S.Surface.Project_Search_Bar),
               "running from bar should keep project-search bar open");
       Assert (Editor.Panels.Active_Bottom_Content (S.Panels) =
                 Editor.Panels.Search_Results_Content,
@@ -1148,22 +1148,22 @@ package body Editor.Executor.Search_Tests is
       Build_Project_Search_Fixture (Root);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Project_Search_Surface_Commands.Execute_Open_Project_Search_Bar (S);
-      Editor.Project_Search_Bar.Set_Query_Text (S.Project_Search_Bar, "needle");
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search_Bar.Set_Query_Text (S.Surface.Project_Search_Bar, "needle");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
 
       Editor.Executor.Project_Search_Surface_Commands.Execute_Close_Project_Search_Bar (S);
-      Assert (not Editor.Project_Search_Bar.Is_Open (S.Project_Search_Bar),
+      Assert (not Editor.Project_Search_Bar.Is_Open (S.Surface.Project_Search_Bar),
               "close project-search bar should close only the input surface");
-      Assert (Editor.Project_Search.Query (S.Project_Search) = "needle",
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = "needle",
               "close project-search bar should preserve project-search results/query");
 
-      Editor.Project_Search_Bar.Open (S.Project_Search_Bar);
+      Editor.Project_Search_Bar.Open (S.Surface.Project_Search_Bar);
       Editor.Executor.Project_Search_Result_Commands.Execute_Clear_Project_Search (S);
-      Assert (Editor.Project_Search.Query (S.Project_Search) = "",
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = "",
               "clear project search should clear project-search query");
-      Assert (Editor.Project_Search_Bar.Query_Text (S.Project_Search_Bar) = "",
+      Assert (Editor.Project_Search_Bar.Query_Text (S.Surface.Project_Search_Bar) = "",
               "clear project search should clear open bar field");
-      Assert (Editor.Project_Search_Bar.Is_Open (S.Project_Search_Bar),
+      Assert (Editor.Project_Search_Bar.Is_Open (S.Surface.Project_Search_Bar),
               "clear project search must not close project-search bar");
    end Test_Close_And_Clear_Project_Search_Bar;
 
@@ -1180,27 +1180,27 @@ package body Editor.Executor.Search_Tests is
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1,
               "fixture should produce one Project Search result before query edit");
 
       Editor.Executor.Project_Search_Surface_Commands.Execute_Open_Project_Search_Bar (S);
-      Editor.Project_Search_Bar.Set_Query_Text (S.Project_Search_Bar, "needle");
+      Editor.Project_Search_Bar.Set_Query_Text (S.Surface.Project_Search_Bar, "needle");
       Editor.Executor.Project_Search_Surface_Commands.Execute_Project_Search_Bar_Insert_Text (S, "x");
-      Assert (Editor.Project_Search.Query (S.Project_Search) = "needlex",
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = "needlex",
               "query edit should update Project Search query state");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 0
-              and then Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 0,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0
+              and then Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = 0,
               "query edit should clear old Project Search results and selection");
 
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1,
               "fixture should produce one Project Search result before refresh");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Refresh_Project_Files);
-      Assert (Editor.Project_Search.Query (S.Project_Search) = "needle",
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = "needle",
               "project file refresh should preserve visible Project Search query");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1
-              and then Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1
+              and then Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = 1,
               "project file refresh should rerun Project Search against refreshed known files");
 
       Cleanup_Project_Search_Fixture (Root);
@@ -1223,8 +1223,8 @@ package body Editor.Executor.Search_Tests is
 
       Assert (Editor.Search.Has_Match (S.Search.Active_Find_Match),
               "find-next must activate an active-buffer match");
-      Assert (Natural (S.Carets (0).Anchor) = 11
-                and then Natural (S.Carets (0).Pos) = 11,
+      Assert (Natural (S.Caret.Carets (0).Anchor) = 11
+                and then Natural (S.Caret.Carets (0).Pos) = 11,
               "find-next must reveal the next literal match start");
       Assert (Editor.Feature_Search_Results.Is_Empty (S.Panel.Feature_Search_Results),
               "find-next must not populate Feature Panel Search Results");
@@ -1250,8 +1250,8 @@ package body Editor.Executor.Search_Tests is
 
       Assert (Editor.Search.Has_Match (S.Search.Active_Find_Match),
               "find-previous must activate a match");
-      Assert (Natural (S.Carets (0).Anchor) = 8
-                and then Natural (S.Carets (0).Pos) = 8,
+      Assert (Natural (S.Caret.Carets (0).Anchor) = 8
+                and then Natural (S.Caret.Carets (0).Pos) = 8,
               "find-previous from the start must wrap to the final match");
    end Test_Active_Find_Previous_Wraps_Deterministically;
 
@@ -1350,8 +1350,8 @@ package body Editor.Executor.Search_Tests is
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "alpha beta alpha");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => 6,
           Anchor                => 6,
@@ -1364,7 +1364,7 @@ package body Editor.Executor.Search_Tests is
               "query edit must compute a current match");
       Assert (Natural (S.Search.Active_Find_Match.Start_Index) = 11,
               "current match after query edit must be at or after cursor");
-      Assert (Natural (S.Carets (0).Pos) = 6,
+      Assert (Natural (S.Caret.Carets (0).Pos) = 6,
               "query editing must preserve editor cursor");
    end Test_Query_Edit_Recomputes_Current_From_Caret;
 
@@ -1865,8 +1865,8 @@ package body Editor.Executor.Search_Tests is
       Set_Buffer_Text (S, "xx Run yy Run");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       S.Search.Active_Find_Match := Editor.Search.No_Match;
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          Editor.Cursors.Caret_State'
            (Pos => 1, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "Execute");
@@ -2006,8 +2006,8 @@ package body Editor.Executor.Search_Tests is
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "alpha beta alpha");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos => 10, Anchor => 6, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Editor.Executor.Find_Replace_Commands.Execute_Find_From_Selection (S);
@@ -2050,11 +2050,11 @@ package body Editor.Executor.Search_Tests is
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "Run Run");
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, Before_Goto_Text);
-      Editor.Quick_Open.Open (S.Quick_Open);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, Before_Quick_Open_Query);
-      Editor.Project_Search.Set_Query (S.Project_Search, Before_Project_Search_Query);
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, Before_Goto_Text);
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, Before_Quick_Open_Query);
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, Before_Project_Search_Query);
       Editor.Navigation_History.Record_Explicit_Navigation
         (S.Navigation_History, (Buffer_Id => 1, Line => 1, Column => 0, others => <>));
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
@@ -2067,11 +2067,11 @@ package body Editor.Executor.Search_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_All (S);
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Hide (S);
 
-      Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = Before_Goto_Text,
+      Assert (Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = Before_Goto_Text,
               "Replace commands must not mutate Go To Line state except established overlay policy");
-      Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = Before_Quick_Open_Query,
+      Assert (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = Before_Quick_Open_Query,
               "Replace commands must not mutate Quick Open query state");
-      Assert (Editor.Project_Search.Query (S.Project_Search) = Before_Project_Search_Query,
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = Before_Project_Search_Query,
               "Replace commands must not mutate Project Search state");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
               and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
@@ -2198,11 +2198,11 @@ package body Editor.Executor.Search_Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "Run run Runner PreRun Run_One Run");
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "run");
-      Editor.Quick_Open.Open (S.Quick_Open);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "Runner");
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "42");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "run");
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "Runner");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "42");
 
       Editor.Executor.Find_Replace_Commands.Execute_Find_Set_Query (S, "Run");
       Editor.Executor.Find_Replace_Commands.Execute_Find_Case_Toggle (S);
@@ -2212,11 +2212,11 @@ package body Editor.Executor.Search_Tests is
 
       Assert (Buffer_Text (S) = "Execute run Runner PreRun Run_One Execute",
               "replace.all must use canonical Find query/options rather than any other feature query");
-      Assert (Editor.Project_Search.Query (S.Project_Search) = "run",
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = "run",
               "replace.all must not mutate Project Search state");
-      Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = "Runner",
+      Assert (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = "Runner",
               "replace.all must not mutate Quick Open state");
-      Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = "42",
+      Assert (Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "42",
               "replace.all must not mutate Go To Line state");
       Assert (Natural (S.Search.Active_Find_Matches.Length) = 0
               and then S.Search.Active_Find_Case_Sensitive

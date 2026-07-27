@@ -164,7 +164,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
    is
       Found : Boolean := False;
       Selected_Row : constant Natural :=
-        Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View);
+        Editor.File_Tree_View.Selected_Row_Index (S.Surface.File_Tree_View);
       Node_Id : Editor.File_Tree.File_Tree_Node_Id :=
         Editor.File_Tree.No_File_Tree_Node;
    begin
@@ -173,10 +173,10 @@ package body Editor.Empty_State_Guidance.Surfaces is
       end if;
 
       Node_Id := Editor.File_Tree_View.Node_For_Row
-        (S.File_Tree, Selected_Row, Found);
+        (S.Surface.File_Tree, Selected_Row, Found);
       return not Found
         or else Node_Id = Editor.File_Tree.No_File_Tree_Node
-        or else not Editor.File_Tree.Contains (S.File_Tree, Node_Id);
+        or else not Editor.File_Tree.Contains (S.Surface.File_Tree, Node_Id);
    end File_Tree_Selection_Is_Stale;
 
    function Quick_Open_Selection_Is_Stale
@@ -275,7 +275,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
 
    function Build_File_Tree_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
       Snapshot : Empty_State_Snapshot;
-      Scan : constant Editor.File_Tree.File_Tree_Scan_Result := Editor.File_Tree.Scan_Status (S.File_Tree);
+      Scan : constant Editor.File_Tree.File_Tree_Scan_Result := Editor.File_Tree.Scan_Status (S.Surface.File_Tree);
    begin
       if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Set_Text
@@ -297,11 +297,11 @@ package body Editor.Empty_State_Guidance.Surfaces is
                    "The selected row no longer maps to a live File Tree node.",
                    Empty_Warning);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Refresh_File_Tree);
-      elsif Editor.File_Tree.Is_Empty (S.File_Tree) then
+      elsif Editor.File_Tree.Is_Empty (S.Surface.File_Tree) then
          Set_Text (Snapshot, File_Tree_Surface, Not_Refreshed_State, "File Tree has not been refreshed.",
                    "No tree nodes are present and no placeholder nodes are created.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Refresh_File_Tree);
-      elsif Editor.File_Tree.File_Node_Count (S.File_Tree) = 0 then
+      elsif Editor.File_Tree.File_Node_Count (S.Surface.File_Tree) = 0 then
          Set_Text (Snapshot, File_Tree_Surface, Empty_Project_State, "No files found in project.",
                    "The tree contains no file rows and no placeholder nodes are created.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Refresh_File_Tree);
@@ -314,7 +314,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
 
    function Build_Quick_Open_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
       Snapshot : Empty_State_Snapshot;
-      Quick : constant Editor.Quick_Open.Quick_Open_Snapshot := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
+      Quick : constant Editor.Quick_Open.Quick_Open_Snapshot := Editor.Quick_Open.Build_Snapshot (S.Surface.Quick_Open);
    begin
       if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Set_Text (Snapshot, Quick_Open_Surface, No_Project_State, "Open a project to use Quick Open.");
@@ -342,17 +342,17 @@ package body Editor.Empty_State_Guidance.Surfaces is
 
    function Build_Project_Search_Empty_State (S : Editor.State.State_Type) return Empty_State_Snapshot is
       Snapshot : Empty_State_Snapshot;
-      Status : constant Editor.Project_Search.Project_Search_Status := Editor.Project_Search.Status (S.Project_Search);
+      Status : constant Editor.Project_Search.Project_Search_Status := Editor.Project_Search.Status (S.Surface.Project_Search);
       Replace_Status : constant Editor.Project_Search.Project_Replace_Preview_Status :=
-        Editor.Project_Search.Replace_Preview_Status (S.Project_Search);
+        Editor.Project_Search.Replace_Preview_Status (S.Surface.Project_Search);
    begin
       if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Set_Text (Snapshot, Project_Search_Surface, No_Project_State, "Open a project to search files.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Open_Project);
-      elsif not Editor.Project_Search.Has_Query (S.Project_Search) then
+      elsif not Editor.Project_Search.Has_Query (S.Surface.Project_Search) then
          Set_Text (Snapshot, Project_Search_Surface, No_Query_State, "Enter a query and run Project Search.");
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Open_Project_Search_Bar);
-      elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
+      elsif Editor.Project_Search.Is_Stale (S.Surface.Project_Search) then
          Set_Text (Snapshot, Project_Search_Surface, Stale_State,
                    "Search results are stale.",
                    "Rerun Project Search before opening or replacing matches.",
@@ -361,7 +361,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Open_Project_Search_Bar);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Clear_Project_Search);
       elsif Replace_Status = Editor.Project_Search.Project_Replace_Search_Stale
-        or else Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search)
+        or else Editor.Project_Search.Replace_Preview_Is_Stale (S.Surface.Project_Search)
       then
          Set_Text (Snapshot, Project_Search_Surface, Stale_State,
                    "Replacement preview is stale.",
@@ -370,7 +370,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Project_Search_Replace_Preview);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Project_Search_Replace_Clear_Preview);
       elsif Replace_Status = Editor.Project_Search.Project_Replace_No_Preview
-        and then Editor.Project_Search.Result_Count (S.Project_Search) > 0
+        and then Editor.Project_Search.Result_Count (S.Surface.Project_Search) > 0
       then
          Set_Text (Snapshot, Project_Search_Surface, Replace_Preview_Empty_State, "No replacement preview.",
                    "Create a replace preview explicitly before applying replacements.");
@@ -393,8 +393,8 @@ package body Editor.Empty_State_Guidance.Surfaces is
             "Project Search could not read one or more files.",
             "Results are not repaired or re-run by this guidance.", Empty_Warning);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Run_Project_Search);
-      elsif Editor.Project_Search.Was_Truncated (S.Project_Search)
-        or else Editor.Project_Search.Results_Truncated (S.Project_Search)
+      elsif Editor.Project_Search.Was_Truncated (S.Surface.Project_Search)
+        or else Editor.Project_Search.Results_Truncated (S.Surface.Project_Search)
       then
          Set_Text (Snapshot, Project_Search_Surface, Limit_Reached_State, "Search limit reached.",
                    "Refine the query or scope and run Project Search again.", Empty_Warning);
@@ -404,7 +404,7 @@ package body Editor.Empty_State_Guidance.Surfaces is
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Project_Search_Exclude_Filter_Clear);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Run_Project_Search);
          Add_Suggestion (Snapshot, S, Editor.Command_Ids.Command_Clear_Project_Search);
-      elsif Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+      elsif Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0 then
          Set_Text (Snapshot, Project_Search_Surface, No_Results_State,
                    "No Project Search matches.",
                    "Clear scope/filter options or adjust the query, then run Project Search again.");

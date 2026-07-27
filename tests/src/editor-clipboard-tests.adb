@@ -127,8 +127,8 @@ package body Editor.Clipboard.Tests is
       Pos    : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => Pos,
            Anchor                => Anchor,
@@ -1093,14 +1093,14 @@ package body Editor.Clipboard.Tests is
       Editor.Executor.Execute_No_Log (S, Paste ("Alpha Beta Gamma"));
       Reset_Transient_State;
 
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, Before_Goto_Text);
-      Editor.Quick_Open.Open (S.Quick_Open);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, Before_Quick_Query);
-      Editor.Project_Search.Set_Query (S.Project_Search, Before_Project_Query);
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, Before_Goto_Text);
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, Before_Quick_Query);
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, Before_Project_Query);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text
-        (S.Buffer_Switcher, Before_Switcher_Filter);
+        (S.Surface.Buffer_Switcher, Before_Switcher_Filter);
       Editor.Bookmarks.Show (S.Bookmarks);
       Editor.Bookmarks.Toggle
         (S.Bookmarks, "alpha.adb", "alpha.adb", 1, 0, True, Added);
@@ -1115,13 +1115,13 @@ package body Editor.Clipboard.Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Paste);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Clipboard_Clear);
 
-      Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = Before_Goto_Text,
+      Assert (Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = Before_Goto_Text,
               "clipboard commands must not mutate Go To Line state");
-      Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = Before_Quick_Query,
+      Assert (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = Before_Quick_Query,
               "clipboard commands must not mutate Quick Open state");
-      Assert (Editor.Project_Search.Query (S.Project_Search) = Before_Project_Query,
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = Before_Project_Query,
               "clipboard commands must not mutate Project Search state");
-      Assert (Editor.Buffer_Switcher.Filter_Text (S.Buffer_Switcher) =
+      Assert (Editor.Buffer_Switcher.Filter_Text (S.Surface.Buffer_Switcher) =
                 Before_Switcher_Filter,
               "clipboard commands must not mutate Open Buffer Switcher filters");
       Assert (Editor.Bookmarks.Count (S.Bookmarks) = Before_Bookmark_Count

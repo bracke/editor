@@ -46,14 +46,14 @@ package body Editor.History.Tests is
    is
       A : constant Cursor_Index := (if Anchor = Cursor_Index'Last then Pos else Anchor);
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'(
           Pos                   => Pos,
           Anchor                => A,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Rect_Select_Active := False;
+      S.Caret.Rect_Select_Active := False;
       Editor.State.Normalize_Carets (S);
    end Set_Caret;
 
@@ -136,11 +136,11 @@ package body Editor.History.Tests is
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Undo);
       Assert_Text (S, "a", "single undo must remove only the most recent typed insertion");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 1, "undo restores insertion caret");
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 1, "undo restores insertion caret");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Redo);
       Assert_Text (S, "ab", "redo must restore the single typed insertion");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 2, "redo restores post-insert caret");
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 2, "redo restores post-insert caret");
    end Test_Single_Insert_Undo_Redo_Unit;
 
    procedure Test_Newline_Undo_Redo_Unit
@@ -175,11 +175,11 @@ package body Editor.History.Tests is
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Undo);
       Assert_Text (S, "abc", "undo backspace restores deleted text");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 2, "undo backspace restores caret");
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 2, "undo backspace restores caret");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Redo);
       Assert_Text (S, "ac", "redo backspace reapplies deletion");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 1, "redo backspace restores post-delete caret");
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 1, "redo backspace restores post-delete caret");
    end Test_Backspace_Undo_Redo;
 
    procedure Test_Forward_Delete_Undo_Redo
@@ -215,14 +215,14 @@ package body Editor.History.Tests is
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Undo);
       Assert_Text (S, "abcd", "undo selected replacement restores original text");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 3
-              and then S.Carets (S.Carets.First_Index).Anchor = 1,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 3
+              and then S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 1,
               "undo selected replacement restores prior selection");
 
       Editor.Executor.Execute_No_Log (S, Editor.Test_Helper.Redo);
       Assert_Text (S, "aXd", "redo selected replacement reapplies edit");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 2
-              and then S.Carets (S.Carets.First_Index).Anchor = 2,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 2
+              and then S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 2,
               "redo selected replacement restores collapsed post-edit caret");
    end Test_Selected_Replacement_Undo_Redo_Selection_Context;
 

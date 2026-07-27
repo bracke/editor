@@ -35,7 +35,7 @@ package body Editor.Input_Bridge.Render_Access is
    function File_Tree_For_Render
      (S : Editor.State.State_Type) return Editor.File_Tree.File_Tree_State is
    begin
-      return S.File_Tree;
+      return S.Surface.File_Tree;
    end File_Tree_For_Render;
 
    function Problems_For_Render
@@ -78,7 +78,7 @@ package body Editor.Input_Bridge.Render_Access is
            Editor.View.Viewport_Height);
       Full   : constant Editor.Search_Results.Search_Results_Snapshot :=
         Editor.Search_Results.Build_Snapshot
-          (S.Project_Search, (others => <>), Editor.Buffers.Global_Registry_For_UI);
+          (S.Surface.Project_Search, (others => <>), Editor.Buffers.Global_Registry_For_UI);
    begin
       return Editor.Search_Results.Visible_Snapshot
         (Full,
@@ -125,7 +125,7 @@ package body Editor.Input_Bridge.Render_Access is
    function File_Tree_View_For_Render
      (S : Editor.State.State_Type) return Editor.File_Tree_View.File_Tree_View_State is
    begin
-      return S.File_Tree_View;
+      return S.Surface.File_Tree_View;
    end File_Tree_View_For_Render;
 
    function Problems_View_For_Render
@@ -137,7 +137,7 @@ package body Editor.Input_Bridge.Render_Access is
    function Project_Search_For_Render
      (S : Editor.State.State_Type) return Editor.Project_Search.Project_Search_State is
    begin
-      return S.Project_Search;
+      return S.Surface.Project_Search;
    end Project_Search_For_Render;
 
    function Active_Diagnostic_For_Render

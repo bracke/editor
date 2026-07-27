@@ -976,7 +976,7 @@ package body Editor.Executor.Command_Result_Commands is
       Before_Length := Buffer_Length (S);
       Before_Buffer := Editor.Buffers.Global_Active_Buffer;
       Before_File_Tree_Row :=
-        Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View);
+        Editor.File_Tree_View.Selected_Row_Index (S.Surface.File_Tree_View);
       Cmd := Editor.Commands.Payloads.Command_For_Id (Id, Shift);
       if Cmd.Kind = Editor.Command_Kinds.Insert_Text_Input then
          declare
@@ -1008,7 +1008,7 @@ package body Editor.Executor.Command_Result_Commands is
          return Editor.Command_Execution.No_Op (Id);
       elsif Is_File_Tree_Navigation_Command (Id)
         and then Before_File_Tree_Row =
-          Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View)
+          Editor.File_Tree_View.Selected_Row_Index (S.Surface.File_Tree_View)
       then
          return Editor.Command_Execution.No_Op (Id);
       end if;

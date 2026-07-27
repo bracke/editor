@@ -68,8 +68,8 @@ package body Editor.Executor.Quick_Open_Commands is
      (S : Editor.State.State_Type) return Natural
    is
    begin
-      if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0 then
-         return Editor.File_Tree.File_Node_Count (S.File_Tree);
+      if Editor.File_Tree.File_Node_Count (S.Surface.File_Tree) > 0 then
+         return Editor.File_Tree.File_Node_Count (S.Surface.File_Tree);
       elsif Editor.Project.Has_Project (S.Project_Runtime.Project) then
          return Editor.Project.Known_File_Count (S.Project_Runtime.Project);
       else
@@ -82,14 +82,14 @@ package body Editor.Executor.Quick_Open_Commands is
    is
       Found  : Boolean := False;
       Result : constant Editor.Quick_Open.Quick_Open_Result :=
-        Editor.Quick_Open.Selected_Result (S.Quick_Open, Found);
+        Editor.Quick_Open.Selected_Result (S.Surface.Quick_Open, Found);
    begin
       if not Found then
          return False;
-      elsif Editor.File_Tree.File_Node_Count (S.File_Tree) > 0
+      elsif Editor.File_Tree.File_Node_Count (S.Surface.File_Tree) > 0
         and then Result.Node_Id /= Editor.File_Tree.No_File_Tree_Node
       then
-         return Editor.File_Tree.Contains (S.File_Tree, Result.Node_Id);
+         return Editor.File_Tree.Contains (S.Surface.File_Tree, Result.Node_Id);
       elsif not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          return False;
       end if;
@@ -134,8 +134,8 @@ package body Editor.Executor.Quick_Open_Commands is
 
       function Quick_Open_Has_Selected_Result return Boolean is
       begin
-         return Editor.Quick_Open.Result_Count (S.Quick_Open) > 0
-           and then Editor.Quick_Open.Selected_Result_Index (S.Quick_Open) /= 0;
+         return Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) > 0
+           and then Editor.Quick_Open.Selected_Result_Index (S.Surface.Quick_Open) /= 0;
       end Quick_Open_Has_Selected_Result;
    begin
       case Id is
@@ -148,7 +148,7 @@ package body Editor.Executor.Quick_Open_Commands is
          when Command_Goto_Line_Prefill_Current =>
             if not Has_Buffer then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
-            elsif S.Carets.Length = 0
+            elsif S.Caret.Carets.Length = 0
               or else Editor.State.Line_Count (S) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No current caret location");
@@ -163,7 +163,7 @@ package body Editor.Executor.Quick_Open_Commands is
 
          when Command_Toggle_Quick_Open =>
             if not Has_Project
-              and then not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              and then not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open.");
             end if;
@@ -198,7 +198,7 @@ package body Editor.Executor.Quick_Open_Commands is
             if not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif not Active_Overlay_Is (Editor.Overlay_Focus.Quick_Open_Overlay)
-              or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("Quick Open is not visible");
             end if;
@@ -211,11 +211,11 @@ package body Editor.Executor.Quick_Open_Commands is
             elsif Editor.Project.Root_Path (S.Project_Runtime.Project)'Length = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open.");
             elsif not Active_Overlay_Is (Editor.Overlay_Focus.Quick_Open_Overlay)
-              or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("Quick Open is not visible");
             elsif Ada.Strings.Fixed.Trim
-              (Editor.Quick_Open.Query_Text (S.Quick_Open),
+              (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open),
                Ada.Strings.Both)'Length = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No Quick Open query");
@@ -230,7 +230,7 @@ package body Editor.Executor.Quick_Open_Commands is
 
          when Command_Close_Quick_Open =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Quick_Open_Overlay)
-              or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
@@ -238,7 +238,7 @@ package body Editor.Executor.Quick_Open_Commands is
 
          when Command_Accept_Quick_Open =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Quick_Open_Overlay)
-              or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Has_Project then
@@ -254,12 +254,12 @@ package body Editor.Executor.Quick_Open_Commands is
          when Command_Quick_Open_Next_Result
             | Command_Quick_Open_Previous_Result =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Quick_Open_Overlay)
-              or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
-            elsif Editor.Quick_Open.Result_Count (S.Quick_Open) = 0 then
+            elsif Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) = 0 then
                if Quick_Open_File_Count (S) = 0 then
                   return Editor.Commands.Availability_Metadata.Unavailable ("No project files");
                else
@@ -270,7 +270,7 @@ package body Editor.Executor.Quick_Open_Commands is
 
          when Command_Quick_Open_Query_Set =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Quick_Open_Overlay)
-              or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
@@ -278,10 +278,10 @@ package body Editor.Executor.Quick_Open_Commands is
 
          when Command_Quick_Open_Query_Clear =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Quick_Open_Overlay)
-              or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
-            elsif Editor.Quick_Open.Query_Text (S.Quick_Open)'Length = 0 then
+            elsif Editor.Quick_Open.Query_Text (S.Surface.Quick_Open)'Length = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No Quick Open query to clear");
             end if;
@@ -290,7 +290,7 @@ package body Editor.Executor.Quick_Open_Commands is
          when Command_Quick_Open_Kind_Next
             | Command_Quick_Open_Kind_Previous =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Quick_Open_Overlay)
-              or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("Quick Open is not visible");
             elsif not Has_Project then
@@ -300,12 +300,12 @@ package body Editor.Executor.Quick_Open_Commands is
 
          when Command_Quick_Open_Kind_Clear =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Quick_Open_Overlay)
-              or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("Quick Open is not visible");
             elsif not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
-            elsif Editor.Quick_Open.File_Kind_Filter (S.Quick_Open) =
+            elsif Editor.Quick_Open.File_Kind_Filter (S.Surface.Quick_Open) =
               Editor.Quick_Open.All_Files
             then
                return Editor.Commands.Availability_Metadata.Unavailable
@@ -315,7 +315,7 @@ package body Editor.Executor.Quick_Open_Commands is
 
          when Command_Quick_Open_Scope_Set =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Quick_Open_Overlay)
-              or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("Quick Open is not visible");
             elsif not Has_Project then
@@ -325,12 +325,12 @@ package body Editor.Executor.Quick_Open_Commands is
 
          when Command_Quick_Open_Scope_Clear =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Quick_Open_Overlay)
-              or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("Quick Open is not visible");
             elsif not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
-            elsif Editor.Quick_Open.Path_Scope (S.Quick_Open)'Length = 0 then
+            elsif Editor.Quick_Open.Path_Scope (S.Surface.Quick_Open)'Length = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No Quick Open scope to clear");
             end if;
@@ -338,7 +338,7 @@ package body Editor.Executor.Quick_Open_Commands is
 
          when Command_Quick_Open_Scope_From_Selected =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Quick_Open_Overlay)
-              or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("Quick Open is not visible");
             elsif not Has_Project then
@@ -350,19 +350,19 @@ package body Editor.Executor.Quick_Open_Commands is
 
          when Command_Quick_Open_Scope_Parent =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Quick_Open_Overlay)
-              or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+              or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("Quick Open is not visible");
             elsif not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
-            elsif Editor.Quick_Open.Path_Scope (S.Quick_Open)'Length = 0 then
+            elsif Editor.Quick_Open.Path_Scope (S.Surface.Quick_Open)'Length = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No Quick Open scope");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Goto_Line_Query_Set =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Go_To_Line_Overlay)
-              or else not Editor.Go_To_Line.Is_Open (S.Go_To_Line)
+              or else not Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
@@ -370,13 +370,13 @@ package body Editor.Executor.Quick_Open_Commands is
 
          when Command_Goto_Line_Query_Clear =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Go_To_Line_Overlay)
-              or else not Editor.Go_To_Line.Is_Open (S.Go_To_Line)
+              or else not Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Ada.Strings.Fixed.Trim
-              (Editor.Go_To_Line.Text (S.Go_To_Line),
+              (Editor.Go_To_Line.Text (S.Surface.Go_To_Line),
                Ada.Strings.Both)'Length = 0
-              and then not Editor.Go_To_Line.Has_Error (S.Go_To_Line)
+              and then not Editor.Go_To_Line.Has_Error (S.Surface.Go_To_Line)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No go-to-line query to clear");
@@ -386,7 +386,7 @@ package body Editor.Executor.Quick_Open_Commands is
          when Command_Close_Goto_Line
             | Command_Accept_Goto_Line =>
             if not Active_Overlay_Is (Editor.Overlay_Focus.Go_To_Line_Overlay)
-              or else not Editor.Go_To_Line.Is_Open (S.Go_To_Line)
+              or else not Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
@@ -415,11 +415,11 @@ package body Editor.Executor.Quick_Open_Commands is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return False;
       else
          return Editor.Rectangle_Selection.Has_Selection
-           (S.Carets (S.Carets.First_Index));
+           (S.Caret.Carets (S.Caret.Carets.First_Index));
       end if;
    end Has_Primary_Selection;
 
@@ -428,21 +428,21 @@ package body Editor.Executor.Quick_Open_Commands is
    is
       C : Editor.Cursors.Caret_State;
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return;
       end if;
 
-      for I in S.Carets.First_Index .. S.Carets.Last_Index loop
-         C := S.Carets (I);
+      for I in S.Caret.Carets.First_Index .. S.Caret.Carets.Last_Index loop
+         C := S.Caret.Carets (I);
          C.Anchor := C.Pos;
-         S.Carets.Replace_Element (I, C);
+         S.Caret.Carets.Replace_Element (I, C);
       end loop;
    end Collapse_All_Selections;
 
    procedure Report_Quick_Open_Shown
      (S : in out Editor.State.State_Type)
    is
-      Count : constant Natural := Editor.Quick_Open.Result_Count (S.Quick_Open);
+      Count : constant Natural := Editor.Quick_Open.Result_Count (S.Surface.Quick_Open);
    begin
       if Count = 0 then
          if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
@@ -475,7 +475,7 @@ package body Editor.Executor.Quick_Open_Commands is
       then
          Editor.Executor.Dismiss_Active_Overlay (S, Editor.Overlay_Focus.Dismiss_Command);
       else
-         Editor.Quick_Open.Close (S.Quick_Open);
+         Editor.Quick_Open.Close (S.Surface.Quick_Open);
          Editor.Render_Cache.Invalidate_All;
       end if;
       Editor.Executor.Shared_Services.Report_Info (S, "Quick Open hidden");
@@ -487,7 +487,7 @@ package body Editor.Executor.Quick_Open_Commands is
    begin
       if Editor.Overlay_Focus.Is_Active
         (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
-        and then Editor.Quick_Open.Is_Open (S.Quick_Open)
+        and then Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
       then
          Execute_Close_Quick_Open (S);
       else
@@ -504,7 +504,7 @@ package body Editor.Executor.Quick_Open_Commands is
       pragma Unreferenced (Existing_Id);
       Preflight    : Editor.Files.File_Open_Result;
       Result       : constant Editor.Quick_Open.Quick_Open_Result :=
-        Editor.Quick_Open.Selected_Result (S.Quick_Open, Found);
+        Editor.Quick_Open.Selected_Result (S.Surface.Quick_Open, Found);
       Path         : constant String := To_String (Result.Absolute_Path);
       Label        : constant String := To_String (Result.Display_Path);
 
@@ -582,7 +582,7 @@ package body Editor.Executor.Quick_Open_Commands is
       then
          Editor.Executor.Dismiss_Active_Overlay (S, Editor.Overlay_Focus.Dismiss_Accept);
       else
-         Editor.Quick_Open.Close (S.Quick_Open);
+         Editor.Quick_Open.Close (S.Surface.Quick_Open);
       end if;
       Editor.Focus_Management.Restore_Focus_To_Editor (S);
       Editor.Render_Cache.Invalidate_All;
@@ -594,8 +594,8 @@ package body Editor.Executor.Quick_Open_Commands is
    is
       Snapshot : constant Editor.Quick_Open.Quick_Open_Snapshot :=
         Editor.Quick_Open_Markers.Build_Snapshot
-          (State    => S.Quick_Open,
-           Tree     => S.File_Tree,
+          (State    => S.Surface.Quick_Open,
+           Tree     => S.Surface.File_Tree,
            Project  => S.Project_Runtime.Project,
            Registry => Editor.Buffers.Global_Registry_For_UI,
            Recent   => S.Recent_Buffers);
@@ -632,7 +632,7 @@ package body Editor.Executor.Quick_Open_Commands is
       end if;
 
       Editor.Quick_Open.Select_Path
-        (S.Quick_Open,
+        (S.Surface.Quick_Open,
          To_String (Snapshot.Candidates (Target).Project_Relative_Path),
          Found);
    end Move_Quick_Open_Selection_By_Snapshot;
@@ -642,7 +642,7 @@ package body Editor.Executor.Quick_Open_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Quick_Open.Result_Count (S.Quick_Open) = 0 then
+      if Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) = 0 then
          if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          elsif Quick_Open_File_Count (S) = 0 then
@@ -661,7 +661,7 @@ package body Editor.Executor.Quick_Open_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Quick_Open.Result_Count (S.Quick_Open) = 0 then
+      if Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) = 0 then
          if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          elsif Quick_Open_File_Count (S) = 0 then

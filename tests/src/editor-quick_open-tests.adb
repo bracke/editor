@@ -2840,14 +2840,14 @@ package body Editor.Quick_Open.Tests is
       Assert (Editor.Buffers.Global_Active_Buffer = Beta,
               "setup must keep beta as canonical active buffer");
 
-      Editor.Quick_Open.Open (S.Quick_Open);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "src/");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project_Runtime.Project, Config);
-      Editor.Quick_Open.Select_Path (S.Quick_Open, "src/alpha.adb", Found);
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "src/");
+      Editor.Quick_Open.Recompute_Results (S.Surface.Quick_Open, S.Project_Runtime.Project, Config);
+      Editor.Quick_Open.Select_Path (S.Surface.Quick_Open, "src/alpha.adb", Found);
       Assert (Found, "setup must select inactive alpha candidate");
 
       Before := Editor.Quick_Open_Markers.Build_Snapshot
-        (S.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
+        (S.Surface.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers);
       Assert_Quick_Open_File_Lifecycle_Observation_Frozen
         (Before, Beta, "src/beta.adb", False, True,
@@ -2858,10 +2858,10 @@ package body Editor.Quick_Open.Tests is
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Command_Ids.Command_Save_File_As, Target_Path);
       After := Editor.Quick_Open_Markers.Build_Snapshot
-        (S.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
+        (S.Surface.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers);
 
-      Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = "src/",
+      Assert (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = "src/",
               "query text must not become lifecycle target state");
       Assert (Editor.Buffers.Global_Active_Buffer = Beta,
               "selection must not replace active-buffer source");
@@ -2937,13 +2937,13 @@ package body Editor.Quick_Open.Tests is
       Editor.Project.Add_Known_File (S.Project_Runtime.Project, "src/alpha.adb", Direct_File);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Direct_File);
       Direct_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Quick_Open.Open (S.Quick_Open);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "src/");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project_Runtime.Project, Config);
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "src/");
+      Editor.Quick_Open.Recompute_Results (S.Surface.Quick_Open, S.Project_Runtime.Project, Config);
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Command_Ids.Command_Rename_Buffer_File, Direct_Target);
       Direct_Snap := Editor.Quick_Open_Markers.Build_Snapshot
-        (S.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
+        (S.Surface.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers);
       Assert_Quick_Open_File_Lifecycle_Observation_Frozen
         (Direct_Snap, Direct_Id, "src/renamed.adb", False, True,
@@ -2963,14 +2963,14 @@ package body Editor.Quick_Open.Tests is
          Slash (Src_Prompt, "selected-target-like.adb"));
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Prompt_File);
       Prompt_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Quick_Open.Open (S.Quick_Open);
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
       Editor.Quick_Open.Set_Query_Text
-        (S.Quick_Open, "src/query-must-not-seed-target.adb");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project_Runtime.Project, Config);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "src/");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project_Runtime.Project, Config);
+        (S.Surface.Quick_Open, "src/query-must-not-seed-target.adb");
+      Editor.Quick_Open.Recompute_Results (S.Surface.Quick_Open, S.Project_Runtime.Project, Config);
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "src/");
+      Editor.Quick_Open.Recompute_Results (S.Surface.Quick_Open, S.Project_Runtime.Project, Config);
       Editor.Quick_Open.Select_Path
-        (S.Quick_Open, "src/selected-target-like.adb", Found);
+        (S.Surface.Quick_Open, "src/selected-target-like.adb", Found);
       Assert (Found,
               "setup must select target-like project candidate");
 
@@ -2980,7 +2980,7 @@ package body Editor.Quick_Open.Tests is
               "canonical prompt must open through Executor");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
               "Quick Open query/candidate must not seed prompt input");
-      Editor.Quick_Open.Move_Selection_Down (S.Quick_Open);
+      Editor.Quick_Open.Move_Selection_Down (S.Surface.Quick_Open);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
               "Quick Open selection changes do not mutate prompt input");
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Prompt_Target);
@@ -2989,7 +2989,7 @@ package body Editor.Quick_Open.Tests is
               "prompt confirmation leaves no Quick Open prompt state");
 
       Prompt_Snap := Editor.Quick_Open_Markers.Build_Snapshot
-        (S.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
+        (S.Surface.Quick_Open, S.Project_Runtime.Project, Editor.Buffers.Global_Registry_For_UI,
          S.Recent_Buffers);
       Assert_Quick_Open_File_Lifecycle_Observation_Frozen
         (Prompt_Snap, Prompt_Id, "src/renamed.adb", False, True,
@@ -3091,13 +3091,13 @@ package body Editor.Quick_Open.Tests is
          Error_Text   => Null_Unbounded_String);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Result);
       Editor.Project.Add_Known_File (S.Project_Runtime.Project, "main.adb", File_One);
-      Editor.Quick_Open.Open (S.Quick_Open);
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
       Editor.Overlay_Focus.Activate
         (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay,
          S.Panel.Panel_Focus);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "main");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.Project_Runtime.Project, Config);
-      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) = 1,
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "main");
+      Editor.Quick_Open.Recompute_Results (S.Surface.Quick_Open, S.Project_Runtime.Project, Config);
+      Assert (Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) = 1,
               "setup must produce one current-project Quick Open result");
 
       A := Editor.Executor.Command_Availability
@@ -3192,7 +3192,7 @@ package body Editor.Quick_Open.Tests is
       A : Editor.Commands.Availability_Metadata.Command_Availability;
    begin
       Editor.State.Init (S);
-      Editor.Quick_Open.Open (S.Quick_Open);
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
       Editor.Overlay_Focus.Activate
         (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay,
          S.Panel.Panel_Focus);
@@ -3220,16 +3220,16 @@ package body Editor.Quick_Open.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Init (S);
-      Editor.Quick_Open.Open (S.Quick_Open);
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
       Editor.Overlay_Focus.Activate
         (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay,
          S.Panel.Panel_Focus);
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "main");
 
-      Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = "main",
+      Assert (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = "main",
               "query-set should still update transient query text");
-      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) = 0,
+      Assert (Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) = 0,
               "query-set without project must not fabricate matches");
       Assert (Active_Message_Text (S) = "No project open.",
               "query-set must report no-project before no-files");
@@ -3255,11 +3255,11 @@ package body Editor.Quick_Open.Tests is
       end Assert_No_Project_Availability;
    begin
       Editor.State.Init (S);
-      Editor.Quick_Open.Open (S.Quick_Open);
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
       Editor.Overlay_Focus.Activate
         (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay,
          S.Panel.Panel_Focus);
-      Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src/editor");
+      Editor.Quick_Open.Set_Path_Scope (S.Surface.Quick_Open, "src/editor");
 
       Assert_No_Project_Availability
         (Editor.Command_Ids.Command_Quick_Open_Kind_Next, "kind-next");
@@ -3275,13 +3275,13 @@ package body Editor.Quick_Open.Tests is
         (Editor.Command_Ids.Command_Quick_Open_Scope_Parent, "scope-parent");
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Kind_Next (S);
-      Assert (Editor.Quick_Open.File_Kind_Filter (S.Quick_Open) = Editor.Quick_Open.All_Files,
+      Assert (Editor.Quick_Open.File_Kind_Filter (S.Surface.Quick_Open) = Editor.Quick_Open.All_Files,
               "kind-next without project must not mutate transient filter state");
       Assert (Active_Message_Text (S) = "No project open.",
               "kind-next runtime must report no-project");
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Clear (S);
-      Assert (Editor.Quick_Open.Path_Scope (S.Quick_Open) = "src/editor/",
+      Assert (Editor.Quick_Open.Path_Scope (S.Surface.Quick_Open) = "src/editor/",
               "scope-clear without project must not mutate transient scope state");
       Assert (Active_Message_Text (S) = "No project open.",
               "scope-clear runtime must report no-project");

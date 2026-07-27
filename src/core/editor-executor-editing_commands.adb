@@ -141,8 +141,8 @@ package body Editor.Executor.Editing_Commands is
       Selection_Status := Editor.Selection.Validate_Active_Selection_Range
         (S, Selection_Range);
       if Selection_Status = Editor.Selection.Selection_Ok
-        and then not S.Rect_Select_Active
-        and then S.Carets.Length = 1
+        and then not S.Caret.Rect_Select_Active
+        and then S.Caret.Carets.Length = 1
       then
          First_Row := Row_For_Buffer_Index (S, Selection_Range.Low);
          Last_Row := Row_For_Buffer_Index (S, Selection_Range.High - 1);
@@ -237,7 +237,7 @@ package body Editor.Executor.Editing_Commands is
          when Editor.Command_Ids.Command_Selection_Delete =>
             if not Has_Buffer (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
-            elsif S.Carets.Length = 0 then
+            elsif S.Caret.Carets.Length = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No caret location");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -246,7 +246,7 @@ package body Editor.Executor.Editing_Commands is
             | Editor.Command_Ids.Command_Format_Buffer =>
             if not Has_Buffer (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
-            elsif S.Carets.Length = 0 then
+            elsif S.Caret.Carets.Length = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No caret location");
             elsif not Trim_Trailing_Whitespace_Would_Change (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No trailing whitespace");
@@ -256,10 +256,10 @@ package body Editor.Executor.Editing_Commands is
          when Editor.Command_Ids.Command_Format_Selected_Text =>
             if not Has_Buffer (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
-            elsif S.Carets.Length = 0 then
+            elsif S.Caret.Carets.Length = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No caret location");
             elsif not Editor.Selection.Has_Selection (S)
-              and then not S.Rect_Select_Active
+              and then not S.Caret.Rect_Select_Active
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No selection");
             elsif not Trim_Trailing_Whitespace_Would_Change (S) then
@@ -273,7 +273,7 @@ package body Editor.Executor.Editing_Commands is
             | Editor.Command_Ids.Command_Word_Delete_Next =>
             if not Has_Buffer (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
-            elsif S.Carets.Length = 0 then
+            elsif S.Caret.Carets.Length = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No caret location");
             end if;
             return Editor.Commands.Availability_Metadata.Available;

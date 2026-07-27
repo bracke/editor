@@ -147,13 +147,13 @@ package body Editor.Executor.Project_File_Index_Commands is
       Editor.Project.Refresh_Known_Files (S.Project_Runtime.Project, Result);
       if Result.Status = Editor.Project.Project_File_Refresh_Ok then
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
-         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+         if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
-         if Editor.Project_Search.Has_Query (S.Project_Search) then
+         if Editor.Project_Search.Has_Query (S.Surface.Project_Search) then
             Editor.Executor.Project_Search_Result_Commands.Execute_Rerun_Project_Search (S);
          else
-            Editor.Project_Search.Clear_Results_Preserve_Query (S.Project_Search);
+            Editor.Project_Search.Clear_Results_Preserve_Query (S.Surface.Project_Search);
          end if;
          Editor.Executor.Shared_Services.Report_Success
            (S, Format_Project_File_Refresh_Message (Result));
@@ -210,7 +210,7 @@ package body Editor.Executor.Project_File_Index_Commands is
       elsif not Editor.Project.Is_Under_Project (S.Project_Runtime.Project, To_String (Path)) then
          Editor.Executor.Shared_Services.Report_Info (S, "Active file is outside the current project");
          return;
-      elsif Editor.File_Tree.Is_Empty (S.File_Tree) then
+      elsif Editor.File_Tree.Is_Empty (S.Surface.File_Tree) then
          Editor.Executor.Shared_Services.Report_Info (S, "File Tree unavailable");
          return;
       end if;
@@ -219,25 +219,25 @@ package body Editor.Executor.Project_File_Index_Commands is
          Relative_Path : constant String :=
            Editor.Project.Relative_Path (S.Project_Runtime.Project, To_String (Path));
       begin
-         Node := Editor.File_Tree.Find_By_Path (S.File_Tree, Relative_Path, Found);
+         Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, Relative_Path, Found);
       end;
       if not Found or else Node = Editor.File_Tree.No_File_Tree_Node then
          Editor.Executor.Shared_Services.Report_Info (S, "File Tree refresh required");
          return;
       end if;
 
-      Parent := Editor.File_Tree.Node (S.File_Tree, Node).Parent;
+      Parent := Editor.File_Tree.Node (S.Surface.File_Tree, Node).Parent;
       while Parent /= Editor.File_Tree.No_File_Tree_Node loop
-         Editor.File_Tree.Set_Expanded (S.File_Tree, Parent, True);
-         Parent := Editor.File_Tree.Node (S.File_Tree, Parent).Parent;
+         Editor.File_Tree.Set_Expanded (S.Surface.File_Tree, Parent, True);
+         Parent := Editor.File_Tree.Node (S.Surface.File_Tree, Parent).Parent;
       end loop;
-      Editor.File_Tree.Rebuild_Visible_Rows (S.File_Tree);
+      Editor.File_Tree.Rebuild_Visible_Rows (S.Surface.File_Tree);
 
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       if Row_Found then
-         Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+         Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
          Editor.File_Tree_View.Ensure_Selected_Row_Visible
-           (S.File_Tree_View, S.File_Tree, Editor.File_Tree.Visible_Row_Count (S.File_Tree));
+           (S.Surface.File_Tree_View, S.Surface.File_Tree, Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree));
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_File_Tree);
          Editor.Executor.Shared_Services.Report_Success (S, "Active file revealed in File Tree");
@@ -259,25 +259,25 @@ package body Editor.Executor.Project_File_Index_Commands is
       Selected_Path  : Unbounded_String := Null_Unbounded_String;
       Restored_Row   : Natural := 0;
       Default_Collapsed_Load : constant Boolean :=
-        Editor.File_Tree.Is_Empty (S.File_Tree)
-        or else Editor.File_Tree.Expanded_Node_Count (S.File_Tree) <= 1;
+        Editor.File_Tree.Is_Empty (S.Surface.File_Tree)
+        or else Editor.File_Tree.Expanded_Node_Count (S.Surface.File_Tree) <= 1;
    begin
       Selection_Disappeared := False;
 
       if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
-         Editor.File_Tree.Clear (S.File_Tree);
-         Editor.File_Tree_View.Clear_View (S.File_Tree_View);
+         Editor.File_Tree.Clear (S.Surface.File_Tree);
+         Editor.File_Tree_View.Clear_View (S.Surface.File_Tree_View);
          Result.Status := Editor.File_Tree.File_Tree_No_Project;
          return;
       end if;
 
       Selected_Node := Editor.File_Tree_View.Node_For_Row
-        (S.File_Tree,
-         Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View),
+        (S.Surface.File_Tree,
+         Editor.File_Tree_View.Selected_Row_Index (S.Surface.File_Tree_View),
          Selected_Found);
       if Selected_Found then
          Selected_Path := Editor.File_Tree.Node
-           (S.File_Tree, Selected_Node).Relative_Path;
+           (S.Surface.File_Tree, Selected_Node).Relative_Path;
       end if;
 
       Tree := Editor.File_Tree.Scan_Project
@@ -287,7 +287,7 @@ package body Editor.Executor.Project_File_Index_Commands is
       if Result.Status = Editor.File_Tree.File_Tree_Scan_Ok then
          Editor.File_Tree.Preserve_Expanded_Paths_From
            (Tree   => Tree,
-            Source => S.File_Tree);
+            Source => S.Surface.File_Tree);
          if Default_Collapsed_Load
            and then (Length (Selected_Path) = 0
                      or else To_String (Selected_Path) = ".")
@@ -295,7 +295,7 @@ package body Editor.Executor.Project_File_Index_Commands is
             Editor.File_Tree.Expand_File_Ancestors (Tree);
          end if;
 
-         S.File_Tree := Tree;
+         S.Surface.File_Tree := Tree;
          if Update_Known_Files then
             Editor.Executor.Populate_Project_Known_Files_From_File_Tree (S);
          end if;
@@ -305,21 +305,21 @@ package body Editor.Executor.Project_File_Index_Commands is
                New_Found : Boolean := False;
                New_Node  : constant Editor.File_Tree.File_Tree_Node_Id :=
                  Editor.File_Tree.Find_By_Path
-                   (S.File_Tree, To_String (Selected_Path), New_Found);
+                   (S.Surface.File_Tree, To_String (Selected_Path), New_Found);
                Row_Found : Boolean := False;
             begin
                if New_Found then
                   Restored_Row := Editor.File_Tree_View.Row_For_Node
-                    (S.File_Tree, New_Node, Row_Found);
+                    (S.Surface.File_Tree, New_Node, Row_Found);
                   if Row_Found then
                      Editor.File_Tree_View.Set_Selected_Row_Index
-                       (S.File_Tree_View, Restored_Row);
+                       (S.Surface.File_Tree_View, Restored_Row);
                   else
-                     Editor.File_Tree_View.Clear_View (S.File_Tree_View);
+                     Editor.File_Tree_View.Clear_View (S.Surface.File_Tree_View);
                      Selection_Disappeared := True;
                   end if;
                else
-                  Editor.File_Tree_View.Clear_View (S.File_Tree_View);
+                  Editor.File_Tree_View.Clear_View (S.Surface.File_Tree_View);
                   Selection_Disappeared := True;
                end if;
             end;
@@ -327,12 +327,12 @@ package body Editor.Executor.Project_File_Index_Commands is
 
          Editor.Executor.Validate_File_Tree_View (S);
          if Selection_Disappeared then
-            Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 0);
-            Editor.File_Tree_View.Set_Top_Row (S.File_Tree_View, 1);
+            Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, 0);
+            Editor.File_Tree_View.Set_Top_Row (S.Surface.File_Tree_View, 1);
          end if;
          Editor.Executor.Project_Search_Result_Commands
            .Refresh_Project_Search_After_File_Lifecycle (S);
-         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+         if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
 
@@ -351,13 +351,13 @@ package body Editor.Executor.Project_File_Index_Commands is
             Editor.Executor.Shared_Services.Report_Success (S, "File tree refreshed");
          end if;
       else
-         Editor.File_Tree.Clear (S.File_Tree);
-         Editor.File_Tree_View.Clear_View (S.File_Tree_View);
+         Editor.File_Tree.Clear (S.Surface.File_Tree);
+         Editor.File_Tree_View.Clear_View (S.Surface.File_Tree_View);
          if Update_Known_Files then
             Editor.Project.Clear_Known_Files (S.Project_Runtime.Project);
          end if;
-         Editor.Project_Search.Mark_Stale (S.Project_Search);
-         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+         Editor.Project_Search.Mark_Stale (S.Surface.Project_Search);
+         if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
       end if;

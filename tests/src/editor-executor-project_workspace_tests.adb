@@ -130,7 +130,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Build_Fixture (Root);
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Before_Rows := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
+      Before_Rows := Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_F);
       Editor.State.Replace_Buffer_Contents (S, "dirty project content");
       S.Buffer_Lifecycle.File_Info.Dirty := True;
@@ -147,7 +147,7 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Assert (Editor.Project.Has_Project (S.Project_Runtime.Project),
               "blocked project close must preserve project state");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Before_Rows,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) = Before_Rows,
               "blocked project close must preserve File Tree state");
       Id := Editor.Buffers.Global_Find_By_Path (Project_F, Found);
       Assert (Found and then Id /= Editor.Buffers.No_Buffer,
@@ -304,7 +304,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Build_Fixture (Root_B);
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root_A);
-      Before_Rows := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
+      Before_Rows := Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_A);
       Editor.State.Replace_Buffer_Contents (S, "dirty project content");
       S.Buffer_Lifecycle.File_Info.Dirty := True;
@@ -316,7 +316,7 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "blocked switch must preserve active project");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Before_Rows,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) = Before_Rows,
               "blocked switch must preserve File Tree state");
       Id := Editor.Buffers.Global_Find_By_Path (Project_A, Found);
       Assert (Found and then Editor.Buffers.Global_Summary_For (Id).Is_Dirty,
@@ -358,7 +358,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Remove_Tree_If_Exists (Missing);
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root_A);
-      Rows := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
+      Rows := Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree);
 
       Cmd.Kind := Editor.Command_Kinds.Switch_Project;
       Cmd.Path := To_Unbounded_String (Missing);
@@ -366,7 +366,7 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root_A),
               "failed switch must preserve previous active project");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Rows,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) = Rows,
               "failed switch must preserve previous project surfaces");
       Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "failed switch must not promote the missing target");
@@ -401,7 +401,7 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "switch without source project must not open target as project.open");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = 0,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) = 0,
               "switch without source project must not initialize File Tree");
       Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 0,
               "switch without source project must not promote Recent Projects");
@@ -436,7 +436,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Build_Fixture (Root);
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Rows := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
+      Rows := Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_A);
       Id := Editor.Buffers.Global_Find_By_Path (Project_A, Found);
       Assert (Found and then Id /= Editor.Buffers.No_Buffer,
@@ -450,7 +450,7 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root),
               "same-project switch must preserve active project");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Rows,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) = Rows,
               "same-project switch must not clear File Tree rows");
       Id := Editor.Buffers.Global_Find_By_Path (Project_A, Found);
       Assert (Found and then Id /= Editor.Buffers.No_Buffer,
@@ -490,7 +490,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Root_Full := To_Unbounded_String (Ada.Directories.Full_Name (Root));
-      Rows := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
+      Rows := Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_A);
       Id := Editor.Buffers.Global_Find_By_Path (Project_A, Found);
       Assert (Found and then Id /= Editor.Buffers.No_Buffer,
@@ -504,7 +504,7 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = To_String (Root_Full),
               "same-project switch must preserve project even when root vanished");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Rows,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) = Rows,
               "same-project missing-root switch must not clear File Tree rows");
       Id := Editor.Buffers.Global_Find_By_Path (Project_A, Found);
       Assert (Found and then Id /= Editor.Buffers.No_Buffer,
@@ -661,7 +661,7 @@ package body Editor.Executor.Project_Workspace_Tests is
       Build_Fixture (Root);
       Init_Executor_Test_State (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
-      Before_Rows := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
+      Before_Rows := Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Project_A);
       Editor.State.Replace_Buffer_Contents (S, "dirty close content");
       S.Buffer_Lifecycle.File_Info.Dirty := True;
@@ -671,7 +671,7 @@ package body Editor.Executor.Project_Workspace_Tests is
 
       Assert (Editor.Project.Root_Path (S.Project_Runtime.Project) = Ada.Directories.Full_Name (Root),
               "blocked close must preserve active project");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Before_Rows,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) = Before_Rows,
               "blocked close must preserve File Tree state");
       Id := Editor.Buffers.Global_Find_By_Path (Project_A, Found);
       Assert (Found and then Editor.Buffers.Global_Summary_For (Id).Is_Dirty,
@@ -835,14 +835,14 @@ package body Editor.Executor.Project_Workspace_Tests is
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "setup must promote opened project to Recent Projects");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) > 0,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) > 0,
               "setup must have project File Tree rows");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Close_Project);
 
       Assert (not Editor.Project.Has_Project (S.Project_Runtime.Project),
               "clean close must clear active project");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = 0,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) = 0,
               "clean close must clear File Tree rows");
       Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "clean close must retain Recent Projects entries");

@@ -68,14 +68,14 @@ package body Editor.Executor.Clipboard is
    is
       C : Caret_State;
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return;
       end if;
 
-      C := S.Carets (S.Carets.First_Index);
-      S.Carets.Clear;
-      S.Carets.Append (C);
-      S.Rect_Select_Active := False;
+      C := S.Caret.Carets (S.Caret.Carets.First_Index);
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (C);
+      S.Caret.Rect_Select_Active := False;
    end Keep_Primary_Caret_Only;
 
    procedure Execute_Copy
@@ -196,7 +196,7 @@ package body Editor.Executor.Clipboard is
       elsif Length (Text) = 0 then
          Current_Status := Clipboard_No_Text;
          return;
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          Current_Status := Clipboard_Paste_Failed;
          return;
       end if;

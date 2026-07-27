@@ -350,16 +350,16 @@ package body Editor.Dogfood_Workflow.Tests is
 
       --  File Tree over real fixture files, then open through the file-tree route.
       Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
-      Assert (Editor.File_Tree.Node_Count (S.File_Tree) >= 4,
+      Assert (Editor.File_Tree.Node_Count (S.Surface.File_Tree) >= 4,
               "file tree scans real dogfood fixture nodes");
       Node := Editor.File_Tree.Find_By_Path
-        (S.File_Tree, "src/dogfood_demo.adb", Found);
+        (S.Surface.File_Tree, "src/dogfood_demo.adb", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
               "file tree contains the known Ada implementation file");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
               "known File Tree file maps to a selectable user row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
       Editor.Executor.Execute_Command
@@ -371,10 +371,10 @@ package body Editor.Dogfood_Workflow.Tests is
               "File Tree file activation returns focus to editor text");
 
       --  Quick Open finds the same current-project file without owning payloads.
-      Editor.Quick_Open.Open (S.Quick_Open);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "dogfood_demo.adb");
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "dogfood_demo.adb");
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.File_Tree, (Max_Visible_Results => 12,
+        (S.Surface.Quick_Open, S.Surface.File_Tree, (Max_Visible_Results => 12,
                                    Max_Result_Count => 100,
                                    Query_Field_Min_Columns => 24,
                                    Overlay_Width_In_Columns => 72,
@@ -382,10 +382,10 @@ package body Editor.Dogfood_Workflow.Tests is
                                    Header_Height_In_Rows => 1,
                                    Field_Height_In_Rows => 1,
                                    Result_Padding_Columns => 1));
-      QO_Snapshot := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
+      QO_Snapshot := Editor.Quick_Open.Build_Snapshot (S.Surface.Quick_Open);
       Assert (QO_Snapshot.Visible_Count > 0,
               "Quick Open shows at least one dogfood fixture match");
-      QO_Result := Editor.Quick_Open.Selected_Result (S.Quick_Open, Found);
+      QO_Result := Editor.Quick_Open.Selected_Result (S.Surface.Quick_Open, Found);
       Assert (Found and then To_String (QO_Result.Display_Path) = "src/dogfood_demo.adb",
               "Quick Open selects the expected Ada file");
       Editor.Focus_Management.Set_Focus_Owner
@@ -429,7 +429,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/new_widget.adb"),
               "created file appears after explicit project-file refresh");
       Node := Editor.File_Tree.Find_By_Path
-        (S.File_Tree, "src/new_widget.adb", Found);
+        (S.Surface.File_Tree, "src/new_widget.adb", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
               "created file appears in File Tree after command-owned refresh");
 
@@ -438,17 +438,17 @@ package body Editor.Dogfood_Workflow.Tests is
          "package New_Widget is" & ASCII.LF &
          "   procedure Created;" & ASCII.LF &
          "end New_Widget;" & ASCII.LF);
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
               "created File Tree row remains selectable for rename");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
 
       --  Seed adjacent project-derived surfaces before the rename so the real
       --  File Tree mutation route must mark them stale through owning state,
       --  not just through policy helpers.
-      Editor.Project_Search.Clear_Stale (S.Project_Search);
+      Editor.Project_Search.Clear_Stale (S.Surface.Project_Search);
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.File_Tree, (Max_Visible_Results => 12,
+        (S.Surface.Quick_Open, S.Surface.File_Tree, (Max_Visible_Results => 12,
                                    Max_Result_Count => 100,
                                    Query_Field_Min_Columns => 24,
                                    Overlay_Width_In_Columns => 72,
@@ -479,9 +479,9 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_File_Tree,
               "File Tree rename keeps focus on File Tree for adjacent actions");
-      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+      Assert (not Editor.Project_Search.Is_Stale (S.Surface.Project_Search),
               "real File Tree rename refreshes Project Search results");
-      Assert (not Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
+      Assert (not Editor.Quick_Open.Results_Are_Stale (S.Surface.Quick_Open),
               "real File Tree rename refreshes Quick Open candidates");
       Diagnostic_Row := 0;
       for I in 1 .. Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) loop
@@ -514,13 +514,13 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/renamed_widget.adb"),
               "renamed file appears after explicit project-file refresh");
       Node := Editor.File_Tree.Find_By_Path
-        (S.File_Tree, "src/renamed_widget.adb", Found);
+        (S.Surface.File_Tree, "src/renamed_widget.adb", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
               "renamed file appears in File Tree after command-owned refresh");
 
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "renamed_widget");
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "renamed_widget");
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.File_Tree, (Max_Visible_Results => 12,
+        (S.Surface.Quick_Open, S.Surface.File_Tree, (Max_Visible_Results => 12,
                                    Max_Result_Count => 100,
                                    Query_Field_Min_Columns => 24,
                                    Overlay_Width_In_Columns => 72,
@@ -528,15 +528,15 @@ package body Editor.Dogfood_Workflow.Tests is
                                    Header_Height_In_Rows => 1,
                                    Field_Height_In_Rows => 1,
                                    Result_Padding_Columns => 1));
-      QO_Result := Editor.Quick_Open.Selected_Result (S.Quick_Open, Found);
+      QO_Result := Editor.Quick_Open.Selected_Result (S.Surface.Quick_Open, Found);
       Assert (Found and then To_String (QO_Result.Display_Path) =
                 "src/renamed_widget.adb",
               "Quick Open finds the renamed file after explicit project refresh");
 
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
               "renamed File Tree row remains selectable for delete");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Run_File_Tree_Delete_Confirmation (S);
       Assert (not Ada.Directories.Exists (Renamed_Path),
               "File Tree delete command removes the selected clean file");
@@ -545,7 +545,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "File Tree delete keeps focus on File Tree after completion");
       Editor.Project.Refresh_Known_Files (S.Project_Runtime.Project, Project_Files);
       Node := Editor.File_Tree.Find_By_Path
-        (S.File_Tree, "src/renamed_widget.adb", Found);
+        (S.Surface.File_Tree, "src/renamed_widget.adb", Found);
       Assert (not Found and then Node = Editor.File_Tree.No_File_Tree_Node,
               "deleted clean file is gone from File Tree after command-owned refresh");
 
@@ -559,13 +559,13 @@ package body Editor.Dogfood_Workflow.Tests is
          Editor.Guided_Prompts.File_Tree_Create_File_Prompt,
          "create stale-test file");
       Node := Editor.File_Tree.Find_By_Path
-        (S.File_Tree, "src/stale_widget.adb", Found);
+        (S.Surface.File_Tree, "src/stale_widget.adb", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
               "stale selected-node setup creates a selectable file");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
               "stale selected-node setup maps to a visible row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Remove_File_If_Exists (Root & "/src/stale_widget.adb");
       Run_File_Tree_Text_Prompt_Command
         (S,
@@ -594,7 +594,7 @@ package body Editor.Dogfood_Workflow.Tests is
          "package Dirty_Block is" & ASCII.LF &
          "end Dirty_Block;" & ASCII.LF);
       Node := Editor.File_Tree.Find_By_Path
-        (S.File_Tree, "src/dirty_block.adb", Found);
+        (S.Surface.File_Tree, "src/dirty_block.adb", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
               "dirty open-buffer setup creates a selectable file");
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Dirty_Block_Path);
@@ -603,10 +603,10 @@ package body Editor.Dogfood_Workflow.Tests is
                                        ASCII.LF));
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "dirty open-buffer setup leaves unsaved text in the target file");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
               "dirty open-buffer target maps to a visible File Tree row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Run_File_Tree_Text_Prompt_Command
         (S,
          Editor.Command_Ids.Command_File_Tree_Rename_Selected,
@@ -656,9 +656,9 @@ package body Editor.Dogfood_Workflow.Tests is
               "Outline target has a one-based source column");
 
       --  Project Search finds and validates a real source target.
-      Editor.Project_Search.Set_Query (S.Project_Search, "Dogfood_Known_Token");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "Dogfood_Known_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.File_Tree, S.Project_Runtime.Project,
+        (S.Surface.Project_Search, S.Surface.File_Tree, S.Project_Runtime.Project,
          (Case_Sensitive => True,
           Max_File_Count => 100,
           Max_Result_Count => 20,
@@ -666,17 +666,17 @@ package body Editor.Dogfood_Workflow.Tests is
           Max_Line_Length => Editor.Project_Search.Max_Search_Result_Preview_Length,
           Max_File_Size_Bytes => 64 * 1024,
           Regex_Max_Steps => 100_000));
-      Assert (Editor.Project_Search.Status (S.Project_Search) =
+      Assert (Editor.Project_Search.Status (S.Surface.Project_Search) =
                 Editor.Project_Search.Project_Search_Ok,
               "Project Search succeeds against current project files");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1,
               "Project Search finds the known token once");
-      Search_Result := Editor.Project_Search.Result_At (S.Project_Search, 1);
+      Search_Result := Editor.Project_Search.Result_At (S.Surface.Project_Search, 1);
       Assert (To_String (Search_Result.Relative_Path) = "src/dogfood_demo.adb",
               "Project Search result points at the expected source file");
       Assert (Search_Result.Row > 0 and then Search_Result.Match_Column > 0,
               "Project Search result carries a navigable source location");
-      Editor.Project_Search.Set_Selected_Result_Index (S.Project_Search, 1);
+      Editor.Project_Search.Set_Selected_Result_Index (S.Surface.Project_Search, 1);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Project_Search_Results);
       Editor.Executor.Execute_Command
@@ -686,13 +686,13 @@ package body Editor.Dogfood_Workflow.Tests is
               "Search result activation returns focus to editor text through Executor");
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Project_Search_Results);
-      Editor.Project_Search.Mark_Stale (S.Project_Search);
+      Editor.Project_Search.Mark_Stale (S.Surface.Project_Search);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Search_Results_Open_Selected);
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_Project_Search_Results,
               "failed stale Search activation keeps focus on Search results for correction");
-      Editor.Project_Search.Clear_Stale (S.Project_Search);
+      Editor.Project_Search.Clear_Stale (S.Surface.Project_Search);
       Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
 
       --  Build UI candidate refresh, explicit command-route selection, consent,
@@ -894,10 +894,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Project_Files.Status = Editor.Project.Project_File_Refresh_Ok,
               "restart project known files refresh before transient contamination");
 
-      Editor.Quick_Open.Open (S2.Quick_Open);
-      Editor.Quick_Open.Set_Query_Text (S2.Quick_Open, "dogfood");
+      Editor.Quick_Open.Open (S2.Surface.Quick_Open);
+      Editor.Quick_Open.Set_Query_Text (S2.Surface.Quick_Open, "dogfood");
       Editor.Quick_Open.Recompute_Results
-        (S2.Quick_Open, S2.Project_Runtime.Project, (Max_Visible_Results => 12,
+        (S2.Surface.Quick_Open, S2.Project_Runtime.Project, (Max_Visible_Results => 12,
                                      Max_Result_Count => 100,
                                      Query_Field_Min_Columns => 24,
                                      Overlay_Width_In_Columns => 72,
@@ -905,9 +905,9 @@ package body Editor.Dogfood_Workflow.Tests is
                                      Header_Height_In_Rows => 1,
                                      Field_Height_In_Rows => 1,
                                      Result_Padding_Columns => 1));
-      Editor.Project_Search.Set_Query (S2.Project_Search, "Dogfood_Known_Token");
+      Editor.Project_Search.Set_Query (S2.Surface.Project_Search, "Dogfood_Known_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S2.Project_Search, S2.File_Tree, S2.Project_Runtime.Project,
+        (S2.Surface.Project_Search, S2.Surface.File_Tree, S2.Project_Runtime.Project,
          (Case_Sensitive => True,
           Max_File_Count => 100,
           Max_Result_Count => 20,
@@ -935,9 +935,9 @@ package body Editor.Dogfood_Workflow.Tests is
          "Enter search text.",
          "Project Search");
 
-      Assert (Editor.Quick_Open.Is_Open (S2.Quick_Open),
+      Assert (Editor.Quick_Open.Is_Open (S2.Surface.Quick_Open),
               "restart precondition has transient Quick Open state");
-      Assert (Editor.Project_Search.Result_Count (S2.Project_Search) > 0,
+      Assert (Editor.Project_Search.Result_Count (S2.Surface.Project_Search) > 0,
               "restart precondition has transient Project Search results");
       Assert (Editor.Outline.Item_Count (S2.Outline) > 0,
               "restart precondition has transient Outline rows");
@@ -967,10 +967,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Ada.Strings.Fixed.Index
                 (Editor.State.Current_Text (S2), "Dogfood_Known_Token") > 0,
               "workspace restore reloads source text from disk");
-      Assert (Editor.Quick_Open.Result_Count (S2.Quick_Open) = 0
-                and then not Editor.Quick_Open.Is_Open (S2.Quick_Open),
+      Assert (Editor.Quick_Open.Result_Count (S2.Surface.Quick_Open) = 0
+                and then not Editor.Quick_Open.Is_Open (S2.Surface.Quick_Open),
               "workspace restore clears Quick Open transient matches");
-      Assert (Editor.Project_Search.Result_Count (S2.Project_Search) = 0,
+      Assert (Editor.Project_Search.Result_Count (S2.Surface.Project_Search) = 0,
               "workspace restore clears Project Search transient results");
       Assert (Editor.Outline.Item_Count (S2.Outline) = 0,
               "workspace restore clears Outline transient rows");
@@ -1344,7 +1344,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "status lifecycle hint agrees with Buffer List missing-file wording");
       Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
       Node := Editor.File_Tree.Find_By_Path
-        (S.File_Tree, "src/dogfood_demo.adb", Found);
+        (S.Surface.File_Tree, "src/dogfood_demo.adb", Found);
       Assert (not Found and then Node = Editor.File_Tree.No_File_Tree_Node,
               "File Tree refresh reflects the externally deleted backing file");
 
@@ -1456,10 +1456,10 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Buffer /= Editor.Buffers.No_Buffer,
               "dirty Project A buffer is present in the registry");
 
-      Editor.Quick_Open.Open (S.Quick_Open);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "dogfood_demo");
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "dogfood_demo");
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.Project_Runtime.Project, (Max_Visible_Results => 12,
+        (S.Surface.Quick_Open, S.Project_Runtime.Project, (Max_Visible_Results => 12,
                                    Max_Result_Count => 100,
                                    Query_Field_Min_Columns => 24,
                                    Overlay_Width_In_Columns => 72,
@@ -1467,12 +1467,12 @@ package body Editor.Dogfood_Workflow.Tests is
                                    Header_Height_In_Rows => 1,
                                    Field_Height_In_Rows => 1,
                                    Result_Padding_Columns => 1));
-      Assert (Editor.Quick_Open.Build_Snapshot (S.Quick_Open).Visible_Count > 0,
+      Assert (Editor.Quick_Open.Build_Snapshot (S.Surface.Quick_Open).Visible_Count > 0,
               "Project A Quick Open state is populated before switch");
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "Dogfood_Known_Token");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "Dogfood_Known_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.File_Tree, S.Project_Runtime.Project,
+        (S.Surface.Project_Search, S.Surface.File_Tree, S.Project_Runtime.Project,
          (Case_Sensitive => True,
           Max_File_Count => 100,
           Max_Result_Count => 20,
@@ -1480,9 +1480,9 @@ package body Editor.Dogfood_Workflow.Tests is
           Max_Line_Length => Editor.Project_Search.Max_Search_Result_Preview_Length,
           Max_File_Size_Bytes => 64 * 1024,
           Regex_Max_Steps => 100_000));
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1,
               "Project A Search state is populated before switch");
-      Search_Result := Editor.Project_Search.Result_At (S.Project_Search, 1);
+      Search_Result := Editor.Project_Search.Result_At (S.Surface.Project_Search, 1);
       Assert (To_String (Search_Result.Relative_Path) = "src/dogfood_demo.adb",
               "Project A Search result points into Project A");
 
@@ -1524,7 +1524,7 @@ package body Editor.Dogfood_Workflow.Tests is
               "Project A Build candidates are populated before switch");
       Assert (Editor.Build_UI.Candidate_Count (S.Build.Build_UI) > 0,
               "Project A Build UI has candidate rows before switch");
-      Project_A_Row_Count := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
+      Project_A_Row_Count := Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree);
       Assert (Project_A_Row_Count > 0,
               "Project A File Tree is populated before switch");
 
@@ -1538,9 +1538,9 @@ package body Editor.Dogfood_Workflow.Tests is
               "dirty switch attempt captures pending transition");
       Assert (Editor.Recent_Projects.Count (S.Project_Runtime.Recent_Projects) = 1,
               "dirty blocked switch does not promote Project B to Recent Projects");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Project_A_Row_Count,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) = Project_A_Row_Count,
               "dirty blocked switch preserves Project A File Tree");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1,
               "dirty blocked switch preserves Project A Search state");
       Assert (Editor.Outline.Has_Items (S.Outline),
               "dirty blocked switch preserves Project A Outline state");
@@ -1580,7 +1580,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Buffer := Editor.Buffers.Global_Find_By_Path (Source_A, Found);
       Assert (not Found,
               "confirmed switch closes discarded Project A dirty buffer");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 0,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0,
               "confirmed switch clears Project A Search results");
       Assert (not Editor.Outline.Has_Items (S.Outline),
               "confirmed switch clears Project A Outline state");
@@ -1594,7 +1594,7 @@ package body Editor.Dogfood_Workflow.Tests is
       end loop;
       Assert (not Project_A_Diagnostic_Remains,
               "confirmed switch clears Project A Diagnostics rows");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) > 0,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) > 0,
               "confirmed switch installs Project B File Tree");
       Assert (Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/dogfood_demo.adb"),
               "confirmed switch installs Project B known-file index");
@@ -2672,13 +2672,13 @@ package body Editor.Dogfood_Workflow.Tests is
               "clean-open setup has one open buffer");
 
       Node := Editor.File_Tree.Find_By_Path
-        (S.File_Tree, "src/clean_open.adb", Found);
+        (S.Surface.File_Tree, "src/clean_open.adb", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
               "clean-open source is present in the File Tree");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
               "clean-open source maps to a selectable File Tree row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
 
@@ -2705,13 +2705,13 @@ package body Editor.Dogfood_Workflow.Tests is
               "clean open File Tree rename focuses the renamed buffer");
 
       Node := Editor.File_Tree.Find_By_Path
-        (S.File_Tree, "src/clean_open_renamed.adb", Found);
+        (S.Surface.File_Tree, "src/clean_open_renamed.adb", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
               "renamed clean-open file is present in the File Tree");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
               "renamed clean-open file maps to a selectable row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
 
       Run_File_Tree_Delete_Confirmation (S);
 
@@ -2777,13 +2777,13 @@ package body Editor.Dogfood_Workflow.Tests is
               "multi-buffer delete setup active file is clean");
 
       Node := Editor.File_Tree.Find_By_Path
-        (S.File_Tree, "src/delete_active_second.adb", Found);
+        (S.Surface.File_Tree, "src/delete_active_second.adb", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
               "active clean delete target is present in the File Tree");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
               "active clean delete target maps to a File Tree row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
 
@@ -2865,13 +2865,13 @@ package body Editor.Dogfood_Workflow.Tests is
               "directory rename setup active child is clean");
 
       Node := Editor.File_Tree.Find_By_Path
-        (S.File_Tree, "src/rename_dir_active", Found);
+        (S.Surface.File_Tree, "src/rename_dir_active", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
               "directory rename source is present in the File Tree");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
               "directory rename source maps to a selectable row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
 
@@ -2967,9 +2967,9 @@ package body Editor.Dogfood_Workflow.Tests is
          "main workflow smoke reports file-open feedback");
 
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "main.adb");
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "main.adb");
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.Project_Runtime.Project, (Max_Visible_Results => 12,
+        (S.Surface.Quick_Open, S.Project_Runtime.Project, (Max_Visible_Results => 12,
                                    Max_Result_Count => 100,
                                    Query_Field_Min_Columns => 24,
                                    Overlay_Width_In_Columns => 72,
@@ -2977,7 +2977,7 @@ package body Editor.Dogfood_Workflow.Tests is
                                    Header_Height_In_Rows => 1,
                                    Field_Height_In_Rows => 1,
                                    Result_Padding_Columns => 1));
-      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) > 0,
+      Assert (Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) > 0,
               "main workflow smoke Quick Open finds the main source");
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Quick_Open);
@@ -2989,9 +2989,9 @@ package body Editor.Dogfood_Workflow.Tests is
         ("Opened main.adb",
          "main workflow smoke reports Quick Open activation feedback");
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "Dogfood_Known_Token");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "Dogfood_Known_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project_Runtime.Project,
+        (S.Surface.Project_Search, S.Project_Runtime.Project,
          (Case_Sensitive => True,
           Max_File_Count => 100,
           Max_Result_Count => 20,
@@ -2999,12 +2999,12 @@ package body Editor.Dogfood_Workflow.Tests is
           Max_Line_Length => Editor.Project_Search.Max_Search_Result_Preview_Length,
           Max_File_Size_Bytes => 64 * 1024,
           Regex_Max_Steps => 100_000));
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1,
               "main workflow smoke Project Search finds the known token");
-      Search_Result := Editor.Project_Search.Result_At (S.Project_Search, 1);
+      Search_Result := Editor.Project_Search.Result_At (S.Surface.Project_Search, 1);
       Assert (To_String (Search_Result.Absolute_Path) = Source_Path,
               "main workflow smoke Project Search targets the source file");
-      Editor.Project_Search.Set_Selected_Result_Index (S.Project_Search, 1);
+      Editor.Project_Search.Set_Selected_Result_Index (S.Surface.Project_Search, 1);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Project_Search_Results);
       Editor.Executor.Execute_Command
@@ -3142,13 +3142,13 @@ package body Editor.Dogfood_Workflow.Tests is
               "daily loop opens a project");
       Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
       Node := Editor.File_Tree.Find_By_Path
-        (S.File_Tree, "src/dogfood_demo.adb", Found);
+        (S.Surface.File_Tree, "src/dogfood_demo.adb", Found);
       Assert (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
               "daily loop locates a source file in File Tree");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Found);
       Assert (Found and then Row > 0,
               "daily loop maps File Tree source to a selectable row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
       Editor.Executor.Execute_Command
@@ -3171,9 +3171,9 @@ package body Editor.Dogfood_Workflow.Tests is
               "daily loop save preserves source contents on disk");
 
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "main.adb");
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "main.adb");
       Editor.Quick_Open.Recompute_Results
-        (S.Quick_Open, S.Project_Runtime.Project, (Max_Visible_Results => 12,
+        (S.Surface.Quick_Open, S.Project_Runtime.Project, (Max_Visible_Results => 12,
                                    Max_Result_Count => 100,
                                    Query_Field_Min_Columns => 24,
                                    Overlay_Width_In_Columns => 72,
@@ -3197,9 +3197,9 @@ package body Editor.Dogfood_Workflow.Tests is
                 Editor.Focus_Management.Focus_Editor,
               "daily loop buffer switch focuses editor");
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "Dogfood_Known_Token");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "Dogfood_Known_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project_Runtime.Project,
+        (S.Surface.Project_Search, S.Project_Runtime.Project,
          (Case_Sensitive => True,
           Max_File_Count => 100,
           Max_Result_Count => 20,
@@ -3207,10 +3207,10 @@ package body Editor.Dogfood_Workflow.Tests is
           Max_Line_Length => Editor.Project_Search.Max_Search_Result_Preview_Length,
           Max_File_Size_Bytes => 64 * 1024,
           Regex_Max_Steps => 100_000));
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1,
               "daily loop Project Search finds the known token");
-      Search_Result := Editor.Project_Search.Result_At (S.Project_Search, 1);
-      Editor.Project_Search.Set_Selected_Result_Index (S.Project_Search, 1);
+      Search_Result := Editor.Project_Search.Result_At (S.Surface.Project_Search, 1);
+      Editor.Project_Search.Set_Selected_Result_Index (S.Surface.Project_Search, 1);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_Project_Search_Results);
       Editor.Executor.Execute_Command

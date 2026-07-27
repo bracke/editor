@@ -209,9 +209,9 @@ package body Editor.Product_Surface_Cleanup.Tests is
               "Feature Panel show/focus/toggle/clear do not create placeholder rows");
       Assert (Editor.Diagnostics.Diagnostic_Count (S.Panel.Diagnostics) = 0,
               "Problems show/focus commands do not create fake diagnostics");
-      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) = 0,
+      Assert (Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) = 0,
               "Quick Open show command does not create fake files");
-      Assert (Editor.File_Tree.Node_Count (S.File_Tree) = 0,
+      Assert (Editor.File_Tree.Node_Count (S.Surface.File_Tree) = 0,
               "File Tree focus command does not create fake nodes");
       Assert (Editor.Product_Surface_Cleanup.Assert_Product_Surface_No_Demo_State_Coherent (S),
         "normal show/focus/toggle commands leave product surfaces demo-free");
@@ -237,9 +237,9 @@ package body Editor.Product_Surface_Cleanup.Tests is
       Assert (Editor.Feature_Search_Results.Row_Count
                 (S.Panel.Feature_Search_Results) = 0,
               "Search empty state has no search rows");
-      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) = 0,
+      Assert (Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) = 0,
               "Quick Open empty state has no file rows");
-      Assert (Editor.File_Tree.Node_Count (S.File_Tree) = 0,
+      Assert (Editor.File_Tree.Node_Count (S.Surface.File_Tree) = 0,
               "File Tree empty state has no file nodes");
       Assert (Editor.Product_Surface_Cleanup.Assert_Product_Surface_No_Demo_State_Coherent (S),
         "empty states are display-only and audit-clean");

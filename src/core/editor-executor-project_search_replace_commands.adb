@@ -65,8 +65,8 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       Row   : Editor.Project_Search.Project_Replace_Preview_Row;
       Count : Natural := 0;
    begin
-      for I in 1 .. Editor.Project_Search.Replace_Preview_Count (S.Project_Search) loop
-         Row := Editor.Project_Search.Replace_Preview_Row_At (S.Project_Search, I);
+      for I in 1 .. Editor.Project_Search.Replace_Preview_Count (S.Surface.Project_Search) loop
+         Row := Editor.Project_Search.Replace_Preview_Row_At (S.Surface.Project_Search, I);
          if Row.Search_Result_Id /= Editor.Project_Search.No_Project_Search_Result
            and then not Row.Stale
            and then not Row.Invalid
@@ -74,7 +74,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
              (To_String (Row.Absolute_Path))
          then
             Editor.Project_Search.Mark_Replace_Preview_Stale_For_Absolute_File
-              (S.Project_Search, To_String (Row.Absolute_Path));
+              (S.Surface.Project_Search, To_String (Row.Absolute_Path));
             Count := Count + 1;
          end if;
       end loop;
@@ -244,7 +244,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       Current     : Unbounded_String := Null_Unbounded_String;
       Replacement : constant Unbounded_String :=
         To_Unbounded_String
-          (Editor.Project_Search.Replace_Text (S.Project_Search));
+          (Editor.Project_Search.Replace_Text (S.Surface.Project_Search));
       Candidate_Count : Natural := 0;
       Path_Mismatch    : Boolean := False;
 
@@ -323,8 +323,8 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       Failure_Message := Null_Unbounded_String;
       Cmd.Kind := Apply_Replace_Batch;
 
-      for I in 1 .. Editor.Project_Search.Replace_Preview_Count (S.Project_Search) loop
-         Row := Editor.Project_Search.Replace_Preview_Row_At (S.Project_Search, I);
+      for I in 1 .. Editor.Project_Search.Replace_Preview_Count (S.Surface.Project_Search) loop
+         Row := Editor.Project_Search.Replace_Preview_Row_At (S.Surface.Project_Search, I);
          if Row_Is_Candidate (Row) then
             Candidate_Count := Candidate_Count + 1;
             if Length (Path) = 0 then
@@ -341,7 +341,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
          end if;
       end loop;
 
-      if not Editor.Project_Search.Replace_Text_Is_Valid (S.Project_Search) then
+      if not Editor.Project_Search.Replace_Text_Is_Valid (S.Surface.Project_Search) then
          Failed := True;
          Failure_Message := To_Unbounded_String ("Replacement text must be single-line.");
          return;
@@ -410,8 +410,8 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       --  Validate every candidate before applying any mutation to this file.
       --  This preserves the per-file transaction boundary: stale offsets or
       --  mismatched current text fail the whole file without partial edits.
-      for I in 1 .. Editor.Project_Search.Replace_Preview_Count (S.Project_Search) loop
-         Row := Editor.Project_Search.Replace_Preview_Row_At (S.Project_Search, I);
+      for I in 1 .. Editor.Project_Search.Replace_Preview_Count (S.Surface.Project_Search) loop
+         Row := Editor.Project_Search.Replace_Preview_Row_At (S.Surface.Project_Search, I);
          if Row_Is_Candidate (Row) then
             if Row.Row = 0 or else Row.End_Column < Row.Start_Column then
                Failed := True;
@@ -459,11 +459,11 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       Before := S;
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       if Preserve_Project_Search_Preview then
-         Project_Search_Before_Edit := S.Project_Search;
+         Project_Search_Before_Edit := S.Surface.Project_Search;
       end if;
       Editor.Executor.History.Apply_Replace_Batch_Command (S, Cmd);
       if Preserve_Project_Search_Preview then
-         S.Project_Search := Project_Search_Before_Edit;
+         S.Surface.Project_Search := Project_Search_Before_Edit;
       end if;
       if Editor.State.Current_Text (S) /= To_String (Before_Text) then
          Editor.Executor.History.Log_Edit (Before, S, Cmd);
@@ -478,7 +478,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
      (S : in out Editor.State.State_Type)
    is
       Index : constant Natural :=
-        Editor.Project_Search.Selected_Replace_Preview_Index (S.Project_Search);
+        Editor.Project_Search.Selected_Replace_Preview_Index (S.Surface.Project_Search);
       Row : Editor.Project_Search.Project_Replace_Preview_Row;
       Changed  : Boolean := False;
       Failed   : Boolean := False;
@@ -494,19 +494,19 @@ package body Editor.Executor.Project_Search_Replace_Commands is
          return;
       end if;
 
-      if Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 0
+      if Editor.Project_Search.Replace_Preview_Count (S.Surface.Project_Search) = 0
         or else Index = 0
       then
          Report_Warning (S, "No replacement selected");
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search) then
+      elsif Editor.Project_Search.Replace_Preview_Is_Stale (S.Surface.Project_Search) then
          Report_Warning (S, "Replacement preview is stale; rerun search.");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 
-      Row := Editor.Project_Search.Replace_Preview_Row_At (S.Project_Search, Positive'Max (1, Index));
+      Row := Editor.Project_Search.Replace_Preview_Row_At (S.Surface.Project_Search, Positive'Max (1, Index));
       if Row.Search_Result_Id = Editor.Project_Search.No_Project_Search_Result then
          Report_Warning (S, "No replacement selected");
          Editor.Render_Cache.Invalidate_All;
@@ -523,7 +523,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
          Report_Warning (S, "Selected replacement is excluded");
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif not Editor.Project_Search.Replace_Text_Is_Valid (S.Project_Search) then
+      elsif not Editor.Project_Search.Replace_Text_Is_Valid (S.Surface.Project_Search) then
          Report_Warning (S, "Replacement text must be single-line.");
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -541,7 +541,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
 
       if Failed then
          Editor.Project_Search.Mark_Replace_Preview_Stale_For_File
-           (S.Project_Search, To_String (Row.Relative_Path));
+           (S.Surface.Project_Search, To_String (Row.Relative_Path));
          if Length (Failure_Message) > 0 then
             Report_Warning (S, To_String (Failure_Message));
          else
@@ -549,7 +549,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
          end if;
       elsif Changed then
          Editor.Project_Search.Mark_Replace_Preview_Stale_For_File
-           (S.Project_Search, To_String (Row.Relative_Path));
+           (S.Surface.Project_Search, To_String (Row.Relative_Path));
          Report_Success (S, "Replaced selected project match");
       else
          Report_Info (S, "Selected replacement made no text change");
@@ -589,7 +589,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
          end if;
 
          for J in 1 .. Limit - 1 loop
-            Prior := Editor.Project_Search.Replace_Preview_Row_At (S.Project_Search, J);
+            Prior := Editor.Project_Search.Replace_Preview_Row_At (S.Surface.Project_Search, J);
             if Eligible_Apply_Row (Prior)
               and then To_String (Prior.Relative_Path) = Path
             then
@@ -606,23 +606,23 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       elsif Project_Search_Replace_Pending_Blocked (S) then
          Report_Project_Search_Replace_Pending_Blocked (S);
          return;
-      elsif Editor.Project_Search.Replace_Preview_Count (S.Project_Search) = 0 then
+      elsif Editor.Project_Search.Replace_Preview_Count (S.Surface.Project_Search) = 0 then
          Report_Warning (S, "No replacement preview");
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search) then
+      elsif Editor.Project_Search.Replace_Preview_Is_Stale (S.Surface.Project_Search) then
          Report_Warning (S, "Replacement preview is stale; rerun search.");
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif not Editor.Project_Search.Replace_Text_Is_Valid (S.Project_Search) then
+      elsif not Editor.Project_Search.Replace_Text_Is_Valid (S.Surface.Project_Search) then
          Report_Warning (S, "Replacement text must be single-line.");
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif Editor.Project_Search.Included_Replacement_Count (S.Project_Search) = 0 then
+      elsif Editor.Project_Search.Included_Replacement_Count (S.Surface.Project_Search) = 0 then
          Report_Info (S, "No included replacements");
          Editor.Render_Cache.Invalidate_All;
          return;
-      elsif Editor.Project_Search.Included_Replacements_Overlap (S.Project_Search) then
+      elsif Editor.Project_Search.Included_Replacements_Overlap (S.Surface.Project_Search) then
          Report_Warning (S, "Replacement preview has overlapping matches; refine search.");
          Editor.Render_Cache.Invalidate_All;
          return;
@@ -637,8 +637,8 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       -- set that existed at command start, not over a live row list whose
       -- global stale flag changes during the same command.
       ------------------------------------------------------------------
-      for I in 1 .. Editor.Project_Search.Replace_Preview_Count (S.Project_Search) loop
-         Row := Editor.Project_Search.Replace_Preview_Row_At (S.Project_Search, I);
+      for I in 1 .. Editor.Project_Search.Replace_Preview_Count (S.Surface.Project_Search) loop
+         Row := Editor.Project_Search.Replace_Preview_Row_At (S.Surface.Project_Search, I);
          if Eligible_Apply_Row (Row)
            and then not Path_Seen_Before (I, To_String (Row.Relative_Path))
          then
@@ -657,8 +657,8 @@ package body Editor.Executor.Project_Search_Replace_Commands is
          Paths : Path_Array (1 .. Candidate_Files);
          Next  : Natural := 0;
       begin
-         for I in 1 .. Editor.Project_Search.Replace_Preview_Count (S.Project_Search) loop
-            Row := Editor.Project_Search.Replace_Preview_Row_At (S.Project_Search, I);
+         for I in 1 .. Editor.Project_Search.Replace_Preview_Count (S.Surface.Project_Search) loop
+            Row := Editor.Project_Search.Replace_Preview_Row_At (S.Surface.Project_Search, I);
             if Eligible_Apply_Row (Row)
               and then not Path_Seen_Before (I, To_String (Row.Relative_Path))
             then
@@ -685,7 +685,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
                   Last_Failure_Message := File_Failure_Message;
                end if;
                Editor.Project_Search.Mark_Replace_Preview_Stale_For_File
-                 (S.Project_Search, To_String (Paths (I)));
+                 (S.Surface.Project_Search, To_String (Paths (I)));
             elsif Changed then
                Changed_Files := Changed_Files + 1;
                Total_Replaced := Total_Replaced + File_Replaced;
@@ -694,7 +694,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       end;
 
       if Changed_Files > 0 then
-         Editor.Project_Search.Mark_Replace_Preview_Stale (S.Project_Search);
+         Editor.Project_Search.Mark_Replace_Preview_Stale (S.Surface.Project_Search);
       end if;
 
       if Failed_Files > 0 and then Changed_Files > 0 then
@@ -724,7 +724,7 @@ package body Editor.Executor.Project_Search_Replace_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Project_Search.Clear_Replace_Preview (S.Project_Search);
+      Editor.Project_Search.Clear_Replace_Preview (S.Surface.Project_Search);
       Report_Info (S, "Replacement preview cleared");
       Editor.Render_Cache.Invalidate_All;
    end Execute_Project_Search_Replace_Clear_Preview;
@@ -736,15 +736,15 @@ package body Editor.Executor.Project_Search_Replace_Commands is
       Status : Editor.Project_Search.Project_Replace_Preview_Status;
    begin
       if not Had_Replace_Preview
-        or else not Editor.Project_Search.Replace_Mode_Active (S.Project_Search)
-        or else not Editor.Project_Search.Has_Query (S.Project_Search)
-        or else Editor.Project_Search.Result_Count (S.Project_Search) = 0
-        or else not Editor.Project_Search.Replace_Text_Is_Valid (S.Project_Search)
+        or else not Editor.Project_Search.Replace_Mode_Active (S.Surface.Project_Search)
+        or else not Editor.Project_Search.Has_Query (S.Surface.Project_Search)
+        or else Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0
+        or else not Editor.Project_Search.Replace_Text_Is_Valid (S.Surface.Project_Search)
       then
          return;
       end if;
 
-      Editor.Project_Search.Generate_Replace_Preview (S.Project_Search, Status);
+      Editor.Project_Search.Generate_Replace_Preview (S.Surface.Project_Search, Status);
       if Status = Editor.Project_Search.Project_Replace_Preview_Ok then
          declare
             Dirty_Count : constant Natural :=

@@ -68,9 +68,9 @@ package body Editor.Executor.File_Tree_Commands is
 
       function File_Tree_Has_Selected_Row return Boolean is
       begin
-         return Editor.File_Tree.Visible_Row_Count (S.File_Tree) > 0
+         return Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) > 0
            and then Editor.File_Tree_View.Selected_Row_Index
-             (S.File_Tree_View) /= 0;
+             (S.Surface.File_Tree_View) /= 0;
       end File_Tree_Has_Selected_Row;
 
       function Selected_File_Tree_Node
@@ -78,14 +78,14 @@ package body Editor.Executor.File_Tree_Commands is
       is
          Node_Id : constant Editor.File_Tree.File_Tree_Node_Id :=
            Editor.File_Tree_View.Node_For_Row
-             (S.File_Tree,
-              Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View),
+             (S.Surface.File_Tree,
+              Editor.File_Tree_View.Selected_Row_Index (S.Surface.File_Tree_View),
               Found);
       begin
          if not Found then
             return (others => <>);
          end if;
-         return Editor.File_Tree.Node (S.File_Tree, Node_Id);
+         return Editor.File_Tree.Node (S.Surface.File_Tree, Node_Id);
       end Selected_File_Tree_Node;
    begin
       case Id is
@@ -113,7 +113,7 @@ package body Editor.Executor.File_Tree_Commands is
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("Active file is outside the current project");
-            elsif Editor.File_Tree.Is_Empty (S.File_Tree) then
+            elsif Editor.File_Tree.Is_Empty (S.Surface.File_Tree) then
                return Editor.Commands.Availability_Metadata.Unavailable ("File Tree unavailable");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -230,7 +230,7 @@ package body Editor.Executor.File_Tree_Commands is
          when Command_File_Tree_Collapse_All =>
             if not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
-            elsif Editor.File_Tree.Is_Empty (S.File_Tree) then
+            elsif Editor.File_Tree.Is_Empty (S.Surface.File_Tree) then
                return Editor.Commands.Availability_Metadata.Unavailable ("File Tree unavailable");
             end if;
             return Editor.Commands.Availability_Metadata.Available;

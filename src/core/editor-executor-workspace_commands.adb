@@ -261,8 +261,8 @@ package body Editor.Executor.Workspace_Commands is
       Pos        : constant Editor.Cursors.Cursor_Index := Line_Start + Col;
       View_Row   : constant Natural := Natural'Min (Item.View_First_Row, Last_Row);
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => Pos,
           Anchor                => Pos,
@@ -424,10 +424,10 @@ package body Editor.Executor.Workspace_Commands is
       --  Diagnostics, Build candidates/results/output, and prompt state from
       --  the pre-restore interaction cannot survive as if they belonged to the
       --  restored session.
-      Editor.Quick_Open.Clear (S.Quick_Open);
-      Editor.Project_Search.Clear (S.Project_Search);
-      Editor.Project_Search_Bar.Clear (S.Project_Search_Bar);
-      Editor.Buffer_Switcher.Clear (S.Buffer_Switcher);
+      Editor.Quick_Open.Clear (S.Surface.Quick_Open);
+      Editor.Project_Search.Clear (S.Surface.Project_Search);
+      Editor.Project_Search_Bar.Clear (S.Surface.Project_Search_Bar);
+      Editor.Buffer_Switcher.Clear (S.Surface.Buffer_Switcher);
       Editor.Guided_Prompts.Clear (S.Guided_Prompt);
       Editor.Executor.File_Target_Prompt_Commands.Clear_File_Target_Prompt (S);
       S.Build.Build_UI := Editor.Build_UI.Empty_State;
@@ -442,21 +442,21 @@ package body Editor.Executor.Workspace_Commands is
 
       for I in 1 .. Editor.Workspace_Persistence.Expanded_File_Tree_Path_Count (Snapshot) loop
          Node_Id := Editor.File_Tree.Find_By_Path
-           (S.File_Tree,
+           (S.Surface.File_Tree,
             Editor.Workspace_Persistence.Expanded_File_Tree_Path (Snapshot, I),
             Node_Found);
          if Node_Found
-           and then Editor.File_Tree.Node (S.File_Tree, Node_Id).Kind =
+           and then Editor.File_Tree.Node (S.Surface.File_Tree, Node_Id).Kind =
              Editor.File_Tree.Directory_Node
          then
-            Editor.File_Tree.Set_Expanded (S.File_Tree, Node_Id, True);
+            Editor.File_Tree.Set_Expanded (S.Surface.File_Tree, Node_Id, True);
             Summary.Expansions_Restored := Summary.Expansions_Restored + 1;
          else
             Summary.Expansions_Skipped := Summary.Expansions_Skipped + 1;
             Partial := True;
          end if;
       end loop;
-      Editor.File_Tree.Rebuild_Visible_Rows (S.File_Tree);
+      Editor.File_Tree.Rebuild_Visible_Rows (S.Surface.File_Tree);
       Validate_File_Tree_View (S);
 
       Summary.Files_Requested :=
@@ -614,10 +614,10 @@ package body Editor.Executor.Workspace_Commands is
       end;
 
       Editor.Quick_Open.Set_Path_Scope
-        (S.Quick_Open,
+        (S.Surface.Quick_Open,
          Editor.Workspace_Persistence.Quick_Open_Path_Scope (Snapshot));
       Editor.Quick_Open.Set_File_Kind_Filter
-        (S.Quick_Open,
+        (S.Surface.Quick_Open,
          Restored_Quick_Open_Filter
            (Editor.Workspace_Persistence.Quick_Open_File_Kind_Filter (Snapshot)));
       if not Editor.Feature_Panel.Set_Active_Feature

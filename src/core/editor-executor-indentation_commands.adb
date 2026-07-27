@@ -18,10 +18,10 @@ package body Editor.Executor.Indentation_Commands is
    function Safe_Caret
      (S : Editor.State.State_Type) return Cursor_Index is
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return 0;
       else
-         return S.Carets.Element (S.Carets.First_Index).Pos;
+         return S.Caret.Carets.Element (S.Caret.Carets.First_Index).Pos;
       end if;
    end Safe_Caret;
 
@@ -67,8 +67,8 @@ package body Editor.Executor.Indentation_Commands is
       Line_Len := Line_Length (S, Safe_Row);
       Pos := Cursor_Index
         (Index_For_Line_Column (S, Safe_Row, Natural'Min (Column, Line_Len)));
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => Pos,
          Anchor => Pos,
          Virtual_Column => 0,
@@ -152,7 +152,7 @@ package body Editor.Executor.Indentation_Commands is
          Status := No_Active_Buffer;
          New_Caret := Safe_Caret (S);
          return;
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -209,7 +209,7 @@ package body Editor.Executor.Indentation_Commands is
          Status := No_Active_Buffer;
          New_Caret := Safe_Caret (S);
          return;
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -368,7 +368,7 @@ package body Editor.Executor.Indentation_Commands is
          Status := No_Active_Buffer;
          New_Caret := Safe_Caret (S);
          return;
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -437,7 +437,7 @@ package body Editor.Executor.Indentation_Commands is
          Status := No_Active_Buffer;
          New_Caret := Safe_Caret (S);
          return;
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -503,7 +503,7 @@ package body Editor.Executor.Indentation_Commands is
          New_Caret := Safe_Caret (S);
          Forward_Cmd.Kind := Apply_Replace_Batch;
          return;
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          Changed := False;
          Status := No_Caret_Location;
          New_Caret := 0;

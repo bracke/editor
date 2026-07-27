@@ -46,16 +46,16 @@ package body Editor.Input_Bridge.Goto_Line_Key_Handlers is
             Cmd.Kind := Editor.Command_Kinds.Goto_Line_Delete_Forward;
             Execute_Command (Cmd);
          when Editor.Keybindings.Key_Left =>
-            Editor.Go_To_Line.Move_Cursor_Left (S.Go_To_Line);
+            Editor.Go_To_Line.Move_Cursor_Left (S.Surface.Go_To_Line);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_Right =>
-            Editor.Go_To_Line.Move_Cursor_Right (S.Go_To_Line);
+            Editor.Go_To_Line.Move_Cursor_Right (S.Surface.Go_To_Line);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_Home =>
-            Editor.Go_To_Line.Move_Cursor_Start (S.Go_To_Line);
+            Editor.Go_To_Line.Move_Cursor_Start (S.Surface.Go_To_Line);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_End =>
-            Editor.Go_To_Line.Move_Cursor_End (S.Go_To_Line);
+            Editor.Go_To_Line.Move_Cursor_End (S.Surface.Go_To_Line);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_V =>
             if Chord.Modifiers.Ctrl then

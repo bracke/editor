@@ -96,13 +96,13 @@ package body Editor.Buffer_Switcher.Surface_Projection is
       G : constant Editor.Layout.Rect :=
         Editor.Buffer_Switcher.Geometry (Message_Body, Config, Cell_W, Cell_H);
       Result : Buffer_Switcher_Render_Projection;
-      Count : constant Natural := Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher);
+      Count : constant Natural := Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher);
       Q_Snap : constant Editor.Input_Field.Field_Snapshot :=
-        Editor.Buffer_Switcher.Query_Snapshot (S.Buffer_Switcher,
+        Editor.Buffer_Switcher.Query_Snapshot (S.Surface.Buffer_Switcher,
           (if G.Width / Cell_W > 2 then G.Width / Cell_W - 2 else 1));
       Header_Badge_Text : constant String :=
         Editor.Buffer_Switcher.Header_Badge_Text
-          (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI);
+          (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI);
       Header_Text : constant String :=
         (if Header_Badge_Text'Length > 0
          then "Open Buffers - " & Header_Badge_Text
@@ -110,7 +110,7 @@ package body Editor.Buffer_Switcher.Surface_Projection is
       Hint_Text : constant String :=
         Editor.Buffer_Switcher_Contextual_Hints.Contextual_Hint_Text (S);
       Preview_Target : constant Editor.Buffers.Buffer_Id :=
-        Editor.Buffer_Switcher.Preview_Target (S.Buffer_Switcher);
+        Editor.Buffer_Switcher.Preview_Target (S.Surface.Buffer_Switcher);
       Registry : constant Editor.Buffers.Buffer_Registry :=
         Editor.Buffers.Global_Registry_For_UI;
       First_Line : Natural := 1;
@@ -121,7 +121,7 @@ package body Editor.Buffer_Switcher.Surface_Projection is
       Row_Height : constant Natural :=
         Config.Max_Visible_Results * Config.Row_Height_In_Rows * Cell_H;
    begin
-      Result.Visible := Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher)
+      Result.Visible := Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher)
         and then G.Width > 0
         and then Viewport_Width > 0
         and then Viewport_Height > 0;
@@ -143,12 +143,12 @@ package body Editor.Buffer_Switcher.Surface_Projection is
       for Row in 1 .. Config.Max_Visible_Results loop
          declare
             Index : constant Natural :=
-              Editor.Buffer_Switcher.Top_Row_Index (S.Buffer_Switcher) + Row - 1;
+              Editor.Buffer_Switcher.Top_Row_Index (S.Surface.Buffer_Switcher) + Row - 1;
          begin
             exit when Index > Count;
             declare
                R : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
-                 Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, Index);
+                 Editor.Buffer_Switcher.Row_At (S.Surface.Buffer_Switcher, Index);
                Markers : constant String := Editor.Buffer_Switcher.Buffer_Row_State_Markers (R);
                Marker_Text : constant String :=
                  (if Markers'Length = 0 then "" else "[" & Markers & "]");
@@ -176,7 +176,7 @@ package body Editor.Buffer_Switcher.Surface_Projection is
                         then To_Unbounded_String (Detail_Text)
                         else Null_Unbounded_String),
                      Shortcut         => Null_Unbounded_String,
-                     Selected         => Index = Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher),
+                     Selected         => Index = Editor.Buffer_Switcher.Selected_Row_Index (S.Surface.Buffer_Switcher),
                      Enabled          => True,
                      Label_Color      => Guikit.Draw.Text_Color,
                      Has_Background   => False,
@@ -188,7 +188,7 @@ package body Editor.Buffer_Switcher.Surface_Projection is
       end loop;
       Result.Rows := Rows;
 
-      if Editor.Buffer_Switcher.Has_Preview (S.Buffer_Switcher) then
+      if Editor.Buffer_Switcher.Has_Preview (S.Surface.Buffer_Switcher) then
          if Preview_Target /= Editor.Buffers.No_Buffer
            and then Editor.Buffers.Contains (Registry, Preview_Target)
          then
@@ -209,8 +209,8 @@ package body Editor.Buffer_Switcher.Surface_Projection is
             else
                Total_Lines := Line_Count_Of (To_String (Text));
                First_Line :=
-                 Editor.Buffer_Switcher.Preview_Anchor_Line (S.Buffer_Switcher)
-                 + Editor.Buffer_Switcher.Preview_Scroll_Offset (S.Buffer_Switcher);
+                 Editor.Buffer_Switcher.Preview_Anchor_Line (S.Surface.Buffer_Switcher)
+                 + Editor.Buffer_Switcher.Preview_Scroll_Offset (S.Surface.Buffer_Switcher);
                if First_Line = 0 then
                   First_Line := 1;
                elsif First_Line > Total_Lines then

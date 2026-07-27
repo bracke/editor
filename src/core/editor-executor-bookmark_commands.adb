@@ -194,14 +194,14 @@ package body Editor.Executor.Bookmark_Commands is
          Visible_Target_Row := Row;
       end if;
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => Target_Index,
           Anchor                => Target_Index,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Preferred_Column := 0;
+      S.Caret.Preferred_Column := 0;
       S.Panel.Active_Diagnostic := (Has_Active => False, Index => Editor.Diagnostics.No_Diagnostic);
 
       Viewport_Rows := Natural'Max
@@ -518,14 +518,14 @@ package body Editor.Executor.Bookmark_Commands is
       Target_Col := Natural'Min (Target_Col, Editor.Navigation.Line_Length (S, Target_Row));
       Editor.Folding.Expand_To_Reveal_Row (S.Folding, Target_Row);
       Target_Index := Editor.Cursors.Cursor_Index (Index_For_Line_Column (S, Target_Row, Target_Col));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => Target_Index,
           Anchor                => Target_Index,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Preferred_Column := Target_Col;
+      S.Caret.Preferred_Column := Target_Col;
 
       Record_Navigation_If_Target_Changed
         (S, Before_Location,

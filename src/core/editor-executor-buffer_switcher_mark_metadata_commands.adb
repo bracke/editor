@@ -51,14 +51,14 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
    begin
       return Editor.Overlay_Focus.Is_Active
         (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
-        and then Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher);
+        and then Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher);
    end Active_Buffer_Switcher_Overlay;
 
    function Has_Marked_Open_Buffers
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return Editor.Buffer_Switcher.Has_Marks (S.Buffer_Switcher)
+      return Editor.Buffer_Switcher.Has_Marks (S.Surface.Buffer_Switcher)
         and then Marked_Open_Count (S) > 0;
    end Has_Marked_Open_Buffers;
 
@@ -78,7 +78,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
          declare
             Id : constant Editor.Buffers.Buffer_Id := Editor.Buffers.Summary_At (Registry, I).Id;
          begin
-            if Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, Id) then
+            if Editor.Buffer_Switcher.Is_Marked (S.Surface.Buffer_Switcher, Id) then
                Seen := Seen + 1;
                if Seen = Index then
                   return Id;
@@ -123,7 +123,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
             Summary : constant Editor.Buffers.Buffer_Summary := Editor.Buffers.Global_Summary_At (I);
          begin
             if Summary.Is_Pinned then
-               Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Summary.Id);
+               Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, Summary.Id);
                Count := Count + 1;
             end if;
          end;
@@ -158,7 +158,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
             if Summary.Has_Group then
                Has_Groups := True;
                if To_String (Summary.Group_Name) = Group then
-                  Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Summary.Id);
+                  Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, Summary.Id);
                   Count := Count + 1;
                end if;
             end if;
@@ -196,7 +196,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
             if Summary.Has_Label then
                Has_Labels := True;
                if To_String (Summary.Label_Text) = Text then
-                  Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Summary.Id);
+                  Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, Summary.Id);
                   Count := Count + 1;
                end if;
             end if;
@@ -225,7 +225,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
             Summary : constant Editor.Buffers.Buffer_Summary := Editor.Buffers.Global_Summary_At (I);
          begin
             if Summary.Has_Note then
-               Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Summary.Id);
+               Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, Summary.Id);
                Count := Count + 1;
             end if;
          end;
@@ -331,7 +331,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
                Editor.Buffers.Global_Assign_Buffer_Group (Targets (I), Group);
                Applied := Applied + 1;
             else
-               Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Targets (I));
+               Editor.Buffer_Switcher.Clear_Mark (S.Surface.Buffer_Switcher, Targets (I));
             end if;
          end loop;
       end;
@@ -366,7 +366,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
                Editor.Buffers.Global_Clear_Buffer_Group (Targets (I));
                Applied := Applied + 1;
             else
-               Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Targets (I));
+               Editor.Buffer_Switcher.Clear_Mark (S.Surface.Buffer_Switcher, Targets (I));
             end if;
          end loop;
       end;
@@ -414,7 +414,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
                end if;
                Applied := Applied + 1;
             else
-               Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Targets (I));
+               Editor.Buffer_Switcher.Clear_Mark (S.Surface.Buffer_Switcher, Targets (I));
             end if;
          end loop;
       end;
@@ -453,7 +453,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
                Editor.Buffers.Global_Clear_Buffer_Label (Targets (I));
                Applied := Applied + 1;
             else
-               Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Targets (I));
+               Editor.Buffer_Switcher.Clear_Mark (S.Surface.Buffer_Switcher, Targets (I));
             end if;
          end loop;
       end;
@@ -498,7 +498,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
                end if;
                Applied := Applied + 1;
             else
-               Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Targets (I));
+               Editor.Buffer_Switcher.Clear_Mark (S.Surface.Buffer_Switcher, Targets (I));
             end if;
          end loop;
       end;
@@ -537,7 +537,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Metadata_Commands is
                Editor.Buffers.Global_Clear_Buffer_Note (Targets (I));
                Applied := Applied + 1;
             else
-               Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Targets (I));
+               Editor.Buffer_Switcher.Clear_Mark (S.Surface.Buffer_Switcher, Targets (I));
             end if;
          end loop;
       end;

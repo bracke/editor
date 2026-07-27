@@ -50,7 +50,7 @@ package body Editor.Input_Bridge.Gutter_Pointer_Handlers is
          Target_Row           => Target_Row,
          New_Caret            => New_Caret,
          New_Preferred_Column => New_Preferred_Column);
-      S.Preferred_Column := New_Preferred_Column;
+      S.Caret.Preferred_Column := New_Preferred_Column;
       Editor.Render_Cache.Invalidate_All;
    end Select_Gutter_Line_Range;
 

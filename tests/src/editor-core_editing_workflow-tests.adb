@@ -154,8 +154,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Assert (R.Selection_State_Coherent, "selection remains in bounds after selection");
       Assert (R.Coherent, "selected editing state remains coherent");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos => Editor.Cursors.Cursor_Index (Text_Buffer.Length (S.Buffer) + 1),
             Anchor => 0,
@@ -286,7 +286,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       S : Editor.State.State_Type;
    begin
       Editor.State.Initialize (S);
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
 
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
@@ -375,7 +375,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Assert (R.Coherent,
               "dirty but review-guarded active buffer remains workflow-coherent");
 
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason
            (S, Editor.Command_Ids.Command_Close_Active_Buffer) = "No active buffer.",
@@ -625,11 +625,11 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.State.Load_Text (S, "abcd" & ASCII.LF & "xy" & ASCII.LF & "12345");
       Before_Text_Length := Text_Buffer.Length (S.Buffer);
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      S.Carets.Append
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos => 2, Anchor => 2, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
@@ -638,11 +638,11 @@ package body Editor.Core_Editing_Workflow.Tests is
          Anchor => (Row => 0, Column => 1),
          Cursor => (Row => 2, Column => 4));
 
-      Assert (S.Rect_Select_Active,
+      Assert (S.Caret.Rect_Select_Active,
               "set rectangle must activate rectangular selection");
-      Assert (S.Rect_Anchor_Row = 0 and then S.Rect_Anchor_Col = 1,
+      Assert (S.Caret.Rect_Anchor_Row = 0 and then S.Caret.Rect_Anchor_Col = 1,
               "set rectangle must preserve the anchor");
-      Assert (S.Carets.Length = 3,
+      Assert (S.Caret.Carets.Length = 3,
               "set rectangle must project one caret/span per row");
       Assert (Text_Buffer.Length (S.Buffer) = Before_Text_Length,
               "rectangular selection must not mutate text");
@@ -665,13 +665,13 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Editor.Executor.Selection_Commands.Execute_Clear_Rectangular_Selection (S);
 
-      Assert (not S.Rect_Select_Active,
+      Assert (not S.Caret.Rect_Select_Active,
               "clear rectangle must leave rectangular mode");
-      Assert (S.Carets.Length = 1,
+      Assert (S.Caret.Carets.Length = 1,
               "clear rectangle must collapse to one primary caret");
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor =
-         S.Carets (S.Carets.First_Index).Pos,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor =
+         S.Caret.Carets (S.Caret.Carets.First_Index).Pos,
          "clear rectangle must collapse selection");
    end Test_Executor_Clear_Rectangular_Selection;
 
@@ -685,8 +685,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "ab");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 1,
             Anchor                => 1,
@@ -705,9 +705,9 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Assert (Buffer_Text (S) = "a" & ASCII.LF & "b",
               "newline insertion must preserve surrounding text");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 2,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 2,
               "caret must advance after newline insertion");
-      Assert (S.Carets (S.Carets.First_Index).Anchor = 2,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 2,
               "selection must be cleared after insertion");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty, "successful insertion must dirty buffer");
    end Test_Insert_Newline_Dirty_And_Cursor;
@@ -721,8 +721,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "abcdef");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 5,
             Anchor                => 2,
@@ -741,9 +741,9 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Assert (Buffer_Text (S) = "abXf",
               "typing over selection must replace selected text");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 3,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 3,
               "caret must land after replacement text");
-      Assert (S.Carets (S.Carets.First_Index).Anchor = 3,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 3,
               "selection must clear after replacement");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty, "selection replacement must dirty buffer");
    end Test_Insert_Replaces_Selection;
@@ -759,8 +759,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Set_Buffer_Text (S, "abc");
       Revision_0 := Editor.State.Current_Buffer_Revision (S);
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 0,
             Anchor                => 0,
@@ -783,7 +783,7 @@ package body Editor.Core_Editing_Workflow.Tests is
               "backspace no-op must not dirty clean buffer");
       Assert (Editor.State.Current_Buffer_Revision (S) = Revision_0,
               "backspace no-op must not bump buffer revision");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 0,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 0,
               "caret must remain valid after no-op backspace");
    end Test_Backspace_At_Buffer_Start_Is_No_Op;
 
@@ -796,8 +796,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 11,
             Anchor                => 2,
@@ -811,9 +811,9 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Assert (Buffer_Text (S) = "onX" & ASCII.LF & "Yee",
               "single-selection paste must replace the selected multiline range");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 5,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 5,
               "caret must land after pasted multiline replacement text");
-      Assert (S.Carets (S.Carets.First_Index).Anchor = 5,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 5,
               "selection must clear after paste replacement");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "pasting over a selection must dirty the buffer");
@@ -830,8 +830,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Set_Buffer_Text (S, "abcdef");
       Revision_0 := Editor.State.Current_Buffer_Revision (S);
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 5,
             Anchor                => 2,
@@ -845,9 +845,9 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Assert (Buffer_Text (S) = "abcdef",
               "empty paste must not mutate buffer content");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 5,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 5,
               "empty paste must preserve caret position");
-      Assert (S.Carets (S.Carets.First_Index).Anchor = 2,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 2,
               "empty paste must preserve the existing selection");
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "empty paste must not dirty a clean buffer");
@@ -878,9 +878,9 @@ package body Editor.Core_Editing_Workflow.Tests is
               & "C" & ASCII.LF
               & "D",
               "paste must normalize CRLF, lone CR, and LF to LF");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 7,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 7,
               "caret must land after normalized pasted text");
-      Assert (S.Carets (S.Carets.First_Index).Anchor = 7,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 7,
               "selection must remain clear after normalized paste");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "normalized paste with content must dirty the buffer");
@@ -895,8 +895,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "abcdef");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 4,
             Anchor                => 2,
@@ -910,9 +910,9 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Assert (Buffer_Text (S) = "abX" & ASCII.LF & "Y" & ASCII.LF & "ef",
               "paste with trailing newline must preserve the trailing empty line boundary");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 6,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 6,
               "caret must land after pasted trailing newline");
-      Assert (S.Carets (S.Carets.First_Index).Anchor = 6,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 6,
               "selection must clear after trailing-newline replacement paste");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "trailing-newline paste replacement must dirty the buffer");
@@ -929,8 +929,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Set_Buffer_Text (S, "abc");
       Revision_0 := Editor.State.Current_Buffer_Revision (S);
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 1,
             Anchor                => 1,
@@ -944,9 +944,9 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Assert (Buffer_Text (S) = "abc",
               "empty paste must preserve buffer content");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 1,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 1,
               "empty paste must preserve caret");
-      Assert (S.Carets (S.Carets.First_Index).Anchor = 1,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 1,
               "empty paste must preserve selection state");
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
               "empty paste must not dirty the buffer");
@@ -1040,8 +1040,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Text_Buffer.Insert (S.Buffer, 1, Character'Val (Character'Pos ('b')));
       Text_Buffer.Insert (S.Buffer, 2, Character'Val (Character'Pos ('c')));
 
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 2,
          Anchor => 2,
          Virtual_Column => 0,
@@ -1067,10 +1067,10 @@ package body Editor.Core_Editing_Workflow.Tests is
         (Text_Buffer.Element (S.Buffer, 2) = 'c',
          "Backspace delete second char failed");
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 1,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 1,
          "Backspace delete caret failed");
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = 1,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 1,
          "Backspace delete anchor failed");
    end Test_Backspace_Delete;
 
@@ -1087,8 +1087,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Text_Buffer.Insert (S.Buffer, 1, Character'Val (Character'Pos ('b')));
       Text_Buffer.Insert (S.Buffer, 2, Character'Val (Character'Pos ('c')));
 
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 1,
          Anchor => 1,
          Virtual_Column => 0,
@@ -1114,10 +1114,10 @@ package body Editor.Core_Editing_Workflow.Tests is
         (Text_Buffer.Element (S.Buffer, 2) = 'c',
          "Forward delete second char failed");
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 1,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 1,
          "Forward delete caret failed");
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = 1,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 1,
          "Forward delete anchor failed");
    end Test_Forward_Delete;
 
@@ -1138,8 +1138,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Text_Buffer.Insert (S.Buffer, 5, Character'Val (Character'Pos ('e')));
       Text_Buffer.Insert (S.Buffer, 6, Character'Val (Character'Pos ('f')));
 
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 4,
          Anchor => 4,
          Virtual_Column => 0,
@@ -1171,10 +1171,10 @@ package body Editor.Core_Editing_Workflow.Tests is
         (Text_Buffer.Element (S.Buffer, 4) = 'd',
          "Backspace newline fourth char failed");
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 3,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 3,
          "Backspace newline caret failed");
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = 3,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 3,
          "Backspace newline anchor failed");
    end Test_Backspace_Delete_Newline;
 
@@ -1195,8 +1195,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Text_Buffer.Insert (S.Buffer, 5, Character'Val (Character'Pos ('e')));
       Text_Buffer.Insert (S.Buffer, 6, Character'Val (Character'Pos ('f')));
 
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 3,
          Anchor => 3,
          Virtual_Column => 0,
@@ -1228,10 +1228,10 @@ package body Editor.Core_Editing_Workflow.Tests is
         (Text_Buffer.Element (S.Buffer, 4) = 'd',
          "Forward delete newline fourth char failed");
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 3,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 3,
          "Forward delete newline caret failed");
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = 3,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 3,
          "Forward delete newline anchor failed");
    end Test_Forward_Delete_Newline;
 
@@ -1264,14 +1264,14 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Editor.State.Rebuild_After_Buffer_Change (S);
 
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 5,
          Anchor => 5,
          Virtual_Column => 0,
          Anchor_Virtual_Column => 0
       ));  --  column 5 on first line
-      S.Preferred_Column := 5;
+      S.Caret.Preferred_Column := 5;
 
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
@@ -1282,13 +1282,13 @@ package body Editor.Core_Editing_Workflow.Tests is
       Cmd.Kind := Editor.Command_Kinds.Move_Down;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 9,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 9,
          "Move_Down should clamp to end of short middle line");
 
       Cmd.Kind := Editor.Command_Kinds.Move_Down;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 15,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 15,
          "Second Move_Down should restore preferred column on longer line");
    end Test_Preferred_Column_Up_Down;
 
@@ -1311,14 +1311,14 @@ package body Editor.Core_Editing_Workflow.Tests is
       Text_Buffer.Insert (S.Buffer, 6, Character'Val (Character'Pos ('f')));
       Editor.State.Rebuild_After_Buffer_Change (S);
 
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 6,
          Anchor => 6,
          Virtual_Column => 0,
          Anchor_Virtual_Column => 0
       ));
-      S.Preferred_Column := 2;
+      S.Caret.Preferred_Column := 2;
 
       Cmd.Ch := ASCII.NUL;
       Cmd.Text := To_Unbounded_String (String'(1 => ASCII.NUL));
@@ -1329,13 +1329,13 @@ package body Editor.Core_Editing_Workflow.Tests is
       Cmd.Kind := Editor.Command_Kinds.Move_Home;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 4,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 4,
          "Home must move to start of current line");
 
       Cmd.Kind := Editor.Command_Kinds.Move_End;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 7,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 7,
          "End must move to end of current line");
    end Test_Home_End;
 
@@ -1359,34 +1359,34 @@ package body Editor.Core_Editing_Workflow.Tests is
       Cmd.Kind := Editor.Command_Kinds.Move_Word_Right;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 7,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 7,
          "word-right from word start must land at next word start");
 
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 11,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 11,
          "word-right from word start must stop at the following boundary");
 
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          Caret_State'
            (Pos => 11, Anchor => 11, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Cmd.Kind := Editor.Command_Kinds.Move_Word_Left;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 7,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 7,
          "word-left from word end must stop at word start");
 
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          Caret_State'
            (Pos => 14, Anchor => 14, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Cmd.Kind := Editor.Command_Kinds.Move_Word_Left;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 11,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 11,
          "word-left must treat symbol runs separately from words");
    end Test_Word_Navigation;
 
@@ -1410,10 +1410,10 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = 0,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 0,
          "shift-word-right must keep the original anchor");
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 6,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 6,
          "shift-word-right must move caret to next word start");
    end Test_Shift_Word_Right_Selects;
 
@@ -1427,8 +1427,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
 
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          Caret_State'
            (Pos => 3, Anchor => 3, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
@@ -1441,13 +1441,13 @@ package body Editor.Core_Editing_Workflow.Tests is
       Cmd.Kind := Editor.Command_Kinds.Move_Document_End;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 7,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 7,
          "document-end must move to buffer end");
 
       Cmd.Kind := Editor.Command_Kinds.Move_Document_Start;
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 0,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 0,
          "document-start must move to buffer start");
    end Test_Document_Start_End;
 
@@ -1481,7 +1481,7 @@ package body Editor.Core_Editing_Workflow.Tests is
 
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 4,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 4,
          "page-down must move by visible row count minus one");
    end Test_Page_Down_Uses_Visible_Row_Count;
 
@@ -1510,8 +1510,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = 0
-         and then S.Carets (S.Carets.First_Index).Pos = 5,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 0
+         and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 5,
          "double-click inside a word must select the complete word run");
 
       X := Editor.Layout.Text_Origin_X (Layout, Editor.State.Line_Count (S))
@@ -1520,8 +1520,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor =
-         S.Carets (S.Carets.First_Index).Pos,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor =
+         S.Caret.Carets (S.Caret.Carets.First_Index).Pos,
          "double-click whitespace must place a caret without creating a selection");
    end Test_Select_Word_And_Whitespace_At_Point;
 
@@ -1548,10 +1548,10 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = 4,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 4,
          "triple-click line selection must anchor at logical line start");
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 8,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 8,
          "triple-click last-line selection must end at the line length");
    end Test_Select_Line_At_Point;
 
@@ -1582,7 +1582,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 0,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 0,
          "mouse hit before text origin must clamp to column zero");
    end Test_Mouse_Hit_Before_Text_Origin_Clamps_To_Column_Zero;
 
@@ -1613,13 +1613,13 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = 1,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 1,
          "drag selection must preserve the mouse-down anchor");
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 4,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 4,
          "drag selection must update the caret to the drag point");
       Assert
-        (not S.Rect_Select_Active,
+        (not S.Caret.Rect_Select_Active,
          "normal drag must not enable rectangle selection");
    end Test_Drag_Creates_Normal_Selection;
 
@@ -1651,10 +1651,10 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 4,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 4,
          "gutter click on second row must move caret to that line start");
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = 4,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 4,
          "gutter click without shift must collapse selection at line start");
    end Test_Gutter_Click_Moves_To_Line_Start;
 
@@ -1687,10 +1687,10 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
-        (S.Carets (S.Carets.First_Index).Anchor = 0,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 0,
          "select-page-down must keep the original anchor");
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 2,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 2,
          "select-page-down must move by visible rows minus one");
    end Test_Shift_Page_Down_Extends_Selection;
 
@@ -1704,11 +1704,11 @@ package body Editor.Core_Editing_Workflow.Tests is
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "alpha beta gamma");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      S.Carets.Append
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos => 6, Anchor => 6, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
@@ -1722,13 +1722,13 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
-        (S.Carets.Length = 2,
+        (S.Caret.Carets.Length = 2,
          "shift-word-right must preserve both carets");
       Assert
-        (S.Carets (0).Anchor = 0 and then S.Carets (0).Pos = 6,
+        (S.Caret.Carets (0).Anchor = 0 and then S.Caret.Carets (0).Pos = 6,
          "first caret must extend to the next word start");
       Assert
-        (S.Carets (1).Anchor = 6 and then S.Carets (1).Pos = 11,
+        (S.Caret.Carets (1).Anchor = 6 and then S.Caret.Carets (1).Pos = 11,
          "second caret must extend to the next word start");
    end Test_Multi_Caret_Shift_Word_Right_Selects_All;
 
@@ -1743,11 +1743,11 @@ package body Editor.Core_Editing_Workflow.Tests is
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "abcdef");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      S.Carets.Append
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos => 3, Anchor => 3, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
@@ -1761,13 +1761,13 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
-        (S.Carets.Length = 2,
+        (S.Caret.Carets.Length = 2,
          "move-right must preserve non-overlapping multi-carets");
       Assert
-        (S.Carets (0).Pos = 1 and then S.Carets (0).Anchor = 1,
+        (S.Caret.Carets (0).Pos = 1 and then S.Caret.Carets (0).Anchor = 1,
          "first caret must move right and collapse its anchor");
       Assert
-        (S.Carets (1).Pos = 4 and then S.Carets (1).Anchor = 4,
+        (S.Caret.Carets (1).Pos = 4 and then S.Caret.Carets (1).Anchor = 4,
          "second caret must move right and collapse its anchor");
    end Test_Multi_Caret_Move_Right_Applies_To_All;
 
@@ -1781,11 +1781,11 @@ package body Editor.Core_Editing_Workflow.Tests is
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "abcdef");
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      S.Carets.Append
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos => 3, Anchor => 3, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
@@ -1799,13 +1799,13 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.Executor.Execute_No_Log (S, Cmd);
 
       Assert
-        (S.Carets.Length = 2,
+        (S.Caret.Carets.Length = 2,
          "select-right must preserve non-overlapping multi-carets");
       Assert
-        (S.Carets (0).Anchor = 0 and then S.Carets (0).Pos = 1,
+        (S.Caret.Carets (0).Anchor = 0 and then S.Caret.Carets (0).Pos = 1,
          "first caret must preserve anchor and extend right");
       Assert
-        (S.Carets (1).Anchor = 3 and then S.Carets (1).Pos = 4,
+        (S.Caret.Carets (1).Anchor = 3 and then S.Caret.Carets (1).Pos = 4,
          "second caret must preserve anchor and extend right");
    end Test_Select_Right_Extends_All_Carets;
 
@@ -1821,8 +1821,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Editor.State.Load_Text (S, Before);
       Editor.State.Reset_Dirty_Line_Baseline (S);
 
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          Caret_State'
            (Pos => 1, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
@@ -1873,8 +1873,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Cmd.Click_Y := 0;
 
       --  Backspace joins lines from start of second line
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 4,
          Anchor => 4,
          Virtual_Column => 0,
@@ -1899,8 +1899,8 @@ package body Editor.Core_Editing_Workflow.Tests is
       Text_Buffer.Insert (S.Buffer, 6, Character'Val (Character'Pos ('f')));
 
       --  Delete joins lines from end of first line
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => 3,
          Anchor => 3,
          Virtual_Column => 0,

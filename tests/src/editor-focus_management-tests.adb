@@ -190,7 +190,7 @@ package body Editor.Focus_Management.Tests is
       pragma Unreferenced (T);
       S : Editor.State.State_Type;
    begin
-      Editor.Project_Search_Bar.Focus_Replace_Field (S.Project_Search_Bar);
+      Editor.Project_Search_Bar.Focus_Replace_Field (S.Surface.Project_Search_Bar);
       Editor.Overlay_Focus.Activate
         (S.Panel.Overlay_Focus,
          Editor.Overlay_Focus.Project_Search_Bar_Overlay,

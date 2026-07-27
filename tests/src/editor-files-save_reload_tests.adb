@@ -174,11 +174,11 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Buffer_Text (S)'Length, '!'));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 3, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Before_Generation := S.Buffer_Lifecycle.File_Info.Saved_Generation;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
       Write_Bytes (Path, "disk-two");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
@@ -189,9 +189,9 @@ package body Editor.Files.Save_Reload_Tests is
         "dirty reload should preserve the dirty marker");
       Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Generation,
         "blocked dirty reload should not update baseline generation");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "blocked dirty reload should preserve cursor and selection");
       Remove_If_Exists (Path);
    end Test_Dirty_Reload_Is_Blocked_And_Preserves_State;
@@ -861,7 +861,7 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Executor.File_Open_Commands.Execute_New_Buffer (S);
       Insert_Text_At (S, 0, "save as derived state");
 
-      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+      Assert (not Editor.Project_Search.Is_Stale (S.Surface.Project_Search),
         "save-as test starts with non-stale project search state");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Target);
@@ -870,8 +870,8 @@ package body Editor.Files.Save_Reload_Tests is
         "save-as still writes the explicit target");
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "successful save-as still clears dirty state");
-      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search)
-        and then not Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search),
+      Assert (not Editor.Project_Search.Is_Stale (S.Surface.Project_Search)
+        and then not Editor.Project_Search.Replace_Preview_Is_Stale (S.Surface.Project_Search),
         "successful save-as keeps search and replace-preview live when no query is active");
       Editor.Buffers.Reset_Global_For_Test;
       Remove_If_Exists (Target);
@@ -1049,15 +1049,15 @@ package body Editor.Files.Save_Reload_Tests is
 
       Editor.Buffers.Global_Set_Active_Buffer (Active_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+      Assert (not Editor.Project_Search.Is_Stale (S.Surface.Project_Search),
         "save-all test starts with restored active buffer search state not stale");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_All);
 
       Assert (Editor.Buffers.Global_Active_Buffer = Active_Id,
         "save-all should restore the original active buffer after saving inactive buffers");
-      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search)
-        and then not Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search),
+      Assert (not Editor.Project_Search.Is_Stale (S.Surface.Project_Search)
+        and then not Editor.Project_Search.Replace_Preview_Is_Stale (S.Surface.Project_Search),
         "save-all should keep search and replace-preview live after restoring the original active buffer when no query is active");
       Assert (Read_Bytes (Saved_Path) = "inactive clean dirty",
         "save-all still writes the inactive dirty file-backed buffer");
@@ -1565,8 +1565,8 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 3,
           Anchor                => 1,
           Virtual_Column        => 0,
@@ -1578,15 +1578,15 @@ package body Editor.Files.Save_Reload_Tests is
       Editor.Folding.Add_Fold (S.Folding, 0, 1);
       Editor.View.Set_Scroll (4, 2);
       S.Buffer_Lifecycle.File_Info.Dirty := True;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
       Before_Scroll_X := Editor.View.Scroll_X;
       Before_Scroll_Y := Editor.View.Scroll_Y;
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Path);
 
-      Assert (S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "Save As should not reset caret or selection state");
       Assert (Editor.View.Scroll_X = Before_Scroll_X
         and then Editor.View.Scroll_Y = Before_Scroll_Y,
@@ -1660,8 +1660,8 @@ package body Editor.Files.Save_Reload_Tests is
       Ada.Directories.Create_Directory (Dir_Path);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Before_Text);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 4,
           Anchor                => 1,
           Virtual_Column        => 0,
@@ -1670,7 +1670,7 @@ package body Editor.Files.Save_Reload_Tests is
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Dir_Path);
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("failed_save.adb");
       S.Buffer_Lifecycle.File_Info.Dirty := True;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
 
@@ -1678,9 +1678,9 @@ package body Editor.Files.Save_Reload_Tests is
         "Failed save should preserve buffer content");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "Failed save should preserve dirty state");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "Failed save should preserve cursor and selection");
       Assert (Editor.Messages.Count (S.Panel.Messages) = 1,
         "Failed save should emit one primary visible message");
@@ -1779,8 +1779,8 @@ package body Editor.Files.Save_Reload_Tests is
       Ada.Directories.Create_Directory (Dir_Path);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Before_Text);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 5,
           Anchor                => 2,
           Virtual_Column        => 0,
@@ -1792,7 +1792,7 @@ package body Editor.Files.Save_Reload_Tests is
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       S.Buffer_Lifecycle.File_Info.Baseline_Valid := True;
       S.Buffer_Lifecycle.File_Info.Saved_Generation := 42;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
       Before_Saved := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_X := Editor.View.Scroll_X;
       Before_Y := Editor.View.Scroll_Y;
@@ -1805,9 +1805,9 @@ package body Editor.Files.Save_Reload_Tests is
         "Directory-target failed save should preserve dirty state");
       Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Saved,
         "Directory-target failed save should preserve saved generation");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "Directory-target failed save should preserve cursor and selection");
       Assert (Editor.View.Scroll_X = Before_X and then Editor.View.Scroll_Y = Before_Y,
         "Directory-target failed save should preserve viewport");

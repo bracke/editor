@@ -85,20 +85,20 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Navigation_History.Clear (S.Navigation_History);
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
-      Assert (Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher),
+      Assert (Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher),
               "switcher open command must open switcher state");
       Assert (Editor.Overlay_Focus.Is_Active
                 (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay),
               "switcher open command must own overlay focus");
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Insert_Text (S, "beta");
-      Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 1,
+      Assert (Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 1,
               "switcher filter should narrow to matching open buffer only");
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Accept_Buffer_Switcher (S);
 
       Assert (Editor.Buffers.Global_Active_Buffer = B_Id,
               "accepting selected switcher row switches active buffer");
-      Assert (not Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher),
+      Assert (not Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher),
               "successful accept closes switcher");
       Assert (Buffer_Text (S) = "beta body",
               "accepted switch must load selected buffer contents");
@@ -129,12 +129,12 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Init_Executor_Test_State (S);
       Build_Fixture (Root);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
-      First_File := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      First_File := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "fixture must contain a.txt");
       Second_File := Editor.File_Tree.Find_By_Path
-        (S.File_Tree, "a_dir/nested.txt", Found);
+        (S.Surface.File_Tree, "a_dir/nested.txt", Found);
       Assert (Found, "fixture must contain nested file");
 
       Editor.Executor.File_Tree_Navigation_Commands.Execute_File_Tree_Node_Action
@@ -387,14 +387,14 @@ package body Editor.Executor.Navigation_Tests is
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Insert_Text (S, "not-open");
-      Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0,
+      Assert (Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 0,
               "test setup should create no-match switcher state");
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Accept_Buffer_Switcher (S);
 
       Assert (Editor.Buffers.Global_Active_Buffer = A_Id,
               "failed accept must preserve active buffer");
-      Assert (Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher),
+      Assert (Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher),
               "failed accept keeps switcher open for filter repair");
       Assert (Buffer_Text (S) = "alpha body",
               "failed accept must preserve buffer contents");
@@ -462,21 +462,21 @@ package body Editor.Executor.Navigation_Tests is
       Set_Buffer_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
 
       Editor.Executor.Navigation_Commands.Execute_Open_Goto_Line (S);
-      Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line),
+      Assert (Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line),
               "Go To Line input opens");
       Assert
         (Editor.Overlay_Focus.Is_Active
            (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Go_To_Line_Overlay),
          "Go To Line owns overlay focus while open");
 
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "3");
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "3");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
 
       Editor.State.Row_Col_For_Index
-        (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
+        (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos, Row, Col);
       Assert (Row = 2 and then Col = 0,
               "valid one-based line target moves caret to column 1");
-      Assert (not Editor.Go_To_Line.Is_Open (S.Go_To_Line),
+      Assert (not Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line),
               "successful Go To Line closes the input");
       Assert (not Editor.Overlay_Focus.Has_Active_Overlay (S.Panel.Overlay_Focus),
               "successful Go To Line returns to normal editor focus");
@@ -498,8 +498,8 @@ package body Editor.Executor.Navigation_Tests is
    begin
       Init_Executor_Test_State (S);
       Set_Buffer_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => 4,
           Anchor                => 1,
@@ -507,19 +507,19 @@ package body Editor.Executor.Navigation_Tests is
           Anchor_Virtual_Column => 0));
       Editor.View.Set_Scroll (0, 7);
 
-      Before_Caret := S.Carets (S.Carets.First_Index).Pos;
-      Before_Anchor := S.Carets (S.Carets.First_Index).Anchor;
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
+      Before_Anchor := S.Caret.Carets (S.Caret.Carets.First_Index).Anchor;
       Before_Scroll := Editor.View.Scroll_Y;
 
       Editor.Executor.Navigation_Commands.Execute_Open_Goto_Line (S);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "99");
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "99");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
 
-      Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line),
+      Assert (Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line),
               "failed Go To Line keeps input open for correction");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Caret,
               "failed Go To Line preserves cursor");
-      Assert (S.Carets (S.Carets.First_Index).Anchor = Before_Anchor,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = Before_Anchor,
               "failed Go To Line preserves selection anchor");
       Assert (Editor.View.Scroll_Y = Before_Scroll,
               "failed Go To Line preserves viewport");
@@ -545,7 +545,7 @@ package body Editor.Executor.Navigation_Tests is
       Before_Feature_Rows := Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel);
 
       Editor.Executor.Navigation_Commands.Execute_Open_Goto_Line (S);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "2");
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "2");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
 
       Assert (Editor.Input_Field.Text (S.Search.Active_Find_Input) = "alpha",
@@ -567,19 +567,19 @@ package body Editor.Executor.Navigation_Tests is
       Set_Buffer_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
 
       Editor.Executor.Navigation_Commands.Execute_Open_Goto_Line (S);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "3");
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "3");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
 
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 1,
               "Go To Line must record explicit navigation history");
       Editor.State.Row_Col_For_Index
-        (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
+        (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos, Row, Col);
       Assert (Row = 2 and then Col = 0,
               "Go To Line must still move the caret without creating history");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Editor.State.Row_Col_For_Index
-        (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
+        (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos, Row, Col);
       Assert (Row = 0 and then Col = 0,
               "navigation.back must restore the pre-go-to-line caret location");
    end Test_Goto_Line_Back_Forward_Routes_Through_Executor;
@@ -837,9 +837,9 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Set (S, "docs");
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Reveal_Active (S);
-      Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
+      Snap := Editor.Quick_Open.Build_Snapshot (S.Surface.Quick_Open);
 
-      Assert (Editor.Quick_Open.Is_Open (S.Quick_Open),
+      Assert (Editor.Quick_Open.Is_Open (S.Surface.Quick_Open),
               "reveal-active must show Quick Open");
       Assert (To_String (Snap.Query) = "executor.adb",
               "reveal-active must install a filename query so no-query prompt does not hide the active file");
@@ -894,9 +894,9 @@ package body Editor.Executor.Navigation_Tests is
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Exec_Path);
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Active_Directory (S);
-      Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
+      Snap := Editor.Quick_Open.Build_Snapshot (S.Surface.Quick_Open);
 
-      Assert (Editor.Quick_Open.Is_Open (S.Quick_Open),
+      Assert (Editor.Quick_Open.Is_Open (S.Surface.Quick_Open),
               "scope-active-directory must show Quick Open");
       Assert (To_String (Snap.Query) = "executor.adb",
               "scope-active-directory must install a filename query so no-query prompt does not hide the active file");
@@ -942,7 +942,7 @@ package body Editor.Executor.Navigation_Tests is
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Reveal_Active (S);
 
-      Assert (not Editor.Quick_Open.Is_Open (S.Quick_Open),
+      Assert (not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open),
               "reveal-active must not open Quick Open when active file is not known");
       Assert (Latest_Message_Text (S) = "Active buffer is not a known project file",
               "unknown active file must have deterministic feedback");
@@ -993,7 +993,7 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Priority_Toggle (S);
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Reveal_Active (S);
-      Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
+      Snap := Editor.Quick_Open.Build_Snapshot (S.Surface.Quick_Open);
       Assert (Snap.Priority_Mode = Editor.Quick_Open.Open_Recent,
               "reveal-active must preserve Open/Recent priority mode");
       Assert (To_String (Snap.Query) = "executor.adb"
@@ -1009,11 +1009,11 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "guide");
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Kind_Next (S);
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Set (S, "docs/");
-      Assert (Editor.Quick_Open.Priority_Mode (S.Quick_Open) = Editor.Quick_Open.Open_Recent,
+      Assert (Editor.Quick_Open.Priority_Mode (S.Surface.Quick_Open) = Editor.Quick_Open.Open_Recent,
               "test setup must keep Open/Recent priority before scope-active-directory");
 
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Scope_Active_Directory (S);
-      Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
+      Snap := Editor.Quick_Open.Build_Snapshot (S.Surface.Quick_Open);
       Assert (Snap.Priority_Mode = Editor.Quick_Open.Open_Recent,
               "scope-active-directory must preserve Open/Recent priority mode");
       Assert (To_String (Snap.Query) = "executor.adb"
@@ -1066,18 +1066,18 @@ package body Editor.Executor.Navigation_Tests is
 
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
       Editor.Executor.Quick_Open_Commands.Execute_Quick_Open_Set_Query (S, "stale");
-      Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
+      Snap := Editor.Quick_Open.Build_Snapshot (S.Surface.Quick_Open);
       Assert (To_String (Snap.Selected_Path) = "src/stale.adb",
               "stale-open setup must select stale candidate");
 
       Ada.Directories.Delete_File (Stale_Path);
       Editor.Executor.Quick_Open_Commands.Execute_Accept_Quick_Open (S);
-      Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
+      Snap := Editor.Quick_Open.Build_Snapshot (S.Surface.Quick_Open);
 
       Assert (Latest_Message_Text (S) =
                 "Could not open src/stale.adb: file not found",
               "stale open failure must report one deterministic failure message");
-      Assert (Editor.Quick_Open.Is_Open (S.Quick_Open),
+      Assert (Editor.Quick_Open.Is_Open (S.Surface.Quick_Open),
               "stale open failure must keep Quick Open visible");
       Assert (To_String (Snap.Query) = "stale"
               and then To_String (Snap.Selected_Path) = "src/stale.adb",
@@ -1091,8 +1091,8 @@ package body Editor.Executor.Navigation_Tests is
       Assert (Refresh.Status = Editor.Project.Project_File_Refresh_Ok
               and then Refresh.Removed_Count = 1,
               "later refresh must remove the stale known path");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.File_Tree, (others => <>));
-      Snap := Editor.Quick_Open.Build_Snapshot (S.Quick_Open);
+      Editor.Quick_Open.Recompute_Results (S.Surface.Quick_Open, S.Surface.File_Tree, (others => <>));
+      Snap := Editor.Quick_Open.Build_Snapshot (S.Surface.Quick_Open);
       Assert (not Editor.Project.Has_Known_File (S.Project_Runtime.Project, "src/stale.adb")
               and then Snap.Visible_Count = 0
               and then To_String (Snap.Selected_Path) = "",
@@ -1289,7 +1289,7 @@ package body Editor.Executor.Navigation_Tests is
       Move_Caret_To_Line (S, 20);
 
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "needle");
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1,
               "same-file Project Search setup must produce one result");
       Editor.Executor.Project_Search_Result_Commands.Execute_Open_Selected_Project_Search_Result (S);
 
@@ -1550,8 +1550,8 @@ package body Editor.Executor.Navigation_Tests is
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0
               and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
               "history.clear must mutate only navigation history stacks");
-      Assert (Editor.Quick_Open.Is_Open (S.Quick_Open)
-              and then Editor.Project_Search.Result_Count (S.Project_Search) = 2,
+      Assert (Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
+              and then Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 2,
               "history.clear must preserve populated Quick Open and Project Search state");
 
       Remove_Tree_If_Exists (Root);
@@ -1574,8 +1574,8 @@ package body Editor.Executor.Navigation_Tests is
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos => 4, Anchor => 4, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
@@ -1615,20 +1615,20 @@ package body Editor.Executor.Navigation_Tests is
       Editor.Gutter_Markers.Add_Marker
         (S.Gutter_Markers, 0, Editor.Gutter_Markers.Bookmark_Marker);
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos => 0, Anchor => 2, Virtual_Column => 3, Anchor_Virtual_Column => 3));
-      S.Carets.Append
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos => 4, Anchor => 4, Virtual_Column => 0, Anchor_Virtual_Column => 0));
 
       Editor.Executor.Bookmark_Commands.Execute_Next_Bookmark (S);
       Assert (Editor.Executor.Safe_Caret (S) = Editor.State.Line_Start (S, 2),
               "next bookmark should jump to the next bookmarked row at column zero");
-      Assert (S.Carets.Length = 1,
+      Assert (S.Caret.Carets.Length = 1,
               "bookmark navigation should clear secondary carets");
-      Assert (S.Carets (S.Carets.First_Index).Anchor = S.Carets (S.Carets.First_Index).Pos,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = S.Caret.Carets (S.Caret.Carets.First_Index).Pos,
               "bookmark navigation should collapse selection");
 
       Editor.Executor.Bookmark_Commands.Execute_Next_Bookmark (S);
@@ -1649,8 +1649,8 @@ package body Editor.Executor.Navigation_Tests is
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos => 4, Anchor => 4, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Before := Editor.Executor.Safe_Caret (S);
@@ -1689,8 +1689,8 @@ package body Editor.Executor.Navigation_Tests is
 
       Editor.Buffers.Global_Set_Active_Buffer (First_Id);
       Editor.Buffers.Load_Global_Active_Into_State (S);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos => Editor.State.Line_Start (S, 1),
           Anchor => Editor.State.Line_Start (S, 1),

@@ -304,8 +304,8 @@ package body Editor.Input_Bridge.Wheel_Handlers is
           (S.Panels, Editor.Panels.File_Tree_Panel)
       then
          Editor.File_Tree_View.Scroll_By
-           (S.File_Tree_View,
-            S.File_Tree,
+           (S.Surface.File_Tree_View,
+            S.Surface.File_Tree,
             (if Editor.Layout.Cell_H = 0 then 1
              else Natural'Max (1, File_Rect.Height / Editor.Layout.Cell_H)),
             Wheel_Row_Delta (Delta_Y));
@@ -352,7 +352,7 @@ package body Editor.Input_Bridge.Wheel_Handlers is
                declare
                   Full : constant Editor.Search_Results.Search_Results_Snapshot :=
                     Editor.Search_Results.Build_Snapshot
-                      (S.Project_Search, (others => <>),
+                      (S.Surface.Project_Search, (others => <>),
                        Editor.Buffers.Global_Registry_For_UI);
                begin
                   Editor.Search_Results.Scroll_By

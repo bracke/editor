@@ -328,7 +328,7 @@ package body Editor.Keybindings.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abcdef");
-      S.Carets.Append
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => 3,
             Anchor                => 3,

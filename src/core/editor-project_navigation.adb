@@ -169,9 +169,9 @@ package body Editor.Project_Navigation is
      (State : Editor.State.State_Type) return Boolean
    is
    begin
-      return File_Tree_Coherent (State.File_Tree)
-        and then Quick_Open_Coherent (State.Quick_Open, State.Project_Runtime.Project)
-        and then Project_Search_Coherent (State.Project_Search, State.Project_Runtime.Project);
+      return File_Tree_Coherent (State.Surface.File_Tree)
+        and then Quick_Open_Coherent (State.Surface.Quick_Open, State.Project_Runtime.Project)
+        and then Project_Search_Coherent (State.Surface.Project_Search, State.Project_Runtime.Project);
    end Assert_Project_Navigation_Workflows_Coherent;
 
 end Editor.Project_Navigation;

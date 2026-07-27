@@ -223,8 +223,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => 3,
             Anchor                => 1,
@@ -235,7 +235,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Valid := S.Buffer_Lifecycle.File_Info.Baseline_Valid;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
       Editor.Messages.Clear (S.Panel.Messages);
 
       Cmd := Editor.Commands.Payloads.Command_For_Id
@@ -259,8 +259,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         and then S.Buffer_Lifecycle.File_Info.Baseline_Valid = Before_Valid
         and then not S.Buffer_Lifecycle.File_Info.Dirty,
         "success must update association only and preserve text, baseline, and clean state");
-      Assert (S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "success must preserve caret/selection state");
 
       Write_Bytes (Target, "disk after rename");
@@ -390,7 +390,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
          Before_B_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
          Before_Undo := Editor.History.Undo_Stack.Length;
          Before_Redo := Editor.History.Redo_Stack.Length;
-         Before_Caret := S.Carets (0);
+         Before_Caret := S.Caret.Carets (0);
          Before_Query := S.Search.Active_Find_Query;
          Before_Replace := S.Search.Active_Replace_Text;
          Before_Clip := Editor.Clipboard.Get_Text;
@@ -410,8 +410,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
          Assert (Editor.History.Undo_Stack.Length = Before_Undo
            and then Editor.History.Redo_Stack.Length = Before_Redo,
            Label & ": Undo/Redo changed");
-         Assert (S.Carets (0).Pos = Before_Caret.Pos
-           and then S.Carets (0).Anchor = Before_Caret.Anchor,
+         Assert (S.Caret.Carets (0).Pos = Before_Caret.Pos
+           and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
            Label & ": caret/selection changed");
          Assert (S.Search.Active_Find_Query = Before_Query
            and then S.Search.Active_Replace_Text = Before_Replace,
@@ -449,8 +449,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Before_A_Path := S.Buffer_Lifecycle.File_Info.Path;
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 4, Anchor => 2, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       S.Search.Active_Find_Query := To_Unbounded_String ("B");
       S.Search.Active_Replace_Text := To_Unbounded_String ("bee");
@@ -990,8 +990,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Show (S);
       Editor.Executor.Find_Replace_Commands.Execute_Replace_Set_Text (S, "omega");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard payload"));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => 5,
             Anchor                => 1,
@@ -1015,7 +1015,7 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
 
@@ -1034,8 +1034,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
         and then S.Buffer_Lifecycle.File_Info.Dirty
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor
         and then To_String (S.Search.Active_Find_Query) = "alpha"
         and then To_String (S.Search.Active_Replace_Text) = "omega"
         and then Editor.Clipboard.Has_Text
@@ -1247,8 +1247,8 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
 
       function Quick_Open_Has_Result_Path (Path : String) return Boolean is
       begin
-         for I in 1 .. Editor.Quick_Open.Result_Count (S.Quick_Open) loop
-            if To_String (Editor.Quick_Open.Result_At (S.Quick_Open, I).Display_Path) = Path then
+         for I in 1 .. Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) loop
+            if To_String (Editor.Quick_Open.Result_At (S.Surface.Quick_Open, I).Display_Path) = Path then
                return True;
             end if;
          end loop;
@@ -1258,13 +1258,13 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       function Quick_Open_Result_Summary return String is
          Summary : Unbounded_String := Null_Unbounded_String;
       begin
-         for I in 1 .. Editor.Quick_Open.Result_Count (S.Quick_Open) loop
+         for I in 1 .. Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) loop
             if Length (Summary) > 0 then
                Append (Summary, ", ");
             end if;
             Append
               (Summary,
-               To_String (Editor.Quick_Open.Result_At (S.Quick_Open, I).Display_Path));
+               To_String (Editor.Quick_Open.Result_At (S.Surface.Quick_Open, I).Display_Path));
          end loop;
          if Length (Summary) = 0 then
             return "<empty>";
@@ -1288,17 +1288,17 @@ package body Editor.Files.Rename_Delete_Operation_Tests is
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, A_Path);
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "lifecycle_a.txt");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.File_Tree, (others => <>));
-      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) = 1,
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "lifecycle_a.txt");
+      Editor.Quick_Open.Recompute_Results (S.Surface.Quick_Open, S.Surface.File_Tree, (others => <>));
+      Assert (Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) = 1,
               "quick open setup must see the original file");
-      Assert (To_String (Editor.Quick_Open.Result_At (S.Quick_Open, 1).Display_Path) =
+      Assert (To_String (Editor.Quick_Open.Result_At (S.Surface.Quick_Open, 1).Display_Path) =
                 "lifecycle_a.txt",
               "quick open setup must resolve the original relative path");
 
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, A_Target);
 
-      Assert (Editor.Quick_Open.Is_Open (S.Quick_Open),
+      Assert (Editor.Quick_Open.Is_Open (S.Surface.Quick_Open),
               "rename must keep quick open open when it is already visible");
       Assert (Quick_Open_Has_Result_Path ("lifecycle_a_renamed.txt"),
               "rename must refresh quick open results to include the new path; results="

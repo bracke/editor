@@ -69,7 +69,7 @@ package body Editor.Executor.History is
    begin
       if S.Buffer_Lifecycle.File_Info.Has_Path then
          Editor.Project_Search.Mark_Replace_Preview_Stale_For_Absolute_File
-           (S.Project_Search, To_String (S.Buffer_Lifecycle.File_Info.Path));
+           (S.Surface.Project_Search, To_String (S.Buffer_Lifecycle.File_Info.Path));
       end if;
    end Mark_Current_File_Replace_Preview_Stale;
 
@@ -325,16 +325,16 @@ package body Editor.Executor.History is
             --  selection that was expressed in pre-edit coordinates.  Keep
             --  caret endpoints valid, but collapse selections so later
             --  Clipboard/Find consumers cannot extract stale ranges.
-            for I in S.Carets.First_Index .. S.Carets.Last_Index loop
+            for I in S.Caret.Carets.First_Index .. S.Caret.Carets.Last_Index loop
                declare
-                  C : Caret_State := S.Carets (I);
+                  C : Caret_State := S.Caret.Carets (I);
                begin
                   C.Anchor := C.Pos;
                   C.Anchor_Virtual_Column := C.Virtual_Column;
-                  S.Carets.Replace_Element (I, C);
+                  S.Caret.Carets.Replace_Element (I, C);
                end;
             end loop;
-            S.Rect_Select_Active := False;
+            S.Caret.Rect_Select_Active := False;
          end;
 
       ------------------------------------------------------------------
@@ -353,16 +353,16 @@ package body Editor.Executor.History is
 
          Editor.State.Rebuild_After_Buffer_Change (S);
          Mark_Current_File_Replace_Preview_Stale (S);
-         for I in S.Carets.First_Index .. S.Carets.Last_Index loop
+         for I in S.Caret.Carets.First_Index .. S.Caret.Carets.Last_Index loop
             declare
-               C : Caret_State := S.Carets (I);
+               C : Caret_State := S.Caret.Carets (I);
             begin
                C.Anchor := C.Pos;
                C.Anchor_Virtual_Column := C.Virtual_Column;
-               S.Carets.Replace_Element (I, C);
+               S.Caret.Carets.Replace_Element (I, C);
             end;
          end loop;
-         S.Rect_Select_Active := False;
+         S.Caret.Rect_Select_Active := False;
       end if;
    end Apply_Replace_Batch_Command;
    procedure Restore_Edit_Context
@@ -375,11 +375,11 @@ package body Editor.Executor.History is
       Dirty : Boolean)
    is
    begin
-      S.Carets := Carets;
-      S.Preferred_Column := Preferred_Column;
-      S.Rect_Select_Active := Rect_Select_Active;
-      S.Rect_Anchor_Row := Rect_Anchor_Row;
-      S.Rect_Anchor_Col := Rect_Anchor_Col;
+      S.Caret.Carets := Carets;
+      S.Caret.Preferred_Column := Preferred_Column;
+      S.Caret.Rect_Select_Active := Rect_Select_Active;
+      S.Caret.Rect_Anchor_Row := Rect_Anchor_Row;
+      S.Caret.Rect_Anchor_Col := Rect_Anchor_Col;
 
       Editor.State.Normalize_Carets (S);
 
@@ -502,18 +502,18 @@ package body Editor.Executor.History is
          return False;
       end if;
 
-      if Before.Carets.Length /= 1 or else After_S.Carets.Length /= 1 then
+      if Before.Caret.Carets.Length /= 1 or else After_S.Caret.Carets.Length /= 1 then
          return False;
       end if;
 
-      if Before.Carets (Before.Carets.First_Index).Anchor /=
-         Before.Carets (Before.Carets.First_Index).Pos
+      if Before.Caret.Carets (Before.Caret.Carets.First_Index).Anchor /=
+         Before.Caret.Carets (Before.Caret.Carets.First_Index).Pos
       then
          return False;
       end if;
 
-      if After_S.Carets (After_S.Carets.First_Index).Anchor /=
-         After_S.Carets (After_S.Carets.First_Index).Pos
+      if After_S.Caret.Carets (After_S.Caret.Carets.First_Index).Anchor /=
+         After_S.Caret.Carets (After_S.Caret.Carets.First_Index).Pos
       then
          return False;
       end if;
@@ -620,18 +620,18 @@ package body Editor.Executor.History is
       E.Before_Text := Snapshot_Text (Before);
       E.After_Text  := Snapshot_Text (After_S);
 
-      E.Before_Carets := Before.Carets;
-      E.After_Carets  := After_S.Carets;
+      E.Before_Carets := Before.Caret.Carets;
+      E.After_Carets  := After_S.Caret.Carets;
 
-      E.Before_Preferred_Column := Before.Preferred_Column;
-      E.After_Preferred_Column  := After_S.Preferred_Column;
+      E.Before_Preferred_Column := Before.Caret.Preferred_Column;
+      E.After_Preferred_Column  := After_S.Caret.Preferred_Column;
 
-      E.Before_Rect_Select_Active := Before.Rect_Select_Active;
-      E.After_Rect_Select_Active  := After_S.Rect_Select_Active;
-      E.Before_Rect_Anchor_Row    := Before.Rect_Anchor_Row;
-      E.Before_Rect_Anchor_Col    := Before.Rect_Anchor_Col;
-      E.After_Rect_Anchor_Row     := After_S.Rect_Anchor_Row;
-      E.After_Rect_Anchor_Col     := After_S.Rect_Anchor_Col;
+      E.Before_Rect_Select_Active := Before.Caret.Rect_Select_Active;
+      E.After_Rect_Select_Active  := After_S.Caret.Rect_Select_Active;
+      E.Before_Rect_Anchor_Row    := Before.Caret.Rect_Anchor_Row;
+      E.Before_Rect_Anchor_Col    := Before.Caret.Rect_Anchor_Col;
+      E.After_Rect_Anchor_Row     := After_S.Caret.Rect_Anchor_Row;
+      E.After_Rect_Anchor_Col     := After_S.Caret.Rect_Anchor_Col;
 
       E.Before_Dirty := Before.Buffer_Lifecycle.File_Info.Dirty;
       E.After_Dirty  := After_S.Buffer_Lifecycle.File_Info.Dirty;

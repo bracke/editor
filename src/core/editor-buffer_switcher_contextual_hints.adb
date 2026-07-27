@@ -119,7 +119,7 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
       use Editor.Commands;
       Mode : constant Editor.Buffer_Switcher.Reviews.Switcher_Review_Mode :=
         Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot
-          (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI).Active_Review_Mode;
+          (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI).Active_Review_Mode;
    begin
       case Mode is
          when Editor.Buffer_Switcher.Reviews.No_Review =>
@@ -180,13 +180,13 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
       use Editor.Commands;
       Snapshot : constant Editor.Buffer_Switcher.Reviews.Switcher_Batch_State_Snapshot :=
         Editor.Buffer_Switcher.Build_Switcher_Batch_State_Snapshot
-          (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI);
+          (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI);
       Show_Keybindings : constant Boolean :=
         Editor.Settings.Command_Palette_Show_Keybindings (S.Settings);
       Hints : Switcher_Contextual_Hint_Vectors.Vector;
       Found : Boolean := False;
       Row   : constant Editor.Buffer_Switcher.Rows.Buffer_Switcher_Row :=
-        Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found);
+        Editor.Buffer_Switcher.Selected_Row (S.Surface.Buffer_Switcher, Found);
    begin
       if Snapshot.Active_Review_Mode /= Editor.Buffer_Switcher.Reviews.No_Review then
          Add_Review_Commands (S, Hints, Max_Hints, Show_Keybindings);
@@ -201,7 +201,7 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
          if Found
            and then Editor.Buffer_Switcher
              .Is_Dirty_Pending_Marked_Close_Prune_Apply_Target
-                (S.Buffer_Switcher, Row.Id)
+                (S.Surface.Buffer_Switcher, Row.Id)
          then
             Add_Command (S, Hints,
               Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Apply_Remove_Selected,
@@ -223,7 +223,7 @@ package body Editor.Buffer_Switcher_Contextual_Hints is
            Max_Hints, Show_Keybindings);
          if Found
            and then Editor.Buffer_Switcher.Is_Dirty_Pending_Marked_Close_Prune_Target
-             (S.Buffer_Switcher, Row.Id)
+             (S.Surface.Buffer_Switcher, Row.Id)
          then
             Add_Command (S, Hints,
               Command_Buffer_Switcher_Pending_Mark_Dirty_Prune_Remove_Selected,

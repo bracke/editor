@@ -52,16 +52,16 @@ package body Editor.Input_Bridge.Buffer_Switcher_Key_Handlers is
             Cmd.Kind := Editor.Command_Kinds.Buffer_Switcher_Delete_Forward;
             Execute_Command (Cmd);
          when Editor.Keybindings.Key_Left =>
-            Editor.Buffer_Switcher.Move_Cursor_Left (S.Buffer_Switcher);
+            Editor.Buffer_Switcher.Move_Cursor_Left (S.Surface.Buffer_Switcher);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_Right =>
-            Editor.Buffer_Switcher.Move_Cursor_Right (S.Buffer_Switcher);
+            Editor.Buffer_Switcher.Move_Cursor_Right (S.Surface.Buffer_Switcher);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_Home =>
-            Editor.Buffer_Switcher.Move_Cursor_Start (S.Buffer_Switcher);
+            Editor.Buffer_Switcher.Move_Cursor_Start (S.Surface.Buffer_Switcher);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_End =>
-            Editor.Buffer_Switcher.Move_Cursor_End (S.Buffer_Switcher);
+            Editor.Buffer_Switcher.Move_Cursor_End (S.Surface.Buffer_Switcher);
             Editor.Render_Cache.Invalidate_All;
          when Editor.Keybindings.Key_V =>
             if Chord.Modifiers.Ctrl then

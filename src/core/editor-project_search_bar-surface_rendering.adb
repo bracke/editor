@@ -87,21 +87,21 @@ package body Editor.Project_Search_Bar.Surface_Rendering is
    function Status_Text
      (S : Editor.State.State_Type) return String
    is
-      Count : constant Natural := Editor.Project_Search.Result_Count (S.Project_Search);
-      Files : constant Natural := Editor.Project_Search.File_Group_Count (S.Project_Search);
+      Count : constant Natural := Editor.Project_Search.Result_Count (S.Surface.Project_Search);
+      Files : constant Natural := Editor.Project_Search.File_Group_Count (S.Surface.Project_Search);
    begin
-      if Editor.Project_Search_Bar.Is_Open (S.Project_Search_Bar)
-        and then Editor.Project_Search_Bar.Query_Text (S.Project_Search_Bar)
-          /= Editor.Project_Search.Last_Run_Query (S.Project_Search)
+      if Editor.Project_Search_Bar.Is_Open (S.Surface.Project_Search_Bar)
+        and then Editor.Project_Search_Bar.Query_Text (S.Surface.Project_Search_Bar)
+          /= Editor.Project_Search.Last_Run_Query (S.Surface.Project_Search)
       then
          return "Query changed - press Enter to search";
-      elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
+      elsif Editor.Project_Search.Is_Stale (S.Surface.Project_Search) then
          return "Results may be stale";
-      elsif Editor.Project_Search.Was_Truncated (S.Project_Search) then
+      elsif Editor.Project_Search.Was_Truncated (S.Surface.Project_Search) then
          return "Results truncated";
       end if;
 
-      case Editor.Project_Search.Status (S.Project_Search) is
+      case Editor.Project_Search.Status (S.Surface.Project_Search) is
          when Editor.Project_Search.Project_Search_No_Project =>
             return "No project open";
          when Editor.Project_Search.Project_Search_No_Files =>
@@ -156,11 +156,11 @@ package body Editor.Project_Search_Bar.Surface_Rendering is
         Editor.Overlay_Focus.Is_Active
           (State.Panel.Overlay_Focus, Editor.Overlay_Focus.Project_Search_Bar_Overlay);
       Active_Field : constant Editor.Project_Search_Bar.Project_Search_Bar_Field :=
-        Editor.Project_Search_Bar.Active_Field (State.Project_Search_Bar);
+        Editor.Project_Search_Bar.Active_Field (State.Surface.Project_Search_Bar);
       Q_Snap : constant Editor.Input_Field.Field_Snapshot :=
-        Editor.Project_Search_Bar.Query_Snapshot (State.Project_Search_Bar, Field_Cols);
+        Editor.Project_Search_Bar.Query_Snapshot (State.Surface.Project_Search_Bar, Field_Cols);
       R_Snap : constant Editor.Input_Field.Field_Snapshot :=
-        Editor.Project_Search_Bar.Replace_Snapshot (State.Project_Search_Bar, Field_Cols);
+        Editor.Project_Search_Bar.Replace_Snapshot (State.Surface.Project_Search_Bar, Field_Cols);
    begin
       Background_Rectangles.Clear;
       Field_Rectangles.Clear;
@@ -169,7 +169,7 @@ package body Editor.Project_Search_Bar.Surface_Rendering is
       Accessibility.Clear;
       Visible := False;
 
-      if not Editor.Project_Search_Bar.Is_Open (State.Project_Search_Bar) or else G.Width = 0 then
+      if not Editor.Project_Search_Bar.Is_Open (State.Surface.Project_Search_Bar) or else G.Width = 0 then
          return;
       end if;
 

@@ -13,7 +13,7 @@ package body Editor.Invariants is
       -- Some command preflight paths intentionally model a targetless state
       -- with no carets and report "No caret location" without repairing it.
       ---------------------------------------------------------------------
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return;
       end if;
 
@@ -22,8 +22,8 @@ package body Editor.Invariants is
       -- preflight fixtures may deliberately carry out-of-bounds carets; do
       -- not let an invariant assertion mask the command result under test.
       ---------------------------------------------------------------------
-      for I in S.Carets.First_Index .. S.Carets.Last_Index loop
-         if S.Carets (I).Pos > Len or else S.Carets (I).Anchor > Len then
+      for I in S.Caret.Carets.First_Index .. S.Caret.Carets.Last_Index loop
+         if S.Caret.Carets (I).Pos > Len or else S.Caret.Carets (I).Anchor > Len then
             return;
          end if;
       end loop;
@@ -31,14 +31,14 @@ package body Editor.Invariants is
       ---------------------------------------------------------------------
       -- Carets must be strictly increasing by position
       ---------------------------------------------------------------------
-      if S.Carets.Length > 1 then
-         for I in S.Carets.First_Index .. S.Carets.Last_Index - 1 loop
+      if S.Caret.Carets.Length > 1 then
+         for I in S.Caret.Carets.First_Index .. S.Caret.Carets.Last_Index - 1 loop
             pragma Assert
-            (S.Carets (I).Pos < S.Carets (I + 1).Pos
+            (S.Caret.Carets (I).Pos < S.Caret.Carets (I + 1).Pos
                or else
-               (S.Carets (I).Pos = S.Carets (I + 1).Pos
+               (S.Caret.Carets (I).Pos = S.Caret.Carets (I + 1).Pos
                and then
-               S.Carets (I).Virtual_Column < S.Carets (I + 1).Virtual_Column),
+               S.Caret.Carets (I).Virtual_Column < S.Caret.Carets (I + 1).Virtual_Column),
                "Invariant: caret ordering must consider virtual column");
 
             --  allows Shift navigation to extend selections across
@@ -47,14 +47,14 @@ package body Editor.Invariants is
             --  restricted to rectangle mode only.
 
             --  pragma Assert
-            --     (S.Carets.Element (I).Virtual_Column = 0
-            --        or else S.Carets.Element (I).Pos = Cursor_Index (Text_Buffer.Length (S.Buffer))
+            --     (S.Caret.Carets.Element (I).Virtual_Column = 0
+            --        or else S.Caret.Carets.Element (I).Pos = Cursor_Index (Text_Buffer.Length (S.Buffer))
             --        or else (
             --           (declare
             --              Row : Natural := 0;
             --              Col : Natural := 0;
             --           begin
-            --              Line_Column_For_Index (S, Natural (S.Carets.Element (I).Pos), Row, Col);
+            --              Line_Column_For_Index (S, Natural (S.Caret.Carets.Element (I).Pos), Row, Col);
             --              Col := Line_Length (S, Row);
             --           end)),
             --        "Invariant: virtual column only allowed at EOL");

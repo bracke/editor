@@ -39,13 +39,13 @@ package body Editor.Executor.Quick_Open_Scope_Commands is
    is
       Scope : constant String := Editor.Quick_Open.Normalize_Quick_Open_Scope (Text);
    begin
-      if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+      if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
          if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
          elsif Quick_Open_Scope_Has_Parent_Traversal (Text) then
             Editor.Executor.Shared_Services.Report_Info (S, "Invalid Quick Open scope");
          else
-            Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, Text);
+            Editor.Quick_Open.Set_Path_Scope (S.Surface.Quick_Open, Text);
             Editor.Executor.Quick_Open_Commands.Recompute_Quick_Open (S);
             if Scope'Length = 0 then
                Editor.Executor.Shared_Services.Report_Info (S, "Quick Open scope cleared");
@@ -60,15 +60,15 @@ package body Editor.Executor.Quick_Open_Scope_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+      if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
          if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
             return;
-         elsif Editor.Quick_Open.Path_Scope (S.Quick_Open)'Length = 0 then
+         elsif Editor.Quick_Open.Path_Scope (S.Surface.Quick_Open)'Length = 0 then
             Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open scope");
          else
-            Editor.Quick_Open.Clear_Path_Scope (S.Quick_Open);
+            Editor.Quick_Open.Clear_Path_Scope (S.Surface.Quick_Open);
             Editor.Executor.Quick_Open_Commands.Recompute_Quick_Open (S);
             Editor.Executor.Shared_Services.Report_Info (S, "Quick Open scope cleared");
          end if;
@@ -80,9 +80,9 @@ package body Editor.Executor.Quick_Open_Scope_Commands is
    is
       Found : Boolean := False;
       Scope : constant String :=
-        Editor.Quick_Open.Selected_Directory_Scope (S.Quick_Open, Found);
+        Editor.Quick_Open.Selected_Directory_Scope (S.Surface.Quick_Open, Found);
    begin
-      if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+      if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
          if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
@@ -90,7 +90,7 @@ package body Editor.Executor.Quick_Open_Scope_Commands is
          elsif not Found then
             Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open selection");
          else
-            Editor.Quick_Open.Set_Path_Scope_From_Selected (S.Quick_Open, Found);
+            Editor.Quick_Open.Set_Path_Scope_From_Selected (S.Surface.Quick_Open, Found);
             Editor.Executor.Quick_Open_Commands.Recompute_Quick_Open (S);
             if Scope'Length = 0 then
                Editor.Executor.Shared_Services.Report_Info (S, "Quick Open scope cleared");
@@ -107,9 +107,9 @@ package body Editor.Executor.Quick_Open_Scope_Commands is
       Found : Boolean := False;
       Parent : constant String :=
         Editor.Quick_Open.Parent_Scope
-          (Editor.Quick_Open.Path_Scope (S.Quick_Open), Found);
+          (Editor.Quick_Open.Path_Scope (S.Surface.Quick_Open), Found);
    begin
-      if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+      if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
          if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Info (S, "No project open");
             Editor.Render_Cache.Invalidate_All;
@@ -117,7 +117,7 @@ package body Editor.Executor.Quick_Open_Scope_Commands is
          elsif not Found then
             Editor.Executor.Shared_Services.Report_Info (S, "No Quick Open scope");
          else
-            Editor.Quick_Open.Move_Path_Scope_To_Parent (S.Quick_Open, Found);
+            Editor.Quick_Open.Move_Path_Scope_To_Parent (S.Surface.Quick_Open, Found);
             Editor.Executor.Quick_Open_Commands.Recompute_Quick_Open (S);
             if Parent'Length = 0 then
                Editor.Executor.Shared_Services.Report_Info (S, "Quick Open scope cleared");

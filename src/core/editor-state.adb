@@ -324,18 +324,18 @@ package body Editor.State is
       S.Line_Starts.Clear;
       S.Line_Starts.Append (0);
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 0,
             Anchor                => 0,
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      S.Preferred_Column := 0;
-      S.Rect_Select_Active := False;
-      S.Rect_Anchor_Row := 0;
-      S.Rect_Anchor_Col := 0;
+      S.Caret.Preferred_Column := 0;
+      S.Caret.Rect_Select_Active := False;
+      S.Caret.Rect_Anchor_Row := 0;
+      S.Caret.Rect_Anchor_Col := 0;
       S.Search.Active_Find_Query := Null_Unbounded_String;
       S.Search.Active_Find_Matches.Clear;
       S.Search.Active_Find_Match := Editor.Search.No_Match;
@@ -354,11 +354,11 @@ package body Editor.State is
         (S.Dirty_Lines, Text);
       Editor.Messages.Clear (S.Panel.Messages);
       Editor.Input_Field.Clear (S.Search.Active_Find_Input);
-      Editor.Quick_Open.Clear (S.Quick_Open);
-      Editor.Buffer_Switcher.Clear (S.Buffer_Switcher);
+      Editor.Quick_Open.Clear (S.Surface.Quick_Open);
+      Editor.Buffer_Switcher.Clear (S.Surface.Buffer_Switcher);
       Editor.Recent_Buffers.Clear (S.Recent_Buffers);
-      Editor.Go_To_Line.Clear (S.Go_To_Line);
-      Editor.Project_Search.Clear (S.Project_Search);
+      Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
+      Editor.Project_Search.Clear (S.Surface.Project_Search);
       Editor.Bookmarks.Clear (S.Bookmarks);
       S.Panel.Search_Results_View.Top_Row := 1;
       Editor.Panel_Focus.Focus_Editor_Text (S.Panel.Panel_Focus);
@@ -543,19 +543,19 @@ package body Editor.State is
       S.Semantic.Syntax_Symbols_Buffer_Token := 0;
       Text_Buffer.Clear (S.Buffer);
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Caret_State'
            (Pos                   => 0,
             Anchor                => 0,
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
 
-      S.Preferred_Column := 0;
+      S.Caret.Preferred_Column := 0;
 
-      S.Rect_Select_Active := False;
-      S.Rect_Anchor_Row := 0;
-      S.Rect_Anchor_Col := 0;
+      S.Caret.Rect_Select_Active := False;
+      S.Caret.Rect_Anchor_Row := 0;
+      S.Caret.Rect_Anchor_Col := 0;
       S.Search.Active_Find_Query := Null_Unbounded_String;
       S.Search.Active_Find_Matches.Clear;
       S.Search.Active_Find_Match := Editor.Search.No_Match;
@@ -576,10 +576,10 @@ package body Editor.State is
       Editor.Feature_Messages.Reset_For_Workspace_Close (S.Panel.Feature_Messages);
       Editor.Feature_Search_Results.Reset_For_Workspace_Close (S.Panel.Feature_Search_Results);
       Editor.Outline.Clear (S.Outline);
-      S.Outline_Cursor_Key_Valid := False;
-      S.Outline_Cursor_Buffer_Token := 0;
-      S.Outline_Cursor_Line := 0;
-      S.Outline_Cursor_Column := 0;
+      S.Outline_Cursor.Key_Valid := False;
+      S.Outline_Cursor.Buffer_Token := 0;
+      S.Outline_Cursor.Line := 0;
+      S.Outline_Cursor.Column := 0;
       declare
          Loaded_Settings : Editor.Settings.Settings_Model;
       begin
@@ -631,16 +631,16 @@ package body Editor.State is
       end if;
       Editor.Workspace_Persistence.Clear (Startup_Workspace);
 
-      Editor.File_Tree.Clear (S.File_Tree);
-      Editor.File_Tree_View.Clear_View (S.File_Tree_View);
+      Editor.File_Tree.Clear (S.Surface.File_Tree);
+      Editor.File_Tree_View.Clear_View (S.Surface.File_Tree_View);
       Editor.Panels.Initialize_Defaults (S.Panels);
       Editor.Panels.Set_Current (S.Panels);
       Editor.Messages.Clear (S.Panel.Messages);
       Editor.Input_Field.Clear (S.Search.Active_Find_Input);
-      Editor.Quick_Open.Clear (S.Quick_Open);
-      Editor.Buffer_Switcher.Clear (S.Buffer_Switcher);
+      Editor.Quick_Open.Clear (S.Surface.Quick_Open);
+      Editor.Buffer_Switcher.Clear (S.Surface.Buffer_Switcher);
       Editor.Recent_Buffers.Clear (S.Recent_Buffers);
-      Editor.Go_To_Line.Clear (S.Go_To_Line);
+      Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
       Editor.Input_Field.Clear (S.Search.Active_Find_Input);
       S.Search.Active_Find_Query := Null_Unbounded_String;
       S.Search.Active_Find_Matches.Clear;
@@ -654,7 +654,7 @@ package body Editor.State is
       S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
       S.Search.Active_Replace_Prompt := False;
       Editor.Navigation_History.Clear (S.Navigation_History);
-      Editor.Project_Search.Clear (S.Project_Search);
+      Editor.Project_Search.Clear (S.Surface.Project_Search);
       Editor.Bookmarks.Clear (S.Bookmarks);
       S.Panel.Search_Results_View.Top_Row := 1;
       Editor.Panel_Focus.Focus_Editor_Text (S.Panel.Panel_Focus);
@@ -728,7 +728,7 @@ package body Editor.State is
       Len    : constant Cursor_Index :=
         Cursor_Index (Text_Buffer.Length (S.Buffer));
    begin
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          declare
             Clamped : Caret_State := C;
          begin
@@ -793,7 +793,7 @@ package body Editor.State is
          end;
       end if;
 
-      S.Carets := Result;
+      S.Caret.Carets := Result;
    end Normalize_Carets;
 
    procedure Rebuild_After_Buffer_Change
@@ -870,7 +870,7 @@ package body Editor.State is
       end if;
       --  Mark visible Search Results stale, but do not rerun Search or mutate
       --  the visible Feature Panel rows from ordinary text editing.
-      Editor.Project_Search.Mark_Stale (S.Project_Search);
+      Editor.Project_Search.Mark_Stale (S.Surface.Project_Search);
       --  a searched file edited in a buffer makes retained Project
       --  Search rows unsafe to activate until the user reruns the explicit,
       --  bounded project search.  This is a transient stale marker only; it
@@ -1282,7 +1282,7 @@ package body Editor.State is
    is
       Snapshot : constant Editor.Search_Results.Search_Results_Snapshot :=
         Editor.Search_Results.Build_Snapshot
-          (S.Project_Search, (others => <>));
+          (S.Surface.Project_Search, (others => <>));
       Pending_Kind : constant Editor.Pending_Transitions.Pending_Transition_Kind :=
         Editor.Pending_Transitions.Target_Kind (S.Pending_Transitions);
       Panel_Summary : constant Editor.Feature_Panel.Feature_Panel_Summary :=
@@ -1290,16 +1290,16 @@ package body Editor.State is
    begin
       return
         (Has_Project_Root            => Editor.Project.Has_Project (S.Project_Runtime.Project),
-         File_Tree_Node_Count        => Editor.File_Tree.Node_Count (S.File_Tree),
-         File_Tree_Expansion_Count   => Editor.File_Tree.Expanded_Node_Count (S.File_Tree),
-         Quick_Open_Result_Count     => Editor.Quick_Open.Result_Count (S.Quick_Open),
-         Project_Search_Result_Count => Editor.Project_Search.Result_Count (S.Project_Search),
+         File_Tree_Node_Count        => Editor.File_Tree.Node_Count (S.Surface.File_Tree),
+         File_Tree_Expansion_Count   => Editor.File_Tree.Expanded_Node_Count (S.Surface.File_Tree),
+         Quick_Open_Result_Count     => Editor.Quick_Open.Result_Count (S.Surface.Quick_Open),
+         Project_Search_Result_Count => Editor.Project_Search.Result_Count (S.Surface.Project_Search),
          Bookmark_Count => Editor.Bookmarks.Count (S.Bookmarks),
          Bookmarks_Visible => Editor.Bookmarks.Is_Visible (S.Bookmarks),
          Search_Results_Row_Count    => Editor.Search_Results.Row_Count (Snapshot),
          Has_Project_Search_Query    =>
-           Editor.Project_Search.Has_Query (S.Project_Search)
-           or else Editor.Project_Search_Bar.Query_Text (S.Project_Search_Bar)'Length > 0,
+           Editor.Project_Search.Has_Query (S.Surface.Project_Search)
+           or else Editor.Project_Search_Bar.Query_Text (S.Surface.Project_Search_Bar)'Length > 0,
          Feature_Panel_Row_Count     => Panel_Summary.Row_Count,
          Feature_Panel_Selected_Row  => Panel_Summary.Selected_Row,
          Feature_Panel_Has_Selection => Panel_Summary.Has_Selection,
@@ -1341,12 +1341,12 @@ package body Editor.State is
       S.Buffer_Lifecycle.Has_Reopen_Candidate := False;
       S.Buffer_Lifecycle.Reopen_Candidate_Path := Null_Unbounded_String;
       S.Buffer_Lifecycle.Reopen_Candidate_Label := Null_Unbounded_String;
-      Editor.File_Tree.Clear (S.File_Tree);
-      Editor.File_Tree_View.Clear_View (S.File_Tree_View);
-      Editor.Quick_Open.Clear (S.Quick_Open);
-      Editor.Buffer_Switcher.Clear (S.Buffer_Switcher);
+      Editor.File_Tree.Clear (S.Surface.File_Tree);
+      Editor.File_Tree_View.Clear_View (S.Surface.File_Tree_View);
+      Editor.Quick_Open.Clear (S.Surface.Quick_Open);
+      Editor.Buffer_Switcher.Clear (S.Surface.Buffer_Switcher);
       Editor.Recent_Buffers.Clear (S.Recent_Buffers);
-      Editor.Go_To_Line.Clear (S.Go_To_Line);
+      Editor.Go_To_Line.Clear (S.Surface.Go_To_Line);
       Editor.Input_Field.Clear (S.Search.Active_Find_Input);
       S.Search.Active_Find_Query := Null_Unbounded_String;
       S.Search.Active_Find_Matches.Clear;
@@ -1360,9 +1360,9 @@ package body Editor.State is
       S.Search.Active_Replace_Error_Message := Null_Unbounded_String;
       S.Search.Active_Replace_Prompt := False;
       Editor.Navigation_History.Clear (S.Navigation_History);
-      Editor.Project_Search.Clear (S.Project_Search);
+      Editor.Project_Search.Clear (S.Surface.Project_Search);
       Editor.Bookmarks.Clear (S.Bookmarks);
-      Editor.Project_Search_Bar.Clear (S.Project_Search_Bar);
+      Editor.Project_Search_Bar.Clear (S.Surface.Project_Search_Bar);
       S.Panel.Search_Results_View.Top_Row := 1;
       Editor.Problems.Clear_View (S.Panel.Problems_View);
       Editor.Feature_Panel_Controller.Reset_All_Features_For_Project_Close (S);
@@ -1507,11 +1507,11 @@ package body Editor.State is
       end if;
 
       Editor.Workspace_Persistence.Set_Quick_Open_Path_Scope
-        (Snapshot, Editor.Quick_Open.Path_Scope (S.Quick_Open));
+        (Snapshot, Editor.Quick_Open.Path_Scope (S.Surface.Quick_Open));
       Editor.Workspace_Persistence.Set_Quick_Open_File_Kind_Filter
         (Snapshot,
          Workspace_Quick_Filter
-           (Editor.Quick_Open.File_Kind_Filter (S.Quick_Open)));
+           (Editor.Quick_Open.File_Kind_Filter (S.Surface.Quick_Open)));
       Editor.Workspace_Persistence.Set_Feature_Panel
         (Snapshot,
          Editor.Feature_Panel.Is_Visible (S.Panel.Feature_Panel),
@@ -1534,10 +1534,10 @@ package body Editor.State is
                end if;
 
                if Length (Rel_Path) > 0 then
-                  if Buffer.Carets.Length > 0 then
+                  if Buffer.Caret.Carets.Length > 0 then
                      Row_Col_For_Index
                        (Buffer,
-                        Buffer.Carets (Buffer.Carets.First_Index).Pos,
+                        Buffer.Caret.Carets (Buffer.Caret.Carets.First_Index).Pos,
                         Row,
                         Col);
                   else
@@ -1562,12 +1562,12 @@ package body Editor.State is
          end if;
       end loop;
 
-      for I in 1 .. Editor.File_Tree.Node_Count (S.File_Tree) loop
+      for I in 1 .. Editor.File_Tree.Node_Count (S.Surface.File_Tree) loop
          if Editor.File_Tree.Contains
-           (S.File_Tree, Editor.File_Tree.File_Tree_Node_Id (I))
+           (S.Surface.File_Tree, Editor.File_Tree.File_Tree_Node_Id (I))
          then
             Node := Editor.File_Tree.Node
-              (S.File_Tree, Editor.File_Tree.File_Tree_Node_Id (I));
+              (S.Surface.File_Tree, Editor.File_Tree.File_Tree_Node_Id (I));
             if Node.Kind = Editor.File_Tree.Directory_Node
               and then Node.Is_Expanded
               and then Length (Node.Relative_Path) > 0

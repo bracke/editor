@@ -51,8 +51,8 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
       Pos : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Pos,
             Anchor                => Pos,
@@ -66,8 +66,8 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
       Pos    : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Pos,
             Anchor                => Anchor,
@@ -111,9 +111,9 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
       Row : Natural := 0;
       Col : Natural := 0;
    begin
-      Assert (S.Carets.Length > 0, Why & ": expected a caret");
+      Assert (S.Caret.Carets.Length > 0, Why & ": expected a caret");
       Editor.Navigation.Line_Column_For_Index
-        (S, Natural (S.Carets (S.Carets.First_Index).Pos), Row, Col);
+        (S, Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos), Row, Col);
       Assert (Row = Expected_Row, Why & ": caret row mismatch");
       Assert (Col = Expected_Col, Why & ": caret column mismatch");
    end Assert_Caret_Row_Col;
@@ -275,7 +275,7 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
       end if;
 
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               Why & ": text-changing word delete must create one undo entry");
@@ -1210,7 +1210,7 @@ package body Editor.Line_Edit.Indentation_Comment_Format_Tests is
                     Why & ": text-changing line comment command must stale Find");
             Assert (Editor.State.Is_Dirty (S),
                     Why & ": text-changing line comment command must dirty clean buffer");
-            Assert (S.Carets.Length > 0,
+            Assert (S.Caret.Carets.Length > 0,
                     Why & ": text-changing line comment command must leave a valid caret");
             Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
             Assert (Text_Buffer.UTF8_Text (S.Buffer) = Before,

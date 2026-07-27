@@ -64,10 +64,10 @@ package body Editor.Executor.Selection_Commands is
          when Editor.Command_Ids.Command_Selection_Clear =>
             if not Has_Buffer then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
-            elsif S.Carets.Length = 0 then
+            elsif S.Caret.Carets.Length = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No caret location");
             elsif not Editor.Selection.Has_Selection (S)
-              and then not S.Rect_Select_Active
+              and then not S.Caret.Rect_Select_Active
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No selection");
             end if;
@@ -129,7 +129,7 @@ package body Editor.Executor.Selection_Commands is
          Target_Row           => Row,
          New_Caret            => New_Caret,
          New_Preferred_Column => New_Preferred_Column);
-      S.Preferred_Column := New_Preferred_Column;
+      S.Caret.Preferred_Column := New_Preferred_Column;
       Editor.Render_Cache.Invalidate_All;
       Editor.Invariants.Check (S);
    end Execute_Select_Line_At;
@@ -176,7 +176,7 @@ package body Editor.Executor.Selection_Commands is
          Target_Row           => Row,
          New_Caret            => New_Caret,
          New_Preferred_Column => New_Preferred_Column);
-      S.Preferred_Column := New_Preferred_Column;
+      S.Caret.Preferred_Column := New_Preferred_Column;
       Editor.Render_Cache.Invalidate_All;
       Editor.Invariants.Check (S);
    end Execute_Extend_Selection_To_Line;
@@ -197,8 +197,8 @@ package body Editor.Executor.Selection_Commands is
         (Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0);
       Len     : constant Cursor_Index := Cursor_Index (Text_Buffer.Length (S.Buffer));
    begin
-      if S.Carets.Length > 0 then
-         Primary := S.Carets (S.Carets.First_Index);
+      if S.Caret.Carets.Length > 0 then
+         Primary := S.Caret.Carets (S.Caret.Carets.First_Index);
       end if;
 
       if Primary.Pos > Len then
@@ -209,8 +209,8 @@ package body Editor.Executor.Selection_Commands is
          Primary.Anchor := Len;
       end if;
 
-      S.Carets.Clear;
-      S.Carets.Append (Primary);
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Primary);
    end Keep_Only_Primary_Selection_Caret;
 
    function Primary_Selection_Is_Valid
@@ -235,14 +235,14 @@ package body Editor.Executor.Selection_Commands is
       elsif Selection_Range.High = 0 then
          Keep_Only_Primary_Selection_Caret (S);
          Set_Primary_Caret (S, 0);
-         S.Rect_Select_Active := False;
+         S.Caret.Rect_Select_Active := False;
          Report_Info (S, "Nothing to select");
       else
          Keep_Only_Primary_Selection_Caret (S);
          Editor.Selection.Apply_Active_Buffer_Selection
            (S, Selection_Range.Low, Selection_Range.High);
-         S.Rect_Select_Active := False;
-         S.Preferred_Column := 0;
+         S.Caret.Rect_Select_Active := False;
+         S.Caret.Preferred_Column := 0;
          Report_Success (S, "Selected all");
       end if;
 
@@ -261,15 +261,15 @@ package body Editor.Executor.Selection_Commands is
    begin
       if not Editor.State.Has_Active_Buffer (S) then
          Report_Info (S, "No active buffer.");
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          Report_Info (S, "No caret location");
-      elsif not Primary_Selection_Is_Valid (S) and then not S.Rect_Select_Active then
+      elsif not Primary_Selection_Is_Valid (S) and then not S.Caret.Rect_Select_Active then
          Report_Info (S, "No selection");
       else
          Caret := Safe_Caret (S);
          Keep_Only_Primary_Selection_Caret (S);
          Set_Primary_Caret (S, Caret);
-         S.Rect_Select_Active := False;
+         S.Caret.Rect_Select_Active := False;
          Report_Success (S, "Selection cleared");
       end if;
 
@@ -289,7 +289,7 @@ package body Editor.Executor.Selection_Commands is
    begin
       if not Editor.State.Has_Active_Buffer (S) then
          Report_Info (S, "No active buffer.");
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          Report_Info (S, "No caret location");
       elsif Text_Buffer.Length (S.Buffer) = 0 then
          Report_Info (S, "No selectable word at cursor");
@@ -307,8 +307,8 @@ package body Editor.Executor.Selection_Commands is
          Keep_Only_Primary_Selection_Caret (S);
          Editor.Selection.Apply_Active_Buffer_Selection
            (S, Selection_Range.Low, Selection_Range.High);
-         S.Rect_Select_Active := False;
-         S.Preferred_Column := Natural (Selection_Range.High - Selection_Range.Low);
+         S.Caret.Rect_Select_Active := False;
+         S.Caret.Preferred_Column := Natural (Selection_Range.High - Selection_Range.Low);
          Report_Success (S, "Selected current word");
       end if;
 
@@ -388,9 +388,9 @@ package body Editor.Executor.Selection_Commands is
         Editor.Selection.Normalize_Rectangular_Range (Anchor, Cursor);
       Rectangle_Range : Editor.Rectangle_Selection.Rectangle_Range;
    begin
-      S.Rect_Select_Active := True;
-      S.Rect_Anchor_Row := Anchor.Row;
-      S.Rect_Anchor_Col := Anchor.Column;
+      S.Caret.Rect_Select_Active := True;
+      S.Caret.Rect_Anchor_Row := Anchor.Row;
+      S.Caret.Rect_Anchor_Col := Anchor.Column;
 
       Rectangle_Range :=
         (First_Row => R.Start_Row,
@@ -403,7 +403,7 @@ package body Editor.Executor.Selection_Commands is
       --  Build_Carets creates the single rectangular selection as a
       --  per-row caret projection. Preferred_Column tracks the command cursor
       --  column for status/navigation while render/copy use the spans.
-      S.Preferred_Column := Cursor.Column;
+      S.Caret.Preferred_Column := Cursor.Column;
       Editor.Folding.Expand_To_Reveal_Row (S.Folding, Cursor.Row);
       Editor.Render_Cache.Invalidate_All;
       Editor.Invariants.Check (S);
@@ -427,14 +427,14 @@ package body Editor.Executor.Selection_Commands is
       Cur_Row : Natural := 0;
       Cur_Col : Natural := 0;
    begin
-      if S.Rect_Select_Active then
-         Anchor := (Row => S.Rect_Anchor_Row, Column => S.Rect_Anchor_Col);
+      if S.Caret.Rect_Select_Active then
+         Anchor := (Row => S.Caret.Rect_Anchor_Row, Column => S.Caret.Rect_Anchor_Col);
       else
          Editor.State.Row_Col_For_Index (S, Safe_Caret (S), Cur_Row, Cur_Col);
-         if S.Carets.Length > 0
-           and then S.Carets (S.Carets.First_Index).Virtual_Column > 0
+         if S.Caret.Carets.Length > 0
+           and then S.Caret.Carets (S.Caret.Carets.First_Index).Virtual_Column > 0
          then
-            Cur_Col := S.Carets (S.Carets.First_Index).Virtual_Column;
+            Cur_Col := S.Caret.Carets (S.Caret.Carets.First_Index).Virtual_Column;
          end if;
          Anchor := (Row => Cur_Row, Column => Cur_Col);
       end if;
@@ -463,9 +463,9 @@ package body Editor.Executor.Selection_Commands is
       End_Pos      : Natural := 0;
    begin
       Keep_Only_Primary_Selection_Caret (S);
-      S.Rect_Select_Active := False;
+      S.Caret.Rect_Select_Active := False;
       S.Search.Active_Find_Match := Editor.Search.No_Match;
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
 
       if Target.Found then
          Start_Pos := Index_For_Line_Column
@@ -476,21 +476,21 @@ package body Editor.Executor.Selection_Commands is
            (S,
             Target.Selection_Range.End_Position.Row,
             Target.Selection_Range.End_Position.Column);
-         S.Carets.Append
+         S.Caret.Carets.Append
            (Editor.Cursors.Caret_State'
           (Pos                   => Cursor_Index (End_Pos),
              Anchor                => Cursor_Index (Start_Pos),
              Virtual_Column        => 0,
              Anchor_Virtual_Column => 0));
-         S.Preferred_Column := Target.Selection_Range.End_Position.Column;
+         S.Caret.Preferred_Column := Target.Selection_Range.End_Position.Column;
       else
-         S.Carets.Append
+         S.Caret.Carets.Append
            (Editor.Cursors.Caret_State'
           (Pos                   => Fallback,
              Anchor                => Fallback,
              Virtual_Column        => 0,
              Anchor_Virtual_Column => 0));
-         S.Preferred_Column := Fallback_Pos.Column;
+         S.Caret.Preferred_Column := Fallback_Pos.Column;
       end if;
 
       Editor.State.Normalize_Carets (S);

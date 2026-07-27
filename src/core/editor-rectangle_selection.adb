@@ -104,10 +104,10 @@ package body Editor.Rectangle_Selection is
       Start_VC  : Natural := 0;
       End_VC    : Natural := 0;
    begin
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
 
       if Editor.State.Line_Count (S) = 0 then
-         S.Carets.Append
+         S.Caret.Carets.Append
            (Caret_State'
               (Pos                   => 0,
                Anchor                => 0,
@@ -134,7 +134,7 @@ package body Editor.Rectangle_Selection is
             End_VC := 0;
          end if;
 
-         S.Carets.Append
+         S.Caret.Carets.Append
            (Caret_State'
               (Pos                   => End_Pos,
                Anchor                => Start_Pos,
@@ -142,8 +142,8 @@ package body Editor.Rectangle_Selection is
                Anchor_Virtual_Column => Start_VC));
       end loop;
 
-      if S.Carets.Length = 0 then
-         S.Carets.Append
+      if S.Caret.Carets.Length = 0 then
+         S.Caret.Carets.Append
            (Caret_State'
               (Pos                   => 0,
                Anchor                => 0,
@@ -174,11 +174,11 @@ package body Editor.Rectangle_Selection is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      if not S.Rect_Select_Active then
+      if not S.Caret.Rect_Select_Active then
          return False;
       end if;
 
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          if Has_Rectangle_Span (C) then
             return True;
          end if;
@@ -251,7 +251,7 @@ package body Editor.Rectangle_Selection is
       Result : Unbounded_String := Null_Unbounded_String;
       First  : Boolean := True;
    begin
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          if Has_Rectangle_Span (C) then
             declare
                Row       : Natural := 0;
@@ -310,7 +310,7 @@ package body Editor.Rectangle_Selection is
       Cmd.Delete_Counts.Clear;
       Cmd.Insert_Texts.Clear;
 
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          if Has_Rectangle_Span (C) then
             L := Selection_Start_Position (S, C);
             H := Selection_End_Position (S, C);
@@ -382,10 +382,10 @@ package body Editor.Rectangle_Selection is
                Anchor_Virtual_Column => 0));
       end if;
 
-      S.Carets := New_Carets;
-      S.Rect_Select_Active := False;
+      S.Caret.Carets := New_Carets;
+      S.Caret.Rect_Select_Active := False;
       Editor.State.Normalize_Carets (S);
-      New_Caret := S.Carets (S.Carets.First_Index).Pos;
+      New_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
    end Collapse_After_Delete;
 
 end Editor.Rectangle_Selection;

@@ -24,8 +24,8 @@ package body Editor.Input_Bridge.File_Tree_Key_Handlers is
    is
    begin
       Editor.File_Tree_View.Select_First_Visible_Row
-        (S.File_Tree_View, S.File_Tree);
-      Editor.File_Tree_View.Set_Top_Row (S.File_Tree_View, 1);
+        (S.Surface.File_Tree_View, S.Surface.File_Tree);
+      Editor.File_Tree_View.Set_Top_Row (S.Surface.File_Tree_View, 1);
       Editor.Render_Cache.Invalidate_All;
    end Select_First_File_Tree_Row;
 
@@ -43,15 +43,15 @@ package body Editor.Input_Bridge.File_Tree_Key_Handlers is
         (if Editor.Layout.Cell_H = 0 then 1
          else Natural'Max (1, Panel.Height / Editor.Layout.Cell_H));
       Count     : constant Natural :=
-        Editor.File_Tree.Visible_Row_Count (S.File_Tree);
+        Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree);
    begin
       Editor.File_Tree_View.Select_Last_Visible_Row
-        (S.File_Tree_View, S.File_Tree);
+        (S.Surface.File_Tree_View, S.Surface.File_Tree);
       if Count <= Page_Rows then
-         Editor.File_Tree_View.Set_Top_Row (S.File_Tree_View, 1);
+         Editor.File_Tree_View.Set_Top_Row (S.Surface.File_Tree_View, 1);
       else
          Editor.File_Tree_View.Set_Top_Row
-           (S.File_Tree_View, Count - Page_Rows + 1);
+           (S.Surface.File_Tree_View, Count - Page_Rows + 1);
       end if;
       Editor.Render_Cache.Invalidate_All;
    end Select_Last_File_Tree_Row;

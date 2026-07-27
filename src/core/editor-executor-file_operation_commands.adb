@@ -49,9 +49,9 @@ package body Editor.Executor.File_Operation_Commands is
       --  query is active.
       S.Search.Active_Find_Stale := True;
       Editor.Outline.Clear (S.Outline);
-      S.Outline_Cursor_Key_Valid := False;
-      Editor.Project_Search.Mark_Stale_Unconditionally (S.Project_Search);
-      Editor.Project_Search.Mark_Replace_Preview_Stale (S.Project_Search);
+      S.Outline_Cursor.Key_Valid := False;
+      Editor.Project_Search.Mark_Stale_Unconditionally (S.Surface.Project_Search);
+      Editor.Project_Search.Mark_Replace_Preview_Stale (S.Surface.Project_Search);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
         (S.Panel.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
 
@@ -295,7 +295,7 @@ package body Editor.Executor.File_Operation_Commands is
            .Refresh_Project_Search_After_File_Lifecycle (S);
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
-         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+         if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file renamed");
@@ -397,7 +397,7 @@ package body Editor.Executor.File_Operation_Commands is
            .Refresh_Project_Search_After_File_Lifecycle (S);
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
-         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+         if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file deleted");
@@ -468,7 +468,7 @@ package body Editor.Executor.File_Operation_Commands is
          Editor.Executor.Project_Search_Result_Commands
            .Refresh_Project_Search_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
-         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+         if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file copied");
@@ -572,7 +572,7 @@ package body Editor.Executor.File_Operation_Commands is
            .Refresh_Project_Search_After_File_Lifecycle (S);
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
          Editor.Buffers.Sync_Global_Active_From_State (S);
-         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+         if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
          Editor.Executor.Shared_Services.Report_Success (S, "Buffer file moved");

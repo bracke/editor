@@ -170,8 +170,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
          Analysis             => Analysis);
 
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, False);
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          Editor.Cursors.Caret_State'
            (Pos => 20, Anchor => 20,
             Virtual_Column => 0, Anchor_Virtual_Column => 0));
@@ -211,8 +211,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/project/run.adb");
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("run.adb");
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          Editor.Cursors.Caret_State'
            (Pos => 24, Anchor => 24,
             Virtual_Column => 0, Anchor_Virtual_Column => 0));
@@ -448,8 +448,8 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "stale current rename apply execution reports the stale service reason");
 
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, False);
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          Editor.Cursors.Caret_State'
            (Pos => 20, Anchor => 20,
             Virtual_Column => 0, Anchor_Virtual_Column => 0));
@@ -1342,10 +1342,10 @@ package body Editor.Executor.Semantic_Index_State_Tests is
               "language index buffer-switcher fixture indexed both files");
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
-      Assert (Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher),
+      Assert (Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher),
               "language index buffer-switcher fixture opens Buffer List");
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Buffer_Switcher_Insert_Text (S, "main");
-      Assert (Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 1,
+      Assert (Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 1,
               "language index buffer-switcher fixture filters to main");
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Accept_Buffer_Switcher (S);
 

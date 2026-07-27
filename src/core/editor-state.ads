@@ -36,6 +36,9 @@ with Editor.State_Project;
 with Editor.State_Panel;
 with Editor.State_Semantic;
 with Editor.State_Build;
+with Editor.State_Caret;
+with Editor.State_Outline;
+with Editor.State_Surface;
 
 package Editor.State is
 
@@ -123,15 +126,11 @@ package Editor.State is
 
    type State_Type is record
       Buffer             : Text_Buffer.Buffer_Type;
-      Carets             : Editor.Cursors.Cursors_Vector.Vector;
+      Caret            : Editor.State_Caret.Caret_Runtime_State;
       --  Cached public line-start projection for callers that need direct
       --  row/index snapshots. Text_Buffer remains the authoritative text store;
       --  mutation paths must refresh this projection through the helpers below.
       Line_Starts        : Line_Start_Vectors.Vector;
-      Preferred_Column   : Natural := 0;
-      Rect_Select_Active : Boolean := False;
-      Rect_Anchor_Row    : Natural := 0;
-      Rect_Anchor_Col    : Natural := 0;
       Search           : Editor.State_Search.Search_Runtime_State;
       Panel            : Editor.State_Panel.Panel_Runtime_State;
       Gutter_Markers    : Editor.Gutter_Markers.Gutter_Marker_State;
@@ -143,21 +142,12 @@ package Editor.State is
       --  Passive outline cursor synchronization cache.  Cursor movement may
       --  update the current-symbol marker from the latest accepted outline,
       --  but it must not trigger extraction, selection changes, or navigation.
-      Outline_Cursor_Key_Valid : Boolean := False;
-      Outline_Cursor_Buffer_Token : Natural := 0;
-      Outline_Cursor_Line : Natural := 0;
-      Outline_Cursor_Column : Natural := 0;
-      File_Tree         : Editor.File_Tree.File_Tree_State;
-      File_Tree_View    : Editor.File_Tree_View.File_Tree_View_State;
+      Outline_Cursor  : Editor.State_Outline.Outline_Cursor_Sync_State;
+      Surface         : Editor.State_Surface.Surface_Runtime_State;
       Panels            : Editor.Panels.Panel_Set;
-      Quick_Open        : Editor.Quick_Open.Quick_Open_State;
-      Buffer_Switcher   : Editor.Buffer_Switcher.Buffer_Switcher_State;
-      Go_To_Line       : Editor.Go_To_Line.Go_To_Line_State;
       Navigation_History : Editor.Navigation_History.Navigation_History_State;
       Recent_Buffers    : Editor.Recent_Buffers.Recent_Buffer_State;
-      Project_Search    : Editor.Project_Search.Project_Search_State;
       Bookmarks         : Editor.Bookmarks.Bookmark_State;
-      Project_Search_Bar : Editor.Project_Search_Bar.Project_Search_Bar_State;
       Gutter_Marker_Hover : Editor.Gutter_Markers.Gutter_Marker_Hover_State;
       Semantic         : Editor.State_Semantic.Semantic_Runtime_State;
       Folding           : Editor.Folding.Folding_State;

@@ -139,25 +139,25 @@ package body Editor.Executor.Test_Support is
       Target : constant Editor.Cursors.Cursor_Index :=
         Editor.State.Line_Start (S, Line - 1);
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => Target,
            Anchor                => Target,
            Virtual_Column        => 0,
            Anchor_Virtual_Column => 0));
-      S.Preferred_Column := 0;
+      S.Caret.Preferred_Column := 0;
    end Move_Caret_To_Line;
 
    function Active_Caret_Line (S : Editor.State.State_Type) return Natural is
       Row : Natural := 0;
       Col : Natural := 0;
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return 0;
       end if;
       Editor.State.Row_Col_For_Index
-        (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
+        (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos, Row, Col);
       return Row + 1;
    end Active_Caret_Line;
 

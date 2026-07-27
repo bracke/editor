@@ -192,13 +192,13 @@ package body Editor.Executor.Semantic_Completion_Commands is
               Editor.Cursors.Cursor_Index
                 (Start_Pos
                  + Text_Buffer.UTF8_Code_Point_Count (To_String (Label)));
-            C : Editor.Cursors.Caret_State := S.Carets (S.Carets.First_Index);
+            C : Editor.Cursors.Caret_State := S.Caret.Carets (S.Caret.Carets.First_Index);
          begin
             C.Pos := New_Pos;
             C.Anchor := New_Pos;
             C.Virtual_Column := 0;
             C.Anchor_Virtual_Column := 0;
-            S.Carets.Replace_Element (S.Carets.First_Index, C);
+            S.Caret.Carets.Replace_Element (S.Caret.Carets.First_Index, C);
          end;
          Editor.State.Load_Text (Before, To_String (Before_Text));
          Editor.Executor.History.Log_Edit (Before, S, Cmd);

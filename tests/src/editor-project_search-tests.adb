@@ -305,7 +305,7 @@ package body Editor.Project_Search.Tests is
       --  it cannot hold a known file that is missing from disk. These tests are about
       --  the known-file set, so they ask about the known-file set.
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project_Runtime.Project, Options);
+        (S.Surface.Project_Search, S.Project_Runtime.Project, Options);
    end Rerun_Project_Search;
 
    procedure Assert_Project_Search_File_Lifecycle_Observation_Coherent
@@ -1546,17 +1546,17 @@ package body Editor.Project_Search.Tests is
               and then Alpha_Id /= Beta_Id,
               "setup should create distinct canonical open buffers");
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project_Runtime.Project, Options);
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 2,
+        (S.Surface.Project_Search, S.Project_Runtime.Project, Options);
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 2,
               "setup should search retained known project files only");
-      Assert (Project_Search_Has_Result_Path (S.Project_Search, "src/alpha.adb")
-              and then Project_Search_Has_Result_Path (S.Project_Search, "src/beta.adb"),
+      Assert (Project_Search_Has_Result_Path (S.Surface.Project_Search, "src/alpha.adb")
+              and then Project_Search_Has_Result_Path (S.Surface.Project_Search, "src/beta.adb"),
               "setup should expose retained searchable source paths");
 
       Found := Editor.Project_Search.Select_First_Result_For_Path
-        (S.Project_Search, "src/alpha.adb");
+        (S.Surface.Project_Search, "src/alpha.adb");
       Assert (Found,
               "setup should select an inactive Project Search result");
       Assert (Editor.Buffers.Global_Active_Buffer = Beta_Id,
@@ -1565,9 +1565,9 @@ package body Editor.Project_Search.Tests is
       Editor.Executor.File_Target_Prompt_Commands.Execute_File_Target_Command
         (S, Editor.Command_Ids.Command_Copy_Buffer_File, Copy_Target);
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project_Runtime.Project, Options);
+        (S.Surface.Project_Search, S.Project_Runtime.Project, Options);
       Assert_Project_Search_File_Lifecycle_Observation_Coherent
-        (S.Project_Search, "src/alpha.adb", "src/alpha_copy.adb",
+        (S.Surface.Project_Search, "src/alpha.adb", "src/alpha_copy.adb",
          "copy observation through retained searchable sources");
       Assert (Editor.Buffers.Global_Active_Buffer = Beta_Id,
               "copy uses active buffer source, not selected search result");
@@ -1578,13 +1578,13 @@ package body Editor.Project_Search.Tests is
               and then Found,
               "rename should update canonical active buffer association");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project_Runtime.Project, Options);
+        (S.Surface.Project_Search, S.Project_Runtime.Project, Options);
       Assert_Project_Search_File_Lifecycle_Observation_Coherent
-        (S.Project_Search, "src/alpha.adb", "src/beta_renamed.adb",
+        (S.Surface.Project_Search, "src/alpha.adb", "src/beta_renamed.adb",
          "rename target must not be promoted to searchable source");
-      Assert (Editor.Project_Search.Skipped_Missing_Count (S.Project_Search) >= 1,
+      Assert (Editor.Project_Search.Skipped_Missing_Count (S.Surface.Project_Search) >= 1,
               "stale retained known-file source is skipped, not repaired by Project Search");
-      Assert (not Project_Search_Has_Result_Path (S.Project_Search, "src/beta.adb"),
+      Assert (not Project_Search_Has_Result_Path (S.Surface.Project_Search, "src/beta.adb"),
               "missing pre-rename source should not be shown as recovery state after rerun");
 
       Remove_Tree_If_Exists (Root);
@@ -1629,12 +1629,12 @@ package body Editor.Project_Search.Tests is
       Beta_Id := Editor.Buffers.Global_Active_Buffer;
 
       Editor.Project_Search.Set_Query
-        (S.Project_Search, "src/query-must-not-seed-target.adb");
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+        (S.Surface.Project_Search, "src/query-must-not-seed-target.adb");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project_Runtime.Project, Options);
+        (S.Surface.Project_Search, S.Project_Runtime.Project, Options);
       Found := Editor.Project_Search.Select_First_Result_For_Path
-        (S.Project_Search, "src/alpha.adb");
+        (S.Surface.Project_Search, "src/alpha.adb");
       Assert (Found,
               "setup should select a Project Search result different from active buffer");
 
@@ -1644,7 +1644,7 @@ package body Editor.Project_Search.Tests is
               "canonical prompt opens through Executor only");
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
               "Project Search query/selection must not seed target prompt input");
-      Editor.Project_Search.Move_Selection_Down (S.Project_Search);
+      Editor.Project_Search.Move_Selection_Down (S.Surface.Project_Search);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
               "Project Search selection changes do not mutate prompt input");
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Target_Path);
@@ -1657,12 +1657,12 @@ package body Editor.Project_Search.Tests is
       Assert (Ada.Directories.Exists (Alpha_Path),
               "selected Project Search result remains local UI state and is not renamed");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project_Runtime.Project, Options);
+        (S.Surface.Project_Search, S.Project_Runtime.Project, Options);
       Assert (not Project_Search_Has_Result_Path
-                (S.Project_Search, "src/query-must-not-seed-target.adb"),
+                (S.Surface.Project_Search, "src/query-must-not-seed-target.adb"),
               "query text must not create target history results");
       Assert (not Project_Search_Has_Result_Path
-                (S.Project_Search, "src/beta_prompt_renamed.adb"),
+                (S.Surface.Project_Search, "src/beta_prompt_renamed.adb"),
               "prompted target must not be promoted to retained searchable source");
 
       Remove_Tree_If_Exists (Root);
@@ -1761,16 +1761,16 @@ package body Editor.Project_Search.Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Alpha_Path);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Beta_Path);
       Beta_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Rerun_Project_Search (S, Options);
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "src/alpha.adb", "src/beta.adb", "", "",
+        (S.Surface.Project_Search, "src/alpha.adb", "src/beta.adb", "", "",
          "initial retained source snapshot");
 
       Editor.Executor.File_Operation_Commands.Execute_Copy_Buffer_File (S, Copy_Target);
       Rerun_Project_Search (S, Options);
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "src/alpha.adb", "src/beta.adb", "src/beta_copy.adb", "",
+        (S.Surface.Project_Search, "src/alpha.adb", "src/beta.adb", "src/beta_copy.adb", "",
          "copy does not create Project Search lifecycle target result");
       Assert (Editor.Buffers.Global_Find_By_Path (Beta_Path, Found) = Beta_Id and then Found,
               "copy preserves canonical active-buffer association");
@@ -1778,7 +1778,7 @@ package body Editor.Project_Search.Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Save_As_Path);
       Rerun_Project_Search (S, Options);
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "src/alpha.adb", "src/beta.adb", "src/beta_saved_as.adb", "src/beta_copy.adb",
+        (S.Surface.Project_Search, "src/alpha.adb", "src/beta.adb", "src/beta_saved_as.adb", "src/beta_copy.adb",
          "save-as target is observed only through buffer association, not retained project sources");
       Assert (Editor.Buffers.Global_Find_By_Path (Save_As_Path, Found) = Beta_Id and then Found,
               "save-as updates only canonical buffer association");
@@ -1786,7 +1786,7 @@ package body Editor.Project_Search.Tests is
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Move_Target);
       Rerun_Project_Search (S, Options);
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "src/alpha.adb", "src/beta.adb", "src/beta_moved.adb", "src/beta_saved_as.adb",
+        (S.Surface.Project_Search, "src/alpha.adb", "src/beta.adb", "src/beta_moved.adb", "src/beta_saved_as.adb",
          "move target is not promoted to retained searchable source");
       Assert (Editor.Buffers.Global_Find_By_Path (Move_Target, Found) = Beta_Id and then Found,
               "move updates only canonical active-buffer association");
@@ -1794,7 +1794,7 @@ package body Editor.Project_Search.Tests is
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Rerun_Project_Search (S, Options);
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "src/alpha.adb", "src/beta.adb", "src/beta_moved.adb", "src/beta_saved_as.adb",
+        (S.Surface.Project_Search, "src/alpha.adb", "src/beta.adb", "src/beta_moved.adb", "src/beta_saved_as.adb",
          "delete creates no recovery, deleted-source, or target-history result");
       declare
          Deleted_Id : constant Editor.Buffers.Buffer_Id :=
@@ -1846,13 +1846,13 @@ package body Editor.Project_Search.Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Alpha_Path);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Beta_Path);
       Beta_Id := Editor.Buffers.Global_Active_Buffer;
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Rerun_Project_Search (S, Options);
 
       Editor.Executor.File_Operation_Commands.Execute_Rename_Buffer_File (S, Alpha_Path);
       Rerun_Project_Search (S, Options);
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "src/alpha.adb", "src/beta.adb", "", "",
+        (S.Surface.Project_Search, "src/alpha.adb", "src/beta.adb", "", "",
          "rename target collision preserves retained Project Search results");
       Assert (Editor.Buffers.Global_Find_By_Path (Beta_Path, Found) = Beta_Id and then Found,
               "failed rename preserves canonical association");
@@ -1860,7 +1860,7 @@ package body Editor.Project_Search.Tests is
       Editor.Executor.File_Operation_Commands.Execute_Move_Buffer_File (S, Missing_Path);
       Rerun_Project_Search (S, Options);
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "src/alpha.adb", "src/beta.adb", "missing/target.adb", "",
+        (S.Surface.Project_Search, "src/alpha.adb", "src/beta.adb", "missing/target.adb", "",
          "failed move target is never displayed or stored");
       Assert (Editor.Buffers.Global_Find_By_Path (Beta_Path, Found) = Beta_Id and then Found,
               "failed move preserves canonical association");
@@ -1871,7 +1871,7 @@ package body Editor.Project_Search.Tests is
       Editor.Executor.File_Operation_Commands.Execute_Delete_Buffer_File (S);
       Rerun_Project_Search (S, Options);
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "src/alpha.adb", "src/beta.adb", "src/dirty_copy.adb", "",
+        (S.Surface.Project_Search, "src/alpha.adb", "src/beta.adb", "src/dirty_copy.adb", "",
          "dirty-blocked copy/delete preserve Project Search observation");
       Assert (Editor.Buffers.Global_Find_By_Path (Beta_Path, Found) = Beta_Id and then Found,
               "dirty-blocked operations preserve canonical active-buffer source");
@@ -1919,10 +1919,10 @@ package body Editor.Project_Search.Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Beta_Path);
       Beta_Id := Editor.Buffers.Global_Active_Buffer;
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "target-like-text");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "target-like-text");
       Rerun_Project_Search (S, Options);
       Found := Editor.Project_Search.Select_First_Result_For_Path
-        (S.Project_Search, "src/alpha.adb");
+        (S.Surface.Project_Search, "src/alpha.adb");
       Assert (Found,
               "setup selects a target-like Project Search result");
       Assert (Editor.Buffers.Global_Active_Buffer = Beta_Id,
@@ -1932,7 +1932,7 @@ package body Editor.Project_Search.Tests is
         (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
               "query/result text must not seed prompt input");
-      Editor.Project_Search.Move_Selection_Down (S.Project_Search);
+      Editor.Project_Search.Move_Selection_Down (S.Surface.Project_Search);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Alpha_Id);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Alpha_New);
       Editor.Executor.File_Target_Prompt_Commands.Confirm_File_Target_Prompt (S);
@@ -1943,10 +1943,10 @@ package body Editor.Project_Search.Tests is
               "prompt confirmation uses active buffer at confirmation time");
       Assert (Editor.Buffers.Global_Find_By_Path (Beta_Path, Found) = Beta_Id and then Found,
               "selected/query Project Search state does not redirect file lifecycle source");
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Rerun_Project_Search (S, Options);
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "src/beta.adb", "", "src/alpha_prompt_renamed.adb", "target-like-text",
+        (S.Surface.Project_Search, "src/beta.adb", "", "src/alpha_prompt_renamed.adb", "target-like-text",
          "prompted target and query text remain outside retained Project Search sources");
 
       Remove_Tree_If_Exists (Root);
@@ -2031,12 +2031,12 @@ package body Editor.Project_Search.Tests is
       Add_Known (S.Project_Runtime.Project, "src/alpha.adb", Alpha_Path);
       Add_Known (S.Project_Runtime.Project, "src/beta.adb", Beta_Path);
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Rerun_Project_Search (S, Options);
       Assert_Project_Search_File_Lifecycle_Observation_Canonical
-        (S.Project_Search, "retained-source snapshot");
+        (S.Surface.Project_Search, "retained-source snapshot");
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "src/alpha.adb", "src/beta.adb", "src/copy.adb",
+        (S.Surface.Project_Search, "src/alpha.adb", "src/beta.adb", "src/copy.adb",
          "src/moved.adb",
          "result derivation is retained-source only");
 
@@ -2083,13 +2083,13 @@ package body Editor.Project_Search.Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Beta_Path);
       Beta_Id := Editor.Buffers.Global_Active_Buffer;
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "target-like-text");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "target-like-text");
       Rerun_Project_Search (S, Options);
       Found := Editor.Project_Search.Select_First_Result_For_Path
-        (S.Project_Search, "src/alpha.adb");
+        (S.Surface.Project_Search, "src/alpha.adb");
       Assert (Found, "selects a target-looking Project Search row");
       Assert_Project_Search_File_Lifecycle_Observation_Canonical
-        (S.Project_Search, "selected result remains canonical");
+        (S.Surface.Project_Search, "selected result remains canonical");
 
       Editor.Executor.File_Target_Prompt_Commands.Open_File_Target_Prompt
         (S, Editor.Command_Ids.Command_Rename_Buffer_File);
@@ -2105,14 +2105,14 @@ package body Editor.Project_Search.Tests is
               and then Found,
               "selected Project Search result is not lifecycle source");
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Rerun_Project_Search (S, Options);
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "src/alpha.adb", "", "src/renamed_by_prompt.adb",
+        (S.Surface.Project_Search, "src/alpha.adb", "", "src/renamed_by_prompt.adb",
          "target-like-text",
          "prompted target/query are not retained Project Search sources");
       Assert_Project_Search_File_Lifecycle_Observation_Canonical
-        (S.Project_Search, "after prompt confirmation cleanup");
+        (S.Surface.Project_Search, "after prompt confirmation cleanup");
 
       Remove_Tree_If_Exists (Root);
       Editor.Buffers.Reset_Global_For_Test;
@@ -2227,20 +2227,20 @@ package body Editor.Project_Search.Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Beta_Path);
       Beta_Id := Editor.Buffers.Global_Active_Buffer;
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Rerun_Project_Search (S, Options);
       Found := Editor.Project_Search.Select_First_Result_For_Path
-        (S.Project_Search, "src/alpha.adb");
+        (S.Surface.Project_Search, "src/alpha.adb");
       Assert (Found, "setup selects retained alpha result");
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "src/alpha.adb", "src/beta.adb",
+        (S.Surface.Project_Search, "src/alpha.adb", "src/beta.adb",
          "src/beta_saved_as.adb", "src/beta_copy.adb",
          "retained source freeze before operation");
       Assert_Project_Search_File_Lifecycle_Observation_Frozen
-        (S.Project_Search, "retained source canonical freeze");
+        (S.Surface.Project_Search, "retained source canonical freeze");
 
       Snapshot_Before := Editor.Search_Results.Build_Snapshot
-        (S.Project_Search, (others => <>), Editor.Buffers.Global_Registry_For_UI);
+        (S.Surface.Project_Search, (others => <>), Editor.Buffers.Global_Registry_For_UI);
       Row := Snapshot_Match_Row_For_Path (Snapshot_Before, "src/beta.adb", Found);
       Assert (Found, "render snapshot exposes retained beta match");
       Assert (Row.Is_Open and then Row.Is_Active and then not Row.Is_Dirty,
@@ -2251,7 +2251,7 @@ package body Editor.Project_Search.Tests is
       Editor.State.Set_Dirty (S, True);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Snapshot_Dirty := Editor.Search_Results.Build_Snapshot
-        (S.Project_Search, (others => <>), Editor.Buffers.Global_Registry_For_UI);
+        (S.Surface.Project_Search, (others => <>), Editor.Buffers.Global_Registry_For_UI);
       Row := Snapshot_Match_Row_For_Path (Snapshot_Dirty, "src/beta.adb", Found);
       Assert (Found and then Row.Is_Dirty,
               "dirty marker derives from current buffer dirty state only");
@@ -2265,16 +2265,16 @@ package body Editor.Project_Search.Tests is
               "save-as updates canonical active-buffer association");
       Rerun_Project_Search (S, Options);
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "src/alpha.adb", "src/beta.adb",
+        (S.Surface.Project_Search, "src/alpha.adb", "src/beta.adb",
          "src/beta_saved_as.adb", "src/beta_copy.adb",
          "save-as target is not promoted to retained searchable source");
       Snapshot_After := Editor.Search_Results.Build_Snapshot
-        (S.Project_Search, (others => <>), Editor.Buffers.Global_Registry_For_UI);
+        (S.Surface.Project_Search, (others => <>), Editor.Buffers.Global_Registry_For_UI);
       Row := Snapshot_Match_Row_For_Path (Snapshot_After, "src/beta.adb", Found);
       Assert (Found and then not Row.Is_Open and then not Row.Is_Active and then not Row.Is_Dirty,
               "fresh render markers follow current association, not stale path cache");
       Assert_Project_Search_File_Lifecycle_Observation_Frozen
-        (S.Project_Search, "render/source final freeze after save-as");
+        (S.Surface.Project_Search, "render/source final freeze after save-as");
 
       Remove_Tree_If_Exists (Root);
       Editor.Buffers.Reset_Global_For_Test;
@@ -2321,10 +2321,10 @@ package body Editor.Project_Search.Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Beta_Path);
       Beta_Id := Editor.Buffers.Global_Active_Buffer;
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "target-like-text");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "target-like-text");
       Rerun_Project_Search (S, Options);
       Found := Editor.Project_Search.Select_First_Result_For_Path
-        (S.Project_Search, "src/alpha.adb");
+        (S.Surface.Project_Search, "src/alpha.adb");
       Assert (Found, "selects a target-like retained Project Search result");
       Assert (Editor.Buffers.Global_Active_Buffer = Beta_Id,
               "selected Project Search result does not override active buffer");
@@ -2339,17 +2339,17 @@ package body Editor.Project_Search.Tests is
               "direct move updates only canonical active-buffer association");
       Rerun_Project_Search (S, Options);
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "src/alpha.adb", "", "src/beta_copy.adb",
+        (S.Surface.Project_Search, "src/alpha.adb", "", "src/beta_copy.adb",
          "src/beta_moved.adb",
          "direct copy/move targets never become Project Search sources");
       Assert_Project_Search_File_Lifecycle_Observation_Frozen
-        (S.Project_Search, "direct explicit-target observation frozen");
+        (S.Surface.Project_Search, "direct explicit-target observation frozen");
 
       Editor.Executor.File_Target_Prompt_Commands.Open_File_Target_Prompt
         (S, Editor.Command_Ids.Command_Rename_Buffer_File);
       Assert (Editor.Executor.File_Target_Prompt_Commands.File_Target_Prompt_Input_Text (S) = "",
               "query/result/display text does not seed prompt input");
-      Editor.Project_Search.Move_Selection_Down (S.Project_Search);
+      Editor.Project_Search.Move_Selection_Down (S.Surface.Project_Search);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, Alpha_Id);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Rename_Path);
       Editor.Executor.File_Target_Prompt_Commands.Confirm_File_Target_Prompt (S);
@@ -2362,14 +2362,14 @@ package body Editor.Project_Search.Tests is
               and then Found,
               "Project Search selection does not become lifecycle source");
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Rerun_Project_Search (S, Options);
       Assert_Project_Search_Result_Set_Unchanged
-        (S.Project_Search, "", "", "src/alpha_prompt_renamed.adb",
+        (S.Surface.Project_Search, "", "", "src/alpha_prompt_renamed.adb",
          "src/beta_moved.adb",
          "prompted/direct target paths are not retained Project Search sources");
       Assert_Project_Search_File_Lifecycle_Observation_Frozen
-        (S.Project_Search, "prompted observation final freeze");
+        (S.Surface.Project_Search, "prompted observation final freeze");
 
       Remove_Tree_If_Exists (Root);
       Editor.Buffers.Reset_Global_For_Test;
@@ -2502,10 +2502,10 @@ package body Editor.Project_Search.Tests is
       Add_Known (S.Project_Runtime.Project, "a.txt", Ada.Directories.Compose (Root, "a.txt"));
       Add_Known (S.Project_Runtime.Project, "b.txt", Ada.Directories.Compose (Root, "b.txt"));
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project_Runtime.Project, Options);
-      Assert (Editor.Project_Search.Selected_Result_Index (S.Project_Search) /= 0,
+        (S.Surface.Project_Search, S.Project_Runtime.Project, Options);
+      Assert (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) /= 0,
               "setup should select a real result");
 
       A := Editor.Executor.Command_Availability
@@ -2513,7 +2513,7 @@ package body Editor.Project_Search.Tests is
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
               "fresh selected project search result should be activatable");
 
-      Editor.Project_Search.Mark_Stale (S.Project_Search);
+      Editor.Project_Search.Mark_Stale (S.Surface.Project_Search);
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Open_Selected_Project_Search_Result);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
@@ -2853,15 +2853,15 @@ package body Editor.Project_Search.Tests is
       Write_Bytes (Ada.Directories.Compose (Root, "main.adb"), "needle");
 
       Tree := Editor.File_Tree.Scan_Project (Root);
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Editor.Project_Search.Search_Project
-        (S.Project_Search, Tree, Read_Text'Access, Options);
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) = 1
-              and then not Editor.Project_Search.Is_Stale (S.Project_Search),
+        (S.Surface.Project_Search, Tree, Read_Text'Access, Options);
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 1
+              and then not Editor.Project_Search.Is_Stale (S.Surface.Project_Search),
               "edit-stale fixture should start with one fresh Project Search result");
 
       Editor.State.Rebuild_After_Buffer_Change (S);
-      Assert (Editor.Project_Search.Is_Stale (S.Project_Search),
+      Assert (Editor.Project_Search.Is_Stale (S.Surface.Project_Search),
               "ordinary buffer edits should mark retained Project Search results stale");
 
       Remove_Tree_If_Exists (Root);
@@ -2967,14 +2967,14 @@ package body Editor.Project_Search.Tests is
       Add_Known (S.Project_Runtime.Project, "a.txt", Ada.Directories.Compose (Root, "a.txt"));
       Add_Known (S.Project_Runtime.Project, "b.txt", Ada.Directories.Compose (Root, "b.txt"));
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.Project_Runtime.Project, Options);
-      Assert (Editor.Project_Search.Result_Count (S.Project_Search) > 0,
+        (S.Surface.Project_Search, S.Project_Runtime.Project, Options);
+      Assert (Editor.Project_Search.Result_Count (S.Surface.Project_Search) > 0,
               "navigation setup should retain project search results");
 
-      Editor.Project_Search.Set_Selected_Result_Index (S.Project_Search, 0);
-      Assert (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 0,
+      Editor.Project_Search.Set_Selected_Result_Index (S.Surface.Project_Search, 0);
+      Assert (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = 0,
               "navigation setup should allow no selected result");
 
       A := Editor.Executor.Command_Availability
@@ -2995,14 +2995,14 @@ package body Editor.Project_Search.Tests is
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Next_Project_Search_Result);
-      Assert (Editor.Project_Search.Selected_Result_Index (S.Project_Search) = 1,
+      Assert (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) = 1,
               "next-result should select the first retained result when none is selected");
 
-      Editor.Project_Search.Set_Selected_Result_Index (S.Project_Search, 0);
+      Editor.Project_Search.Set_Selected_Result_Index (S.Surface.Project_Search, 0);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Previous_Project_Search_Result);
-      Assert (Editor.Project_Search.Selected_Result_Index (S.Project_Search) =
-                Editor.Project_Search.Result_Count (S.Project_Search),
+      Assert (Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search) =
+                Editor.Project_Search.Result_Count (S.Surface.Project_Search),
               "previous-result should wrap to the last retained result when none is selected");
 
       Cleanup_Fixture (Root);

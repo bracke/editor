@@ -253,7 +253,7 @@ package body Editor.Executor.File_Save_As_Commands is
          end if;
          Editor.Executor.Project_Search_Result_Commands
            .Refresh_Project_Search_After_File_Lifecycle (S);
-         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+         if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);

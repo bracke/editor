@@ -82,14 +82,14 @@ package body Editor.Executor.Search_Commands is
 
       function Has_Search_Results return Boolean is
       begin
-         return Editor.Project_Search.Has_Results (S.Project_Search);
+         return Editor.Project_Search.Has_Results (S.Surface.Project_Search);
       end Has_Search_Results;
 
       function Has_Selected_Search_Result return Boolean is
       begin
          return Has_Search_Results
            and then Editor.Project_Search.Selected_Result_Index
-             (S.Project_Search) /= 0;
+             (S.Surface.Project_Search) /= 0;
       end Has_Selected_Search_Result;
 
       function Search_Results_Has_Focus return Boolean is
@@ -106,8 +106,8 @@ package body Editor.Executor.Search_Commands is
 
       function Project_Search_File_Count return Natural is
       begin
-         if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0 then
-            return Editor.File_Tree.File_Node_Count (S.File_Tree);
+         if Editor.File_Tree.File_Node_Count (S.Surface.File_Tree) > 0 then
+            return Editor.File_Tree.File_Node_Count (S.Surface.File_Tree);
          elsif Editor.Project.Has_Project (S.Project_Runtime.Project) then
             return Editor.Project.Known_File_Count (S.Project_Runtime.Project);
          else
@@ -118,16 +118,16 @@ package body Editor.Executor.Search_Commands is
       function Selected_Project_Search_Result_Still_Known return Boolean is
          Found  : Boolean := False;
          Result : constant Editor.Project_Search.Project_Search_Result :=
-           Editor.Project_Search.Selected_Result (S.Project_Search, Found);
+           Editor.Project_Search.Selected_Result (S.Surface.Project_Search, Found);
          Rel      : constant String := To_String (Result.Relative_Path);
          Abs_Path : constant String := To_String (Result.Absolute_Path);
       begin
          if not Found then
             return False;
-         elsif Editor.File_Tree.File_Node_Count (S.File_Tree) > 0
+         elsif Editor.File_Tree.File_Node_Count (S.Surface.File_Tree) > 0
            and then Result.File_Node_Id /= Editor.File_Tree.No_File_Tree_Node
          then
-            return Editor.File_Tree.Contains (S.File_Tree, Result.File_Node_Id);
+            return Editor.File_Tree.Contains (S.Surface.File_Tree, Result.File_Node_Id);
          elsif not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             return False;
          end if;
@@ -183,11 +183,11 @@ package body Editor.Executor.Search_Commands is
             if not Active_Overlay_Is
               (Editor.Overlay_Focus.Project_Search_Bar_Overlay)
               or else not Editor.Project_Search_Bar.Is_Open
-                (S.Project_Search_Bar)
+                (S.Surface.Project_Search_Bar)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             elsif Editor.Project_Search_Bar.Query_Text
-              (S.Project_Search_Bar)'Length = 0
+              (S.Surface.Project_Search_Bar)'Length = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project search query");
             end if;
@@ -198,16 +198,16 @@ package body Editor.Executor.Search_Commands is
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif Project_Search_File_Count = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open.");
-            elsif Editor.Project_Search.Query (S.Project_Search)'Length = 0 then
+            elsif Editor.Project_Search.Query (S.Surface.Project_Search)'Length = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project search query");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
 
          when Command_Clear_Project_Search =>
             if not Has_Search_Results
-              and then Editor.Project_Search.Query (S.Project_Search)'Length = 0
+              and then Editor.Project_Search.Query (S.Surface.Project_Search)'Length = 0
               and then not Editor.Project_Search_Bar.Is_Open
-                (S.Project_Search_Bar)
+                (S.Surface.Project_Search_Bar)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project search");
             end if;
@@ -216,7 +216,7 @@ package body Editor.Executor.Search_Commands is
          when Command_Open_Selected_Project_Search_Result =>
             if not Has_Search_Results then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project search results");
-            elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
+            elsif Editor.Project_Search.Is_Stale (S.Surface.Project_Search) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Commands.Workflow_Messages.Reason_Project_Search_Result_Stale);
             elsif not Has_Selected_Search_Result then
@@ -233,7 +233,7 @@ package body Editor.Executor.Search_Commands is
             | Command_Last_Project_Search_Result =>
             if not Has_Search_Results then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project search results");
-            elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
+            elsif Editor.Project_Search.Is_Stale (S.Surface.Project_Search) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Commands.Workflow_Messages.Reason_Project_Search_Result_Stale);
             end if;
@@ -252,7 +252,7 @@ package body Editor.Executor.Search_Commands is
          when Command_Project_Search_Scope_Selected_Directory =>
             if not Has_Selected_Search_Result then
                return Editor.Commands.Availability_Metadata.Unavailable ("No search result selected.");
-            elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
+            elsif Editor.Project_Search.Is_Stale (S.Surface.Project_Search) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Commands.Workflow_Messages.Reason_Project_Search_Result_Stale);
             elsif not Selected_Project_Search_Result_Still_Known then
@@ -292,10 +292,10 @@ package body Editor.Executor.Search_Commands is
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif not Has_Search_Results then
                return Editor.Commands.Availability_Metadata.Unavailable ("No search results");
-            elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
+            elsif Editor.Project_Search.Is_Stale (S.Surface.Project_Search) then
                return Editor.Commands.Availability_Metadata.Unavailable ("Search results are stale");
             elsif not Editor.Project_Search.Replace_Text_Is_Valid
-              (S.Project_Search)
+              (S.Surface.Project_Search)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("Replacement text must be single-line");
@@ -304,7 +304,7 @@ package body Editor.Executor.Search_Commands is
 
          when Command_Project_Search_Replace_Clear_Preview =>
             if Editor.Project_Search.Replace_Preview_Count
-              (S.Project_Search) = 0
+              (S.Surface.Project_Search) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No replacement preview");
             end if;
@@ -320,26 +320,26 @@ package body Editor.Executor.Search_Commands is
             if not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif Editor.Project_Search.Replace_Preview_Count
-              (S.Project_Search) = 0
+              (S.Surface.Project_Search) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No replacement preview");
             elsif Editor.Project_Search.Replace_Preview_Is_Stale
-              (S.Project_Search)
+              (S.Surface.Project_Search)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Commands.Workflow_Messages.Reason_Replacement_Preview_Stale);
             elsif not Editor.Project_Search.Replace_Text_Is_Valid
-              (S.Project_Search)
+              (S.Surface.Project_Search)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("Replacement text must be single-line");
             elsif Id = Command_Project_Search_Replace_Include_All
               and then Editor.Project_Search.Eligible_Replacement_Count
-                (S.Project_Search) = 0
+                (S.Surface.Project_Search) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No eligible replacements");
             elsif Editor.Project_Search.Selected_Replace_Preview_Index
-              (S.Project_Search) = 0
+              (S.Surface.Project_Search) = 0
               and then (Id = Command_Project_Search_Replace_Toggle_Selected
                         or else Id = Command_Project_Search_Replace_Include_Selected
                         or else Id = Command_Project_Search_Replace_Exclude_Selected
@@ -356,10 +356,10 @@ package body Editor.Executor.Search_Commands is
                declare
                   Row : constant Editor.Project_Search.Project_Replace_Preview_Row :=
                     Editor.Project_Search.Replace_Preview_Row_At
-                      (S.Project_Search,
+                      (S.Surface.Project_Search,
                        Positive'Max
                          (1, Editor.Project_Search.Selected_Replace_Preview_Index
-                               (S.Project_Search)));
+                               (S.Surface.Project_Search)));
                begin
                   if Row.Search_Result_Id =
                     Editor.Project_Search.No_Project_Search_Result
@@ -381,31 +381,31 @@ package body Editor.Executor.Search_Commands is
             if not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif Editor.Project_Search.Replace_Preview_Count
-              (S.Project_Search) = 0
+              (S.Surface.Project_Search) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No replacement preview");
             elsif Editor.Project_Search.Replace_Preview_Is_Stale
-              (S.Project_Search)
+              (S.Surface.Project_Search)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Commands.Workflow_Messages.Reason_Replacement_Preview_Stale);
             elsif not Editor.Project_Search.Replace_Text_Is_Valid
-              (S.Project_Search)
+              (S.Surface.Project_Search)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("Replacement text must be single-line");
             elsif Editor.Project_Search.Selected_Replace_Preview_Index
-              (S.Project_Search) = 0
+              (S.Surface.Project_Search) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No replacement selected");
             else
                declare
                   Row : constant Editor.Project_Search.Project_Replace_Preview_Row :=
                     Editor.Project_Search.Replace_Preview_Row_At
-                      (S.Project_Search,
+                      (S.Surface.Project_Search,
                        Positive'Max
                          (1, Editor.Project_Search.Selected_Replace_Preview_Index
-                               (S.Project_Search)));
+                               (S.Surface.Project_Search)));
                begin
                   if Row.Search_Result_Id =
                     Editor.Project_Search.No_Project_Search_Result
@@ -430,25 +430,25 @@ package body Editor.Executor.Search_Commands is
             if not Has_Project then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project open");
             elsif Editor.Project_Search.Replace_Preview_Count
-              (S.Project_Search) = 0
+              (S.Surface.Project_Search) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No replacement preview");
             elsif Editor.Project_Search.Replace_Preview_Is_Stale
-              (S.Project_Search)
+              (S.Surface.Project_Search)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Commands.Workflow_Messages.Reason_Replacement_Preview_Stale);
             elsif not Editor.Project_Search.Replace_Text_Is_Valid
-              (S.Project_Search)
+              (S.Surface.Project_Search)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("Replacement text must be single-line");
             elsif Editor.Project_Search.Included_Replacement_Count
-              (S.Project_Search) = 0
+              (S.Surface.Project_Search) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No included replacements");
             elsif Editor.Project_Search.Included_Replacements_Overlap
-              (S.Project_Search)
+              (S.Surface.Project_Search)
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("Replacement preview has overlapping matches");
@@ -458,7 +458,7 @@ package body Editor.Executor.Search_Commands is
          when Command_Search_Results_Open_Selected =>
             if not Has_Search_Results then
                return Editor.Commands.Availability_Metadata.Unavailable ("No project search results");
-            elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
+            elsif Editor.Project_Search.Is_Stale (S.Surface.Project_Search) then
                return Editor.Commands.Availability_Metadata.Unavailable
                  (Editor.Commands.Workflow_Messages.Reason_Project_Search_Result_Stale);
             elsif not Search_Results_Has_Focus then
@@ -493,7 +493,7 @@ package body Editor.Executor.Search_Commands is
             if not Active_Overlay_Is
               (Editor.Overlay_Focus.Project_Search_Bar_Overlay)
               or else not Editor.Project_Search_Bar.Is_Open
-                (S.Project_Search_Bar)
+                (S.Surface.Project_Search_Bar)
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
             end if;
@@ -673,7 +673,7 @@ package body Editor.Executor.Search_Commands is
    is
       Found : Boolean := False;
       Scope : constant String :=
-        Editor.Project_Search.Selected_Result_Directory (S.Project_Search, Found);
+        Editor.Project_Search.Selected_Result_Directory (S.Surface.Project_Search, Found);
       Valid : Boolean := False;
    begin
       if not Found then
@@ -682,15 +682,15 @@ package body Editor.Executor.Search_Commands is
          return;
       end if;
 
-      Editor.Project_Search.Set_Path_Scope (S.Project_Search, Scope, Valid);
+      Editor.Project_Search.Set_Path_Scope (S.Surface.Project_Search, Scope, Valid);
       if Valid and then Scope'Length = 0 then
-         Editor.Project_Search.Clear_Results_Preserve_Query (S.Project_Search);
+         Editor.Project_Search.Clear_Results_Preserve_Query (S.Surface.Project_Search);
          Report_Info (S, "Project search scope cleared");
       elsif Valid then
          --  Set_Path_Scope applies the existing option-change cleanup when the
          --  scope changes. If the selected directory already matches the current
          --  scope, clear explicitly so this command never leaves stale results.
-         Editor.Project_Search.Clear_Results_Preserve_Query (S.Project_Search);
+         Editor.Project_Search.Clear_Results_Preserve_Query (S.Surface.Project_Search);
          Report_Info (S, "Project search scope: " & Scope);
       else
          Report_Warning (S, "Invalid Project Search scope.");
@@ -703,12 +703,12 @@ package body Editor.Executor.Search_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Project_Search.Cycle_File_Kind_Filter (S.Project_Search, True);
+      Editor.Project_Search.Cycle_File_Kind_Filter (S.Surface.Project_Search, True);
       Show_Search_Results_Panel (S);
       Report_Info
         (S, "Project search kind: "
          & Editor.Project_Search.File_Kind_Filter_Image
-           (Editor.Project_Search.File_Kind_Filter (S.Project_Search)));
+           (Editor.Project_Search.File_Kind_Filter (S.Surface.Project_Search)));
       Editor.Render_Cache.Invalidate_All;
    end Execute_Project_Search_Kind_Next;
 
@@ -716,12 +716,12 @@ package body Editor.Executor.Search_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Project_Search.Cycle_File_Kind_Filter (S.Project_Search, False);
+      Editor.Project_Search.Cycle_File_Kind_Filter (S.Surface.Project_Search, False);
       Show_Search_Results_Panel (S);
       Report_Info
         (S, "Project search kind: "
          & Editor.Project_Search.File_Kind_Filter_Image
-           (Editor.Project_Search.File_Kind_Filter (S.Project_Search)));
+           (Editor.Project_Search.File_Kind_Filter (S.Surface.Project_Search)));
       Editor.Render_Cache.Invalidate_All;
    end Execute_Project_Search_Kind_Previous;
 
@@ -729,12 +729,12 @@ package body Editor.Executor.Search_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search.File_Kind_Filter (S.Project_Search) =
+      if Editor.Project_Search.File_Kind_Filter (S.Surface.Project_Search) =
         Editor.Project_Search.Project_Search_Kind_All
       then
          Report_Info (S, "No Project Search kind filter to clear.");
       else
-         Editor.Project_Search.Clear_File_Kind_Filter (S.Project_Search);
+         Editor.Project_Search.Clear_File_Kind_Filter (S.Surface.Project_Search);
          Show_Search_Results_Panel (S);
          Report_Info (S, "Project search kind: all");
       end if;
@@ -747,14 +747,14 @@ package body Editor.Executor.Search_Commands is
    is
       Valid : Boolean := False;
    begin
-      Editor.Project_Search.Set_Path_Scope (S.Project_Search, Scope, Valid);
+      Editor.Project_Search.Set_Path_Scope (S.Surface.Project_Search, Scope, Valid);
       if Valid then
          Show_Search_Results_Panel (S);
-         if Editor.Project_Search.Path_Scope (S.Project_Search)'Length = 0 then
+         if Editor.Project_Search.Path_Scope (S.Surface.Project_Search)'Length = 0 then
             Report_Info (S, "Project search scope cleared");
          else
             Report_Info (S, "Project search scope: "
-              & Editor.Project_Search.Path_Scope (S.Project_Search));
+              & Editor.Project_Search.Path_Scope (S.Surface.Project_Search));
          end if;
       else
          Report_Warning (S, "Invalid Project Search scope.");
@@ -766,10 +766,10 @@ package body Editor.Executor.Search_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search.Path_Scope (S.Project_Search)'Length = 0 then
+      if Editor.Project_Search.Path_Scope (S.Surface.Project_Search)'Length = 0 then
          Report_Info (S, "No Project Search scope to clear.");
       else
-         Editor.Project_Search.Clear_Path_Scope (S.Project_Search);
+         Editor.Project_Search.Clear_Path_Scope (S.Surface.Project_Search);
          Show_Search_Results_Panel (S);
          Report_Info (S, "Project search scope cleared");
       end if;
@@ -780,11 +780,11 @@ package body Editor.Executor.Search_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Project_Search.Toggle_Case_Sensitive (S.Project_Search);
+      Editor.Project_Search.Toggle_Case_Sensitive (S.Surface.Project_Search);
       Show_Search_Results_Panel (S);
       Report_Info
         (S, "Project search case: "
-         & (if Editor.Project_Search.Case_Sensitive (S.Project_Search)
+         & (if Editor.Project_Search.Case_Sensitive (S.Surface.Project_Search)
             then "sensitive" else "insensitive"));
       Editor.Render_Cache.Invalidate_All;
    end Execute_Project_Search_Case_Toggle;
@@ -793,10 +793,10 @@ package body Editor.Executor.Search_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project_Search.Case_Sensitive (S.Project_Search) then
+      if not Editor.Project_Search.Case_Sensitive (S.Surface.Project_Search) then
          Report_Info (S, "Project search case: insensitive");
       else
-         Editor.Project_Search.Set_Case_Sensitive (S.Project_Search, False);
+         Editor.Project_Search.Set_Case_Sensitive (S.Surface.Project_Search, False);
          Show_Search_Results_Panel (S);
          Report_Info (S, "Project search case: insensitive");
       end if;
@@ -807,11 +807,11 @@ package body Editor.Executor.Search_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Project_Search.Toggle_Whole_Word (S.Project_Search);
+      Editor.Project_Search.Toggle_Whole_Word (S.Surface.Project_Search);
       Show_Search_Results_Panel (S);
       Report_Info
         (S, "Project search whole word: "
-         & (if Editor.Project_Search.Whole_Word (S.Project_Search)
+         & (if Editor.Project_Search.Whole_Word (S.Surface.Project_Search)
             then "on" else "off"));
       Editor.Render_Cache.Invalidate_All;
    end Execute_Project_Search_Whole_Word_Toggle;
@@ -820,10 +820,10 @@ package body Editor.Executor.Search_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project_Search.Whole_Word (S.Project_Search) then
+      if not Editor.Project_Search.Whole_Word (S.Surface.Project_Search) then
          Report_Info (S, "Project search whole word: off");
       else
-         Editor.Project_Search.Set_Whole_Word (S.Project_Search, False);
+         Editor.Project_Search.Set_Whole_Word (S.Surface.Project_Search, False);
          Show_Search_Results_Panel (S);
          Report_Info (S, "Project search whole word: off");
       end if;
@@ -834,11 +834,11 @@ package body Editor.Executor.Search_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Project_Search.Toggle_Regex (S.Project_Search);
+      Editor.Project_Search.Toggle_Regex (S.Surface.Project_Search);
       Show_Search_Results_Panel (S);
       Report_Info
         (S, "Project search regex: "
-         & (if Editor.Project_Search.Regex_Enabled (S.Project_Search)
+         & (if Editor.Project_Search.Regex_Enabled (S.Surface.Project_Search)
             then "on" else "off"));
       Editor.Render_Cache.Invalidate_All;
    end Execute_Project_Search_Regex_Toggle;
@@ -847,10 +847,10 @@ package body Editor.Executor.Search_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if not Editor.Project_Search.Regex_Enabled (S.Project_Search) then
+      if not Editor.Project_Search.Regex_Enabled (S.Surface.Project_Search) then
          Report_Info (S, "Project search regex: off");
       else
-         Editor.Project_Search.Set_Regex_Enabled (S.Project_Search, False);
+         Editor.Project_Search.Set_Regex_Enabled (S.Surface.Project_Search, False);
          Show_Search_Results_Panel (S);
          Report_Info (S, "Project search regex: off");
       end if;
@@ -866,15 +866,15 @@ package body Editor.Executor.Search_Commands is
       Valid : Boolean := False;
    begin
       Editor.Project_Search.Set_Include_Path_Filter
-        (S.Project_Search, Filter, Valid);
+        (S.Surface.Project_Search, Filter, Valid);
       if Valid then
          Show_Search_Results_Panel (S);
-         if Editor.Project_Search.Include_Path_Filter (S.Project_Search)'Length = 0 then
+         if Editor.Project_Search.Include_Path_Filter (S.Surface.Project_Search)'Length = 0 then
             Report_Info (S, "Project search include filter cleared");
          else
             Report_Info
               (S, "Project search include filter: "
-               & Editor.Project_Search.Include_Path_Filter (S.Project_Search));
+               & Editor.Project_Search.Include_Path_Filter (S.Surface.Project_Search));
          end if;
       else
          Report_Warning (S, "Invalid Project Search include filter.");
@@ -889,15 +889,15 @@ package body Editor.Executor.Search_Commands is
       Valid : Boolean := False;
    begin
       Editor.Project_Search.Set_Exclude_Path_Filter
-        (S.Project_Search, Filter, Valid);
+        (S.Surface.Project_Search, Filter, Valid);
       if Valid then
          Show_Search_Results_Panel (S);
-         if Editor.Project_Search.Exclude_Path_Filter (S.Project_Search)'Length = 0 then
+         if Editor.Project_Search.Exclude_Path_Filter (S.Surface.Project_Search)'Length = 0 then
             Report_Info (S, "Project search exclude filter cleared");
          else
             Report_Info
               (S, "Project search exclude filter: "
-               & Editor.Project_Search.Exclude_Path_Filter (S.Project_Search));
+               & Editor.Project_Search.Exclude_Path_Filter (S.Surface.Project_Search));
          end if;
       else
          Report_Warning (S, "Invalid Project Search exclude filter.");
@@ -909,10 +909,10 @@ package body Editor.Executor.Search_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search.Include_Path_Filter (S.Project_Search)'Length = 0 then
+      if Editor.Project_Search.Include_Path_Filter (S.Surface.Project_Search)'Length = 0 then
          Report_Info (S, "No Project Search include filter to clear.");
       else
-         Editor.Project_Search.Clear_Include_Path_Filter (S.Project_Search);
+         Editor.Project_Search.Clear_Include_Path_Filter (S.Surface.Project_Search);
          Show_Search_Results_Panel (S);
          Report_Info (S, "Project search include filter cleared");
       end if;
@@ -923,10 +923,10 @@ package body Editor.Executor.Search_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search.Exclude_Path_Filter (S.Project_Search)'Length = 0 then
+      if Editor.Project_Search.Exclude_Path_Filter (S.Surface.Project_Search)'Length = 0 then
          Report_Info (S, "No Project Search exclude filter to clear");
       else
-         Editor.Project_Search.Clear_Exclude_Path_Filter (S.Project_Search);
+         Editor.Project_Search.Clear_Exclude_Path_Filter (S.Surface.Project_Search);
          Show_Search_Results_Panel (S);
          Report_Info (S, "Project search exclude filter cleared");
       end if;
@@ -1032,11 +1032,11 @@ package body Editor.Executor.Search_Commands is
             Execute_Project_Search_Bar_Delete_Forward (S);
 
          when Project_Search_Bar_Move_Cursor_Left =>
-            Editor.Project_Search_Bar.Move_Cursor_Left (S.Project_Search_Bar);
+            Editor.Project_Search_Bar.Move_Cursor_Left (S.Surface.Project_Search_Bar);
             Editor.Render_Cache.Invalidate_All;
 
          when Project_Search_Bar_Move_Cursor_Right =>
-            Editor.Project_Search_Bar.Move_Cursor_Right (S.Project_Search_Bar);
+            Editor.Project_Search_Bar.Move_Cursor_Right (S.Surface.Project_Search_Bar);
             Editor.Render_Cache.Invalidate_All;
 
          when Project_Search_From_Selection =>
@@ -1129,7 +1129,7 @@ package body Editor.Executor.Search_Commands is
          when Project_Search_Replace_Preview =>
             if Length (Cmd.Text) > 0 then
                Editor.Project_Search.Set_Replace_Text
-                 (S.Project_Search, To_String (Cmd.Text));
+                 (S.Surface.Project_Search, To_String (Cmd.Text));
             end if;
             Execute_Project_Search_Replace_Preview (S);
 

@@ -98,14 +98,14 @@ package body Editor.Lifecycle_Guidance is
       Node_Id : Editor.File_Tree.File_Tree_Node_Id;
    begin
       if Editor.Panel_Focus.File_Tree_Has_Focus (S.Panel.Panel_Focus)
-        and then Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View) /= 0
+        and then Editor.File_Tree_View.Selected_Row_Index (S.Surface.File_Tree_View) /= 0
       then
          Node_Id := Editor.File_Tree_View.Node_For_Row
-           (S.File_Tree,
-            Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View),
+           (S.Surface.File_Tree,
+            Editor.File_Tree_View.Selected_Row_Index (S.Surface.File_Tree_View),
             Found);
          if Found then
-            return File_Tree_Row_Hint (S, Editor.File_Tree.Node (S.File_Tree, Node_Id));
+            return File_Tree_Row_Hint (S, Editor.File_Tree.Node (S.Surface.File_Tree, Node_Id));
          end if;
       end if;
 

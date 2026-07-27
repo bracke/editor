@@ -51,8 +51,8 @@ package body Editor.Executor.Line_Edit_Commands is
      (S   : in out Editor.State.State_Type;
       Pos : Cursor_Index) is
    begin
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => Pos,
          Anchor => Pos,
          Virtual_Column => 0,
@@ -64,10 +64,10 @@ package body Editor.Executor.Line_Edit_Commands is
      (S : Editor.State.State_Type) return Cursor_Index
    is
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return 0;
       else
-         return S.Carets.Element (S.Carets.First_Index).Pos;
+         return S.Caret.Carets.Element (S.Caret.Carets.First_Index).Pos;
       end if;
    end Safe_Caret;
 
@@ -171,8 +171,8 @@ package body Editor.Executor.Line_Edit_Commands is
         (S, Selection_Range);
 
       if Status = Editor.Selection.Selection_Ok
-        and then not S.Rect_Select_Active
-        and then Natural (S.Carets.Length) = 1
+        and then not S.Caret.Rect_Select_Active
+        and then Natural (S.Caret.Carets.Length) = 1
       then
          return Natural (Selection_Range.Low);
       else
@@ -220,7 +220,7 @@ package body Editor.Executor.Line_Edit_Commands is
          end if;
       end Populate_For_Row;
    begin
-      if S.Carets.Length = 0
+      if S.Caret.Carets.Length = 0
         or else Text_Buffer.Length (S.Buffer) = 0
         or else Line_Count <= 1
       then
@@ -239,8 +239,8 @@ package body Editor.Executor.Line_Edit_Commands is
               Editor.Selection.Validate_Active_Selection_Range (S, Selection_Range);
          begin
             if Status = Editor.Selection.Selection_Ok
-              and then not S.Rect_Select_Active
-              and then Natural (S.Carets.Length) = 1
+              and then not S.Caret.Rect_Select_Active
+              and then Natural (S.Caret.Carets.Length) = 1
             then
                declare
                   First_Row : Natural := 0;
@@ -304,8 +304,8 @@ package body Editor.Executor.Line_Edit_Commands is
       Line_Len := Line_Length (S, Safe_Row);
       Pos := Cursor_Index
         (Index_For_Line_Column (S, Safe_Row, Natural'Min (Column, Line_Len)));
-      S.Carets.Clear;
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Caret_State'(
          Pos => Pos,
          Anchor => Pos,
          Virtual_Column => 0,
@@ -514,7 +514,7 @@ package body Editor.Executor.Line_Edit_Commands is
          Status := No_Active_Buffer;
          New_Caret := Safe_Caret (S);
          return;
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -588,7 +588,7 @@ package body Editor.Executor.Line_Edit_Commands is
          Status := No_Active_Buffer;
          New_Caret := Safe_Caret (S);
          return;
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -652,7 +652,7 @@ package body Editor.Executor.Line_Edit_Commands is
          Status := No_Active_Buffer;
          New_Caret := Safe_Caret (S);
          return;
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -739,7 +739,7 @@ package body Editor.Executor.Line_Edit_Commands is
          Status := No_Active_Buffer;
          New_Caret := Safe_Caret (S);
          return;
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -799,7 +799,7 @@ package body Editor.Executor.Line_Edit_Commands is
          Status := No_Active_Buffer;
          New_Caret := Safe_Caret (S);
          return;
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          Status := No_Caret_Location;
          New_Caret := 0;
          return;
@@ -869,7 +869,7 @@ package body Editor.Executor.Line_Edit_Commands is
    begin
       if not Has_Buffer (S) then
          return Editor.Commands.Availability_Metadata.Unavailable ("No active buffer.");
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          return Editor.Commands.Availability_Metadata.Unavailable ("No caret location");
       end if;
 

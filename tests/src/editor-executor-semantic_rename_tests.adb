@@ -383,8 +383,8 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          Editor.Cursors.Caret_State'
            (Pos => 20, Anchor => 20,
             Virtual_Column => 0, Anchor_Virtual_Column => 0));
@@ -447,8 +447,8 @@ package body Editor.Executor.Semantic_Rename_Tests is
       Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Set_Visible (S.Panel.Feature_Panel, True);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          Editor.Cursors.Caret_State'
            (Pos => 20, Anchor => 20,
             Virtual_Column => 0, Anchor_Virtual_Column => 0));
@@ -512,8 +512,8 @@ package body Editor.Executor.Semantic_Rename_Tests is
          Buffer_Revision      => S.Buffer_Lifecycle.Buffer_Revision,
          Lifecycle_Generation => S.Buffer_Lifecycle.Lifecycle_Generation,
          Analysis             => Analysis);
-      S.Carets.Replace_Element
-        (S.Carets.First_Index,
+      S.Caret.Carets.Replace_Element
+        (S.Caret.Carets.First_Index,
          Editor.Cursors.Caret_State'
            (Pos => 20, Anchor => 20,
             Virtual_Column => 0, Anchor_Virtual_Column => 0));

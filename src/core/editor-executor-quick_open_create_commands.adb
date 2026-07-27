@@ -69,14 +69,14 @@ package body Editor.Executor.Quick_Open_Create_Commands is
          return;
       elsif not Editor.Overlay_Focus.Is_Active
         (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
-        or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+        or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
       then
          Editor.Executor.Shared_Services.Report_Warning (S, "Quick Open is not visible");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 
-      Target := Editor.Quick_Open.Create_Target_From_Query (S.Quick_Open);
+      Target := Editor.Quick_Open.Create_Target_From_Query (S.Surface.Quick_Open);
       case Target.Status is
          when Editor.Quick_Open.Quick_Open_Create_Target_No_Query =>
             Editor.Executor.Shared_Services.Report_Warning (S, "No Quick Open query");
@@ -191,7 +191,7 @@ package body Editor.Executor.Quick_Open_Create_Commands is
       declare
          Selected : Boolean := False;
       begin
-         Editor.Quick_Open.Select_Path (S.Quick_Open, To_String (Rel_Path), Selected);
+         Editor.Quick_Open.Select_Path (S.Surface.Quick_Open, To_String (Rel_Path), Selected);
       end;
 
       Open_Check := Editor.Files.Open_File (To_String (Abs_Path));
@@ -220,7 +220,7 @@ package body Editor.Executor.Quick_Open_Create_Commands is
       then
          Editor.Executor.Dismiss_Active_Overlay (S, Editor.Overlay_Focus.Dismiss_Accept);
       else
-         Editor.Quick_Open.Close (S.Quick_Open);
+         Editor.Quick_Open.Close (S.Surface.Quick_Open);
       end if;
       Editor.Focus_Management.Restore_Focus_To_Editor (S);
       Editor.Executor.Shared_Services.Report_Success (S, "Created " & To_String (Rel_Path));
@@ -355,14 +355,14 @@ package body Editor.Executor.Quick_Open_Create_Commands is
          return;
       elsif not Editor.Overlay_Focus.Is_Active
         (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
-        or else not Editor.Quick_Open.Is_Open (S.Quick_Open)
+        or else not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
       then
          Editor.Executor.Shared_Services.Report_Warning (S, "Quick Open is not visible");
          Editor.Render_Cache.Invalidate_All;
          return;
       end if;
 
-      Target := Editor.Quick_Open.Create_Target_From_Query (S.Quick_Open);
+      Target := Editor.Quick_Open.Create_Target_From_Query (S.Surface.Quick_Open);
       case Target.Status is
          when Editor.Quick_Open.Quick_Open_Create_Target_No_Query =>
             Editor.Executor.Shared_Services.Report_Warning (S, "No Quick Open query");
@@ -467,7 +467,7 @@ package body Editor.Executor.Quick_Open_Create_Commands is
       declare
          Selected : Boolean := False;
       begin
-         Editor.Quick_Open.Select_Path (S.Quick_Open, To_String (Rel_Path), Selected);
+         Editor.Quick_Open.Select_Path (S.Surface.Quick_Open, To_String (Rel_Path), Selected);
       end;
 
       Open_Check := Editor.Files.Open_File (To_String (Abs_Path));
@@ -496,7 +496,7 @@ package body Editor.Executor.Quick_Open_Create_Commands is
       then
          Editor.Executor.Dismiss_Active_Overlay (S, Editor.Overlay_Focus.Dismiss_Accept);
       else
-         Editor.Quick_Open.Close (S.Quick_Open);
+         Editor.Quick_Open.Close (S.Surface.Quick_Open);
       end if;
       Editor.Focus_Management.Restore_Focus_To_Editor (S);
       Editor.Executor.Shared_Services.Report_Success (S, "Created " & To_String (Rel_Path));

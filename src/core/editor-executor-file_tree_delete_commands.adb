@@ -84,7 +84,7 @@ package body Editor.Executor.File_Tree_Delete_Commands is
 
       if Summary.Parent /= Editor.File_Tree.No_File_Tree_Node then
          Parent_After_Delete :=
-           Editor.File_Tree.Node (S.File_Tree, Summary.Parent).Absolute_Path;
+           Editor.File_Tree.Node (S.Surface.File_Tree, Summary.Parent).Absolute_Path;
       end if;
 
       Active_Buffer_Was_Deleted :=

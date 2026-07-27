@@ -201,7 +201,7 @@ package body Editor.Buffer_Switcher.Surface_Rendering is
             Empty_State         =>
               To_Unbounded_String
                 (Editor.Buffer_Switcher.Buffer_List_Empty_State_Label
-                   (State.Buffer_Switcher, Editor.Buffers.Global_Count)),
+                   (State.Surface.Buffer_Switcher, Editor.Buffers.Global_Count)),
             Line_Height         => Cell_H,
             Text_Padding        => Cell_W,
             Show_Alternate_Rows => False);

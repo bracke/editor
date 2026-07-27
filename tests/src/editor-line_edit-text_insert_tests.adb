@@ -50,8 +50,8 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Pos : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Pos,
             Anchor                => Pos,
@@ -65,8 +65,8 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Pos    : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Pos,
             Anchor                => Anchor,
@@ -110,9 +110,9 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Row : Natural := 0;
       Col : Natural := 0;
    begin
-      Assert (S.Carets.Length > 0, Why & ": expected a caret");
+      Assert (S.Caret.Carets.Length > 0, Why & ": expected a caret");
       Editor.Navigation.Line_Column_For_Index
-        (S, Natural (S.Carets (S.Carets.First_Index).Pos), Row, Col);
+        (S, Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos), Row, Col);
       Assert (Row = Expected_Row, Why & ": caret row mismatch");
       Assert (Col = Expected_Col, Why & ": caret column mismatch");
    end Assert_Caret_Row_Col;
@@ -274,7 +274,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       end if;
 
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               Why & ": text-changing word delete must create one undo entry");
@@ -356,8 +356,8 @@ package body Editor.Line_Edit.Text_Insert_Tests is
    is
    begin
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets.Length = 1, Why & ": expected exactly one primary caret");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets.Length = 1, Why & ": expected exactly one primary caret");
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret must end at canonical inserted payload end");
       Assert (not Editor.Selection.Has_Selection (S),
               Why & ": successful Text Insert must clear/collapse selection");
@@ -400,7 +400,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Execute_Text_Input (S, "Gamma");
 
       Assert_Buffer_Text (S, "Alpha Gamma", "selection replacement");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 11,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 11,
               "replacement caret at insert end");
       Assert (not Editor.Selection.Has_Selection (S),
               "replacement clears selection");
@@ -472,7 +472,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Assert_Buffer_Text
         (S, "AlX" & ASCII.LF & "Gamma",
          "backward cross-line selection replacement");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 3,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 3,
               "cross-line replacement caret ends after payload");
       Assert (not Editor.Selection.Has_Selection (S),
               "cross-line replacement clears selection");
@@ -582,7 +582,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
 
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
       Execute_Text_Input (S, "X");
       Assert_Buffer_Text (S, "Beta!",
                           "no-caret text insert must not mutate text");
@@ -620,7 +620,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Assert_Buffer_Text
         (S, "Alpha X",
          "canonical Text Insert must use canonical selection replacement");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 7,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 7,
               "canonical Text Insert replacement moves caret to payload end");
       Assert (not Editor.Selection.Has_Selection (S),
               "canonical Text Insert replacement clears selection");
@@ -649,7 +649,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha Beta");
       Set_Caret (S, 0);
-      S.Carets.Append
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => 6,
             Anchor                => 6,
@@ -695,7 +695,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
          Execute_Text_Input (S, Payload);
 
          Assert_Buffer_Text (S, Expected, Why);
-         Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+         Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
                  Why & ": caret must end after inserted payload");
          Assert (not Editor.Selection.Has_Selection (S),
                  Why & ": insertion must leave no active selection");
@@ -763,7 +763,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
          Execute_Text_Input (S, Payload);
 
          Assert_Buffer_Text (S, Expected, Why);
-         Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+         Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
                  Why & ": caret must end after inserted payload");
          Assert (not Editor.Selection.Has_Selection (S),
                  Why & ": replacement must clear/collapse selection");
@@ -886,7 +886,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "Alpha Beta");
       Set_Caret (S, 0);
-      S.Carets.Append
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => 6,
             Anchor                => 6,
@@ -898,19 +898,19 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Assert_Buffer_Text
         (S, "Alpha Beta",
          "invalid multi-caret Text Insert must not mutate text");
-      Assert (Natural (S.Carets.Length) = 2,
+      Assert (Natural (S.Caret.Carets.Length) = 2,
               "invalid multi-caret Text Insert must not collapse carets");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
               "invalid multi-caret Text Insert creates no undo entry");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 0,
               "invalid multi-caret Text Insert creates no redo entry");
 
-      S.Rect_Select_Active := True;
+      S.Caret.Rect_Select_Active := True;
       Execute_Text_Input (S, "Y");
       Assert_Buffer_Text
         (S, "Alpha Beta",
          "rectangular Text Insert failure must not mutate text");
-      Assert (Natural (S.Carets.Length) = 2,
+      Assert (Natural (S.Caret.Carets.Length) = 2,
               "rectangular Text Insert failure must not repair carets");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0,
               "rectangular Text Insert failure creates no undo entry");
@@ -1280,8 +1280,8 @@ package body Editor.Line_Edit.Text_Insert_Tests is
               "NUL payload preserves redo stack");
       Assert (not Editor.State.Is_Dirty (S),
               "NUL payload preserves dirty state");
-      Assert (S.Carets (S.Carets.First_Index).Anchor = 0
-              and then S.Carets (S.Carets.First_Index).Pos = 5,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 0
+              and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 5,
               "NUL payload preserves selection anchor/focus");
       Assert (not S.Search.Active_Find_Stale,
               "NUL payload does not invalidate Find");
@@ -1805,7 +1805,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Assert_Buffer_Text
         (S, "A " & ASCII.HT & ".B",
          "accepted whitespace/tab/punctuation payload inserts exactly");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 4,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 4,
               "insert-at-caret moves caret to payload end");
 
       Set_Primary_Selection (S, 4, 1);
@@ -1813,7 +1813,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Assert_Buffer_Text
         (S, "AX" & ASCII.LF & "YB",
          "backward replacement keeps canonical line-boundary payload policy");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 4,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 4,
               "replacement moves caret to payload end");
       Assert (not Editor.Selection.Has_Selection (S),
               "replacement clears active selection");
@@ -1865,7 +1865,7 @@ package body Editor.Line_Edit.Text_Insert_Tests is
       Execute_Text_Input (S, "X");
 
       Assert_Buffer_Text (S, "AlXpha", "insert in middle");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 3,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 3,
               "insert moves caret to payload end");
       Assert (not Editor.Selection.Has_Selection (S),
               "insert leaves no selection");

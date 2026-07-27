@@ -2078,10 +2078,13 @@ editor-state-search_state.ads
 editor-state-semantic_state.ads
 editor-state_buffer.ads
 editor-state_build.ads
+editor-state_caret.ads
+editor-state_outline.ads
 editor-state_panel.ads
 editor-state_project.ads
 editor-state_search.ads
 editor-state_semantic.ads
+editor-state_surface.ads
 editor-state.adb
 editor-state.ads
 editor-status_bar.adb

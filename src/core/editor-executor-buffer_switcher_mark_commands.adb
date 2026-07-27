@@ -63,7 +63,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
    begin
       return Editor.Overlay_Focus.Is_Active
         (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Buffer_Switcher_Overlay)
-        and then Editor.Buffer_Switcher.Is_Open (S.Buffer_Switcher);
+        and then Editor.Buffer_Switcher.Is_Open (S.Surface.Buffer_Switcher);
    end Active_Buffer_Switcher_Overlay;
 
    function Selected_Open_Buffer_Availability
@@ -93,7 +93,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      return Editor.Buffer_Switcher.Has_Marks (S.Buffer_Switcher)
+      return Editor.Buffer_Switcher.Has_Marks (S.Surface.Buffer_Switcher)
         and then Editor.Executor.Buffer_Switcher_Shared.Marked_Open_Count (S) > 0;
    end Has_Marked_Open_Buffers;
 
@@ -137,12 +137,12 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Confirm =>
-            if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
+            if Editor.Buffer_Switcher.Pending_Marked_Action (S.Surface.Buffer_Switcher) =
               Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No pending marked action");
             elsif Editor.Buffer_Switcher.Pending_Marked_Open_Count
-              (S.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI) = 0
+              (S.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI) = 0
             then
                return Editor.Commands.Availability_Metadata.Unavailable
                  ("No pending marked buffers remain open");
@@ -150,7 +150,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
             return Editor.Commands.Availability_Metadata.Available;
 
          when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Cancel =>
-            if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
+            if Editor.Buffer_Switcher.Pending_Marked_Action (S.Surface.Buffer_Switcher) =
               Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
             then
                return Editor.Commands.Availability_Metadata.Unavailable ("No pending marked action");
@@ -161,11 +161,11 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
             | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Previous =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
-            elsif Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
+            elsif Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No marked buffers");
             end if;
-            for I in 1 .. Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) loop
-               if Editor.Buffer_Switcher.Row_At (S.Buffer_Switcher, I).Is_Marked
+            for I in 1 .. Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) loop
+               if Editor.Buffer_Switcher.Row_At (S.Surface.Buffer_Switcher, I).Is_Marked
                then
                   return Editor.Commands.Availability_Metadata.Available;
                end if;
@@ -176,7 +176,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
             | Editor.Command_Ids.Command_Buffer_Switcher_Mark_Visible =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
-            elsif Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
+            elsif Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No visible buffers");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -184,7 +184,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          when Editor.Command_Ids.Command_Buffer_Switcher_Mark_Clear_Visible =>
             if not Active_Buffer_Switcher_Overlay (S) then
                return Editor.Commands.Availability_Metadata.Unavailable ("No active overlay");
-            elsif Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
+            elsif Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 0 then
                return Editor.Commands.Availability_Metadata.Unavailable ("No visible buffers");
             end if;
             return Editor.Commands.Availability_Metadata.Available;
@@ -252,7 +252,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          declare
             Id : constant Editor.Buffers.Buffer_Id := Editor.Buffers.Summary_At (Registry, I).Id;
          begin
-            if Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, Id) then
+            if Editor.Buffer_Switcher.Is_Marked (S.Surface.Buffer_Switcher, Id) then
                Seen := Seen + 1;
                if Seen = Index then
                   return Id;
@@ -296,8 +296,8 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          Report_No_Selected_Switcher_Buffer (S);
          return;
       end if;
-      Editor.Buffer_Switcher.Toggle_Mark (S.Buffer_Switcher, Row.Id);
-      if Editor.Buffer_Switcher.Is_Marked (S.Buffer_Switcher, Row.Id) then
+      Editor.Buffer_Switcher.Toggle_Mark (S.Surface.Buffer_Switcher, Row.Id);
+      if Editor.Buffer_Switcher.Is_Marked (S.Surface.Buffer_Switcher, Row.Id) then
          Editor.Executor.Shared_Services.Report_Success (S, "Marked " & To_String (Row.Display_Label));
       else
          Editor.Executor.Shared_Services.Report_Success (S, "Unmarked " & To_String (Row.Display_Label));
@@ -317,7 +317,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          Report_No_Selected_Switcher_Buffer (S);
          return;
       end if;
-      Editor.Buffer_Switcher.Set_Mark (S.Buffer_Switcher, Row.Id);
+      Editor.Buffer_Switcher.Set_Mark (S.Surface.Buffer_Switcher, Row.Id);
       Editor.Executor.Shared_Services.Report_Success (S, "Marked " & To_String (Row.Display_Label));
       Recompute_Buffer_Switcher_After_Marked_Action (S);
       Editor.Render_Cache.Invalidate_All;
@@ -334,7 +334,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          Report_No_Selected_Switcher_Buffer (S);
          return;
       end if;
-      Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Row.Id);
+      Editor.Buffer_Switcher.Clear_Mark (S.Surface.Buffer_Switcher, Row.Id);
       Editor.Executor.Shared_Services.Report_Success (S, "Unmarked " & To_String (Row.Display_Label));
       Recompute_Buffer_Switcher_After_Marked_Action (S);
       Editor.Render_Cache.Invalidate_All;
@@ -343,12 +343,12 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
    procedure Execute_Buffer_Switcher_Mark_Clear_All
      (S : in out Editor.State.State_Type)
    is
-      Count : constant Natural := Editor.Buffer_Switcher.Marked_Count (S.Buffer_Switcher);
+      Count : constant Natural := Editor.Buffer_Switcher.Marked_Count (S.Surface.Buffer_Switcher);
    begin
       if Count = 0 then
          Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
       else
-         Editor.Buffer_Switcher.Clear_All_Marks (S.Buffer_Switcher);
+         Editor.Buffer_Switcher.Clear_All_Marks (S.Surface.Buffer_Switcher);
          Editor.Executor.Shared_Services.Report_Success (S, "Cleared " & Switcher_Image (Count) & " marks");
       end if;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
@@ -361,10 +361,10 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Marked   : Natural := 0;
       Unmarked : Natural := 0;
    begin
-      if Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
+      if Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 0 then
          Editor.Executor.Shared_Services.Report_Info (S, "No visible buffers");
       else
-         Editor.Buffer_Switcher.Invert_Visible_Marks (S.Buffer_Switcher, Marked, Unmarked);
+         Editor.Buffer_Switcher.Invert_Visible_Marks (S.Surface.Buffer_Switcher, Marked, Unmarked);
          Editor.Executor.Shared_Services.Report_Success
            (S, "Marked " & Switcher_Image (Marked) & " visible buffers; unmarked "
             & Switcher_Image (Unmarked) & " visible buffers");
@@ -379,10 +379,10 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
    is
       Count : Natural := 0;
    begin
-      if Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
+      if Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 0 then
          Editor.Executor.Shared_Services.Report_Info (S, "No visible buffers");
       else
-         Editor.Buffer_Switcher.Mark_Visible_Marks (S.Buffer_Switcher, Count);
+         Editor.Buffer_Switcher.Mark_Visible_Marks (S.Surface.Buffer_Switcher, Count);
          Editor.Executor.Shared_Services.Report_Success (S, "Marked " & Switcher_Image (Count) & " visible buffers");
       end if;
       Recompute_Buffer_Switcher_After_Marked_Action (S);
@@ -394,10 +394,10 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
    is
       Count : Natural := 0;
    begin
-      if Editor.Buffer_Switcher.Row_Count (S.Buffer_Switcher) = 0 then
+      if Editor.Buffer_Switcher.Row_Count (S.Surface.Buffer_Switcher) = 0 then
          Editor.Executor.Shared_Services.Report_Info (S, "No visible buffers");
       else
-         Editor.Buffer_Switcher.Clear_Visible_Marks (S.Buffer_Switcher, Count);
+         Editor.Buffer_Switcher.Clear_Visible_Marks (S.Surface.Buffer_Switcher, Count);
          if Count = 0 then
             Editor.Executor.Shared_Services.Report_Info (S, "No visible marked buffers");
          else
@@ -412,9 +412,9 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Buffer_Switcher.Show_Marked_Review (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Show_Marked_Review (S.Surface.Buffer_Switcher);
       Recompute_Buffer_Switcher_After_Marked_Action (S);
-      if Editor.Buffer_Switcher.Marked_Count (S.Buffer_Switcher) = 0 then
+      if Editor.Buffer_Switcher.Marked_Count (S.Surface.Buffer_Switcher) = 0 then
          Editor.Executor.Shared_Services.Report_Info (S, "No marked buffers");
       else
          Editor.Executor.Shared_Services.Report_Success (S, "Marked review shown");
@@ -426,7 +426,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.Buffer_Switcher.Hide_Marked_Review (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Hide_Marked_Review (S.Surface.Buffer_Switcher);
       Recompute_Buffer_Switcher_After_Marked_Action (S);
       Editor.Executor.Shared_Services.Report_Success (S, "Marked review hidden");
       Editor.Render_Cache.Invalidate_All;
@@ -436,7 +436,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Buffer_Switcher.Has_Marked_Review (S.Buffer_Switcher) then
+      if Editor.Buffer_Switcher.Has_Marked_Review (S.Surface.Buffer_Switcher) then
          Execute_Buffer_Switcher_Mark_Review_Hide (S);
       else
          Execute_Buffer_Switcher_Mark_Review_Show (S);
@@ -447,7 +447,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Buffer_Switcher.Select_Next_Marked_Buffer (S.Buffer_Switcher) then
+      if Editor.Buffer_Switcher.Select_Next_Marked_Buffer (S.Surface.Buffer_Switcher) then
          Normalize_Switcher_Preview_Target (S);
          Editor.Executor.Shared_Services.Report_Success (S, "Selected next marked buffer");
       else
@@ -460,7 +460,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Buffer_Switcher.Select_Previous_Marked_Buffer (S.Buffer_Switcher) then
+      if Editor.Buffer_Switcher.Select_Previous_Marked_Buffer (S.Surface.Buffer_Switcher) then
          Normalize_Switcher_Preview_Target (S);
          Editor.Executor.Shared_Services.Report_Success (S, "Selected previous marked buffer");
       else
@@ -603,7 +603,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       Editor.Buffers.Ensure_Global_Registry (S);
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Editor.Buffer_Switcher.Prepare_Pending_Marked_Close
-        (S.Buffer_Switcher,
+        (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          Count,
          Dirty_Count);
@@ -624,13 +624,13 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) =
+      if Editor.Buffer_Switcher.Pending_Marked_Action (S.Surface.Buffer_Switcher) =
         Editor.Buffer_Switcher.Reviews.No_Pending_Marked_Action
       then
          Editor.Executor.Shared_Services.Report_Info (S, "No pending marked action");
          return;
       end if;
-      Editor.Buffer_Switcher.Clear_Pending_Marked_Action (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Clear_Pending_Marked_Action (S.Surface.Buffer_Switcher);
       Recompute_Buffer_Switcher_After_Marked_Action (S);
       Editor.Executor.Shared_Services.Report_Info (S, "Marked close cancelled");
    end Execute_Buffer_Switcher_Mark_Cancel;
@@ -639,14 +639,14 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
      (S : in out Editor.State.State_Type)
    is
       Target_Count : constant Natural :=
-        Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Buffer_Switcher);
+        Editor.Buffer_Switcher.Pending_Marked_Target_Count (S.Surface.Buffer_Switcher);
       Closed_Count    : Natural := 0;
       Kept_Count      : Natural := 0;
       Seen_Open_Count : Natural := 0;
-      Fallback        : constant Natural := Editor.Buffer_Switcher.Selected_Row_Index (S.Buffer_Switcher);
-      Preferred       : constant Editor.Buffers.Buffer_Id := Editor.Buffer_Switcher.Preview_Target (S.Buffer_Switcher);
+      Fallback        : constant Natural := Editor.Buffer_Switcher.Selected_Row_Index (S.Surface.Buffer_Switcher);
+      Preferred       : constant Editor.Buffers.Buffer_Id := Editor.Buffer_Switcher.Preview_Target (S.Surface.Buffer_Switcher);
    begin
-      if Editor.Buffer_Switcher.Pending_Marked_Action (S.Buffer_Switcher) /=
+      if Editor.Buffer_Switcher.Pending_Marked_Action (S.Surface.Buffer_Switcher) /=
         Editor.Buffer_Switcher.Reviews.Pending_Marked_Close
       then
          Editor.Executor.Shared_Services.Report_Info (S, "No pending marked action");
@@ -659,7 +659,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
       for I in 1 .. Target_Count loop
          declare
             Id : constant Editor.Buffers.Buffer_Id :=
-              Editor.Buffer_Switcher.Pending_Marked_Target_At (S.Buffer_Switcher, I);
+              Editor.Buffer_Switcher.Pending_Marked_Target_At (S.Surface.Buffer_Switcher, I);
             Closed  : Boolean := False;
             Summary : Editor.Buffers.Buffer_Summary;
          begin
@@ -678,7 +678,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
                else
                   Editor.Buffers.Global_Close_Buffer (Id, Closed);
                   if Closed then
-                     Editor.Buffer_Switcher.Clear_Mark (S.Buffer_Switcher, Id);
+                     Editor.Buffer_Switcher.Clear_Mark (S.Surface.Buffer_Switcher, Id);
                      Closed_Count := Closed_Count + 1;
                      Editor.Executor.Buffer_Close_Prompt_Commands.Finalize_Cleanup_Buffer_Close
                        (S, Id, Summary.Is_Active);
@@ -690,7 +690,7 @@ package body Editor.Executor.Buffer_Switcher_Mark_Commands is
          end;
       end loop;
 
-      Editor.Buffer_Switcher.Clear_Pending_Marked_Action (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Clear_Pending_Marked_Action (S.Surface.Buffer_Switcher);
 
       if Seen_Open_Count = 0 then
          Recompute_Buffer_Switcher_After_Selected_Action (S, Preferred, Fallback);

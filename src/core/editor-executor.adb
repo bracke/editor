@@ -375,14 +375,14 @@ package body Editor.Executor is
       Target_Index := Editor.Cursors.Cursor_Index
         (Index_For_Line_Column (S, Target_Row, Target_Column));
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => Target_Index,
            Anchor                => Target_Index,
            Virtual_Column        => 0,
            Anchor_Virtual_Column => 0));
-      S.Preferred_Column := Target_Column;
+      S.Caret.Preferred_Column := Target_Column;
 
       Visible_Target_Row := Editor.Folding.Document_Row_To_Visible_Row
         (S.Folding, Target_Row, Visible_Found);
@@ -449,18 +449,18 @@ package body Editor.Executor is
          return "";
       end if;
 
-      if Editor.File_Tree.File_Node_Count (S.File_Tree) > 0 then
+      if Editor.File_Tree.File_Node_Count (S.Surface.File_Tree) > 0 then
          declare
             Tree_Found : Boolean := False;
             Node_Id    : constant Editor.File_Tree.File_Tree_Node_Id :=
-              Editor.File_Tree.Find_By_Path (S.File_Tree, Raw_Path, Tree_Found);
+              Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, Raw_Path, Tree_Found);
          begin
             if Tree_Found
               and then Node_Id /= Editor.File_Tree.No_File_Tree_Node
             then
                Found := True;
                return Normalize_Project_Path_For_Command
-                 (To_String (Editor.File_Tree.Node (S.File_Tree, Node_Id).Relative_Path));
+                 (To_String (Editor.File_Tree.Node (S.Surface.File_Tree, Node_Id).Relative_Path));
             end if;
          end;
       end if;
@@ -793,15 +793,15 @@ package body Editor.Executor is
    function Primary_Caret_Index
      (S : Editor.State.State_Type) return Extended_Index is
    begin
-      return S.Carets.First_Index;
+      return S.Caret.Carets.First_Index;
    end Primary_Caret_Index;
    function Safe_Caret
      (S : Editor.State.State_Type) return Cursor_Index is
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return 0;
       else
-         return S.Carets (Primary_Caret_Index (S)).Pos;
+         return S.Caret.Carets (Primary_Caret_Index (S)).Pos;
       end if;
    end Safe_Caret;
 
@@ -818,7 +818,7 @@ package body Editor.Executor is
       Col : Natural := 0;
    begin
       if not Editor.State.Has_Active_Buffer (S) or else S.Buffer_Lifecycle.Registry_Token = 0 then
-         S.Outline_Cursor_Key_Valid := False;
+         S.Outline_Cursor.Key_Valid := False;
          if Editor.Outline.Has_Current_Symbol (S.Outline) then
             Editor.Outline.Clear_Current_Symbol (S.Outline);
             Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
@@ -829,10 +829,10 @@ package body Editor.Executor is
 
       Line_Column_For_Index (S, Natural (Safe_Caret (S)), Row, Col);
 
-      if S.Outline_Cursor_Key_Valid
-        and then S.Outline_Cursor_Buffer_Token = Active_Feature_Buffer_Token (S)
-        and then S.Outline_Cursor_Line = Row + 1
-        and then S.Outline_Cursor_Column = Col + 1
+      if S.Outline_Cursor.Key_Valid
+        and then S.Outline_Cursor.Buffer_Token = Active_Feature_Buffer_Token (S)
+        and then S.Outline_Cursor.Line = Row + 1
+        and then S.Outline_Cursor.Column = Col + 1
       then
          if Editor.Outline.Source_Class (S.Outline) /= Editor.Outline.Extracted_Outline
            and then Editor.Outline.Has_Current_Symbol (S.Outline)
@@ -844,10 +844,10 @@ package body Editor.Executor is
          return;
       end if;
 
-      S.Outline_Cursor_Key_Valid := True;
-      S.Outline_Cursor_Buffer_Token := Active_Feature_Buffer_Token (S);
-      S.Outline_Cursor_Line := Row + 1;
-      S.Outline_Cursor_Column := Col + 1;
+      S.Outline_Cursor.Key_Valid := True;
+      S.Outline_Cursor.Buffer_Token := Active_Feature_Buffer_Token (S);
+      S.Outline_Cursor.Line := Row + 1;
+      S.Outline_Cursor.Column := Col + 1;
 
       if Editor.Outline.Source_Class (S.Outline) /= Editor.Outline.Extracted_Outline then
          if Editor.Outline.Has_Current_Symbol (S.Outline) then
@@ -866,20 +866,20 @@ package body Editor.Executor is
    function Safe_Anchor
      (S : Editor.State.State_Type) return Cursor_Index is
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return 0;
       else
-         return S.Carets (Primary_Caret_Index (S)).Anchor;
+         return S.Caret.Carets (Primary_Caret_Index (S)).Anchor;
       end if;
    end Safe_Anchor;
    function Has_Primary_Selection
      (S : Editor.State.State_Type) return Boolean is
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return False;
       else
          return Editor.Rectangle_Selection.Has_Selection
-           (S.Carets (Primary_Caret_Index (S)));
+           (S.Caret.Carets (Primary_Caret_Index (S)));
       end if;
    end Has_Primary_Selection;
    procedure Set_Primary_Caret
@@ -887,18 +887,18 @@ package body Editor.Executor is
       Pos : Cursor_Index) is
       C : Caret_State;
    begin
-      if S.Carets.Length = 0 then
-         S.Carets.Append (Caret_State'(
+      if S.Caret.Carets.Length = 0 then
+         S.Caret.Carets.Append (Caret_State'(
             Pos => Pos,
             Anchor => Pos,
             Virtual_Column => 0,
             Anchor_Virtual_Column => 0
          ));
       else
-         C := S.Carets (Primary_Caret_Index (S));
+         C := S.Caret.Carets (Primary_Caret_Index (S));
          C.Pos := Pos;
          C.Anchor := Pos;
-         S.Carets.Replace_Element (Primary_Caret_Index (S), C);
+         S.Caret.Carets.Replace_Element (Primary_Caret_Index (S), C);
       end if;
    end Set_Primary_Caret;
    procedure Set_Primary_Selection
@@ -907,32 +907,32 @@ package body Editor.Executor is
       Pos    : Cursor_Index) is
       C : Caret_State;
    begin
-      if S.Carets.Length = 0 then
-         S.Carets.Append (Caret_State'(
+      if S.Caret.Carets.Length = 0 then
+         S.Caret.Carets.Append (Caret_State'(
             Pos => Pos,
             Anchor => Anchor,
             Virtual_Column => 0,
             Anchor_Virtual_Column => 0
          ));
       else
-         C := S.Carets (Primary_Caret_Index (S));
+         C := S.Caret.Carets (Primary_Caret_Index (S));
          C.Pos := Pos;
          C.Anchor := Anchor;
-         S.Carets.Replace_Element (Primary_Caret_Index (S), C);
+         S.Caret.Carets.Replace_Element (Primary_Caret_Index (S), C);
       end if;
    end Set_Primary_Selection;
    procedure Collapse_All_Selections
      (S : in out Editor.State.State_Type) is
       C : Caret_State;
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return;
       end if;
 
-      for I in S.Carets.First_Index .. S.Carets.Last_Index loop
-         C := S.Carets (I);
+      for I in S.Caret.Carets.First_Index .. S.Caret.Carets.Last_Index loop
+         C := S.Caret.Carets (I);
          C.Anchor := C.Pos;
-         S.Carets.Replace_Element (I, C);
+         S.Caret.Carets.Replace_Element (I, C);
       end loop;
    end Collapse_All_Selections;
    procedure Collapse_Selection_To_Caret
@@ -1059,7 +1059,7 @@ package body Editor.Executor is
       End_Col   : Natural := 0;
    begin
       Found := False;
-      if S.Rect_Select_Active or else S.Carets.Length /= 1 or else A = B then
+      if S.Caret.Rect_Select_Active or else S.Caret.Carets.Length /= 1 or else A = B then
          return "";
       end if;
 
@@ -1345,9 +1345,9 @@ package body Editor.Executor is
      (S : in out Editor.State.State_Type)
    is
    begin
-      Editor.File_Tree_View.Ensure_Valid_Selection (S.File_Tree_View, S.File_Tree);
+      Editor.File_Tree_View.Ensure_Valid_Selection (S.Surface.File_Tree_View, S.Surface.File_Tree);
       Editor.File_Tree_View.Ensure_Selected_Row_Visible
-        (S.File_Tree_View, S.File_Tree, File_Tree_Visible_Row_Count_For_View);
+        (S.Surface.File_Tree_View, S.Surface.File_Tree, File_Tree_Visible_Row_Count_For_View);
    end Validate_File_Tree_View;
    function Selected_File_Tree_Node
      (S     : Editor.State.State_Type;
@@ -1355,7 +1355,7 @@ package body Editor.Executor is
    is
    begin
       return Editor.File_Tree_View.Node_For_Row
-        (S.File_Tree, Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View), Found);
+        (S.Surface.File_Tree, Editor.File_Tree_View.Selected_Row_Index (S.Surface.File_Tree_View), Found);
    end Selected_File_Tree_Node;
    procedure Select_File_Tree_Node
      (S    : in out Editor.State.State_Type;
@@ -1364,9 +1364,9 @@ package body Editor.Executor is
       Found : Boolean := False;
       Row   : Natural := 0;
    begin
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Found);
       if Found then
-         Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+         Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
          Validate_File_Tree_View (S);
       end if;
    end Select_File_Tree_Node;
@@ -1393,7 +1393,7 @@ package body Editor.Executor is
    is
       Pos : constant Cursor_Index := Index_For_Point (S, X, Y);
    begin
-      S.Carets.Append (Caret_State'(
+      S.Caret.Carets.Append (Caret_State'(
          Pos => Pos,
          Anchor => Pos,
          Virtual_Column => 0,
@@ -1410,12 +1410,12 @@ package body Editor.Executor is
          Anchor_Virtual_Column => 0
       );
    begin
-      if S.Carets.Length > 0 then
-         Primary := S.Carets (Primary_Caret_Index (S));
+      if S.Caret.Carets.Length > 0 then
+         Primary := S.Caret.Carets (Primary_Caret_Index (S));
       end if;
 
-      S.Carets.Clear;
-      S.Carets.Append (Primary);
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Primary);
    end Keep_Only_Primary_Caret;
    procedure Select_Word_At_Point
      (S         : in out Editor.State.State_Type;
@@ -1452,8 +1452,8 @@ package body Editor.Executor is
       New_Caret : out Cursor_Index) is
       Pos : constant Cursor_Index := Index_For_Point (S, X, Y);
    begin
-      if S.Carets.Length = 0 then
-         S.Carets.Append (Caret_State'(
+      if S.Caret.Carets.Length = 0 then
+         S.Caret.Carets.Append (Caret_State'(
             Pos => Pos,
             Anchor => Pos,
             Virtual_Column => 0,
@@ -1461,10 +1461,10 @@ package body Editor.Executor is
          ));
       else
          declare
-            C : Caret_State := S.Carets (Primary_Caret_Index (S));
+            C : Caret_State := S.Caret.Carets (Primary_Caret_Index (S));
          begin
             C.Pos := Pos;
-            S.Carets.Replace_Element (Primary_Caret_Index (S), C);
+            S.Caret.Carets.Replace_Element (Primary_Caret_Index (S), C);
          end;
       end if;
       New_Caret := Pos;
@@ -1489,7 +1489,7 @@ package body Editor.Executor is
       Col        : Natural := 0;
       P          : Cursor_Index;
    begin
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          Line_Column_For_Index (S, Natural (C.Pos), Row, Col);
 
          P :=
@@ -1507,7 +1507,7 @@ package body Editor.Executor is
          ));
       end loop;
 
-      S.Carets := New_Carets;
+      S.Caret.Carets := New_Carets;
       Normalize_Carets (S);
       New_Caret := Safe_Caret (S);
    end Move_All_Carets_Vertically;
@@ -1519,7 +1519,7 @@ package body Editor.Executor is
       New_Carets : Cursors_Vector.Vector;
       P          : Cursor_Index;
    begin
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          if Move_Left then
             P := Cursor_Index (Previous_Word_Start (S, Natural (C.Pos)));
          else
@@ -1534,7 +1534,7 @@ package body Editor.Executor is
          ));
       end loop;
 
-      S.Carets := New_Carets;
+      S.Caret.Carets := New_Carets;
       Normalize_Carets (S);
       New_Caret := Safe_Caret (S);
    end Move_All_Carets_By_Word;
@@ -1549,7 +1549,7 @@ package body Editor.Executor is
       Len        : Natural := 0;
       P          : Cursor_Index;
    begin
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          Line_Column_For_Index (S, Natural (C.Pos), Row, Col);
 
          if To_Home then
@@ -1567,7 +1567,7 @@ package body Editor.Executor is
          ));
       end loop;
 
-      S.Carets := New_Carets;
+      S.Caret.Carets := New_Carets;
       Normalize_Carets (S);
       New_Caret := Safe_Caret (S);
    end Move_All_Carets_To_Line_Boundary;
@@ -1581,7 +1581,7 @@ package body Editor.Executor is
       Col        : Natural := 0;
       P          : Cursor_Index;
    begin
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          Line_Column_For_Index (S, Natural (C.Pos), Row, Col);
 
          P :=
@@ -1599,7 +1599,7 @@ package body Editor.Executor is
          ));
       end loop;
 
-      S.Carets := New_Carets;
+      S.Caret.Carets := New_Carets;
       Normalize_Carets (S);
       New_Caret := Safe_Caret (S);
    end Move_All_Carets_By_Page;
@@ -1692,7 +1692,7 @@ package body Editor.Executor is
       Old_Len              : constant Natural := Buffer_Length (S);
       Old_Caret            : constant Cursor_Index := Safe_Caret (S);
       New_Caret            : Cursor_Index := Old_Caret;
-      New_Preferred_Column : Natural := S.Preferred_Column;
+      New_Preferred_Column : Natural := S.Caret.Preferred_Column;
 
       Had_Selection   : constant Boolean := Has_Primary_Selection (S);
       Sel_Start       : constant Cursor_Index := Safe_Anchor (S);
@@ -1847,7 +1847,7 @@ package body Editor.Executor is
          end if;
       end;
 
-      S.Preferred_Column := New_Preferred_Column;
+      S.Caret.Preferred_Column := New_Preferred_Column;
 
       if Should_Log_Edit then
          Clear_Restore_Feedback_Current (S);

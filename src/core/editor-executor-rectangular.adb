@@ -10,10 +10,10 @@ package body Editor.Executor.Rectangular is
    function Safe_Caret
      (S : Editor.State.State_Type) return Cursor_Index is
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return 0;
       else
-         return S.Carets (S.Carets.First_Index).Pos;
+         return S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
       end if;
    end Safe_Caret;
 
@@ -30,9 +30,9 @@ package body Editor.Executor.Rectangular is
    begin
       Editor.Rectangle_Selection.Point_To_Row_Col (S, X, Y, Row, Col);
 
-      S.Rect_Select_Active := True;
-      S.Rect_Anchor_Row := Row;
-      S.Rect_Anchor_Col := Col;
+      S.Caret.Rect_Select_Active := True;
+      S.Caret.Rect_Anchor_Row := Row;
+      S.Caret.Rect_Anchor_Col := Col;
 
       R := Editor.Rectangle_Selection.Normalize (Row, Col, Row, Col);
       Editor.Rectangle_Selection.Build_Carets (S, R);
@@ -50,17 +50,17 @@ package body Editor.Executor.Rectangular is
       Col : Natural := 0;
       R   : Editor.Rectangle_Selection.Rectangle_Range;
    begin
-      if S.Carets.Length > 0 then
+      if S.Caret.Carets.Length > 0 then
          Editor.State.Row_Col_For_Index
-           (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
-         if S.Carets (S.Carets.First_Index).Virtual_Column > 0 then
-            Col := S.Carets (S.Carets.First_Index).Virtual_Column;
+           (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos, Row, Col);
+         if S.Caret.Carets (S.Caret.Carets.First_Index).Virtual_Column > 0 then
+            Col := S.Caret.Carets (S.Caret.Carets.First_Index).Virtual_Column;
          end if;
       end if;
 
-      S.Rect_Select_Active := True;
-      S.Rect_Anchor_Row := Row;
-      S.Rect_Anchor_Col := Col;
+      S.Caret.Rect_Select_Active := True;
+      S.Caret.Rect_Anchor_Row := Row;
+      S.Caret.Rect_Anchor_Col := Col;
 
       --  The initial command establishes rectangular mode without selecting
       --  text. Extending or dragging updates the cursor and produces spans.
@@ -82,7 +82,7 @@ package body Editor.Executor.Rectangular is
       Current_Col : Natural := 0;
       R           : Editor.Rectangle_Selection.Rectangle_Range;
    begin
-      if not S.Rect_Select_Active then
+      if not S.Caret.Rect_Select_Active then
          Start_Rectangle
            (S                    => S,
             X                    => X,
@@ -96,8 +96,8 @@ package body Editor.Executor.Rectangular is
         (S, X, Y, Current_Row, Current_Col);
 
       R := Editor.Rectangle_Selection.Normalize
-        (S.Rect_Anchor_Row,
-         S.Rect_Anchor_Col,
+        (S.Caret.Rect_Anchor_Row,
+         S.Caret.Rect_Anchor_Col,
          Current_Row,
          Current_Col);
 
@@ -114,7 +114,7 @@ package body Editor.Executor.Rectangular is
       New_Preferred_Column : out Natural) is
    begin
       New_Caret := Safe_Caret (S);
-      New_Preferred_Column := S.Preferred_Column;
+      New_Preferred_Column := S.Caret.Preferred_Column;
 
       case Cmd.Kind is
          when Editor.Command_Kinds.Start_Rectangle_Selection =>
@@ -140,13 +140,13 @@ package body Editor.Executor.Rectangular is
                New_Preferred_Column => New_Preferred_Column);
 
          when Editor.Command_Kinds.Clear_Rectangle_Selection =>
-            S.Rect_Select_Active := False;
-            if S.Carets.Length > 0 then
+            S.Caret.Rect_Select_Active := False;
+            if S.Caret.Carets.Length > 0 then
                declare
-                  P : constant Cursor_Index := S.Carets (S.Carets.First_Index).Pos;
+                  P : constant Cursor_Index := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
                begin
-                  S.Carets.Clear;
-                  S.Carets.Append
+                  S.Caret.Carets.Clear;
+                  S.Caret.Carets.Append
                     (Caret_State'
                        (Pos                   => P,
                         Anchor                => P,

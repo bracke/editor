@@ -15,20 +15,20 @@ package body Editor.Executor.Navigation is
    function Safe_Caret
      (S : Editor.State.State_Type) return Cursor_Index is
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return 0;
       else
-         return S.Carets (S.Carets.First_Index).Pos;
+         return S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
       end if;
    end Safe_Caret;
 
    function Safe_Anchor
      (S : Editor.State.State_Type) return Cursor_Index is
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return 0;
       else
-         return S.Carets (S.Carets.First_Index).Anchor;
+         return S.Caret.Carets (S.Caret.Carets.First_Index).Anchor;
       end if;
    end Safe_Anchor;
 
@@ -52,12 +52,12 @@ package body Editor.Executor.Navigation is
       Primary : Caret_State :=
         (Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0);
    begin
-      if S.Carets.Length > 0 then
-         Primary := S.Carets (S.Carets.First_Index);
+      if S.Caret.Carets.Length > 0 then
+         Primary := S.Caret.Carets (S.Caret.Carets.First_Index);
       end if;
 
-      S.Carets.Clear;
-      S.Carets.Append (Primary);
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append (Primary);
    end Keep_Only_Primary_Caret;
 
    function Is_Select_Command (Kind : Editor.Command_Kinds.Command_Kind) return Boolean is
@@ -119,11 +119,11 @@ package body Editor.Executor.Navigation is
    begin
       New_Caret := Safe_Caret (S);
 
-      if S.Carets.Length > 0
-        and then S.Carets (S.Carets.First_Index).Virtual_Column > 0
+      if S.Caret.Carets.Length > 0
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Virtual_Column > 0
       then
          New_Preferred_Column :=
-           S.Carets (S.Carets.First_Index).Virtual_Column;
+           S.Caret.Carets (S.Caret.Carets.First_Index).Virtual_Column;
       else
          New_Preferred_Column := Preferred_Column_For_Caret (S, New_Caret);
       end if;
@@ -141,13 +141,13 @@ package body Editor.Executor.Navigation is
       Row        : Natural := 0;
       Col        : Natural := 0;
    begin
-      if S.Carets.Length = 0 then
-         S.Carets.Append
+      if S.Caret.Carets.Length = 0 then
+         S.Caret.Carets.Append
            (Caret_State'
               (Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       end if;
 
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          declare
             Appended : Boolean := False;
          begin
@@ -215,7 +215,7 @@ package body Editor.Executor.Navigation is
          end;
       end loop;
 
-      S.Carets := New_Carets;
+      S.Caret.Carets := New_Carets;
       Normalize (S);
       Set_First_Caret_Outputs (S, New_Caret, New_Preferred_Column);
    end Move_All_To_Physical;
@@ -235,19 +235,19 @@ package body Editor.Executor.Navigation is
       New_Pos    : Cursor_Index := 0;
       New_Virt   : Natural := 0;
    begin
-      if S.Carets.Length = 0 then
-         S.Carets.Append
+      if S.Caret.Carets.Length = 0 then
+         S.Caret.Carets.Append
            (Caret_State'
               (Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       end if;
 
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          Line_Column_For_Index (S, Natural (C.Pos), Row, Col);
 
          if C.Virtual_Column > 0 then
             Target_Col := C.Virtual_Column;
-         elsif S.Carets.Length = 1 then
-            Target_Col := S.Preferred_Column;
+         elsif S.Caret.Carets.Length = 1 then
+            Target_Col := S.Caret.Preferred_Column;
          else
             Target_Col := Col;
          end if;
@@ -263,7 +263,7 @@ package body Editor.Executor.Navigation is
          Append_Moved_Caret (New_Carets, C, New_Pos, New_Virt, Extend);
       end loop;
 
-      S.Carets := New_Carets;
+      S.Caret.Carets := New_Carets;
       Normalize (S);
       Set_First_Caret_Outputs (S, New_Caret, New_Preferred_Column);
    end Move_All_Vertical;
@@ -280,9 +280,9 @@ package body Editor.Executor.Navigation is
       End_Pos   : Natural := 0;
    begin
       Keep_Only_Primary_Caret (S);
-      S.Rect_Select_Active := False;
+      S.Caret.Rect_Select_Active := False;
       S.Search.Active_Find_Match := Editor.Search.No_Match;
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
 
       if Target.Found then
          Start_Pos := Index_For_Line_Column
@@ -295,7 +295,7 @@ package body Editor.Executor.Navigation is
             Target.Selection_Range.End_Position.Column);
 
          if Cursor_At_Start then
-            S.Carets.Append
+            S.Caret.Carets.Append
               (Caret_State'
                  (Pos => Cursor_Index (Start_Pos),
                   Anchor => Cursor_Index (End_Pos),
@@ -303,7 +303,7 @@ package body Editor.Executor.Navigation is
                   Anchor_Virtual_Column => 0));
             New_Caret := Cursor_Index (Start_Pos);
          else
-            S.Carets.Append
+            S.Caret.Carets.Append
               (Caret_State'
                  (Pos => Cursor_Index (End_Pos),
                   Anchor => Cursor_Index (Start_Pos),
@@ -312,7 +312,7 @@ package body Editor.Executor.Navigation is
             New_Caret := Cursor_Index (End_Pos);
          end if;
       else
-         S.Carets.Append
+         S.Caret.Carets.Append
            (Caret_State'
               (Pos => Safe_Caret (S),
                Anchor => Safe_Caret (S),
@@ -355,9 +355,9 @@ package body Editor.Executor.Navigation is
       End_Pos   : Natural := 0;
    begin
       Keep_Only_Primary_Caret (S);
-      S.Rect_Select_Active := False;
+      S.Caret.Rect_Select_Active := False;
 
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
       if Target.Found then
          Start_Pos := Index_For_Line_Column
            (S,
@@ -368,7 +368,7 @@ package body Editor.Executor.Navigation is
             Target.Selection_Range.End_Position.Row,
             Target.Selection_Range.End_Position.Column);
 
-         S.Carets.Append
+         S.Caret.Carets.Append
            (Caret_State'
               (Pos => Cursor_Index (End_Pos),
                Anchor => Cursor_Index (Start_Pos),
@@ -376,7 +376,7 @@ package body Editor.Executor.Navigation is
                Anchor_Virtual_Column => 0));
          New_Caret := Cursor_Index (End_Pos);
       else
-         S.Carets.Append
+         S.Caret.Carets.Append
            (Caret_State'
               (Pos => Fallback_Pos,
                Anchor => Fallback_Pos,
@@ -487,16 +487,16 @@ package body Editor.Executor.Navigation is
       end case;
 
       Keep_Only_Primary_Caret (S);
-      S.Rect_Select_Active := False;
+      S.Caret.Rect_Select_Active := False;
 
       declare
-         C : Caret_State := S.Carets (S.Carets.First_Index);
+         C : Caret_State := S.Caret.Carets (S.Caret.Carets.First_Index);
       begin
          C.Pos := Collapse_To;
          C.Anchor := Collapse_To;
          C.Virtual_Column := 0;
          C.Anchor_Virtual_Column := 0;
-         S.Carets.Replace_Element (S.Carets.First_Index, C);
+         S.Caret.Carets.Replace_Element (S.Caret.Carets.First_Index, C);
       end;
 
       Normalize (S);
@@ -516,7 +516,7 @@ package body Editor.Executor.Navigation is
    is
    begin
       New_Caret := Safe_Caret (S);
-      New_Preferred_Column := S.Preferred_Column;
+      New_Preferred_Column := S.Caret.Preferred_Column;
       S.Search.Active_Find_Match := Editor.Search.No_Match;
 
       if Had_Selection and then Collapses_Active_Selection (Cmd) then
@@ -593,19 +593,19 @@ package body Editor.Executor.Navigation is
 
          when Move_To_Point =>
             Keep_Only_Primary_Caret (S);
-            S.Rect_Select_Active := False;
+            S.Caret.Rect_Select_Active := False;
 
             New_Caret := Index_For_Point (S, Cmd.Click_X, Cmd.Click_Y);
 
             declare
-               C : Caret_State := S.Carets (S.Carets.First_Index);
+               C : Caret_State := S.Caret.Carets (S.Caret.Carets.First_Index);
             begin
                Finish_Caret_Move
                  (C,
                   New_Caret,
                   0,
                   Extend => Cmd.Shift);
-               S.Carets.Replace_Element (S.Carets.First_Index, C);
+               S.Caret.Carets.Replace_Element (S.Caret.Carets.First_Index, C);
             end;
 
             New_Preferred_Column := Preferred_Column_For_Caret (S, New_Caret);
@@ -616,18 +616,18 @@ package body Editor.Executor.Navigation is
                  Index_For_Point (S, Cmd.Click_X, Cmd.Click_Y);
                C   : Caret_State;
             begin
-               if S.Carets.Length = 0 then
-                  S.Carets.Append
+               if S.Caret.Carets.Length = 0 then
+                  S.Caret.Carets.Append
                     (Caret_State'
                        (Pos => Pos,
                         Anchor => Pos,
                         Virtual_Column => 0,
                         Anchor_Virtual_Column => 0));
                else
-                  C := S.Carets (S.Carets.First_Index);
+                  C := S.Caret.Carets (S.Caret.Carets.First_Index);
                   C.Pos := Pos;
                   C.Virtual_Column := 0;
-                  S.Carets.Replace_Element (S.Carets.First_Index, C);
+                  S.Caret.Carets.Replace_Element (S.Caret.Carets.First_Index, C);
                end if;
 
                New_Caret := Pos;

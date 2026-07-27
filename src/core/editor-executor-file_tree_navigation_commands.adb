@@ -45,7 +45,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
    is
    begin
       Editor.File_Tree_View.Move_Selection
-        (S.File_Tree_View, S.File_Tree, Editor.File_Tree_View.Previous_Row);
+        (S.Surface.File_Tree_View, S.Surface.File_Tree, Editor.File_Tree_View.Previous_Row);
       Editor.Executor.Validate_File_Tree_View (S);
       Editor.Render_Cache.Invalidate_All;
    end Execute_File_Tree_Move_Up;
@@ -55,7 +55,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
    is
    begin
       Editor.File_Tree_View.Move_Selection
-        (S.File_Tree_View, S.File_Tree, Editor.File_Tree_View.Next_Row);
+        (S.Surface.File_Tree_View, S.Surface.File_Tree, Editor.File_Tree_View.Next_Row);
       Editor.Executor.Validate_File_Tree_View (S);
       Editor.Render_Cache.Invalidate_All;
    end Execute_File_Tree_Move_Down;
@@ -65,7 +65,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
    is
    begin
       Editor.File_Tree_View.Move_Selection_By
-        (S.File_Tree_View, S.File_Tree, -Integer (Editor.Executor.File_Tree_Visible_Row_Count_For_View));
+        (S.Surface.File_Tree_View, S.Surface.File_Tree, -Integer (Editor.Executor.File_Tree_Visible_Row_Count_For_View));
       Editor.Executor.Validate_File_Tree_View (S);
       Editor.Render_Cache.Invalidate_All;
    end Execute_File_Tree_Page_Up;
@@ -75,7 +75,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
    is
    begin
       Editor.File_Tree_View.Move_Selection_By
-        (S.File_Tree_View, S.File_Tree, Integer (Editor.Executor.File_Tree_Visible_Row_Count_For_View));
+        (S.Surface.File_Tree_View, S.Surface.File_Tree, Integer (Editor.Executor.File_Tree_Visible_Row_Count_For_View));
       Editor.Executor.Validate_File_Tree_View (S);
       Editor.Render_Cache.Invalidate_All;
    end Execute_File_Tree_Page_Down;
@@ -95,7 +95,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
          return;
       end if;
 
-      Summary := Editor.File_Tree.Node (S.File_Tree, Node);
+      Summary := Editor.File_Tree.Node (S.Surface.File_Tree, Node);
       if Summary.Kind /= Editor.File_Tree.File_Node then
          --  /545: the open-selected command opens real file nodes
          --  only.  Directory activation remains explicit through
@@ -134,7 +134,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
    begin
       if Action = Editor.File_Tree_View.No_File_Tree_Action
         or else Node = Editor.File_Tree.No_File_Tree_Node
-        or else not Editor.File_Tree.Contains (S.File_Tree, Node)
+        or else not Editor.File_Tree.Contains (S.Surface.File_Tree, Node)
       then
          return;
       end if;
@@ -144,7 +144,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       --  restore feedback as the current Status Bar command result.
       Editor.Executor.Clear_Restore_Feedback_Current (S);
 
-      Summary := Editor.File_Tree.Node (S.File_Tree, Node);
+      Summary := Editor.File_Tree.Node (S.Surface.File_Tree, Node);
 
       case Action is
          when Editor.File_Tree_View.No_File_Tree_Action =>
@@ -163,7 +163,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
                   Editor.Executor.Shared_Services.Report_Error
                     (S, "Target path is outside the project");
                else
-                  Editor.File_Tree.Toggle_Expanded (S.File_Tree, Node);
+                  Editor.File_Tree.Toggle_Expanded (S.Surface.File_Tree, Node);
                end if;
             end if;
 
@@ -193,7 +193,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
    is
       Action : constant Editor.File_Tree_View.File_Tree_Action :=
         Editor.File_Tree_View.Action_For_Hit
-          (Editor.Layout.Current.File_Tree_View, S.File_Tree, Hit);
+          (Editor.Layout.Current.File_Tree_View, S.Surface.File_Tree, Hit);
    begin
       if Hit.Node_Id /= Editor.File_Tree.No_File_Tree_Node then
          --  Row activation must not mutate transient File Tree selection
@@ -202,12 +202,12 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
          if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
             Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
             return;
-         elsif not Editor.File_Tree.Contains (S.File_Tree, Hit.Node_Id) then
+         elsif not Editor.File_Tree.Contains (S.Surface.File_Tree, Hit.Node_Id) then
             return;
          else
             declare
                Summary : constant Editor.File_Tree.File_Tree_Node_Summary :=
-                 Editor.File_Tree.Node (S.File_Tree, Hit.Node_Id);
+                 Editor.File_Tree.Node (S.Surface.File_Tree, Hit.Node_Id);
             begin
                if not Editor.Project.Is_Under_Project
                  (S.Project_Runtime.Project, To_String (Summary.Absolute_Path))
@@ -219,7 +219,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
             end;
          end if;
 
-         Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Hit.Row);
+         Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Hit.Row);
          Editor.Executor.Validate_File_Tree_View (S);
       end if;
       Editor.Focus_Management.Set_Focus_Owner
@@ -243,7 +243,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
          return;
       end if;
 
-      Summary := Editor.File_Tree.Node (S.File_Tree, Node);
+      Summary := Editor.File_Tree.Node (S.Surface.File_Tree, Node);
       if not Editor.Project.Is_Under_Project
         (S.Project_Runtime.Project, To_String (Summary.Absolute_Path))
       then
@@ -257,7 +257,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       if Summary.Is_Expanded then
          Editor.Executor.Shared_Services.Report_Info (S, "File Tree directory already expanded");
       else
-         Editor.File_Tree.Set_Expanded (S.File_Tree, Node, True);
+         Editor.File_Tree.Set_Expanded (S.Surface.File_Tree, Node, True);
          Editor.Executor.Select_File_Tree_Node (S, Node);
          Editor.Executor.Shared_Services.Report_Success (S, "File Tree directory expanded");
       end if;
@@ -281,7 +281,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
          return;
       end if;
 
-      Summary := Editor.File_Tree.Node (S.File_Tree, Node);
+      Summary := Editor.File_Tree.Node (S.Surface.File_Tree, Node);
       if not Editor.Project.Is_Under_Project
         (S.Project_Runtime.Project, To_String (Summary.Absolute_Path))
       then
@@ -295,7 +295,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
          return;
       end if;
 
-      Editor.File_Tree.Set_Expanded (S.File_Tree, Node, False);
+      Editor.File_Tree.Set_Expanded (S.Surface.File_Tree, Node, False);
       Editor.Executor.Select_File_Tree_Node (S, Node);
       Editor.Executor.Validate_File_Tree_View (S);
       Editor.Executor.Shared_Services.Report_Success (S, "File Tree directory collapsed");
@@ -317,7 +317,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
          return;
       end if;
 
-      Summary := Editor.File_Tree.Node (S.File_Tree, Node);
+      Summary := Editor.File_Tree.Node (S.Surface.File_Tree, Node);
       if not Editor.Project.Is_Under_Project
         (S.Project_Runtime.Project, To_String (Summary.Absolute_Path))
       then
@@ -328,7 +328,7 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
          return;
       end if;
 
-      Editor.File_Tree.Toggle_Expanded (S.File_Tree, Node);
+      Editor.File_Tree.Toggle_Expanded (S.Surface.File_Tree, Node);
       Editor.Executor.Select_File_Tree_Node (S, Node);
       Editor.Executor.Validate_File_Tree_View (S);
       if Summary.Is_Expanded then
@@ -348,13 +348,13 @@ package body Editor.Executor.File_Tree_Navigation_Commands is
       if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
          Editor.Executor.Shared_Services.Report_Warning (S, "No project open");
          return;
-      elsif Editor.File_Tree.Is_Empty (S.File_Tree) then
+      elsif Editor.File_Tree.Is_Empty (S.Surface.File_Tree) then
          Editor.Executor.Shared_Services.Report_Warning (S, "File Tree unavailable");
          return;
       end if;
 
-      Editor.File_Tree.Collapse_All (S.File_Tree);
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
+      Editor.File_Tree.Collapse_All (S.Surface.File_Tree);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, 1);
       Editor.Executor.Validate_File_Tree_View (S);
       Editor.Executor.Shared_Services.Report_Success (S, "File Tree collapsed");
       Editor.Render_Cache.Invalidate_All;

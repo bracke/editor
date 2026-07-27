@@ -379,12 +379,12 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       --  Row 2 is a real directory in the deterministic fixture.        --  keeps directory expansion on the directory commands only; open-selected
       --  must not silently treat a directory/status row as a file activation.
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 2);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, 2);
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_File_Tree_Open_Selected);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Unavailable,
@@ -395,7 +395,7 @@ package body Editor.File_Tree.Tests is
 
       --  Row 4 is a real root-level file; it remains activatable through the
       --  canonical file-open path.
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 4);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, 4);
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_File_Tree_Open_Selected);
       Assert (A.Status = Editor.Commands.Availability_Metadata.Command_Available,
@@ -535,21 +535,21 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Cmd.Text := To_Unbounded_String ("confirm");
 
       --  Row 2 is a_dir and contains nested.txt.  baseline policy
       --  must reject recursive deletion and leave the directory intact.
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 2);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, 2);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (Ada.Directories.Exists (Full),
               "must not recursively delete non-empty directories");
 
       --  Row 3 is b_dir in the deterministic fixture.  Empty directory
       --  deletion is allowed after explicit confirmation and refresh.
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 3);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, 3);
       Editor.Executor.Execute_No_Log (S, Cmd);
       Assert (not Ada.Directories.Exists (Empty),
               "must delete explicitly confirmed empty directories");
@@ -588,14 +588,14 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "b_dir", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "b_dir", Found);
       Assert (Found, "hidden-file delete setup must find directory row");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "hidden-file delete setup must map directory row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
 
       Cmd.Text := To_Unbounded_String ("confirm");
       Editor.Executor.Execute_No_Log (S, Cmd);
@@ -641,16 +641,16 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "setup must find stale file row");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "setup must map stale file row");
       Ada.Directories.Delete_File (Stale_File);
       Ada.Directories.Create_Directory (Stale_File);
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Rename_Cmd.Text := To_Unbounded_String ("renamed.txt");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
       Assert (Ada.Directories.Exists (Stale_File)
@@ -659,13 +659,13 @@ package body Editor.File_Tree.Tests is
       Assert (not Ada.Directories.Exists (Renamed),
               "stale replacement rename must not create target");
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "b_dir", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "b_dir", Found);
       Assert (Found, "setup must find stale directory row");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "setup must map stale directory row");
       Ada.Directories.Delete_Directory (Stale_Dir);
       Write_Bytes (Stale_Dir, "replacement file");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Delete_Cmd.Text := To_Unbounded_String ("confirm");
       Editor.Executor.Execute_No_Log (S, Delete_Cmd);
       Assert (Ada.Directories.Exists (Stale_Dir)
@@ -712,11 +712,11 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Delete_Cmd.Text := To_Unbounded_String ("confirm");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, 1);
       Editor.Executor.Execute_No_Log (S, Delete_Cmd);
       Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Ada.Directories.Exists (Root)
@@ -726,11 +726,11 @@ package body Editor.File_Tree.Tests is
               "project-root delete must report the explicit root guard");
 
       Editor.Messages.Clear (S.Panel.Messages);
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "setup must find same-name rename file row");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "setup must map same-name rename row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Rename_Cmd.Text := To_Unbounded_String ("a.txt");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
       Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
@@ -773,15 +773,15 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "setup must find missing-source file row");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "setup must map missing-source row");
       Ada.Directories.Delete_File (File_Path);
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
 
       Rename_Cmd.Text := To_Unbounded_String ("renamed.txt");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
@@ -826,9 +826,9 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, 1);
 
       Create_File_Cmd.Text := To_Unbounded_String ("C:tmp.txt");
       Editor.Executor.Execute_No_Log (S, Create_File_Cmd);
@@ -885,9 +885,9 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, 1);
 
       Create_File_Cmd.Text := To_Unbounded_String (Outside_File);
       Editor.Executor.Execute_No_Log (S, Create_File_Cmd);
@@ -943,9 +943,9 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, 1);
 
       Create_File_Cmd.Text := To_Unbounded_String ("a_dir/../blocked.txt");
       Editor.Executor.Execute_No_Log (S, Create_File_Cmd);
@@ -1005,14 +1005,14 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a_dir", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a_dir", Found);
       Assert (Found, "setup must find selected directory row");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "setup must map selected directory row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
 
       Ada.Directories.Delete_File (Nested);
       Ada.Directories.Delete_Directory (A_Dir);
@@ -1036,12 +1036,12 @@ package body Editor.File_Tree.Tests is
 
       Ada.Directories.Create_Directory (A_Dir);
       Write_Bytes (Nested, "nested");
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a_dir", Found);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a_dir", Found);
       Assert (Found, "setup must re-find selected directory row");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "setup must re-map selected directory row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Ada.Directories.Delete_File (Nested);
       Ada.Directories.Delete_Directory (A_Dir);
       Write_Bytes (Replacement_File, "replacement");
@@ -1112,10 +1112,10 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, 1);
       Create_File_Cmd.Text := To_Unbounded_String ("created.adb");
       Editor.Executor.Execute_No_Log (S, Create_File_Cmd);
       Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
@@ -1125,7 +1125,7 @@ package body Editor.File_Tree.Tests is
               "create-file should use the concise expected outcome message");
 
       Editor.Messages.Clear (S.Panel.Messages);
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, 1);
       Create_Dir_Cmd.Text := To_Unbounded_String ("created_dir");
       Editor.Executor.Execute_No_Log (S, Create_Dir_Cmd);
       Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
@@ -1136,11 +1136,11 @@ package body Editor.File_Tree.Tests is
               "create-directory should use the concise expected outcome message");
 
       Editor.Messages.Clear (S.Panel.Messages);
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "outcome setup must find file to rename");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "outcome setup must map file row to rename");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Rename_Cmd.Text := To_Unbounded_String ("renamed.txt");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
       Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
@@ -1150,11 +1150,11 @@ package body Editor.File_Tree.Tests is
               "rename should use the concise expected outcome message");
 
       Editor.Messages.Clear (S.Panel.Messages);
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "renamed.txt", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "renamed.txt", Found);
       Assert (Found, "outcome setup must find renamed file");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "outcome setup must map renamed file row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Delete_Cmd.Text := To_Unbounded_String ("confirm");
       Editor.Executor.Execute_No_Log (S, Delete_Cmd);
       Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
@@ -1197,7 +1197,7 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, File_Path);
@@ -1205,11 +1205,11 @@ package body Editor.File_Tree.Tests is
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "dirty-block setup must find selected file row");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "dirty-block setup must map selected file row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
 
       Rename_Cmd.Text := To_Unbounded_String ("renamed.txt");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
@@ -1275,7 +1275,7 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
@@ -1291,11 +1291,11 @@ package body Editor.File_Tree.Tests is
          Other_Path,
          Source_Kind => Editor.Feature_Diagnostics.File_Diagnostic_Source);
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "diagnostics stale setup must find renamed file");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "diagnostics stale setup must map file row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
 
       Rename_Cmd.Text := To_Unbounded_String ("renamed_diag.txt");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
@@ -1343,7 +1343,7 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
       Create_File_Cmd.Text := Null_Unbounded_String;
@@ -1359,11 +1359,11 @@ package body Editor.File_Tree.Tests is
       Assert (Msg_Found and then To_String (Msg.Text) = "Enter a name.",
               "empty create-directory execution must use name guidance");
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "empty rename setup must find file node");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "empty rename setup must map file row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
 
       Editor.Messages.Clear (S.Panel.Messages);
       Rename_Cmd.Text := Null_Unbounded_String;
@@ -1405,14 +1405,14 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "rename fragment setup must find file node");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "rename fragment setup must map file row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
 
       Rename_Cmd.Text := To_Unbounded_String ("src/renamed.adb");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
@@ -1465,56 +1465,56 @@ package body Editor.File_Tree.Tests is
       Editor.State.Init (S);
       Opened := Editor.Project.Open_Project (Root);
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Opened);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 1);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, 1);
 
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "quick");
-      Editor.Quick_Open.Open (S.Quick_Open);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "quick");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.File_Tree, Config);
-      Assert (not Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "quick");
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "quick");
+      Editor.Quick_Open.Recompute_Results (S.Surface.Quick_Open, S.Surface.File_Tree, Config);
+      Assert (not Editor.Quick_Open.Results_Are_Stale (S.Surface.Quick_Open),
               "setup should start with fresh Quick Open results");
-      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) = 0,
+      Assert (Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) = 0,
               "setup query should start with no Quick Open matches");
 
       Create_Cmd.Text := To_Unbounded_String ("quick_new.adb");
       Editor.Executor.Execute_No_Log (S, Create_Cmd);
       Assert (Ada.Directories.Exists (Created),
               "Quick Open stale setup must create the file");
-      Assert (Editor.Quick_Open.Is_Open (S.Quick_Open),
+      Assert (Editor.Quick_Open.Is_Open (S.Surface.Quick_Open),
               "File Tree mutation must preserve open Quick Open UI state");
-      Assert (not Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
+      Assert (not Editor.Quick_Open.Results_Are_Stale (S.Surface.Quick_Open),
               "create-file must refresh open Quick Open results");
-      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) > 0,
+      Assert (Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) > 0,
               "create-file must expose the new Quick Open candidate");
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "Quick Open stale setup must find rename source");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "Quick Open stale setup must map rename row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Rename_Cmd.Text := To_Unbounded_String ("quick_renamed.txt");
       Editor.Executor.Execute_No_Log (S, Rename_Cmd);
       Assert (Ada.Directories.Exists (Renamed),
               "Quick Open stale setup must rename the file");
-      Assert (not Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
+      Assert (not Editor.Quick_Open.Results_Are_Stale (S.Surface.Quick_Open),
               "rename must refresh Quick Open results");
-      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) > 0,
+      Assert (Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) > 0,
               "rename must keep Quick Open candidates visible");
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "quick_renamed.txt", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "quick_renamed.txt", Found);
       Assert (Found, "Quick Open stale setup must find delete source");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "Quick Open stale setup must map delete row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Delete_Cmd.Text := To_Unbounded_String ("confirm");
       Editor.Executor.Execute_No_Log (S, Delete_Cmd);
       Assert (not Ada.Directories.Exists (Renamed),
               "Quick Open stale setup must delete the file");
-      Assert (not Editor.Quick_Open.Results_Are_Stale (S.Quick_Open),
+      Assert (not Editor.Quick_Open.Results_Are_Stale (S.Surface.Quick_Open),
               "delete must refresh Quick Open results");
-      Assert (Editor.Quick_Open.Result_Count (S.Quick_Open) > 0,
+      Assert (Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) > 0,
               "delete must keep remaining Quick Open candidates visible");
 
       Cleanup_Fixture (Root);

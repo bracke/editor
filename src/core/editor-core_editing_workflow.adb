@@ -22,7 +22,7 @@ package body Editor.Core_Editing_Workflow is
 
    function Has_Caret (S : Editor.State.State_Type) return Boolean is
    begin
-      return S.Carets.Length > 0;
+      return S.Caret.Carets.Length > 0;
    end Has_Caret;
 
    function Has_File_Path (S : Editor.State.State_Type) return Boolean is
@@ -336,7 +336,7 @@ package body Editor.Core_Editing_Workflow is
    is
       Has_Buffer : constant Boolean := Has_Caret (S);
       Has_Selection : constant Boolean :=
-        Editor.Selection.Has_Selection (S) or else S.Rect_Select_Active;
+        Editor.Selection.Has_Selection (S) or else S.Caret.Rect_Select_Active;
    begin
       case Id is
          when Editor.Command_Ids.No_Command =>
@@ -423,7 +423,7 @@ package body Editor.Core_Editing_Workflow is
             | Editor.Command_Ids.Command_Selection_Delete =>
             if not Has_Buffer then
                return "No active buffer.";
-            elsif S.Carets.Length = 0 then
+            elsif S.Caret.Carets.Length = 0 then
                return "No caret location";
             elsif not Has_Selection then
                return "No selection";
@@ -494,7 +494,7 @@ package body Editor.Core_Editing_Workflow is
             | Editor.Command_Ids.Command_Paste =>
             if not Has_Buffer then
                return "No active buffer.";
-            elsif S.Carets.Length = 0 then
+            elsif S.Caret.Carets.Length = 0 then
                return "No caret location";
             else
                return "";
@@ -509,11 +509,11 @@ package body Editor.Core_Editing_Workflow is
       Len : constant Editor.Cursors.Cursor_Index :=
         Editor.Cursors.Cursor_Index (Text_Buffer.Length (S.Buffer));
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return False;
       end if;
 
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          if C.Pos > Len or else C.Anchor > Len then
             return False;
          end if;
@@ -536,7 +536,7 @@ package body Editor.Core_Editing_Workflow is
             return True;
          when others =>
             return not Editor.Selection.Has_Selection (S)
-              and then not S.Rect_Select_Active;
+              and then not S.Caret.Rect_Select_Active;
       end case;
    end Selection_In_Bounds;
 

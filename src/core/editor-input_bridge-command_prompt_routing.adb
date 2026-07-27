@@ -198,7 +198,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
                Confirm_Label => "Rename");
             declare
                Selected_Row : constant Natural :=
-                 Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View);
+                 Editor.File_Tree_View.Selected_Row_Index (S.Surface.File_Tree_View);
                Found       : Boolean := False;
                Node_Id     : Editor.File_Tree.File_Tree_Node_Id :=
                  Editor.File_Tree.No_File_Tree_Node;
@@ -206,11 +206,11 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
             begin
                if Selected_Row > 0 then
                   Node_Id := Editor.File_Tree_View.Node_For_Row
-                    (S.File_Tree, Selected_Row, Found);
+                    (S.Surface.File_Tree, Selected_Row, Found);
                end if;
 
                if Found and then Node_Id /= Editor.File_Tree.No_File_Tree_Node then
-                  Summary := Editor.File_Tree.Node (S.File_Tree, Node_Id);
+                  Summary := Editor.File_Tree.Node (S.Surface.File_Tree, Node_Id);
                   Editor.Guided_Prompts.Update_Input
                     (S.Guided_Prompt, To_String (Summary.Name));
                end if;
@@ -241,7 +241,7 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
          when Editor.Command_Ids.Command_File_Tree_Delete_Selected =>
             declare
                Selected_Row : constant Natural :=
-                 Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View);
+                 Editor.File_Tree_View.Selected_Row_Index (S.Surface.File_Tree_View);
                Found       : Boolean := False;
                Node_Id     : Editor.File_Tree.File_Tree_Node_Id :=
                  Editor.File_Tree.No_File_Tree_Node;
@@ -253,11 +253,11 @@ package body Editor.Input_Bridge.Command_Prompt_Routing is
             begin
                if Selected_Row > 0 then
                   Node_Id := Editor.File_Tree_View.Node_For_Row
-                    (S.File_Tree, Selected_Row, Found);
+                    (S.Surface.File_Tree, Selected_Row, Found);
                end if;
 
                if Found and then Node_Id /= Editor.File_Tree.No_File_Tree_Node then
-                  Summary := Editor.File_Tree.Node (S.File_Tree, Node_Id);
+                  Summary := Editor.File_Tree.Node (S.Surface.File_Tree, Node_Id);
                   Kind_Label :=
                     To_Unbounded_String (Editor.File_Tree.Kind_Label (Summary.Kind));
                   Path_Label := Summary.Absolute_Path;

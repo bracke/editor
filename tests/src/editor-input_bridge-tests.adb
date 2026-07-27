@@ -141,10 +141,10 @@ package body Editor.Input_Bridge.Tests is
    begin
       C.Pos := Pos;
       C.Anchor := Anchor;
-      if S.Carets.Is_Empty then
-         S.Carets.Append (C);
+      if S.Caret.Carets.Is_Empty then
+         S.Caret.Carets.Append (C);
       else
-         S.Carets.Replace_Element (S.Carets.First_Index, C);
+         S.Caret.Carets.Replace_Element (S.Caret.Carets.First_Index, C);
       end if;
    end Set_Primary_Caret;
 
@@ -243,11 +243,11 @@ package body Editor.Input_Bridge.Tests is
       Assert (Editor.Project.Is_Success (Open_Res),
               "fixture project must open before file tree activation");
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.View.Set_Viewport (Width => 800, Height => 480);
-      A_Dir := Editor.File_Tree.Find_By_Path (S.File_Tree, "a_dir", Found);
+      A_Dir := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a_dir", Found);
       Assert (Found, "fixture must contain a_dir");
-      Assert (not Editor.File_Tree.Node (S.File_Tree, A_Dir).Is_Expanded,
+      Assert (not Editor.File_Tree.Node (S.Surface.File_Tree, A_Dir).Is_Expanded,
               "fixture directory must start collapsed");
 
       Editor.Input_Bridge.Set_State_For_Test (S);
@@ -260,10 +260,10 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Handle (Pointer_Click (X, Y));
       After := Editor.Input_Bridge.Get_State_For_Test;
 
-      Assert (Editor.File_Tree.Node (After.File_Tree, A_Dir).Is_Expanded,
+      Assert (Editor.File_Tree.Node (After.Surface.File_Tree, A_Dir).Is_Expanded,
               "clicking a visible directory row must toggle expansion through Input_Bridge");
-      Assert (Editor.File_Tree.Visible_Row_Count (After.File_Tree)
-              > Editor.File_Tree.Visible_Row_Count (S.File_Tree),
+      Assert (Editor.File_Tree.Visible_Row_Count (After.Surface.File_Tree)
+              > Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree),
               "directory click must rebuild visible rows after expansion");
 
       Cleanup_Fixture (Root);
@@ -292,9 +292,9 @@ package body Editor.Input_Bridge.Tests is
       Assert (Editor.Project.Is_Success (Open_Res),
               "fixture project must open before file tree activation");
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.View.Set_Viewport (Width => 800, Height => 480);
-      File_Id := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      File_Id := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "fixture must contain a.txt");
 
       Editor.Input_Bridge.Set_State_For_Test (S);
@@ -341,9 +341,9 @@ package body Editor.Input_Bridge.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.View.Set_Viewport (Width => 800, Height => 480);
-      Caret_Before := S.Carets (S.Carets.First_Index);
+      Caret_Before := S.Caret.Carets (S.Caret.Carets.First_Index);
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Layout := Editor.Layout.Current;
@@ -356,12 +356,12 @@ package body Editor.Input_Bridge.Tests is
 
       Assert (Editor.State.Current_Text (After) = Editor.State.Current_Text (S),
               "file tree background click must not mutate document text");
-      Assert (After.Carets (After.Carets.First_Index).Pos = Caret_Before.Pos,
+      Assert (After.Caret.Carets (After.Caret.Carets.First_Index).Pos = Caret_Before.Pos,
               "file tree background click must not move caret");
-      Assert (After.Carets (After.Carets.First_Index).Anchor = Caret_Before.Anchor,
+      Assert (After.Caret.Carets (After.Caret.Carets.First_Index).Anchor = Caret_Before.Anchor,
               "file tree background click must not start text selection");
-      Assert (Editor.File_Tree.Visible_Row_Count (After.File_Tree)
-              = Editor.File_Tree.Visible_Row_Count (S.File_Tree),
+      Assert (Editor.File_Tree.Visible_Row_Count (After.Surface.File_Tree)
+              = Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree),
               "file tree background click must not mutate expansion state");
 
       Cleanup_Fixture (Root);
@@ -393,8 +393,8 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Handle (Pointer_Click (X, Y));
       After := Editor.Input_Bridge.Get_State_For_Test;
 
-      Assert (After.Carets (After.Carets.First_Index).Pos /=
-              S.Carets (S.Carets.First_Index).Pos,
+      Assert (After.Caret.Carets (After.Caret.Carets.First_Index).Pos /=
+              S.Caret.Carets (S.Caret.Carets.First_Index).Pos,
               "with file tree disabled and zero width, ordinary text clicks must route to text");
    end Test_Disabled_File_Tree_Does_Not_Consume_Text_Click;
 
@@ -612,8 +612,8 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (After.Carets (After.Carets.First_Index).Pos /=
-         S.Carets (S.Carets.First_Index).Pos,
+        (After.Caret.Carets (After.Caret.Carets.First_Index).Pos /=
+         S.Caret.Carets (S.Caret.Carets.First_Index).Pos,
          "splitter release must end resize capture so later text clicks route normally");
    end Test_File_Tree_Splitter_Release_Restores_Text_Routing;
 
@@ -681,13 +681,13 @@ package body Editor.Input_Bridge.Tests is
          Editor.View.Viewport_Width, Editor.View.Viewport_Height);
       X := Natural (Panel.X) + Editor.Layout.Cell_W;
       Y := Natural (Panel.Y) + Editor.Layout.Cell_H;
-      Before_Pos := S.Carets (S.Carets.First_Index).Pos;
+      Before_Pos := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Editor.Input_Bridge.Handle (Pointer_Click (X, Y));
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (After.Carets (After.Carets.First_Index).Pos = Before_Pos,
+        (After.Caret.Carets (After.Caret.Carets.First_Index).Pos = Before_Pos,
          "clicking inside the Problems panel must be handled as a no-op and not move the caret");
 
       Editor.Panels.Initialize_Defaults (S.Panels);
@@ -732,7 +732,7 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (After.Carets (After.Carets.First_Index).Pos = 5,
+        (After.Caret.Carets (After.Caret.Carets.First_Index).Pos = 5,
          "clicking a Problems row must jump through diagnostic navigation");
       Assert
         (After.Panel.Active_Diagnostic.Has_Active and then After.Panel.Active_Diagnostic.Index = 1,
@@ -1069,8 +1069,8 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (After.Carets (After.Carets.First_Index).Anchor = 0
-         and then After.Carets (After.Carets.First_Index).Pos = 5,
+        (After.Caret.Carets (After.Caret.Carets.First_Index).Anchor = 0
+         and then After.Caret.Carets (After.Caret.Carets.First_Index).Pos = 5,
          "double-click routed to text must select the clicked word");
       Assert
         (Editor.State.Current_Text (After) = Editor.State.Current_Text (S),
@@ -1092,7 +1092,7 @@ package body Editor.Input_Bridge.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha beta");
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.View.Set_Viewport (Width => 800, Height => 480);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Layout := Editor.Layout.Current;
@@ -1103,10 +1103,10 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (After.Carets (After.Carets.First_Index).Anchor =
-         S.Carets (S.Carets.First_Index).Anchor
-         and then After.Carets (After.Carets.First_Index).Pos =
-         S.Carets (S.Carets.First_Index).Pos,
+        (After.Caret.Carets (After.Caret.Carets.First_Index).Anchor =
+         S.Caret.Carets (S.Caret.Carets.First_Index).Anchor
+         and then After.Caret.Carets (After.Caret.Carets.First_Index).Pos =
+         S.Caret.Carets (S.Caret.Carets.First_Index).Pos,
          "file tree double-click must not select an editor word");
 
       Cleanup_Fixture (Root);
@@ -1125,7 +1125,7 @@ package body Editor.Input_Bridge.Tests is
       Build_Fixture (Root);
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def");
-      Before_Pos := S.Carets (S.Carets.First_Index).Pos;
+      Before_Pos := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Project_Search_Result_Commands.Execute_Run_Project_Search (S, "a");
@@ -1138,14 +1138,14 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (After.Carets (After.Carets.First_Index).Pos = Before_Pos,
+        (After.Caret.Carets (After.Caret.Carets.First_Index).Pos = Before_Pos,
          "focused Search Results Down key must not move the editor caret");
       Assert
         (Editor.Panel_Focus.Bottom_Content (After.Panel.Panel_Focus) =
            Editor.Panel_Focus.Search_Results_Focus,
          "focused Search Results Down key should keep Search Results focus");
       Assert
-        (Editor.Project_Search.Selected_Result_Index (After.Project_Search) = 1,
+        (Editor.Project_Search.Selected_Result_Index (After.Surface.Project_Search) = 1,
          "one-result Down key should leave the Search Results selection stable");
 
       Cleanup_Fixture (Root);
@@ -1269,7 +1269,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Panel_Focus.Focus_File_Tree (S.Panel.Panel_Focus);
-      Before := Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View);
+      Before := Editor.File_Tree_View.Selected_Row_Index (S.Surface.File_Tree_View);
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Editor.Input_Bridge.Handle_Key_Chord
@@ -1281,7 +1281,7 @@ package body Editor.Input_Bridge.Tests is
         (Editor.Panel_Focus.File_Tree_Has_Focus (After.Panel.Panel_Focus),
          "focused File Tree Down key must stay local before global bindings");
       Assert
-        (Editor.File_Tree_View.Selected_Row_Index (After.File_Tree_View) > Before,
+        (Editor.File_Tree_View.Selected_Row_Index (After.Surface.File_Tree_View) > Before,
          "focused File Tree Down key must select the next visible row");
 
       Editor.Keybindings.Reset_To_Defaults;
@@ -1492,8 +1492,8 @@ package body Editor.Input_Bridge.Tests is
         (Editor.Feature_Panel.Selected_Row (After.Panel.Feature_Panel) = 2,
          "search-result mouse click must select the clicked feature row");
       Assert
-        (After.Carets (After.Carets.First_Index).Pos =
-         S.Carets (S.Carets.First_Index).Pos,
+        (After.Caret.Carets (After.Caret.Carets.First_Index).Pos =
+         S.Caret.Carets (S.Caret.Carets.First_Index).Pos,
          "single-clicking a Search Results row must not activate the target");
       Editor.Buffers.Reset_Global_For_Test;
    end Test_Feature_Panel_Search_Click_Selects_Row;
@@ -1530,7 +1530,7 @@ package body Editor.Input_Bridge.Tests is
       After := Editor.Input_Bridge.Get_State_For_Test;
 
       Assert
-        (After.Carets (After.Carets.First_Index).Pos = 7,
+        (After.Caret.Carets (After.Caret.Carets.First_Index).Pos = 7,
          "double-clicking a Search Results feature row must activate through the search-result target path");
       Assert
         (Editor.Feature_Panel.Selected_Row (After.Panel.Feature_Panel) = 1,
@@ -1583,8 +1583,8 @@ package body Editor.Input_Bridge.Tests is
         (Editor.Feature_Panel.Selected_Row (After.Panel.Feature_Panel) = 2,
          "diagnostics mouse click must select the clicked feature row");
       Assert
-        (After.Carets (After.Carets.First_Index).Pos =
-         S.Carets (S.Carets.First_Index).Pos,
+        (After.Caret.Carets (After.Caret.Carets.First_Index).Pos =
+         S.Caret.Carets (S.Caret.Carets.First_Index).Pos,
          "single-clicking a Diagnostics row must not activate the target");
       Editor.Buffers.Reset_Global_For_Test;
    end Test_Feature_Panel_Diagnostics_Click_Selects_Row;
@@ -1611,7 +1611,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.View.Reset_Scroll;
       Editor.View.Set_Viewport (Width => 800, Height => Editor.Layout.Cell_H * 4);
       Editor.Input_Bridge.Set_State_For_Test (S);
-      Before := S.Carets (S.Carets.First_Index).Pos;
+      Before := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       X := Editor.Layout.Text_Origin_X (Layout, Editor.State.Line_Count (S)) + 1;
       Y := Natural (Editor.Layout.Text_Viewport_Y (Layout)) + Editor.Layout.Cell_H + 1;
@@ -1620,7 +1620,7 @@ package body Editor.Input_Bridge.Tests is
 
       Assert (Editor.View.Scroll_Y = 3,
               "wheel down over editor advances the editor viewport deterministically");
-      Assert (After.Carets (After.Carets.First_Index).Pos = Before,
+      Assert (After.Caret.Carets (After.Caret.Carets.First_Index).Pos = Before,
               "wheel scrolling editor text does not move the caret");
    end Test_Wheel_Over_Editor_Scrolls_Viewport_Not_Caret;
 
@@ -1876,7 +1876,7 @@ package body Editor.Input_Bridge.Tests is
       Set_Primary_Caret (S, 1, 1);
       Editor.Input_Bridge.Set_State_For_Test (S);
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
-      Before_Caret := S.Carets (S.Carets.First_Index);
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index);
 
       Assert
         (Editor.Input_Bridge.Resolve_Text_Entry_Focus_Target =
@@ -1928,8 +1928,8 @@ package body Editor.Input_Bridge.Tests is
            (Editor.State.Current_Text (After) = To_String (Before_Text),
             "route preview must not mutate active-buffer text");
          Assert
-           (After.Carets (After.Carets.First_Index).Pos = Before_Caret.Pos
-            and then After.Carets (After.Carets.First_Index).Anchor = Before_Caret.Anchor,
+           (After.Caret.Carets (After.Caret.Carets.First_Index).Pos = Before_Caret.Pos
+            and then After.Caret.Carets (After.Caret.Carets.First_Index).Anchor = Before_Caret.Anchor,
             "route preview must not normalize or move caret/selection");
       end;
       Editor.Buffers.Reset_Global_For_Test;
@@ -1960,7 +1960,7 @@ package body Editor.Input_Bridge.Tests is
         (Editor.State.Current_Text (After) = "abc",
          "overlay text input must not leak into active-buffer Text Insert");
       Assert
-        (Editor.Quick_Open.Query_Text (After.Quick_Open) = "z",
+        (Editor.Quick_Open.Query_Text (After.Surface.Quick_Open) = "z",
          "Quick Open input must remain local under overlay focus");
       Editor.Buffers.Reset_Global_For_Test;
    end Test_Overlay_Input_Remains_Local;
@@ -2030,7 +2030,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
-      Before_Caret := S.Carets (S.Carets.First_Index);
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
       Before_Fwd := Editor.Navigation_History.Forward_Count (S.Navigation_History);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
@@ -2065,8 +2065,8 @@ package body Editor.Input_Bridge.Tests is
       Assert (Editor.State.Current_Text (After) = To_String (Before_Text),
               "route preview must not mutate active-buffer text");
       Assert
-        (After.Carets (After.Carets.First_Index).Pos = Before_Caret.Pos
-         and then After.Carets (After.Carets.First_Index).Anchor = Before_Caret.Anchor,
+        (After.Caret.Carets (After.Caret.Carets.First_Index).Pos = Before_Caret.Pos
+         and then After.Caret.Carets (After.Caret.Carets.First_Index).Anchor = Before_Caret.Anchor,
          "route preview must not mutate caret or selection");
       Assert (not Editor.State.Is_Dirty (After),
               "route preview must not dirty active buffers");
@@ -2125,7 +2125,7 @@ package body Editor.Input_Bridge.Tests is
 
       Assert (Editor.State.Current_Text (After) = "Buffer",
               "overlay named delete must not mutate active-buffer text");
-      Assert (Editor.Quick_Open.Query_Text (After.Quick_Open) = "a",
+      Assert (Editor.Quick_Open.Query_Text (After.Surface.Quick_Open) = "a",
               "overlay named delete must use the local input-field delete policy");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Undo_Before
               and then Natural (Editor.History.Redo_Stack.Length) = Redo_Before,
@@ -2156,7 +2156,7 @@ package body Editor.Input_Bridge.Tests is
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "undo after routed Text Insert must make redo available through canonical history");
 
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
       Editor.Input_Bridge.Set_State_For_Test (S);
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route (Text_Command ("Y")) =
@@ -2170,7 +2170,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Handle (Text_Command ("q"));
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = "q",
+      Assert (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = "q",
               "overlay text input remains local after undo");
       Assert (Natural (Editor.History.Redo_Stack.Length) = 1,
               "overlay local input after undo must preserve active-buffer redo stack");
@@ -2280,7 +2280,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Set_State_For_Test (S);
 
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
-      Before_Caret := S.Carets (S.Carets.First_Index);
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
@@ -2335,8 +2335,8 @@ package body Editor.Input_Bridge.Tests is
       Assert (Editor.State.Current_Text (After) = To_String (Before_Text),
               "route previews must not mutate active-buffer text");
       Assert
-        (After.Carets (After.Carets.First_Index).Pos = Before_Caret.Pos
-         and then After.Carets (After.Carets.First_Index).Anchor = Before_Caret.Anchor,
+        (After.Caret.Carets (After.Caret.Carets.First_Index).Pos = Before_Caret.Pos
+         and then After.Caret.Carets (After.Caret.Carets.First_Index).Anchor = Before_Caret.Anchor,
          "route previews must not repair or normalize focus/caret/selection");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
@@ -2415,8 +2415,8 @@ package body Editor.Input_Bridge.Tests is
       S := Editor.Input_Bridge.Get_State_For_Test;
       Assert (Editor.State.Current_Text (S) = "abc X",
               "Text Insert replacement must be one canonical replacement edit");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 5
-              and then S.Carets (S.Carets.First_Index).Anchor = 5,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 5
+              and then S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 5,
               "Text Insert owns caret/selection collapse after replacement");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "Text Insert replacement creates exactly one canonical undo entry");
@@ -2528,7 +2528,7 @@ package body Editor.Input_Bridge.Tests is
       Assert (Editor.State.Current_Text (S) = "AB",
               "unsupported workflow event does not mutate active-buffer text");
 
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
       Editor.Input_Bridge.Set_State_For_Test (S);
       Assert
         (Editor.Input_Bridge.Preview_Text_Entry_Route (Text_Command ("Y")) =
@@ -2546,7 +2546,7 @@ package body Editor.Input_Bridge.Tests is
       Editor.Input_Bridge.Handle (Text_Command ("local"));
       Editor.Input_Bridge.Handle (Kind_Command (Editor.Command_Kinds.Delete_Previous_Character));
       S := Editor.Input_Bridge.Get_State_For_Test;
-      Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = "loca",
+      Assert (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = "loca",
               "overlay payload and local deletion remain owned by Quick Open");
       Assert (Editor.State.Current_Text (S) = "AB",
               "overlay local input must not leak into active-buffer insertion/deletion");
@@ -3219,13 +3219,13 @@ package body Editor.Input_Bridge.Tests is
       Assert (Editor.Project.Is_Success (Open_Res),
               "rename prefill setup project must open");
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, File_Path, Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, File_Path, Found);
       Assert (Found, "rename prefill setup must find file node");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "rename prefill setup must find visible row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
@@ -3267,14 +3267,14 @@ package body Editor.Input_Bridge.Tests is
       Assert (Editor.Project.Is_Success (Open_Res),
               "delete prompt setup project must open");
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, File_Path);
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "delete prompt setup must find file node");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "delete prompt setup must find visible row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
 
       Editor.Input_Bridge.Set_State_For_Test (S);
       Editor.Input_Bridge.Execute_Command_Id
@@ -3343,7 +3343,7 @@ package body Editor.Input_Bridge.Tests is
       Assert (Editor.Project.Is_Success (Open_Res),
               "cancel-message setup project must open");
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
       Assert_Cancel_Message
         (Editor.Command_Ids.Command_File_Tree_Create_File,
@@ -3352,11 +3352,11 @@ package body Editor.Input_Bridge.Tests is
         (Editor.Command_Ids.Command_File_Tree_Create_Directory,
          "Create directory cancelled.");
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "cancel-message setup must find file node");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "cancel-message setup must map file row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
 
       Assert_Cancel_Message
         (Editor.Command_Ids.Command_File_Tree_Rename_Selected,

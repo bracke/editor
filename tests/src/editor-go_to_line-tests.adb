@@ -135,23 +135,23 @@ package body Editor.Go_To_Line.Tests is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
       Assert
-        ((not Editor.Go_To_Line.Is_Open (S.Go_To_Line))
+        ((not Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line))
          and then Active_Message_Text (S) = "No active buffer.",
          "prefill-current without an active buffer must report a deterministic no-op and not open the prompt");
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "9");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "9");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Goto_Line);
       Assert
         (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
          "go-to-line show availability must not require an active buffer");
       Assert
-        (Editor.Go_To_Line.Is_Open (S.Go_To_Line)
-         and then Editor.Go_To_Line.Text (S.Go_To_Line) = "9",
+        (Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line)
+         and then Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "9",
          "go-to-line availability must not mutate prompt state");
 
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
       Assert
@@ -165,15 +165,15 @@ package body Editor.Go_To_Line.Tests is
          "prefill-current without a caret must report a deterministic no-op");
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Goto_Line);
-      Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line),
+      Assert (Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line),
               "go-to-line command execution must open the prompt for active buffers");
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "   ");
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "   ");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Accept_Goto_Line);
       Assert
         (Avail.Status = Editor.Commands.Availability_Metadata.Command_Available,
          "go-to-line accept availability must let the Executor handler report empty prompt failures");
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "2");
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "2");
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Accept_Goto_Line);
       Assert
@@ -299,7 +299,7 @@ package body Editor.Go_To_Line.Tests is
       Col : Natural := 0;
    begin
       Editor.Navigation.Line_Column_For_Index
-        (S, Natural (S.Carets.First_Element.Pos), Row, Col);
+        (S, Natural (S.Caret.Carets.First_Element.Pos), Row, Col);
       Assert (Row = Expected_Row and then Col = Expected_Column, Context);
    end Assert_Caret;
 
@@ -312,8 +312,8 @@ package body Editor.Go_To_Line.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
 
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "3:2");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "3:2");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
 
       Assert_Caret (S, 2, 1,
@@ -324,9 +324,9 @@ package body Editor.Go_To_Line.Tests is
               "successful explicit go-to-line must leave no forward entry");
       Assert (Active_Message_Text (S) = "Went to line 3:2",
               "successful go-to-line message must identify the target");
-      Assert ((not Editor.Go_To_Line.Is_Open (S.Go_To_Line))
-              and then Editor.Go_To_Line.Text (S.Go_To_Line) = ""
-              and then not Editor.Go_To_Line.Has_Error (S.Go_To_Line),
+      Assert ((not Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line))
+              and then Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = ""
+              and then not Editor.Go_To_Line.Has_Error (S.Surface.Go_To_Line),
               "successful accept must hide the prompt and clear transient query/error state");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
@@ -346,8 +346,8 @@ package body Editor.Go_To_Line.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
 
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "500");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "500");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
               "out-of-range go-to-line must not record navigation history");
@@ -355,8 +355,8 @@ package body Editor.Go_To_Line.Tests is
       Assert (Active_Message_Text (S) = "Line 500 is outside the active buffer",
               "out-of-range go-to-line must report the requested line");
 
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "1");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "1");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0,
               "same-location go-to-line must not record navigation history");
@@ -375,11 +375,11 @@ package body Editor.Go_To_Line.Tests is
       Editor.State.Load_Text
         (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
 
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "2");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "2");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "3");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "3");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
       Assert_Caret (S, 2, 0, "setup must place caret at line 3");
 
@@ -388,8 +388,8 @@ package body Editor.Go_To_Line.Tests is
       Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
               "back must create a forward history entry before branch navigation");
 
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "1");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "1");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
       Assert_Caret (S, 0, 0, "new go-to-line after back must move to line 1");
       Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
@@ -408,36 +408,36 @@ package body Editor.Go_To_Line.Tests is
       Editor.State.Init (S);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Goto_Line);
-      Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line),
+      Assert (Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line),
               "show must make the go-to-line prompt visible without an active buffer");
 
       Editor.Executor.Navigation_Commands.Execute_Goto_Line_Set_Query (S, "42:7");
-      Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = "42:7",
+      Assert (Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "42:7",
               "query.set must replace the prompt query through Executor");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Goto_Line_Query_Clear);
-      Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = "",
+      Assert (Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "",
               "query.clear must clear the prompt query through Executor");
 
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "9");
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "9");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Goto_Line_Toggle);
-      Assert ((not Editor.Go_To_Line.Is_Open (S.Go_To_Line))
-              and then Editor.Go_To_Line.Text (S.Go_To_Line) = "",
+      Assert ((not Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line))
+              and then Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "",
               "toggle-hide must hide and clear transient go-to-line query state");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Goto_Line_Toggle);
-      Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line),
+      Assert (Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line),
               "toggle-show must reopen the transient go-to-line prompt");
 
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "77");
-      Editor.Go_To_Line.Set_Error (S.Go_To_Line, "stale error");
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "77");
+      Editor.Go_To_Line.Set_Error (S.Surface.Go_To_Line, "stale error");
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
-      Assert ((not Editor.Go_To_Line.Is_Open (S.Go_To_Line))
-              and then Editor.Go_To_Line.Text (S.Go_To_Line) = ""
-              and then not Editor.Go_To_Line.Has_Error (S.Go_To_Line),
+      Assert ((not Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line))
+              and then Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = ""
+              and then not Editor.Go_To_Line.Has_Error (S.Surface.Go_To_Line),
               "replacing the go-to-line overlay must use go-to-line hide policy and clear query/error state");
    end Test_Prompt_Query_Commands_And_Lifecycle;
 
@@ -453,26 +453,26 @@ package body Editor.Go_To_Line.Tests is
       Editor.State.Load_Text
         (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
 
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "bad");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "bad");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
-      Assert (Editor.Go_To_Line.Has_Error (S.Go_To_Line),
+      Assert (Editor.Go_To_Line.Has_Error (S.Surface.Go_To_Line),
               "setup must leave a stale prompt error after failed accept");
 
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "2");
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "2");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
       Assert_Caret (S, 1, 0, "setup must move the caret to line 2");
       Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
 
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "999");
-      Editor.Go_To_Line.Set_Error (S.Go_To_Line, "stale error");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "999");
+      Editor.Go_To_Line.Set_Error (S.Surface.Go_To_Line, "stale error");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
 
-      Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line)
-              and then Editor.Go_To_Line.Text (S.Go_To_Line) = "2"
-              and then not Editor.Go_To_Line.Has_Error (S.Go_To_Line),
+      Assert (Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line)
+              and then Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "2"
+              and then not Editor.Go_To_Line.Has_Error (S.Surface.Go_To_Line),
               "prefill-current must show the prompt, replace query with current line, and clear errors");
       Assert_Caret (S, 1, 0,
                     "prefill-current must not move the caret");
@@ -489,20 +489,20 @@ package body Editor.Go_To_Line.Tests is
                 (Snap.Goto_Line_Error_Message) = "",
               "render snapshot must expose prefilled query and cleared error from stored prompt state");
 
-      Editor.Go_To_Line.Set_Error (S.Go_To_Line, "stale error");
+      Editor.Go_To_Line.Set_Error (S.Surface.Go_To_Line, "stale error");
       Editor.Executor.Navigation_Commands.Execute_Goto_Line_Set_Query (S, "3");
-      Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = "3"
-              and then not Editor.Go_To_Line.Has_Error (S.Go_To_Line),
+      Assert (Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "3"
+              and then not Editor.Go_To_Line.Has_Error (S.Surface.Go_To_Line),
               "query.set must clear stale go-to-line errors");
 
-      Editor.Go_To_Line.Set_Error (S.Go_To_Line, "stale error");
+      Editor.Go_To_Line.Set_Error (S.Surface.Go_To_Line, "stale error");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Goto_Line_Query_Clear);
-      Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = ""
-              and then not Editor.Go_To_Line.Has_Error (S.Go_To_Line),
+      Assert (Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = ""
+              and then not Editor.Go_To_Line.Has_Error (S.Surface.Go_To_Line),
               "query.clear must clear stale go-to-line errors");
 
-      Editor.Go_To_Line.Set_Error (S.Go_To_Line, "stale error");
+      Editor.Go_To_Line.Set_Error (S.Surface.Go_To_Line, "stale error");
       Assert
         (Editor.Executor.Command_Availability
            (S, Editor.Command_Ids.Command_Goto_Line_Query_Clear).Status
@@ -510,15 +510,15 @@ package body Editor.Go_To_Line.Tests is
          "query.clear must remain available for an empty query when it can clear a stale error");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Goto_Line_Query_Clear);
-      Assert ((not Editor.Go_To_Line.Has_Error (S.Go_To_Line))
-              and then Editor.Go_To_Line.Text (S.Go_To_Line) = "",
+      Assert ((not Editor.Go_To_Line.Has_Error (S.Surface.Go_To_Line))
+              and then Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "",
               "query.clear must clear an empty-query stale error through the command path");
 
-      Editor.Go_To_Line.Set_Error (S.Go_To_Line, "stale error");
+      Editor.Go_To_Line.Set_Error (S.Surface.Go_To_Line, "stale error");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Goto_Line);
-      Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line)
-              and then Editor.Go_To_Line.Text (S.Go_To_Line) = ""
-              and then not Editor.Go_To_Line.Has_Error (S.Go_To_Line),
+      Assert (Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line)
+              and then Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = ""
+              and then not Editor.Go_To_Line.Has_Error (S.Surface.Go_To_Line),
               "ordinary show must preserve existing query policy and clear errors");
    end Test_Prefill_Current_Location_And_Error_Clearing;
 
@@ -534,8 +534,8 @@ package body Editor.Go_To_Line.Tests is
       Editor.State.Load_Text
         (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
 
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "3");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "3");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert_Caret (S, 0, 0, "setup must navigate back to line 1");
@@ -571,25 +571,25 @@ package body Editor.Go_To_Line.Tests is
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Goto_Line);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Accept_Goto_Line);
-      Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line),
+      Assert (Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line),
               "empty accept must keep the go-to-line prompt visible");
-      Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = "",
+      Assert (Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "",
               "empty accept must preserve the empty prompt query");
-      Assert (Editor.Go_To_Line.Error_Text (S.Go_To_Line) =
+      Assert (Editor.Go_To_Line.Error_Text (S.Surface.Go_To_Line) =
                 "No go-to-line target",
               "empty accept must expose deterministic prompt error state");
       Assert (Active_Message_Text (S) = "No go-to-line target",
               "empty accept must emit the goto failure message");
 
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "abc");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "abc");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
-      Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line),
+      Assert (Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line),
               "invalid accept must keep the prompt visible");
-      Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = "abc",
+      Assert (Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "abc",
               "invalid accept must preserve the failing query");
-      Assert (Editor.Go_To_Line.Error_Text (S.Go_To_Line) =
+      Assert (Editor.Go_To_Line.Error_Text (S.Surface.Go_To_Line) =
                 "Invalid go-to-line target",
               "invalid accept must expose prompt error state");
 
@@ -615,19 +615,19 @@ package body Editor.Go_To_Line.Tests is
       Editor.State.Load_Text
         (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
 
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "3");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "3");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Navigation_Back);
       Assert_Caret (S, 0, 0, "setup back must restore the original line");
       Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
               "setup back must leave one forward location");
 
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "abc");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "abc");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
-      Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line)
-              and then Editor.Go_To_Line.Text (S.Go_To_Line) = "abc",
+      Assert (Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line)
+              and then Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "abc",
               "failed prompt accept must keep visible query state for correction");
       Assert (Editor.Navigation_History.Forward_Count (S.Navigation_History) = 1,
               "failed prompt accept after back must not clear the forward stack");
@@ -708,31 +708,31 @@ package body Editor.Go_To_Line.Tests is
       Editor.State.Load_Text
         (S, "one" & ASCII.LF & "two" & ASCII.LF & "three");
 
-      Editor.Quick_Open.Open (S.Quick_Open);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "quick-query");
-      Editor.Project_Search.Set_Query (S.Project_Search, "search-query");
+      Editor.Quick_Open.Open (S.Surface.Quick_Open);
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "quick-query");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "search-query");
       Editor.Project_Search.Set_Status
-        (S.Project_Search, Editor.Project_Search.Project_Search_Ok);
+        (S.Surface.Project_Search, Editor.Project_Search.Project_Search_Ok);
       Editor.Bookmarks.Toggle
         (S.Bookmarks, Editor.Test_Temp.Base & "/a.adb", "a.adb", 1, 0, False, Added);
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text
-        (S.Buffer_Switcher, "switch-query");
+        (S.Surface.Buffer_Switcher, "switch-query");
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Goto_Line_Prefill_Current);
 
-      Assert (Editor.Go_To_Line.Text (S.Go_To_Line) = "1",
+      Assert (Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "1",
               "prefill-current must use the active caret line even when other surfaces have state");
-      Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = "quick-query",
+      Assert (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = "quick-query",
               "prefill-current must not mutate Quick Open query state");
-      Assert (Editor.Project_Search.Query (S.Project_Search) = "search-query"
-              and then Editor.Project_Search.Status (S.Project_Search)
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = "search-query"
+              and then Editor.Project_Search.Status (S.Surface.Project_Search)
                 = Editor.Project_Search.Project_Search_Ok,
               "prefill-current must not mutate Project Search query or status");
       Assert (Editor.Bookmarks.Count (S.Bookmarks) = 1,
               "prefill-current must not add, remove, or select bookmark state");
-      Assert (Editor.Buffer_Switcher.Filter_Text (S.Buffer_Switcher)
+      Assert (Editor.Buffer_Switcher.Filter_Text (S.Surface.Buffer_Switcher)
               = "switch-query",
               "prefill-current must not mutate Open Buffer Switcher filter state");
    end Test_Prefill_Does_Not_Mutate_Other_Overlay_Or_Surface_State;
@@ -759,8 +759,8 @@ package body Editor.Go_To_Line.Tests is
       Assert_Caret (S, 1, 0,
                     "successful go-to-line in a dirty buffer must still move the caret");
 
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "500");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "500");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
       Assert (Editor.State.Is_Dirty (S),
               "failed go-to-line navigation must preserve dirty-buffer state");
@@ -779,14 +779,14 @@ package body Editor.Go_To_Line.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "2:7");
-      Editor.Go_To_Line.Set_Error (S.Go_To_Line, "prior failure");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "2:7");
+      Editor.Go_To_Line.Set_Error (S.Surface.Go_To_Line, "prior failure");
       Editor.Executor.Navigation_Commands.Execute_Accept_Goto_Line (S);
 
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "42:7");
-      Editor.Go_To_Line.Set_Error (S.Go_To_Line, "Invalid go-to-line target");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "42:7");
+      Editor.Go_To_Line.Set_Error (S.Surface.Go_To_Line, "Invalid go-to-line target");
       Snapshot := Editor.State.Build_Workspace_Snapshot (S);
       Summary := Ada.Strings.Unbounded.To_Unbounded_String
         (Editor.Workspace_Persistence.Debug_Summary (Snapshot));
@@ -800,9 +800,9 @@ package body Editor.Go_To_Line.Tests is
               "workspace snapshot/debug summary must not persist prompt query, error, or target state");
 
       Editor.State.Reset_Project_Scoped_State (S);
-      Assert ((not Editor.Go_To_Line.Is_Open (S.Go_To_Line))
-              and then Editor.Go_To_Line.Text (S.Go_To_Line) = ""
-              and then not Editor.Go_To_Line.Has_Error (S.Go_To_Line),
+      Assert ((not Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line))
+              and then Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = ""
+              and then not Editor.Go_To_Line.Has_Error (S.Surface.Go_To_Line),
               "project lifecycle reset must hide go-to-line and clear query/error state");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = 0
               and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = 0,
@@ -820,8 +820,8 @@ package body Editor.Go_To_Line.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two");
-      Editor.Go_To_Line.Open (S.Go_To_Line);
-      Editor.Go_To_Line.Set_Text (S.Go_To_Line, "2");
+      Editor.Go_To_Line.Open (S.Surface.Go_To_Line);
+      Editor.Go_To_Line.Set_Text (S.Surface.Go_To_Line, "2");
       Before := Editor.Navigation_History.Back_Count (S.Navigation_History);
 
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
@@ -830,8 +830,8 @@ package body Editor.Go_To_Line.Tests is
               "render snapshot must reflect go-to-line prompt state");
       Assert_Caret (S, 0, 0,
                     "building a render snapshot must not execute go-to-line movement");
-      Assert (Editor.Go_To_Line.Is_Open (S.Go_To_Line)
-              and then Editor.Go_To_Line.Text (S.Go_To_Line) = "2",
+      Assert (Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line)
+              and then Editor.Go_To_Line.Text (S.Surface.Go_To_Line) = "2",
               "building a render snapshot must not mutate prompt state");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before,
               "building a render snapshot must not mutate navigation history");

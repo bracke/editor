@@ -231,13 +231,13 @@ package body Editor.Executor.Find_Replace_Input_Commands is
       Anchor      : Natural := 0;
    begin
       if S.Search.Active_Find_Match.Index = Editor.Search.No_Search_Match
-        or else S.Carets.Length = 0
+        or else S.Caret.Carets.Length = 0
       then
          return False;
       end if;
 
-      Pos := Natural (S.Carets (S.Carets.First_Index).Pos);
-      Anchor := Natural (S.Carets (S.Carets.First_Index).Anchor);
+      Pos := Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos);
+      Anchor := Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor);
       return (Anchor = Start_Index and then Pos = Start_Index)
         or else (Anchor = Start_Index and then Pos = End_Index)
         or else (Anchor = End_Index and then Pos = Start_Index);
@@ -268,7 +268,7 @@ package body Editor.Executor.Find_Replace_Input_Commands is
          return 0;
       end if;
 
-      if S.Carets.Length > 0 then
+      if S.Caret.Carets.Length > 0 then
          Origin := Natural (Editor.Executor.Safe_Caret (S));
       end if;
 
@@ -290,7 +290,7 @@ package body Editor.Executor.Find_Replace_Input_Commands is
          return 0;
       end if;
 
-      if S.Carets.Length > 0 then
+      if S.Caret.Carets.Length > 0 then
          Origin := Natural (Editor.Executor.Safe_Caret (S));
       end if;
 
@@ -325,7 +325,7 @@ package body Editor.Executor.Find_Replace_Input_Commands is
          return;
       end if;
 
-      if S.Carets.Length > 0 then
+      if S.Caret.Carets.Length > 0 then
          Origin := Natural (Editor.Executor.Safe_Caret (S));
       end if;
 

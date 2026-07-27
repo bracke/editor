@@ -1144,7 +1144,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Feature_Messages.Project_Rows (S.Panel.Feature_Messages, S.Panel.Feature_Panel);
 
       Result := Editor.Executor.Message_Commands.Execute_Message_Row_Click (S, 2);
-      Editor.State.Row_Col_For_Index (S, S.Carets.Element (S.Carets.First_Index).Pos, Row, Col);
+      Editor.State.Row_Col_For_Index (S, S.Caret.Carets.Element (S.Caret.Carets.First_Index).Pos, Row, Col);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "message row click selects through generic row validation");
@@ -1171,7 +1171,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Feature_Messages.Project_Rows (S.Panel.Feature_Messages, S.Panel.Feature_Panel);
 
       Result := Editor.Executor.Message_Commands.Execute_Message_Row_Activation (S, 2);
-      Editor.State.Row_Col_For_Index (S, S.Carets.Element (S.Carets.First_Index).Pos, Row, Col);
+      Editor.State.Row_Col_For_Index (S, S.Caret.Carets.Element (S.Caret.Carets.First_Index).Pos, Row, Col);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "message activation with a live target executes");
@@ -3820,12 +3820,12 @@ package body Editor.Feature_Panel.Tests is
       Editor.Feature_Diagnostics.Project_Rows
         (S.Panel.Feature_Diagnostics, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
-      Before := S.Carets (S.Carets.First_Index).Pos;
+      Before := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Result := Editor.Executor.Diagnostics_Commands.Execute_Diagnostic_Row_Activation (S, 1);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "Diagnostics activation rejects out-of-range column");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before,
               "rejected Diagnostics activation does not move caret");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "rejected Diagnostics activation does not mutate diagnostic rows");
@@ -4041,7 +4041,7 @@ package body Editor.Feature_Panel.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta" & ASCII.LF);
-      Before := S.Carets (S.Carets.First_Index).Pos;
+      Before := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S.Panel.Feature_Diagnostics,
@@ -4054,7 +4054,7 @@ package body Editor.Feature_Panel.Tests is
       Result := Editor.Executor.Diagnostics_Commands.Execute_Diagnostic_Row_Activation (S, 1);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "Diagnostics activation rejects diagnostics with no target");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before,
               "no-target Diagnostics activation leaves caret unchanged");
 
       Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
@@ -4076,7 +4076,7 @@ package body Editor.Feature_Panel.Tests is
       Result := Editor.Executor.Diagnostics_Commands.Execute_Diagnostic_Row_Activation (S, 1, Gen);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "Diagnostics activation rejects stale projection generation");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before,
               "stale Diagnostics activation leaves caret unchanged");
 
       Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
@@ -4107,7 +4107,7 @@ package body Editor.Feature_Panel.Tests is
       Result := Editor.Executor.Diagnostics_Commands.Execute_Diagnostic_Row_Activation (S, 1);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "Diagnostics activation rejects trimmed Diagnostic_Id rows");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before,
               "trimmed Diagnostics activation leaves caret unchanged");
    end Test_Diagnostics_Activation_Rejects_No_Target_Stale_And_Trimmed_Rows;
 
@@ -4168,7 +4168,7 @@ package body Editor.Feature_Panel.Tests is
    begin
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "alpha" & ASCII.LF & "beta" & ASCII.LF);
-      Before := S.Carets (S.Carets.First_Index).Pos;
+      Before := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S.Panel.Feature_Diagnostics,
@@ -4195,17 +4195,17 @@ package body Editor.Feature_Panel.Tests is
       Result := Editor.Executor.Diagnostics_Commands.Execute_Diagnostic_Id_Activation (S, Valid_Id);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "explicit Diagnostic_Id activation succeeds for valid active-buffer target");
-      Assert (S.Carets (S.Carets.First_Index).Pos /= Before,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos /= Before,
               "explicit Diagnostic_Id activation moves caret only after validation");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 1,
               "explicit Diagnostic_Id activation does not mutate diagnostic rows");
-      After_Valid := S.Carets (S.Carets.First_Index).Pos;
+      After_Valid := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Result := Editor.Executor.Diagnostics_Commands.Execute_Diagnostic_Id_Activation
         (S, Editor.Feature_Diagnostics.No_Diagnostic);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "explicit Diagnostic_Id activation rejects No_Diagnostic");
-      Assert (S.Carets (S.Carets.First_Index).Pos = After_Valid,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = After_Valid,
               "rejected No_Diagnostic activation leaves caret unchanged");
 
       Editor.Feature_Diagnostics.Add_Diagnostic
@@ -4223,7 +4223,7 @@ package body Editor.Feature_Panel.Tests is
         (S, Wrong_Buffer_Id);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "explicit Diagnostic_Id activation rejects inactive-buffer targets");
-      Assert (S.Carets (S.Carets.First_Index).Pos = After_Valid,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = After_Valid,
               "rejected inactive-buffer Diagnostic_Id leaves caret unchanged");
 
       Removed := Editor.Feature_Diagnostics.Clear_Diagnostic_By_Id
@@ -4236,7 +4236,7 @@ package body Editor.Feature_Panel.Tests is
       Result := Editor.Executor.Diagnostics_Commands.Execute_Diagnostic_Id_Activation (S, Valid_Id);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "explicit Diagnostic_Id activation rejects trimmed or cleared ids");
-      Assert (S.Carets (S.Carets.First_Index).Pos = After_Valid,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = After_Valid,
               "rejected cleared Diagnostic_Id leaves caret unchanged");
    end Test_Diagnostics_Explicit_Id_Activation_Validates_Target;
 
@@ -4468,12 +4468,12 @@ package body Editor.Feature_Panel.Tests is
       Editor.Feature_Search_Results.Project_Rows
         (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
-      Before := S.Carets (S.Carets.First_Index).Pos;
+      Before := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Result := Editor.Executor.Search_Results_Commands.Execute_Search_Result_Row_Activation (S, 1);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "out-of-range Search Results target is rejected");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before,
               "failed Search Results activation does not move caret");
    end Test_Search_Results_Open_Selected_Rejects_Stale_And_Out_Of_Range_Targets;
 
@@ -4504,12 +4504,12 @@ package body Editor.Feature_Panel.Tests is
       Editor.Feature_Search_Results.Project_Rows
         (S.Panel.Feature_Search_Results, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
-      Before := S.Carets (S.Carets.First_Index).Pos;
+      Before := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Result := Editor.Executor.Search_Results_Commands.Execute_Search_Result_Row_Activation (S, 1);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "Search Results activation rejects out-of-range column");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before,
               "rejected Search Results activation does not move caret");
       Assert (Editor.Feature_Search_Results.Row_Count (S.Panel.Feature_Search_Results) = 1,
               "rejected Search Results activation does not mutate rows");
@@ -4590,7 +4590,7 @@ package body Editor.Feature_Panel.Tests is
          "bad target", "main.adb", True, S.Buffer_Lifecycle.Registry_Token, 2, 99);
       Editor.Feature_Messages.Project_Rows (S.Panel.Feature_Messages, S.Panel.Feature_Panel);
       Editor.State.Row_Col_For_Index
-        (S, S.Carets.Element (S.Carets.First_Index).Pos, Row, Col);
+        (S, S.Caret.Carets.Element (S.Caret.Carets.First_Index).Pos, Row, Col);
 
       Result := Editor.Executor.Message_Commands.Execute_Message_Row_Activation (S, 2);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
@@ -4602,7 +4602,7 @@ package body Editor.Feature_Panel.Tests is
          After_Col : Natural;
       begin
          Editor.State.Row_Col_For_Index
-           (S, S.Carets.Element (S.Carets.First_Index).Pos, After_Row, After_Col);
+           (S, S.Caret.Carets.Element (S.Caret.Carets.First_Index).Pos, After_Row, After_Col);
          Assert (After_Row = Row and then After_Col = Col,
                  "failed Messages activation does not move the caret");
       end;
@@ -5559,7 +5559,7 @@ package body Editor.Feature_Panel.Tests is
 
       Result := Editor.Executor.Search_Results_Commands.Execute_Search_Result_Row_Activation (S, 1);
       Editor.State.Row_Col_For_Index
-        (S, S.Carets.Element (S.Carets.First_Index).Pos, Row, Col);
+        (S, S.Caret.Carets.Element (S.Caret.Carets.First_Index).Pos, Row, Col);
       Viewport_Rows := Natural'Max
         (1, Editor.Layout.Visible_Row_Count
           (Editor.Layout.Current, Editor.View.Viewport_Height));
@@ -5599,7 +5599,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.State.Load_Text (S, "one" & ASCII.LF & "two" & ASCII.LF);
       Editor.View.Set_Scroll (0, 3);
       Before_Scroll := Editor.View.Scroll_Y;
-      Before_Caret := S.Carets.Element (S.Carets.First_Index).Pos;
+      Before_Caret := S.Caret.Carets.Element (S.Caret.Carets.First_Index).Pos;
 
       Editor.Feature_Search_Results.Add_Search_Result
         (S.Panel.Feature_Search_Results,
@@ -5624,7 +5624,7 @@ package body Editor.Feature_Panel.Tests is
 
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "failed Search activation no-ops before handoff");
-      Assert (S.Carets.Element (S.Carets.First_Index).Pos = Before_Caret,
+      Assert (S.Caret.Carets.Element (S.Caret.Carets.First_Index).Pos = Before_Caret,
               "failed Search activation preserves editor caret");
       Assert (Editor.View.Scroll_Y = Before_Scroll,
               "failed Search activation preserves editor viewport");
@@ -5657,14 +5657,14 @@ package body Editor.Feature_Panel.Tests is
          "@outline procedure Run" & ASCII.LF);
       Editor.View.Set_Scroll (0, 2);
       Before_Scroll := Editor.View.Scroll_Y;
-      Before_Caret := S.Carets.Element (S.Carets.First_Index).Pos;
+      Before_Caret := S.Caret.Carets.Element (S.Caret.Carets.First_Index).Pos;
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Refresh_Outline);
 
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "Outline refresh executes normally");
-      Assert (S.Carets.Element (S.Carets.First_Index).Pos = Before_Caret,
+      Assert (S.Caret.Carets.Element (S.Caret.Carets.First_Index).Pos = Before_Caret,
               "Outline refresh preserves editor caret");
       Assert (Editor.View.Scroll_Y = Before_Scroll,
               "Outline refresh preserves editor viewport");
@@ -6060,7 +6060,7 @@ package body Editor.Feature_Panel.Tests is
       Editor.Executor.Execute_No_Log (S, Paste_Command ("-edit"));
       Editor.Executor.Execute_No_Log (S, Simple_Command (Editor.Command_Kinds.Move_Left));
       Editor.State.Row_Col_For_Index
-        (S, S.Carets.Element (S.Carets.First_Index).Pos, Row, Col);
+        (S, S.Caret.Carets.Element (S.Caret.Carets.First_Index).Pos, Row, Col);
       Assert (Row = 0 and then Col = 5,
               "cursor movement after round trip starts from active B cursor");
 

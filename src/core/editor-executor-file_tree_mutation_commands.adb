@@ -245,7 +245,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          return "";
       end if;
 
-      Summary := Editor.File_Tree.Node (S.File_Tree, Node_Id);
+      Summary := Editor.File_Tree.Node (S.Surface.File_Tree, Node_Id);
       if Summary.Kind = Editor.File_Tree.Directory_Node then
          return To_String (Summary.Absolute_Path);
       else
@@ -560,16 +560,16 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       Row_Found : Boolean := False;
       Row       : Natural := 0;
    begin
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, Path, Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, Path, Found);
       if Found and then Node /= Editor.File_Tree.No_File_Tree_Node then
-         Editor.File_Tree.Expand_Ancestors (S.File_Tree, Node);
-         Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+         Editor.File_Tree.Expand_Ancestors (S.Surface.File_Tree, Node);
+         Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
          if Row_Found then
-            Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+            Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
             Editor.File_Tree_View.Ensure_Selected_Row_Visible
-              (S.File_Tree_View,
-               S.File_Tree,
-               Editor.File_Tree.Visible_Row_Count (S.File_Tree));
+              (S.Surface.File_Tree_View,
+               S.Surface.File_Tree,
+               Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree));
          end if;
       end if;
    end Select_File_Tree_Path;
@@ -584,7 +584,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       if not Found then
          return (others => <>);
       end if;
-      return Editor.File_Tree.Node (S.File_Tree, Node);
+      return Editor.File_Tree.Node (S.Surface.File_Tree, Node);
    end Selected_File_Tree_Node_Summary;
 
    function Normalize_File_Tree_Path_For_Compare
@@ -700,18 +700,18 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       Selected_Path  : Unbounded_String := Null_Unbounded_String;
    begin
       if not Editor.Project.Has_Project (S.Project_Runtime.Project) then
-         Editor.File_Tree.Clear (S.File_Tree);
-         Editor.File_Tree_View.Clear_View (S.File_Tree_View);
+         Editor.File_Tree.Clear (S.Surface.File_Tree);
+         Editor.File_Tree_View.Clear_View (S.Surface.File_Tree_View);
          return False;
       end if;
 
       Selected_Node := Editor.File_Tree_View.Node_For_Row
-        (S.File_Tree,
-         Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View),
+        (S.Surface.File_Tree,
+         Editor.File_Tree_View.Selected_Row_Index (S.Surface.File_Tree_View),
          Selected_Found);
       if Selected_Found then
          Selected_Path := Editor.File_Tree.Node
-           (S.File_Tree, Selected_Node).Relative_Path;
+           (S.Surface.File_Tree, Selected_Node).Relative_Path;
       end if;
 
       Tree := Editor.File_Tree.Scan_Project (Editor.Project.Root_Path (S.Project_Runtime.Project));
@@ -719,8 +719,8 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       if Result.Status = Editor.File_Tree.File_Tree_Scan_Ok then
          Editor.File_Tree.Preserve_Expanded_Paths_From
            (Tree   => Tree,
-            Source => S.File_Tree);
-         S.File_Tree := Tree;
+            Source => S.Surface.File_Tree);
+         S.Surface.File_Tree := Tree;
          Editor.Executor.Populate_Project_Known_Files_From_File_Tree (S);
 
          if Length (Selected_Path) > 0 then
@@ -728,23 +728,23 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
                New_Found : Boolean := False;
                New_Node  : constant Editor.File_Tree.File_Tree_Node_Id :=
                  Editor.File_Tree.Find_By_Path
-                   (S.File_Tree, To_String (Selected_Path), New_Found);
+                   (S.Surface.File_Tree, To_String (Selected_Path), New_Found);
                Row_Found : Boolean := False;
                Row       : Natural := 0;
             begin
                if New_Found then
                   Row := Editor.File_Tree_View.Row_For_Node
-                    (S.File_Tree, New_Node, Row_Found);
+                    (S.Surface.File_Tree, New_Node, Row_Found);
                   if Row_Found then
                      Editor.File_Tree_View.Set_Selected_Row_Index
-                       (S.File_Tree_View, Row);
+                       (S.Surface.File_Tree_View, Row);
                   else
                      Editor.File_Tree_View.Set_Selected_Row_Index
-                       (S.File_Tree_View, 0);
+                       (S.Surface.File_Tree_View, 0);
                   end if;
                else
                   Editor.File_Tree_View.Set_Selected_Row_Index
-                    (S.File_Tree_View, 0);
+                    (S.Surface.File_Tree_View, 0);
                end if;
             end;
          end if;
@@ -752,7 +752,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          Editor.Executor.Validate_File_Tree_View (S);
          Editor.Executor.Project_Search_Result_Commands
            .Refresh_Project_Search_After_File_Lifecycle (S);
-         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+         if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
       else
@@ -761,11 +761,11 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
          --  indexes behind.  Clear transient explorer state while preserving
          --  the active project itself; the command outcome still reports the
          --  mutation plus refresh failure to the user.
-         Editor.File_Tree.Clear (S.File_Tree);
-         Editor.File_Tree_View.Clear_View (S.File_Tree_View);
+         Editor.File_Tree.Clear (S.Surface.File_Tree);
+         Editor.File_Tree_View.Clear_View (S.Surface.File_Tree_View);
          Editor.Project.Clear_Known_Files (S.Project_Runtime.Project);
-         Editor.Project_Search.Mark_Stale (S.Project_Search);
-         Editor.Quick_Open.Mark_Stale (S.Quick_Open);
+         Editor.Project_Search.Mark_Stale (S.Surface.Project_Search);
+         Editor.Quick_Open.Mark_Stale (S.Surface.Quick_Open);
       end if;
 
       return Result.Status = Editor.File_Tree.File_Tree_Scan_Ok;
@@ -815,7 +815,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       Old_Path : String;
       New_Path : String) return Boolean
    is
-      Count : constant Natural := Editor.File_Tree.File_Node_Count (S.File_Tree);
+      Count : constant Natural := Editor.File_Tree.File_Node_Count (S.Surface.File_Tree);
    begin
       --  completeness: build candidate staleness is not limited to
       --  mutations whose direct target is named alire.toml or *.gpr.  A
@@ -826,7 +826,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       for Index in 1 .. Count loop
          declare
             Node : constant Editor.File_Tree.File_Tree_Node_Summary :=
-              Editor.File_Tree.File_Node_At (S.File_Tree, Index);
+              Editor.File_Tree.File_Node_At (S.Surface.File_Tree, Index);
             Path : constant String := To_String (Node.Absolute_Path);
          begin
             if File_Tree_Build_Config_Path (Path)
@@ -911,8 +911,8 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
       --  filesystem mutations make project-derived surfaces stale
       --  through the owning runtime state, never through render, availability,
       --  Command Palette rows, keybinding payloads, or persisted operation data.
-      Editor.Project_Search.Mark_Stale_Unconditionally (S.Project_Search);
-      Editor.Project_Search.Mark_Replace_Preview_Stale (S.Project_Search);
+      Editor.Project_Search.Mark_Stale_Unconditionally (S.Surface.Project_Search);
+      Editor.Project_Search.Mark_Replace_Preview_Stale (S.Surface.Project_Search);
 
       --  File Tree create/rename/delete changes the set
       --  of project source paths independently of active-buffer commands.
@@ -946,7 +946,7 @@ package body Editor.Executor.File_Tree_Mutation_Commands is
 
       if Affects_Active_File then
          Editor.Outline.Clear (S.Outline);
-         S.Outline_Cursor_Key_Valid := False;
+         S.Outline_Cursor.Key_Valid := False;
          Editor.Diagnostics.Clear (S.Panel.Diagnostics);
          Editor.Feature_Diagnostics.Clear_Diagnostics (S.Panel.Feature_Diagnostics);
       end if;

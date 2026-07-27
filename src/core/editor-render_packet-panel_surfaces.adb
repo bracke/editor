@@ -555,23 +555,23 @@ package body Editor.Render_Packet.Panel_Surfaces is
       function Search_Status_Label return String
       is
          Count : constant Natural :=
-           Editor.Project_Search.Result_Count (S.Project_Search);
+           Editor.Project_Search.Result_Count (S.Surface.Project_Search);
          Replace_Count : constant Natural :=
-           Editor.Project_Search.Included_Replacement_Count (S.Project_Search);
+           Editor.Project_Search.Included_Replacement_Count (S.Surface.Project_Search);
       begin
-         if Editor.Project_Search.Replace_Preview_Is_Stale (S.Project_Search) then
+         if Editor.Project_Search.Replace_Preview_Is_Stale (S.Surface.Project_Search) then
             return "Replace: stale preview";
-         elsif Editor.Project_Search.Replace_Preview_Status (S.Project_Search) =
+         elsif Editor.Project_Search.Replace_Preview_Status (S.Surface.Project_Search) =
            Editor.Project_Search.Project_Replace_Preview_Ok
          then
             return "Replace: preview" & Natural'Image (Replace_Count)
               & " replacements";
-         elsif Editor.Project_Search.Is_Stale (S.Project_Search) then
+         elsif Editor.Project_Search.Is_Stale (S.Surface.Project_Search) then
             return "Search: stale";
-         elsif not Editor.Project_Search.Has_Query (S.Project_Search) then
+         elsif not Editor.Project_Search.Has_Query (S.Surface.Project_Search) then
             return "Search: no query";
-         elsif Editor.Project_Search.Results_Truncated (S.Project_Search)
-           or else Editor.Project_Search.Was_Truncated (S.Project_Search)
+         elsif Editor.Project_Search.Results_Truncated (S.Surface.Project_Search)
+           or else Editor.Project_Search.Was_Truncated (S.Surface.Project_Search)
          then
             return "Search:" & Natural'Image (Count) & " results, limit reached";
          elsif Count = 0 then
@@ -583,12 +583,12 @@ package body Editor.Render_Packet.Panel_Surfaces is
 
       function Quick_Open_Status_Label return String
       is
-         Count : constant Natural := Editor.Quick_Open.Visible_Count (S.Quick_Open);
-         Scope : constant String := Editor.Quick_Open.Path_Scope (S.Quick_Open);
+         Count : constant Natural := Editor.Quick_Open.Visible_Count (S.Surface.Quick_Open);
+         Scope : constant String := Editor.Quick_Open.Path_Scope (S.Surface.Quick_Open);
          Filter : constant Editor.Quick_Open.Quick_Open_File_Kind_Filter :=
-           Editor.Quick_Open.File_Kind_Filter (S.Quick_Open);
+           Editor.Quick_Open.File_Kind_Filter (S.Surface.Quick_Open);
       begin
-         if not Editor.Quick_Open.Is_Open (S.Quick_Open) then
+         if not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
             if Scope'Length = 0 and then Filter = Editor.Quick_Open.All_Files then
                return "";
             elsif Scope'Length > 0 then
@@ -598,7 +598,7 @@ package body Editor.Render_Packet.Panel_Surfaces is
                return "Quick Open: "
                  & Editor.Quick_Open.File_Kind_Filter_Name (Filter);
             end if;
-         elsif Editor.Quick_Open.Query_Text (S.Quick_Open) = "" then
+         elsif Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = "" then
             return "Quick Open: type to open file";
          elsif Count = 0 then
             return "Quick Open: no matches";
@@ -610,8 +610,8 @@ package body Editor.Render_Packet.Panel_Surfaces is
       function File_Tree_Status_Label return String
       is
          Scan : constant Editor.File_Tree.File_Tree_Scan_Result :=
-           Editor.File_Tree.Scan_Status (S.File_Tree);
-         Files : constant Natural := Editor.File_Tree.File_Node_Count (S.File_Tree);
+           Editor.File_Tree.Scan_Status (S.Surface.File_Tree);
+         Files : constant Natural := Editor.File_Tree.File_Node_Count (S.Surface.File_Tree);
       begin
          case Scan.Status is
             when Editor.File_Tree.File_Tree_No_Project =>

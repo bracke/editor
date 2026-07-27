@@ -95,7 +95,7 @@ package body Editor.Executor.File_Tree_Rename_Commands is
          return;
       end if;
 
-      Parent_Path := Editor.File_Tree.Node (S.File_Tree, Summary.Parent).Absolute_Path;
+      Parent_Path := Editor.File_Tree.Node (S.Surface.File_Tree, Summary.Parent).Absolute_Path;
       Target := To_Unbounded_String
         (Ada.Directories.Compose (To_String (Parent_Path), Input));
       Active_Buffer_Was_Renamed :=

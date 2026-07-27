@@ -682,9 +682,9 @@ procedure Editor_Product_Smoke is
    procedure Run_Quick_Open_File_Tree_Scenario is
    begin
       Editor.Executor.Quick_Open_Commands.Execute_Open_Quick_Open (S);
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "main.adb");
-      Editor.Quick_Open.Recompute_Results (S.Quick_Open, S.File_Tree, (others => <>));
-      Check (Editor.Quick_Open.Result_Count (S.Quick_Open) >= 1,
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "main.adb");
+      Editor.Quick_Open.Recompute_Results (S.Surface.Quick_Open, S.Surface.File_Tree, (others => <>));
+      Check (Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) >= 1,
              "Quick Open did not find main.adb");
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Accept_Quick_Open);
       Check (S.Buffer_Lifecycle.File_Info.Has_Path and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Main_Path,
@@ -695,13 +695,13 @@ procedure Editor_Product_Smoke is
 
       Editor.Executor.Project_File_Index_Commands.Execute_Refresh_File_Tree (S);
       Node := Editor.File_Tree.Find_By_Path
-        (S.File_Tree, "src/smoke_unit.adb", Found);
+        (S.Surface.File_Tree, "src/smoke_unit.adb", Found);
       Check (Found and then Node /= Editor.File_Tree.No_File_Tree_Node,
              "file tree did not discover smoke_unit.adb");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Found);
       Check (Found and then Row > 0,
              "file tree node did not map to a selectable row");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
       Editor.Focus_Management.Set_Focus_Owner
         (S, Editor.Focus_Management.Focus_File_Tree);
       Editor.Executor.Execute_Command
@@ -730,15 +730,15 @@ procedure Editor_Product_Smoke is
       Run_Quick_Open_File_Tree_Scenario;
       Run_Edit_Save_Scenario;
 
-      Editor.Project_Search.Set_Query (S.Project_Search, "E2E_Token");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "E2E_Token");
       Editor.Project_Search.Search_Known_Project_Files
-        (S.Project_Search, S.File_Tree, S.Project_Runtime.Project, (others => <>));
-      Check (Editor.Project_Search.Status (S.Project_Search) =
+        (S.Surface.Project_Search, S.Surface.File_Tree, S.Project_Runtime.Project, (others => <>));
+      Check (Editor.Project_Search.Status (S.Surface.Project_Search) =
                Editor.Project_Search.Project_Search_Ok
-             and then Editor.Project_Search.Result_Count (S.Project_Search) >= 1,
+             and then Editor.Project_Search.Result_Count (S.Surface.Project_Search) >= 1,
              "daily editing search did not find the fixture token");
       Search_Result := Editor.Project_Search.Selected_Result
-        (S.Project_Search, Found);
+        (S.Surface.Project_Search, Found);
       Check (Found, "daily editing search did not select a result");
 
       Editor.Feature_Diagnostics.Add_Diagnostic
@@ -967,21 +967,21 @@ begin
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Next_Outline_Item);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Editor.State.Row_Col_For_Index
-        (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
+        (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos, Row, Col);
       Check (Row = 0 and then Col = 0,
              "opening package outline row did not move caret to package declaration");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Next_Outline_Item);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Editor.State.Row_Col_For_Index
-        (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
+        (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos, Row, Col);
       Check (Row = 1,
              "opening type outline row did not move caret to type declaration");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Select_Next_Outline_Item);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Editor.State.Row_Col_For_Index
-        (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
+        (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos, Row, Col);
       Check (Row = 3,
              "opening procedure outline row did not move caret to procedure declaration");
       Check (Editor.State.Current_Text (S) = Text_Before_Outline,
@@ -1015,15 +1015,15 @@ begin
              "outline falsely reports current after switching buffers");
    end;
 
-   Editor.Project_Search.Set_Query (S.Project_Search, "E2E_Token");
+   Editor.Project_Search.Set_Query (S.Surface.Project_Search, "E2E_Token");
    Editor.Project_Search.Search_Known_Project_Files
-     (S.Project_Search, S.File_Tree, S.Project_Runtime.Project, (others => <>));
-   Check (Editor.Project_Search.Status (S.Project_Search) =
+     (S.Surface.Project_Search, S.Surface.File_Tree, S.Project_Runtime.Project, (others => <>));
+   Check (Editor.Project_Search.Status (S.Surface.Project_Search) =
             Editor.Project_Search.Project_Search_Ok
-          and then Editor.Project_Search.Result_Count (S.Project_Search) >= 1,
+          and then Editor.Project_Search.Result_Count (S.Surface.Project_Search) >= 1,
           "project search did not find the fixture token");
    Search_Result := Editor.Project_Search.Selected_Result
-     (S.Project_Search, Found);
+     (S.Surface.Project_Search, Found);
    Check (Found, "project search did not select the first fixture result");
 
    Build_Context.Has_Request := True;

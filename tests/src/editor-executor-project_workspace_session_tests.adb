@@ -432,9 +432,9 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
 
       Assert (Status = Editor.Workspace_Persistence.Workspace_Persistence_Ok,
               "cursor/viewport clamp restore should succeed");
-      Assert (S.Carets.Length = 1,
+      Assert (S.Caret.Carets.Length = 1,
               "restored cursor should leave exactly one caret");
-      Assert (S.Carets (S.Carets.First_Index).Pos <= Text_Buffer.Length (S.Buffer),
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos <= Text_Buffer.Length (S.Buffer),
               "restored cursor should clamp inside restored content");
       Assert (Editor.View.Scroll_Y = 1,
               "restored viewport should clamp to the last restored content row");
@@ -1242,7 +1242,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Latest    : Unbounded_String;
    begin
       Prepare_Restored_File (Root, S);
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, File_Path, Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, File_Path, Found);
       Assert (Found,
               "File Tree fixture should contain restored file row");
 
@@ -1289,7 +1289,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
               "dirty focus fixture should be dirty after edit");
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, File_Path, Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, File_Path, Found);
       Assert (Found,
               "dirty File Tree fixture should contain file row");
       Editor.Executor.File_Tree_Navigation_Commands.Execute_File_Tree_Node_Action
@@ -1494,7 +1494,7 @@ package body Editor.Executor.Project_Workspace_Session_Tests is
       Before_Count := Editor.Buffers.Global_Count;
       Before_Text := To_Unbounded_String (Buffer_Text (S));
 
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, Path, Found);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, Path, Found);
       Assert (Found,
               "file tree fixture should contain the ordinary file row");
       Editor.Executor.File_Tree_Navigation_Commands.Execute_File_Tree_Node_Action

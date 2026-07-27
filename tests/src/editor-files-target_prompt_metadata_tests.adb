@@ -331,8 +331,8 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text (S, Before_Text);
       S.Buffer_Lifecycle.File_Info.Dirty := True;
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => 5,
           Anchor                => 1,
           Virtual_Column        => 0,
@@ -344,7 +344,7 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Save_File_As);
       Editor.Executor.File_Target_Prompt_Commands.Insert_File_Target_Prompt_Text (S, Target & "xy");
@@ -357,9 +357,9 @@ package body Editor.Files.Target_Prompt_Metadata_Tests is
         and then Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
         "prompt text editing must not route through buffer insertion or history");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "prompt text editing must preserve active-buffer caret/selection");
       Assert (To_String (S.Search.Active_Find_Query) = "find-state"
         and then To_String (S.Search.Active_Replace_Text) = "replace-state"
@@ -833,9 +833,9 @@ procedure Test_Target_Prompt_No_Inference_State_And_Persistence_Cleanup
       Editor.State.Init (S);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Source);
-      Editor.Quick_Open.Set_Path_Scope (S.Quick_Open, "src");
+      Editor.Quick_Open.Set_Path_Scope (S.Surface.Quick_Open, "src");
       Editor.Quick_Open.Set_File_Kind_Filter
-        (S.Quick_Open, Editor.Quick_Open.Ada_Files);
+        (S.Surface.Quick_Open, Editor.Quick_Open.Ada_Files);
       Switched := Editor.Feature_Panel.Set_Active_Feature
         (S.Panel.Feature_Panel, Editor.Feature_Panel.Diagnostics_Feature);
       Assert (Switched, "test setup should activate Diagnostics feature panel");

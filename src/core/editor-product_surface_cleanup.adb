@@ -162,10 +162,10 @@ package body Editor.Product_Surface_Cleanup is
          end if;
       end loop;
 
-      for I in 1 .. Editor.Project_Search.Result_Count (S.Project_Search) loop
+      for I in 1 .. Editor.Project_Search.Result_Count (S.Surface.Project_Search) loop
          declare
             R : constant Editor.Project_Search.Project_Search_Result :=
-              Editor.Project_Search.Result_At (S.Project_Search, I);
+              Editor.Project_Search.Result_At (S.Surface.Project_Search, I);
          begin
             if Looks_Like_Demo_Text (US (R.Relative_Path))
               or else Looks_Like_Demo_Text (US (R.Absolute_Path))
@@ -184,10 +184,10 @@ package body Editor.Product_Surface_Cleanup is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      for I in 1 .. Editor.Quick_Open.Result_Count (S.Quick_Open) loop
+      for I in 1 .. Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) loop
          declare
             R : constant Editor.Quick_Open.Quick_Open_Result :=
-              Editor.Quick_Open.Result_At (S.Quick_Open, I);
+              Editor.Quick_Open.Result_At (S.Surface.Quick_Open, I);
          begin
             if Looks_Like_Demo_Text (US (R.Display_Path))
               or else Looks_Like_Demo_Text (US (R.Absolute_Path))
@@ -203,10 +203,10 @@ package body Editor.Product_Surface_Cleanup is
      (S : Editor.State.State_Type) return Boolean
    is
    begin
-      for I in 1 .. Editor.File_Tree.Node_Count (S.File_Tree) loop
+      for I in 1 .. Editor.File_Tree.Node_Count (S.Surface.File_Tree) loop
          declare
             N : constant Editor.File_Tree.File_Tree_Node_Summary :=
-              Editor.File_Tree.Node (S.File_Tree, Editor.File_Tree.File_Tree_Node_Id (I));
+              Editor.File_Tree.Node (S.Surface.File_Tree, Editor.File_Tree.File_Tree_Node_Id (I));
          begin
             if N.Id /= Editor.File_Tree.No_File_Tree_Node
               and then

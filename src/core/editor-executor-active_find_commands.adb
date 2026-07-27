@@ -168,13 +168,13 @@ package body Editor.Executor.Active_Find_Commands is
       Anchor      : Natural := 0;
    begin
       if S.Search.Active_Find_Match.Index = Editor.Search.No_Search_Match
-        or else S.Carets.Length = 0
+        or else S.Caret.Carets.Length = 0
       then
          return False;
       end if;
 
-      Pos := Natural (S.Carets (S.Carets.First_Index).Pos);
-      Anchor := Natural (S.Carets (S.Carets.First_Index).Anchor);
+      Pos := Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos);
+      Anchor := Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Anchor);
       return (Anchor = Start_Index and then Pos = Start_Index)
         or else (Anchor = Start_Index and then Pos = End_Index)
         or else (Anchor = End_Index and then Pos = Start_Index);
@@ -205,7 +205,7 @@ package body Editor.Executor.Active_Find_Commands is
          return 0;
       end if;
 
-      if S.Carets.Length > 0 then
+      if S.Caret.Carets.Length > 0 then
          Origin := Natural (Safe_Caret (S));
       end if;
 
@@ -227,7 +227,7 @@ package body Editor.Executor.Active_Find_Commands is
          return 0;
       end if;
 
-      if S.Carets.Length > 0 then
+      if S.Caret.Carets.Length > 0 then
          Origin := Natural (Safe_Caret (S));
       end if;
 
@@ -305,14 +305,14 @@ package body Editor.Executor.Active_Find_Commands is
 
       S.Search.Active_Find_Match := Match;
       Apply_Feature_Target_Handoff (S, Match.Start_Row, Match.Start_Column);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => Match.Start_Index,
            Anchor                => Match.Start_Index,
            Virtual_Column        => 0,
            Anchor_Virtual_Column => 0));
-      S.Preferred_Column := Match.Start_Column;
+      S.Caret.Preferred_Column := Match.Start_Column;
 
       Target :=
         (Buffer_Id      => Active_Feature_Buffer_Token (S),
@@ -444,7 +444,7 @@ package body Editor.Executor.Active_Find_Commands is
    is
       Origin : Natural := 0;
    begin
-      if S.Carets.Length > 0 then
+      if S.Caret.Carets.Length > 0 then
          Origin := Natural (Safe_Caret (S));
       end if;
 
@@ -517,7 +517,7 @@ package body Editor.Executor.Active_Find_Commands is
       if Prior_Ordinal = 0 or else Prior_Ordinal > Count then
          Ordinal := First_Find_Ordinal_At_Or_After_Caret (S);
          Wrapped := Ordinal = 1
-           and then S.Carets.Length > 0
+           and then S.Caret.Carets.Length > 0
            and then Natural (Safe_Caret (S)) > Natural (S.Search.Active_Find_Matches (S.Search.Active_Find_Matches.Last_Index).Start_Index);
       else
          Ordinal := Prior_Ordinal + 1;
@@ -575,7 +575,7 @@ package body Editor.Executor.Active_Find_Commands is
       if Prior_Ordinal = 0 or else Prior_Ordinal > Count then
          Ordinal := First_Find_Ordinal_Before_Caret (S);
          Wrapped := Ordinal = Count
-           and then S.Carets.Length > 0
+           and then S.Caret.Carets.Length > 0
            and then Natural (Safe_Caret (S)) <= Natural (S.Search.Active_Find_Matches (S.Search.Active_Find_Matches.First_Index).Start_Index);
       else
          Ordinal := Prior_Ordinal;

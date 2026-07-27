@@ -193,8 +193,8 @@ package body Editor.Files.Tests is
       Status := Editor.Files.Load_File (Path, S);
 
       Assert (Status = Editor.Files.Ok, "Load should succeed");
-      Assert (S.Carets.Length = 1 and then S.Carets (0).Pos = 0
-        and then S.Carets (0).Anchor = 0,
+      Assert (S.Caret.Carets.Length = 1 and then S.Caret.Carets (0).Pos = 0
+        and then S.Caret.Carets (0).Anchor = 0,
         "Load should reset carets and selections to document start");
       Assert (Editor.History.Undo_Stack.Is_Empty
         and then Editor.History.Redo_Stack.Is_Empty,
@@ -282,8 +282,8 @@ package body Editor.Files.Tests is
         "Execute_Open_File should store the opened display name");
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "Execute_Open_File should leave opened file clean");
-      Assert (S.Carets.Length = 1 and then S.Carets (0).Pos = 0
-        and then S.Carets (0).Anchor = 0,
+      Assert (S.Caret.Carets.Length = 1 and then S.Caret.Carets (0).Pos = 0
+        and then S.Caret.Carets (0).Anchor = 0,
         "Execute_Open_File should reset caret and selection to start");
       Assert (Editor.History.Undo_Stack.Is_Empty
         and then Editor.History.Redo_Stack.Is_Empty,

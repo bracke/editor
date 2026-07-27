@@ -193,13 +193,13 @@ package body Editor.Outline.Structure_Range_Tests is
       Select_Item (S.Outline, 1);
       Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
       Editor.Feature_Panel.Select_Row (S.Panel.Feature_Panel, 1);
-      Before := S.Carets (S.Carets.First_Index).Pos;
+      Before := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Unavailable,
               "out-of-range outline target is rejected before execution");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before,
               "failed out-of-range activation does not move caret");
    end Test_Open_Selected_Rejects_Out_Of_Range_Target;
 

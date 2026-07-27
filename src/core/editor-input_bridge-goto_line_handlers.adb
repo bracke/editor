@@ -39,7 +39,7 @@ package body Editor.Input_Bridge.Goto_Line_Handlers is
       case Cmd.Kind is
          when Editor.Command_Kinds.Insert_Text_Input =>
             if Cmd.Ctrl and then (Cmd.Ch = 'a' or else Cmd.Ch = 'A') then
-               Editor.Go_To_Line.Select_All (S.Go_To_Line);
+               Editor.Go_To_Line.Select_All (S.Surface.Go_To_Line);
                Editor.Render_Cache.Invalidate_All;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                Execute (Editor.Command_Ids.Command_Accept_Goto_Line);
@@ -79,22 +79,22 @@ package body Editor.Input_Bridge.Goto_Line_Handlers is
             return True;
 
          when Editor.Command_Kinds.Move_Left =>
-            Editor.Go_To_Line.Move_Cursor_Left (S.Go_To_Line);
+            Editor.Go_To_Line.Move_Cursor_Left (S.Surface.Go_To_Line);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
          when Editor.Command_Kinds.Move_Right =>
-            Editor.Go_To_Line.Move_Cursor_Right (S.Go_To_Line);
+            Editor.Go_To_Line.Move_Cursor_Right (S.Surface.Go_To_Line);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
          when Editor.Command_Kinds.Move_Line_Start =>
-            Editor.Go_To_Line.Move_Cursor_Start (S.Go_To_Line);
+            Editor.Go_To_Line.Move_Cursor_Start (S.Surface.Go_To_Line);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
          when Editor.Command_Kinds.Move_Line_End =>
-            Editor.Go_To_Line.Move_Cursor_End (S.Go_To_Line);
+            Editor.Go_To_Line.Move_Cursor_End (S.Surface.Go_To_Line);
             Editor.Render_Cache.Invalidate_All;
             return True;
 

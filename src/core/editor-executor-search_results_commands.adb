@@ -148,12 +148,12 @@ package body Editor.Executor.Search_Results_Commands is
      (S : in out Editor.State.State_Type)
    is
       Snapshot : constant Editor.Search_Results.Search_Results_Snapshot :=
-        Editor.Search_Results.Build_Snapshot (S.Project_Search, (others => <>));
+        Editor.Search_Results.Build_Snapshot (S.Surface.Project_Search, (others => <>));
    begin
       Editor.Search_Results.Ensure_Selected_Row_Visible
         (S.Panel.Search_Results_View,
          Snapshot,
-         Editor.Project_Search.Selected_Result_Index (S.Project_Search),
+         Editor.Project_Search.Selected_Result_Index (S.Surface.Project_Search),
          Search_Results_Visible_Row_Count);
    end Ensure_Search_Result_Visible;
 
@@ -167,7 +167,7 @@ package body Editor.Executor.Search_Results_Commands is
       then
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_Project_Search_Results);
-      elsif Editor.Project_Search.Result_Count (S.Project_Search) > 0 then
+      elsif Editor.Project_Search.Result_Count (S.Surface.Project_Search) > 0 then
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_Project_Search_Results);
       else
@@ -181,11 +181,11 @@ package body Editor.Executor.Search_Results_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+      if Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0 then
          Report_Info (S, "No project search results");
       else
          Editor.Project_Search.Move_Selected_Result
-           (S.Project_Search, Editor.Project_Search.Previous_Result, False);
+           (S.Surface.Project_Search, Editor.Project_Search.Previous_Result, False);
          Ensure_Search_Result_Visible (S);
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_Project_Search_Results);
@@ -197,11 +197,11 @@ package body Editor.Executor.Search_Results_Commands is
      (S : in out Editor.State.State_Type)
    is
    begin
-      if Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+      if Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0 then
          Report_Info (S, "No project search results");
       else
          Editor.Project_Search.Move_Selected_Result
-           (S.Project_Search, Editor.Project_Search.Next_Result, False);
+           (S.Surface.Project_Search, Editor.Project_Search.Next_Result, False);
          Ensure_Search_Result_Visible (S);
          Editor.Focus_Management.Set_Focus_Owner
            (S, Editor.Focus_Management.Focus_Project_Search_Results);
@@ -214,12 +214,12 @@ package body Editor.Executor.Search_Results_Commands is
    is
       Steps : constant Natural := Search_Results_Visible_Row_Count;
    begin
-      if Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+      if Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0 then
          Report_Info (S, "No project search results");
       else
          for I in 1 .. Steps loop
             Editor.Project_Search.Move_Selected_Result
-              (S.Project_Search, Editor.Project_Search.Previous_Result, False);
+              (S.Surface.Project_Search, Editor.Project_Search.Previous_Result, False);
          end loop;
          Ensure_Search_Result_Visible (S);
          Editor.Focus_Management.Set_Focus_Owner
@@ -233,12 +233,12 @@ package body Editor.Executor.Search_Results_Commands is
    is
       Steps : constant Natural := Search_Results_Visible_Row_Count;
    begin
-      if Editor.Project_Search.Result_Count (S.Project_Search) = 0 then
+      if Editor.Project_Search.Result_Count (S.Surface.Project_Search) = 0 then
          Report_Info (S, "No project search results");
       else
          for I in 1 .. Steps loop
             Editor.Project_Search.Move_Selected_Result
-              (S.Project_Search, Editor.Project_Search.Next_Result, False);
+              (S.Surface.Project_Search, Editor.Project_Search.Next_Result, False);
          end loop;
          Ensure_Search_Result_Visible (S);
          Editor.Focus_Management.Set_Focus_Owner

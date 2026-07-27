@@ -102,11 +102,11 @@ package body Editor.Executor.UI_Tests is
    begin
       Init_Executor_Test_State (S);
       Editor.State.Load_Text (S, "abc" & ASCII.LF & "def" & ASCII.LF & "ghi");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos => 0, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
-      Before_Pos := S.Carets (S.Carets.First_Index).Pos;
+      Before_Pos := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
       Editor.State.Add_Diagnostic
         (S, Start_Index => 0, End_Index => 1,
          Severity => Editor.Diagnostics.Error, Message => "first");
@@ -121,7 +121,7 @@ package body Editor.Executor.UI_Tests is
         (Editor.Problems.Selected_Row_Index (S.Panel.Problems_View) = 2,
          "focused Down should move Problems selection only");
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = Before_Pos,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Pos,
          "focused Down must not move the editor caret");
       Assert
         (Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus) =
@@ -153,7 +153,7 @@ package body Editor.Executor.UI_Tests is
          and then S.Panel.Active_Diagnostic.Index = 2,
          "Enter should open the selected diagnostic");
       Assert
-        (S.Carets (S.Carets.First_Index).Pos = 4,
+        (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 4,
          "selected diagnostic open should move caret to diagnostic target");
       Assert
         (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus),
@@ -230,7 +230,7 @@ package body Editor.Executor.UI_Tests is
         (not Editor.Command_Palette.Is_Open,
          "quick open should close the command palette surface");
       Assert
-        (Editor.Quick_Open.Is_Open (S.Quick_Open),
+        (Editor.Quick_Open.Is_Open (S.Surface.Quick_Open),
          "quick open command should open quick-open surface");
       Assert
         (Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus) =
@@ -239,10 +239,10 @@ package body Editor.Executor.UI_Tests is
 
       Editor.Executor.Project_Search_Surface_Commands.Execute_Open_Project_Search_Bar (S);
       Assert
-        (not Editor.Quick_Open.Is_Open (S.Quick_Open),
+        (not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open),
          "project search bar should close quick open");
       Assert
-        (Editor.Project_Search_Bar.Is_Open (S.Project_Search_Bar),
+        (Editor.Project_Search_Bar.Is_Open (S.Surface.Project_Search_Bar),
          "project search command should open project-search bar");
       Assert
         (Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus) =
@@ -273,7 +273,7 @@ package body Editor.Executor.UI_Tests is
         (S.Search.Active_Find_Prompt,
          "opening quick open should leave active Find prompt visible");
       Assert
-        (Editor.Quick_Open.Is_Open (S.Quick_Open),
+        (Editor.Quick_Open.Is_Open (S.Surface.Quick_Open),
          "opening quick open should open quick-open surface");
       Assert
         (Editor.Overlay_Focus.Is_Active
@@ -340,11 +340,11 @@ package body Editor.Executor.UI_Tests is
       Row : Natural := 0;
       Col : Natural := 0;
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return 0;
       end if;
       Editor.State.Row_Col_For_Index
-        (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
+        (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos, Row, Col);
       return Row + 1;
    end Active_Caret_Line;
 
@@ -661,7 +661,7 @@ package body Editor.Executor.UI_Tests is
       Build_Fixture (Root);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Focus_File_Tree);
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, 0);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, 0);
       Assert_Unavailable_Reason
         (S, Editor.Command_Ids.Command_File_Tree_Open_Selected,
          "No file selected.", "file tree activation without selection");
@@ -715,7 +715,7 @@ package body Editor.Executor.UI_Tests is
       Before_Text := To_Unbounded_String (Editor.State.Current_Text (S));
       Before_Messages := Editor.Messages.Count (S.Panel.Messages);
       Before_Feature_Rows := Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel);
-      Before_File_Tree_Rows := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
+      Before_File_Tree_Rows := Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree);
 
       A := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Refresh_Outline);
@@ -740,7 +740,7 @@ package body Editor.Executor.UI_Tests is
               "availability must not post Messages");
       Assert (Editor.Feature_Panel.Row_Count (S.Panel.Feature_Panel) = Before_Feature_Rows,
               "availability must not mutate Feature Panel rows");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Before_File_Tree_Rows,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) = Before_File_Tree_Rows,
               "availability must not mutate File Tree rows");
    end Test_Availability_Checks_Are_Side_Effect_Free;
 

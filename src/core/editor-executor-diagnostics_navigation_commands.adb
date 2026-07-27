@@ -56,14 +56,14 @@ package body Editor.Executor.Diagnostics_Navigation_Commands is
          Visible_Target_Row := Target.Row;
       end if;
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
           (Pos                   => Target_Index,
            Anchor                => Target_Index,
            Virtual_Column        => 0,
            Anchor_Virtual_Column => 0));
-      S.Preferred_Column := Target.Column;
+      S.Caret.Preferred_Column := Target.Column;
       S.Panel.Active_Diagnostic := (Has_Active => True, Index => Index);
 
       Viewport_Rows := Natural'Max

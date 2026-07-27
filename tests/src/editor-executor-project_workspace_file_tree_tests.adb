@@ -63,21 +63,21 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Init_Executor_Test_State (S);
       Build_Fixture (Root);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      A_Dir := Editor.File_Tree.Find_By_Path (S.File_Tree, "a_dir", Found);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      A_Dir := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a_dir", Found);
       Assert (Found, "fixture must contain a_dir");
-      Before_Count := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
+      Before_Count := Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree);
 
       Editor.Executor.File_Tree_Navigation_Commands.Execute_File_Tree_Node_Action
         (S, A_Dir, Editor.File_Tree_View.Toggle_Directory_Action);
-      Assert (Editor.File_Tree.Node (S.File_Tree, A_Dir).Is_Expanded,
+      Assert (Editor.File_Tree.Node (S.Surface.File_Tree, A_Dir).Is_Expanded,
               "file tree node action must expand directory nodes");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) > Before_Count,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) > Before_Count,
               "directory toggle must rebuild visible rows");
 
       Editor.Executor.File_Tree_Navigation_Commands.Execute_File_Tree_Node_Action
         (S, A_Dir, Editor.File_Tree_View.Toggle_Directory_Action);
-      Assert (not Editor.File_Tree.Node (S.File_Tree, A_Dir).Is_Expanded,
+      Assert (not Editor.File_Tree.Node (S.Surface.File_Tree, A_Dir).Is_Expanded,
               "second toggle must collapse directory nodes");
 
       Cleanup_Fixture (Root);
@@ -98,10 +98,10 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Init_Executor_Test_State (S);
       Build_Fixture (Root);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      File_Id := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      File_Id := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "fixture must contain a.txt");
-      Dir_Id := Editor.File_Tree.Find_By_Path (S.File_Tree, "a_dir", Found);
+      Dir_Id := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a_dir", Found);
       Assert (Found, "fixture must contain a_dir");
 
       Editor.Executor.File_Tree_Navigation_Commands.Execute_File_Tree_Node_Action
@@ -151,7 +151,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
          Editor.File_Tree_View.Open_File_Action);
       Assert (Editor.Buffers.Global_Count = Count_Before,
               "invalid file tree node action must not mutate buffers");
-      Assert (Editor.File_Tree.Is_Empty (S.File_Tree),
+      Assert (Editor.File_Tree.Is_Empty (S.Surface.File_Tree),
               "invalid file tree node action must not mutate file tree");
    end Test_File_Tree_Node_Action_Invalid_Is_No_Op;
 
@@ -172,20 +172,20 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Init_Executor_Test_State (S);
       Build_Fixture (Root);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      File_Id := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      File_Id := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "fixture must contain a.txt before removal");
 
       Remove_File_If_Exists (File_Path);
       Count_Before := Editor.Buffers.Global_Count;
-      Rows_Before := Editor.File_Tree.Visible_Row_Count (S.File_Tree);
+      Rows_Before := Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree);
 
       Editor.Executor.File_Tree_Navigation_Commands.Execute_File_Tree_Node_Action
         (S, File_Id, Editor.File_Tree_View.Open_File_Action);
 
       Assert (Editor.Buffers.Global_Count = Count_Before,
               "missing file tree targets must not open a buffer");
-      Assert (Editor.File_Tree.Visible_Row_Count (S.File_Tree) = Rows_Before,
+      Assert (Editor.File_Tree.Visible_Row_Count (S.Surface.File_Tree) = Rows_Before,
               "missing file tree activation must not mutate file tree rows");
       Cleanup_Fixture (Root);
    exception
@@ -212,22 +212,22 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Build_Fixture (Root);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
 
-      File_Id := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      File_Id := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "fixture must contain a.txt");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, File_Id, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, File_Id, Row_Found);
       Assert (Row_Found, "a.txt must be visible in the file tree");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
 
       Write_Text_File (Added, "new");
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Refresh_File_Tree);
 
       Selected := Editor.File_Tree_View.Node_For_Row
-        (S.File_Tree,
-         Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View),
+        (S.Surface.File_Tree,
+         Editor.File_Tree_View.Selected_Row_Index (S.Surface.File_Tree_View),
          Found);
       Assert (Found, "refresh must leave a valid selected row");
-      Assert (To_String (Editor.File_Tree.Node (S.File_Tree, Selected).Relative_Path) = "a.txt",
+      Assert (To_String (Editor.File_Tree.Node (S.Surface.File_Tree, Selected).Relative_Path) = "a.txt",
               "refresh must preserve selection when the same target still exists");
       Remove_File_If_Exists (Added);
       Cleanup_Fixture (Root);
@@ -256,17 +256,17 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Build_Fixture (Root);
       Editor.Executor.Project_Lifecycle_Commands.Execute_Open_Project (S, Root);
 
-      File_Id := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      File_Id := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "fixture must contain a.txt");
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, File_Id, Row_Found);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, File_Id, Row_Found);
       Assert (Row_Found, "a.txt must be visible in the file tree");
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
 
       Remove_File_If_Exists (Removed);
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Refresh_File_Tree);
 
-      Assert (Editor.File_Tree_View.Selected_Row_Index (S.File_Tree_View) = 0,
+      Assert (Editor.File_Tree_View.Selected_Row_Index (S.Surface.File_Tree_View) = 0,
               "refresh must clear selection when the selected target disappears");
       Cleanup_Fixture (Root);
    exception
@@ -466,8 +466,8 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Build_Fixture (Root);
       Init_Executor_Test_State (S);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
-      Node := Editor.File_Tree.Find_By_Path (S.File_Tree, "a.txt", Found);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      Node := Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, "a.txt", Found);
       Assert (Found, "fixture must include a File Tree node for a.txt");
 
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
@@ -507,14 +507,14 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Found     : Boolean := False;
       Row_Found : Boolean := False;
       Node      : constant Editor.File_Tree.File_Tree_Node_Id :=
-        Editor.File_Tree.Find_By_Path (S.File_Tree, Relative_Path, Found);
+        Editor.File_Tree.Find_By_Path (S.Surface.File_Tree, Relative_Path, Found);
       Row       : Natural := 0;
    begin
       Assert (Found, "test file tree path must exist: " & Relative_Path);
-      Editor.File_Tree.Expand_Ancestors (S.File_Tree, Node);
-      Row := Editor.File_Tree_View.Row_For_Node (S.File_Tree, Node, Row_Found);
+      Editor.File_Tree.Expand_Ancestors (S.Surface.File_Tree, Node);
+      Row := Editor.File_Tree_View.Row_For_Node (S.Surface.File_Tree, Node, Row_Found);
       Assert (Row_Found, "test file tree row must be visible: " & Relative_Path);
-      Editor.File_Tree_View.Set_Selected_Row_Index (S.File_Tree_View, Row);
+      Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
    end Select_File_Tree_Test_Path;
 
    procedure Test_Language_Index_Survives_File_Tree_Rename_Active_Non_Ada
@@ -612,7 +612,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Assert (Editor.Project.Is_Success (Open_Res),
               "rename setup project must open");
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Old_Path);
       Ignored := Editor.Ada_Language_Model.Add_Symbol
         (Analysis, "Renamed_File_Target",
@@ -662,7 +662,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
               "rename of active file must clear stale active diagnostics");
       Assert (Editor.Feature_Diagnostics.Row_Count (S.Panel.Feature_Diagnostics) = 0,
               "rename of active file must clear stale diagnostics feature rows");
-      Assert (not Editor.Project_Search.Is_Stale (S.Project_Search),
+      Assert (not Editor.Project_Search.Is_Stale (S.Surface.Project_Search),
               "rename must refresh project search state");
       Assert (Editor.Ada_Project_Index.File_Count (S.Semantic.Language_Index) = 0,
               "rename drops stale language index rows for the moved file");
@@ -703,7 +703,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Assert (Editor.Project.Is_Success (Open_Res),
               "build-config setup project must open");
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
       Candidates.Append (Editor.Build_Candidates.Alire_Candidate (Root));
       Editor.Build_UI.Set_Build_Candidates (S.Build.Build_UI, Candidates, "test");
@@ -763,7 +763,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Assert (Editor.Project.Is_Success (Open_Res),
               "directory build-config setup project must open");
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
       Candidates.Append (Editor.Build_Candidates.Gprbuild_Candidate
         (Root, "config/demo.gpr"));
@@ -822,7 +822,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Assert (Editor.Project.Is_Success (Open_Res),
               "relative diagnostics setup project must open");
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
       Editor.Feature_Diagnostics.Add_Diagnostic
         (S.Panel.Feature_Diagnostics,
@@ -890,7 +890,7 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
       Assert (Editor.Project.Is_Success (Open_Res),
               "relative build-source setup project must open");
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Open_Res);
-      S.File_Tree := Editor.File_Tree.Scan_Project (Root);
+      S.Surface.File_Tree := Editor.File_Tree.Scan_Project (Root);
 
       Candidate.Candidate_Id := To_Unbounded_String ("relative-source-candidate");
       Candidate.Source_Path_If_Represented := To_Unbounded_String ("src/main.adb");

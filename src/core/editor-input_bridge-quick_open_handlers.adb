@@ -48,7 +48,7 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
       case Cmd.Kind is
          when Editor.Command_Kinds.Insert_Text_Input =>
             if Cmd.Ctrl and then (Cmd.Ch = 'a' or else Cmd.Ch = 'A') then
-               Editor.Quick_Open.Select_All (S.Quick_Open);
+               Editor.Quick_Open.Select_All (S.Surface.Quick_Open);
                Editor.Render_Cache.Invalidate_All;
             elsif Cmd.Ch = ASCII.LF or else Cmd.Ch = ASCII.CR then
                Execute (Editor.Command_Ids.Command_Accept_Quick_Open);
@@ -94,22 +94,22 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
             return True;
 
          when Editor.Command_Kinds.Move_Left =>
-            Editor.Quick_Open.Move_Cursor_Left (S.Quick_Open);
+            Editor.Quick_Open.Move_Cursor_Left (S.Surface.Quick_Open);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
          when Editor.Command_Kinds.Move_Right =>
-            Editor.Quick_Open.Move_Cursor_Right (S.Quick_Open);
+            Editor.Quick_Open.Move_Cursor_Right (S.Surface.Quick_Open);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
          when Editor.Command_Kinds.Move_Home | Editor.Command_Kinds.Move_Line_Start =>
-            Editor.Quick_Open.Move_Cursor_Start (S.Quick_Open);
+            Editor.Quick_Open.Move_Cursor_Start (S.Surface.Quick_Open);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
          when Editor.Command_Kinds.Move_End | Editor.Command_Kinds.Move_Line_End =>
-            Editor.Quick_Open.Move_Cursor_End (S.Quick_Open);
+            Editor.Quick_Open.Move_Cursor_End (S.Surface.Quick_Open);
             Editor.Render_Cache.Invalidate_All;
             return True;
 
@@ -211,7 +211,7 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
 
          when Editor.Command_Kinds.Move_To_Point =>
             Hit := Editor.Quick_Open.Hit_Test
-              (Message_Body, Config, S.Quick_Open,
+              (Message_Body, Config, S.Surface.Quick_Open,
                Integer (Cmd.Click_X), Integer (Cmd.Click_Y),
                Editor.Layout.Cell_W, Editor.Layout.Cell_H);
             case Hit.Zone is
@@ -234,12 +234,12 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
                                       / Integer (Editor.Layout.Cell_W)));
                   begin
                      Editor.Quick_Open.Set_Cursor_From_Visible_Column
-                       (S.Quick_Open, Visible_Column, Text_Cols);
+                       (S.Surface.Quick_Open, Visible_Column, Text_Cols);
                   end;
                when Editor.Quick_Open.Quick_Open_Result_Row_Zone =>
-                  while Editor.Quick_Open.Selected_Result_Index (S.Quick_Open) /= Hit.Result_Index loop
+                  while Editor.Quick_Open.Selected_Result_Index (S.Surface.Quick_Open) /= Hit.Result_Index loop
                      Execute (Editor.Command_Ids.Command_Quick_Open_Next_Result);
-                     exit when Editor.Quick_Open.Result_Count (S.Quick_Open) = 0;
+                     exit when Editor.Quick_Open.Result_Count (S.Surface.Quick_Open) = 0;
                   end loop;
                when others =>
                   null;
@@ -249,7 +249,7 @@ package body Editor.Input_Bridge.Quick_Open_Handlers is
 
          when Editor.Command_Kinds.Pointer_Hover =>
             Hit := Editor.Quick_Open.Hit_Test
-              (Message_Body, Config, S.Quick_Open,
+              (Message_Body, Config, S.Surface.Quick_Open,
                Integer (Cmd.Click_X), Integer (Cmd.Click_Y),
                Editor.Layout.Cell_W, Editor.Layout.Cell_H);
             return Hit.Zone /= Editor.Quick_Open.Outside_Quick_Open;

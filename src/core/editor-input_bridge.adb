@@ -176,7 +176,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
    procedure Sync_Project_Search_Replace_Mode_From_Bar is
    begin
       if Editor.Project_Search_Bar.Active_Field
-        (The_Editor.State.Project_Search_Bar)
+        (The_Editor.State.Surface.Project_Search_Bar)
         = Editor.Project_Search_Bar.Project_Search_Replace_Field
       then
          --  Focusing the replacement field is explicit replace-input
@@ -184,7 +184,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
          --  Keep the transient Project Search replace-mode bit coherent for
          --  render/status before a preview is generated.
          Editor.Project_Search.Set_Replace_Mode_Active
-         (The_Editor.State.Project_Search, True);
+         (The_Editor.State.Surface.Project_Search, True);
       end if;
    end Sync_Project_Search_Replace_Mode_From_Bar;
 
@@ -484,7 +484,7 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                   --  prompt input to the existing Project Search replace-input
                   --  state before routing preview generation through Executor.
                   Editor.Project_Search.Set_Replace_Text
-                    (The_Editor.State.Project_Search, Input_Text);
+                    (The_Editor.State.Surface.Project_Search, Input_Text);
                when Editor.Guided_Prompts.Settings_Value_Prompt
                   | Editor.Guided_Prompts.File_Tree_Create_File_Prompt
                   | Editor.Guided_Prompts.File_Tree_Create_Directory_Prompt
@@ -681,18 +681,18 @@ use type Editor.Guided_Prompts.Prompt_Kind;
                    (The_Editor.State, Selection_Range);
             begin
                if Status = Editor.Selection.Selection_Ok
-                 and then not The_Editor.State.Rect_Select_Active
-                 and then Natural (The_Editor.State.Carets.Length) = 1
+                 and then not The_Editor.State.Caret.Rect_Select_Active
+                 and then Natural (The_Editor.State.Caret.Carets.Length) = 1
                then
                   declare
                      C : Editor.Cursors.Caret_State :=
-                       The_Editor.State.Carets
-                         (The_Editor.State.Carets.First_Index);
+                       The_Editor.State.Caret.Carets
+                         (The_Editor.State.Caret.Carets.First_Index);
                   begin
                      C.Pos := Selection_Range.Low;
                      C.Anchor := Selection_Range.Low;
-                     The_Editor.State.Carets.Replace_Element
-                       (The_Editor.State.Carets.First_Index, C);
+                     The_Editor.State.Caret.Carets.Replace_Element
+                       (The_Editor.State.Caret.Carets.First_Index, C);
                   end;
                end if;
             end;

@@ -924,11 +924,11 @@ package body Editor.Bookmarks.Tests is
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/p/src/editor/executor.adb");
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("executor.adb");
-      Editor.Project_Search.Set_Query (S.Project_Search, "executor");
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "src/");
-      Before_Project_Search_Query := To_Unbounded_String (Editor.Project_Search.Query (S.Project_Search));
-      Before_Quick_Open_Query := To_Unbounded_String (Editor.Quick_Open.Query_Text (S.Quick_Open));
-      Before_Switcher_Marked := Editor.Buffer_Switcher.Marked_Count (S.Buffer_Switcher);
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "executor");
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "src/");
+      Before_Project_Search_Query := To_Unbounded_String (Editor.Project_Search.Query (S.Surface.Project_Search));
+      Before_Quick_Open_Query := To_Unbounded_String (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open));
+      Before_Switcher_Marked := Editor.Buffer_Switcher.Marked_Count (S.Surface.Buffer_Switcher);
 
       Editor.Messages.Dismiss_All (S.Panel.Messages);
       Result := Editor.Executor.Execute_Command_With_Result
@@ -975,11 +975,11 @@ package body Editor.Bookmarks.Tests is
               "reveal-current selects the active-location bookmark");
       Assert_Latest_Message_Contains (S, "Selected bookmark", "bookmark reveal current");
 
-      Assert (Editor.Project_Search.Query (S.Project_Search) = To_String (Before_Project_Search_Query),
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = To_String (Before_Project_Search_Query),
               "bookmark commands do not mutate Project Search query state");
-      Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = To_String (Before_Quick_Open_Query),
+      Assert (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = To_String (Before_Quick_Open_Query),
               "bookmark commands do not mutate Quick Open query state");
-      Assert (Editor.Buffer_Switcher.Marked_Count (S.Buffer_Switcher) = Before_Switcher_Marked,
+      Assert (Editor.Buffer_Switcher.Marked_Count (S.Surface.Buffer_Switcher) = Before_Switcher_Marked,
               "bookmark commands do not mutate Open Buffer Switcher marked state");
 
       Editor.Messages.Dismiss_All (S.Panel.Messages);
@@ -1046,15 +1046,15 @@ package body Editor.Bookmarks.Tests is
       Editor.State.Load_Text (S, "one");
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
       S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String ("/p/src/a.adb");
-      Editor.Project_Search.Set_Query (S.Project_Search, "unchanged");
-      Editor.Quick_Open.Set_Query_Text (S.Quick_Open, "unchanged");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "unchanged");
+      Editor.Quick_Open.Set_Query_Text (S.Surface.Quick_Open, "unchanged");
       Editor.Bookmarks.Toggle (S.Bookmarks, "/p/src/a.adb", "src/a.adb", 1, 1, True, Added);
       Editor.Bookmarks.Show (S.Bookmarks);
       Before_Count := Editor.Bookmarks.Count (S.Bookmarks);
       Before_Selected := Editor.Bookmarks.Selected_Index (S.Bookmarks);
       Before_Visible := Editor.Bookmarks.Is_Visible (S.Bookmarks);
-      Before_Project_Query := To_Unbounded_String (Editor.Project_Search.Query (S.Project_Search));
-      Before_Quick_Query := To_Unbounded_String (Editor.Quick_Open.Query_Text (S.Quick_Open));
+      Before_Project_Query := To_Unbounded_String (Editor.Project_Search.Query (S.Surface.Project_Search));
+      Before_Quick_Query := To_Unbounded_String (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open));
 
       Availability := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Bookmark_Toggle_Current_Location);
@@ -1075,9 +1075,9 @@ package body Editor.Bookmarks.Tests is
               "availability checks must not mutate selected bookmark");
       Assert (Editor.Bookmarks.Is_Visible (S.Bookmarks) = Before_Visible,
               "availability checks must not mutate surface visibility");
-      Assert (Editor.Project_Search.Query (S.Project_Search) = To_String (Before_Project_Query),
+      Assert (Editor.Project_Search.Query (S.Surface.Project_Search) = To_String (Before_Project_Query),
               "availability checks must not mutate Project Search state");
-      Assert (Editor.Quick_Open.Query_Text (S.Quick_Open) = To_String (Before_Quick_Query),
+      Assert (Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = To_String (Before_Quick_Query),
               "availability checks must not mutate Quick Open state");
       Assert_Bookmarks_Coherent (S.Bookmarks, "after availability checks");
 
@@ -1260,13 +1260,13 @@ package body Editor.Bookmarks.Tests is
    begin
       Editor.State.Init (S);
       Assert (Editor.Buffer_Switcher.Open_Buffer_Switcher_File_Lifecycle_Observation_Frozen
-                (S.Buffer_Switcher),
+                (S.Surface.Buffer_Switcher),
               "Open Buffer Switcher observation freeze remains intact");
-      Assert (not Editor.Quick_Open.Is_Open (S.Quick_Open)
-                and then Editor.Quick_Open.Query_Text (S.Quick_Open) = "",
+      Assert (not Editor.Quick_Open.Is_Open (S.Surface.Quick_Open)
+                and then Editor.Quick_Open.Query_Text (S.Surface.Quick_Open) = "",
               "Quick Open baseline state remains unopened and query-local");
       Assert (Editor.Project_Search.Project_Search_File_Lifecycle_Observation_Frozen
-                (S.Project_Search),
+                (S.Surface.Project_Search),
               "Project Search observation freeze remains intact");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
         (S.Bookmarks, "adjacent freezes baseline");
@@ -1949,13 +1949,13 @@ package body Editor.Bookmarks.Tests is
                 and then Index (To_String (Summary), "Bookmark") = 0,
               "workspace persistence excludes Bookmark lifecycle observation state");
       Assert (Editor.Buffer_Switcher.Open_Buffer_Switcher_File_Lifecycle_Observation_Frozen
-                (S.Buffer_Switcher),
+                (S.Surface.Buffer_Switcher),
               "preserves Open Buffer Switcher lifecycle freeze");
       Assert (Editor.Quick_Open.Quick_Open_File_Lifecycle_Observation_Frozen
-                (S.Quick_Open),
+                (S.Surface.Quick_Open),
               "preserves Quick Open lifecycle freeze");
       Assert (Editor.Project_Search.Project_Search_File_Lifecycle_Observation_Frozen
-                (S.Project_Search),
+                (S.Surface.Project_Search),
               "preserves Project Search lifecycle freeze");
       Assert_Bookmarks_File_Lifecycle_Observation_Coherent
         (S.Bookmarks, "render/persistence/adjacent final freeze");

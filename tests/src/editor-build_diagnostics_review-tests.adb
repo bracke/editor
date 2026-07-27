@@ -50,11 +50,11 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Row : Natural := 0;
       Col : Natural := 0;
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return 0;
       end if;
       Editor.State.Row_Col_For_Index
-        (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
+        (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos, Row, Col);
       return Row + 1;
    end Active_Caret_Line;
 
@@ -62,11 +62,11 @@ package body Editor.Build_Diagnostics_Review.Tests is
       Row : Natural := 0;
       Col : Natural := 0;
    begin
-      if S.Carets.Length = 0 then
+      if S.Caret.Carets.Length = 0 then
          return 0;
       end if;
       Editor.State.Row_Col_For_Index
-        (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
+        (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos, Row, Col);
       return Col + 1;
    end Active_Caret_Column;
 

@@ -262,13 +262,13 @@ package body Editor.Recent_Projects.Tests is
       --  Recent Projects persistence owns only project recency
       --  entries.  It must not serialize any transient Buffer List state even
       --  when that UI state is live in the editor state at save time.
-      Editor.Buffer_Switcher.Open (S.Buffer_Switcher);
+      Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text
-        (S.Buffer_Switcher, "recent-buffer-list-query-must-not-persist");
-      Editor.Buffer_Switcher.Set_Outside_Project_Filter (S.Buffer_Switcher);
+        (S.Surface.Buffer_Switcher, "recent-buffer-list-query-must-not-persist");
+      Editor.Buffer_Switcher.Set_Outside_Project_Filter (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Sort_Mode
-        (S.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
-      Editor.Buffer_Switcher.Show_Marked_Review (S.Buffer_Switcher);
+        (S.Surface.Buffer_Switcher, Editor.Buffer_Switcher.Filters.Name_Sort);
+      Editor.Buffer_Switcher.Show_Marked_Review (S.Surface.Buffer_Switcher);
 
       Editor.Recent_Projects.Save_To_File (S.Project_Runtime.Recent_Projects, Path, Status);
       Assert (Status = Editor.Recent_Projects.Recent_Project_Ok,

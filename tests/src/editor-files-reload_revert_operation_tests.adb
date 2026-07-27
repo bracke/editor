@@ -173,7 +173,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "successful reload must update saved baseline after the read");
       Assert (Editor.History.Undo_Stack.Is_Empty and then Editor.History.Redo_Stack.Is_Empty,
         "successful reload must clear active Undo/Redo stacks");
-      Assert (S.Carets.Length = 1 and then S.Carets (0).Pos = 0 and then S.Carets (0).Anchor = 0,
+      Assert (S.Caret.Carets.Length = 1 and then S.Caret.Carets (0).Pos = 0 and then S.Caret.Carets (0).Anchor = 0,
         "successful reload must reset active caret/selection policy");
       M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Success_Message
@@ -215,12 +215,12 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Editor.Executor.Execute_No_Log
         (S, Editor.Test_Helper.Insert (Buffer_Text (S)'Length, '!'));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 4, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Before := To_Unbounded_String (Buffer_Text (S));
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
       Write_Bytes (Path, "disk replacement");
 
       Editor.Executor.File_Save_Basic_Commands.Execute_Reload_Active_Buffer (S);
@@ -228,8 +228,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         and then S.Buffer_Lifecycle.File_Info.Dirty
         and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen,
         "dirty reload must not replace text, clean state, or baseline");
-      Assert (S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "dirty reload must preserve caret/selection");
       M := Editor.Messages.Active_Message (S.Panel.Messages, Found);
       Assert (Found and then M.Severity = Editor.Messages.Warning_Message
@@ -445,7 +445,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Before_Path := S.Buffer_Lifecycle.File_Info.Path;
          Before_Display := S.Buffer_Lifecycle.File_Info.Display_Name;
          Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
-         Before_Caret := S.Carets (0);
+         Before_Caret := S.Caret.Carets (0);
          Before_Undo := Editor.History.Undo_Stack.Length;
          Before_Redo := Editor.History.Redo_Stack.Length;
          Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
@@ -465,8 +465,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
            Label & ": reload failure/block must preserve file identity");
          Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen,
            Label & ": reload failure/block must preserve saved baseline marker");
-         Assert (S.Carets (0).Pos = Before_Caret.Pos
-           and then S.Carets (0).Anchor = Before_Caret.Anchor,
+         Assert (S.Caret.Carets (0).Pos = Before_Caret.Pos
+           and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
            Label & ": reload failure/block must preserve caret and selection");
          Assert (Editor.History.Undo_Stack.Length = Before_Undo
            and then Editor.History.Redo_Stack.Length = Before_Redo,
@@ -492,8 +492,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
       Editor.Executor.Execute_No_Log
         (S, Editor.Commands.Payloads.Command'(Kind => Editor.Command_Kinds.Undo, others => <>));
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 4, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       S.Search.Active_Find_Query := To_Unbounded_String ("disk");
       S.Search.Active_Replace_Text := To_Unbounded_String ("replacement");
@@ -520,8 +520,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Cancel_Pending_Transition);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save_As (S, Path);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 2, Anchor => 0, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Capture;
       Remove_If_Exists (Path);
@@ -792,7 +792,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
 
       Assert (Editor.History.Undo_Stack.Is_Empty and then Editor.History.Redo_Stack.Is_Empty,
         "successful reload must clear stale Undo/Redo stacks without creating entries");
-      Assert (S.Carets.Length = 1 and then S.Carets (0).Pos = 0 and then S.Carets (0).Anchor = 0,
+      Assert (S.Caret.Carets.Length = 1 and then S.Caret.Carets (0).Pos = 0 and then S.Caret.Carets (0).Anchor = 0,
         "successful reload must apply retained caret/selection reset policy");
       Assert (S.Search.Active_Find_Query = To_Unbounded_String ("needle")
         and then S.Search.Active_Replace_Text = To_Unbounded_String ("replacement")
@@ -848,7 +848,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
          Before_Undo := Editor.History.Undo_Stack.Length;
          Before_Redo := Editor.History.Redo_Stack.Length;
-         Before_Caret := S.Carets (0);
+         Before_Caret := S.Caret.Carets (0);
          Before_Back := Editor.Navigation_History.Back_Count (S.Navigation_History);
          Before_Forward := Editor.Navigation_History.Forward_Count (S.Navigation_History);
          Before_Clipboard := Editor.Clipboard.Get_Text;
@@ -868,8 +868,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Assert (Editor.History.Undo_Stack.Length = Before_Undo
            and then Editor.History.Redo_Stack.Length = Before_Redo,
            Label & ": Undo/Redo stacks must be preserved");
-         Assert (S.Carets (0).Pos = Before_Caret.Pos
-           and then S.Carets (0).Anchor = Before_Caret.Anchor,
+         Assert (S.Caret.Carets (0).Pos = Before_Caret.Pos
+           and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
            Label & ": caret/selection must be preserved");
          Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
            and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
@@ -901,8 +901,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, B_Id);
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 3, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       S.Search.Active_Find_Query := To_Unbounded_String ("B");
       S.Search.Active_Replace_Text := To_Unbounded_String ("bee");
@@ -1222,7 +1222,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "successful revert must preserve file association");
       Assert (Editor.History.Undo_Stack.Is_Empty and then Editor.History.Redo_Stack.Is_Empty,
         "successful revert must clear stale edit history without creating entries");
-      Assert (S.Carets.Length = 1 and then S.Carets (0).Pos = 0 and then S.Carets (0).Anchor = 0,
+      Assert (S.Caret.Carets.Length = 1 and then S.Caret.Carets (0).Pos = 0 and then S.Caret.Carets (0).Anchor = 0,
         "successful revert must apply retained caret/selection reset policy");
       Assert (Editor.Clipboard.Get_Text = To_Unbounded_String ("clipboard survives revert"),
         "revert must not mutate Clipboard");
@@ -1267,12 +1267,12 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty text that must survive");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 5, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
       Remove_If_Exists (Path);
@@ -1286,7 +1286,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         "read-failure revert must preserve dirty text and dirty state");
       Assert (S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen,
         "read-failure revert must preserve saved baseline marker");
-      Assert (S.Carets (0).Pos = Before_Caret.Pos and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets (0).Pos = Before_Caret.Pos and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "read-failure revert must preserve caret/selection");
       Assert (Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
@@ -1470,8 +1470,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.State.Init (S);
       Editor.Executor.File_Open_Commands.Execute_Open_File (S, Path);
       Insert_Text_At (S, Buffer_Text (S)'Length, " dirty text that must survive");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 8, Anchor => 2, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       S.Search.Active_Find_Query := To_Unbounded_String ("dirty");
       S.Search.Active_Replace_Text := To_Unbounded_String ("clean");
@@ -1481,7 +1481,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
 
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
       Before_Query := S.Search.Active_Find_Query;
@@ -1500,8 +1500,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen
         and then To_String (S.Buffer_Lifecycle.File_Info.Path) = Path,
         "read failure must preserve text, dirty state, baseline, and association");
-      Assert (S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "read failure must preserve caret and selection");
       Assert (Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
@@ -1605,15 +1605,15 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 5, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       S.Search.Active_Find_Query := To_Unbounded_String ("baseline");
       S.Search.Active_Replace_Text := To_Unbounded_String ("replacement");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clean noop clipboard"));
       Before_Text := To_Unbounded_String (Buffer_Text (S));
       Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
-      Before_Caret := S.Carets (0);
+      Before_Caret := S.Caret.Carets (0);
       Before_Undo := Editor.History.Undo_Stack.Length;
       Before_Redo := Editor.History.Redo_Stack.Length;
       Remove_If_Exists (Path);
@@ -1635,8 +1635,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
         and then not S.Buffer_Lifecycle.File_Info.Dirty
         and then S.Buffer_Lifecycle.File_Info.Saved_Generation = Before_Gen,
         "clean no-op must preserve text, dirty state, and baseline");
-      Assert (S.Carets (0).Pos = Before_Caret.Pos
-        and then S.Carets (0).Anchor = Before_Caret.Anchor,
+      Assert (S.Caret.Carets (0).Pos = Before_Caret.Pos
+        and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
         "clean no-op must preserve caret and selection");
       Assert (Editor.History.Undo_Stack.Length = Before_Undo
         and then Editor.History.Redo_Stack.Length = Before_Redo,
@@ -1922,7 +1922,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Assert (Editor.History.Undo_Stack.Is_Empty
         and then Editor.History.Redo_Stack.Is_Empty,
         "successful revert must clear stale Undo/Redo without creating revert entries");
-      Assert (S.Carets.Length = 1 and then S.Carets (0).Pos = 0 and then S.Carets (0).Anchor = 0,
+      Assert (S.Caret.Carets.Length = 1 and then S.Caret.Carets (0).Pos = 0 and then S.Caret.Carets (0).Anchor = 0,
         "successful revert must apply retained caret/selection destructive lifecycle policy");
 
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
@@ -1983,7 +1983,7 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Before_Gen := S.Buffer_Lifecycle.File_Info.Saved_Generation;
          Before_Undo := Editor.History.Undo_Stack.Length;
          Before_Redo := Editor.History.Redo_Stack.Length;
-         Before_Caret := S.Carets (0);
+         Before_Caret := S.Caret.Carets (0);
          Before_Query := S.Search.Active_Find_Query;
          Before_Replace := S.Search.Active_Replace_Text;
          Before_Clip := Editor.Clipboard.Get_Text;
@@ -2001,8 +2001,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
          Assert (Editor.History.Undo_Stack.Length = Before_Undo
            and then Editor.History.Redo_Stack.Length = Before_Redo,
            Label & ": Undo/Redo changed");
-         Assert (S.Carets (0).Pos = Before_Caret.Pos
-           and then S.Carets (0).Anchor = Before_Caret.Anchor,
+         Assert (S.Caret.Carets (0).Pos = Before_Caret.Pos
+           and then S.Caret.Carets (0).Anchor = Before_Caret.Anchor,
            Label & ": caret/selection changed");
          Assert (S.Search.Active_Find_Query = Before_Query
            and then S.Search.Active_Replace_Text = Before_Replace,
@@ -2029,8 +2029,8 @@ package body Editor.Files.Reload_Revert_Operation_Tests is
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Undo);
       Editor.Executor.Execute_Command (S, Editor.Command_Ids.Command_Redo);
       Editor.Executor.File_Save_Basic_Commands.Execute_Save (S);
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos => 5, Anchor => 1, Virtual_Column => 0, Anchor_Virtual_Column => 0));
       S.Search.Active_Find_Query := To_Unbounded_String ("baseline");
       S.Search.Active_Replace_Text := To_Unbounded_String ("replacement");

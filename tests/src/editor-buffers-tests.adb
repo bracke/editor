@@ -72,13 +72,13 @@ package body Editor.Buffers.Tests is
       A : constant Editor.Cursors.Cursor_Index :=
         (if Anchor = Editor.Cursors.Cursor_Index'Last then Pos else Anchor);
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'(Pos                   => Pos,
           Anchor                => A,
           Virtual_Column        => 0,
           Anchor_Virtual_Column => 0));
-      S.Rect_Select_Active := False;
+      S.Caret.Rect_Select_Active := False;
       Editor.State.Normalize_Carets (S);
    end Set_Caret;
 
@@ -591,7 +591,7 @@ package body Editor.Buffers.Tests is
         "saving B should not write A file");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
-      Assert (S.Carets (S.Carets.First_Index).Pos = 1,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 1,
         "buffer A should restore its own cursor rather than B cursor");
       Assert (Text (S) = "xA" & ASCII.LF,
         "switching back to A should restore A text");
@@ -788,7 +788,7 @@ package body Editor.Buffers.Tests is
         "buffer A should remain clean while editing buffer B");
 
       Editor.Executor.File_Open_Commands.Execute_Switch_Buffer (S, A_Id);
-      Assert (S.Carets (S.Carets.First_Index).Pos = 2,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 2,
         "switching back should restore buffer A cursor");
       Assert (not S.Buffer_Lifecycle.File_Info.Dirty,
         "switching back should restore buffer A clean dirty state");
@@ -1286,10 +1286,10 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher,
+        (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          Editor.Buffer_Switcher.Config.Buffer_Switcher_Config'(others => <>));
-      Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found_Row);
+      Row := Editor.Buffer_Switcher.Selected_Row (S.Surface.Buffer_Switcher, Found_Row);
       Assert (Found_Row and then Row.Id = Editor.Buffers.Global_Active_Buffer,
         "switcher activation semantics should still select the active buffer");
       Assert (To_String (Row.Display_Label) = "editor_existing_note.txt"
@@ -1512,10 +1512,10 @@ package body Editor.Buffers.Tests is
 
       Editor.Executor.Buffer_Switcher_Surface_Commands.Execute_Open_Buffer_Switcher (S);
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher,
+        (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          Editor.Buffer_Switcher.Config.Buffer_Switcher_Config'(others => <>));
-      Row := Editor.Buffer_Switcher.Selected_Row (S.Buffer_Switcher, Found_Row);
+      Row := Editor.Buffer_Switcher.Selected_Row (S.Surface.Buffer_Switcher, Found_Row);
       Assert (Found_Row and then Row.Id = Editor.Buffers.Global_Active_Buffer,
         "switcher activation semantics should still select the active buffer");
       Assert (To_String (Row.Display_Label) = "editor_existing_label.txt"
@@ -1836,10 +1836,10 @@ package body Editor.Buffers.Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher,
+        (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          Editor.Buffer_Switcher.Config.Buffer_Switcher_Config'(others => <>));
-      Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, A_Id, 1);
+      Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Surface.Buffer_Switcher, A_Id, 1);
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Close_Active_Buffer);
@@ -2096,9 +2096,9 @@ package body Editor.Buffers.Tests is
         "dirty blocked close must preserve text");
       Assert (S.Buffer_Lifecycle.File_Info.Dirty,
         "dirty blocked close must preserve dirty state");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (S.Carets.First_Index).Pos = 2
-        and then S.Carets (S.Carets.First_Index).Anchor = 7,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 2
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 7,
         "dirty blocked close must preserve caret and selection");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
         and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
@@ -2251,10 +2251,10 @@ package body Editor.Buffers.Tests is
       Editor.Buffers.Sync_Global_Active_From_State (S);
 
       Editor.Buffer_Switcher.Recompute_Rows
-        (S.Buffer_Switcher,
+        (S.Surface.Buffer_Switcher,
          Editor.Buffers.Global_Registry_For_UI,
          Editor.Buffer_Switcher.Config.Buffer_Switcher_Config'(others => <>));
-      Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Buffer_Switcher, A_Id, 1);
+      Editor.Buffer_Switcher.Select_Buffer_Or_Row (S.Surface.Buffer_Switcher, A_Id, 1);
       Editor.Clipboard.Set_Text (To_Unbounded_String ("clipboard"));
 
       Editor.Executor.Execute_Command
@@ -2273,9 +2273,9 @@ package body Editor.Buffers.Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = A_Undo_Before
         and then Natural (Editor.History.Redo_Stack.Length) = A_Redo_Before,
         "remaining buffer Undo/Redo stacks must be preserved after closing another buffer");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (S.Carets.First_Index).Pos = 1
-        and then S.Carets (S.Carets.First_Index).Anchor = 1,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 1
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 1,
         "next active buffer must not inherit the closed buffer caret/selection");
       Assert (Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard",
@@ -2364,9 +2364,9 @@ package body Editor.Buffers.Tests is
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
         and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
         "read-only projections must not mutate Navigation History");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (S.Carets.First_Index).Pos = 2
-        and then S.Carets (S.Carets.First_Index).Anchor = 5,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 2
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 5,
         "read-only projections must not mutate caret or selection");
       Assert (Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard-readonly",
@@ -2520,9 +2520,9 @@ package body Editor.Buffers.Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
         and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
         "duplicate reopen must preserve existing Undo/Redo stacks");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (S.Carets.First_Index).Pos = 3
-        and then S.Carets (S.Carets.First_Index).Anchor = 8,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 3
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 8,
         "duplicate reopen must preserve existing caret/selection");
       Assert (Editor.Clipboard.Has_Text
         and then To_String (Editor.Clipboard.Get_Text) = "clipboard",
@@ -2629,9 +2629,9 @@ package body Editor.Buffers.Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
         and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
         "failed reopen must preserve Undo/Redo stacks");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (S.Carets.First_Index).Pos = 4
-        and then S.Carets (S.Carets.First_Index).Anchor = 10,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 4
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 10,
         "failed reopen must preserve caret/selection");
       Assert (Editor.Navigation_History.Back_Count (S.Navigation_History) = Before_Back
         and then Editor.Navigation_History.Forward_Count (S.Navigation_History) = Before_Forward,
@@ -2826,9 +2826,9 @@ package body Editor.Buffers.Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = 0
         and then Natural (Editor.History.Redo_Stack.Length) = 0,
         "newly reopened buffer must not restore closed-buffer Undo/Redo");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (S.Carets.First_Index).Pos = 0
-        and then S.Carets (S.Carets.First_Index).Anchor = 0,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 0
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 0,
         "newly reopened buffer must use canonical caret/selection defaults");
       Assert (S.Search.Active_Find_Query /= To_Unbounded_String ("candidate-find-must-not-survive")
         and then S.Search.Active_Replace_Text /=
@@ -2859,9 +2859,9 @@ package body Editor.Buffers.Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
         and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
         "reopen/no-candidate workflow must preserve unrelated buffer Undo/Redo stacks");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (S.Carets.First_Index).Pos = 3
-        and then S.Carets (S.Carets.First_Index).Anchor = 7,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 3
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 7,
         "reopen/no-candidate workflow must preserve unrelated buffer caret/selection");
 
       Remove_File (Candidate_Path);
@@ -2946,9 +2946,9 @@ package body Editor.Buffers.Tests is
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
         and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
         "duplicate-open reopen must preserve existing Undo/Redo stacks");
-      Assert (S.Carets.Length = 1
-        and then S.Carets (S.Carets.First_Index).Pos = 6
-        and then S.Carets (S.Carets.First_Index).Anchor = 2,
+      Assert (S.Caret.Carets.Length = 1
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 6
+        and then S.Caret.Carets (S.Caret.Carets.First_Index).Anchor = 2,
         "duplicate-open reopen must preserve existing caret/selection");
       Assert (S.Search.Active_Find_Query = To_Unbounded_String ("duplicate-find")
         and then S.Search.Active_Replace_Text = To_Unbounded_String ("duplicate-replace"),
@@ -3686,14 +3686,14 @@ package body Editor.Buffers.Tests is
       Editor.Command_Route_Audit.Clear (Audit);
       Editor.Command_Route_Audit.Inspect_Buffer_Route_Surfaces_No_Buffer_Payload
         (Result                => Audit,
-         Buffer_Switcher_State => S.Buffer_Switcher,
+         Buffer_Switcher_State => S.Surface.Buffer_Switcher,
          Serialized_Workspace  => "workspace_open_file=/project/src/main.adb");
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 0,
         "descriptor, keybinding, Buffer List, and workspace route surfaces should inspect cleanly");
 
       Editor.Command_Route_Audit.Inspect_Buffer_Route_Surfaces_No_Buffer_Payload
         (Result                => Audit,
-         Buffer_Switcher_State => S.Buffer_Switcher,
+         Buffer_Switcher_State => S.Surface.Buffer_Switcher,
          Serialized_Workspace  => "selected_buffer_id=17");
       Assert (Editor.Command_Route_Audit.Failure_Count (Audit) = 1,
         "aggregate route-surface inspection should reject serialized selected buffer ids");

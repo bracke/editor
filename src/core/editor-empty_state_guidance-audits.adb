@@ -74,10 +74,10 @@ package body Editor.Empty_State_Guidance.Audits is
       return Assert_First_Run_Guidance_Fabricates_No_Project (Before, After)
         and then Editor.Diagnostics.Diagnostic_Count (Before.Panel.Diagnostics) =
           Editor.Diagnostics.Diagnostic_Count (After.Panel.Diagnostics)
-        and then Editor.File_Tree.File_Node_Count (Before.File_Tree) =
-          Editor.File_Tree.File_Node_Count (After.File_Tree)
-        and then Editor.Project_Search.Result_Count (Before.Project_Search) =
-          Editor.Project_Search.Result_Count (After.Project_Search)
+        and then Editor.File_Tree.File_Node_Count (Before.Surface.File_Tree) =
+          Editor.File_Tree.File_Node_Count (After.Surface.File_Tree)
+        and then Editor.Project_Search.Result_Count (Before.Surface.Project_Search) =
+          Editor.Project_Search.Result_Count (After.Surface.Project_Search)
         and then Editor.Build_UI.Candidate_Count (Before.Build.Build_UI) =
           Editor.Build_UI.Candidate_Count (After.Build.Build_UI)
         and then Editor.Feature_Diagnostics.Row_Count (Before.Panel.Feature_Diagnostics) =

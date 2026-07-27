@@ -222,18 +222,18 @@ package body Editor.Empty_State_Guidance.Tests is
       Valid : Boolean := False;
    begin
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Result);
-      Editor.Project_Search.Set_Query (S.Project_Search, "absent");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "absent");
       Editor.Project_Search.Set_Status
-        (S.Project_Search, Editor.Project_Search.Project_Search_Ok);
-      Editor.Project_Search.Set_Path_Scope (S.Project_Search, "src", Valid);
+        (S.Surface.Project_Search, Editor.Project_Search.Project_Search_Ok);
+      Editor.Project_Search.Set_Path_Scope (S.Surface.Project_Search, "src", Valid);
       Assert (Valid, "test scope should be valid");
-      Editor.Project_Search.Set_Include_Path_Filter (S.Project_Search, "*.adb", Valid);
+      Editor.Project_Search.Set_Include_Path_Filter (S.Surface.Project_Search, "*.adb", Valid);
       Assert (Valid, "test include filter should be valid");
-      Editor.Project_Search.Set_Exclude_Path_Filter (S.Project_Search, "obj", Valid);
+      Editor.Project_Search.Set_Exclude_Path_Filter (S.Surface.Project_Search, "obj", Valid);
       Assert (Valid, "test exclude filter should be valid");
       Editor.Project_Search.Set_Status
-        (S.Project_Search, Editor.Project_Search.Project_Search_Ok);
-      Editor.Project_Search.Clear_Stale (S.Project_Search);
+        (S.Surface.Project_Search, Editor.Project_Search.Project_Search_Ok);
+      Editor.Project_Search.Clear_Stale (S.Surface.Project_Search);
 
       Snapshot := Build_Project_Search_Empty_State (S);
       Assert (Snapshot.Kind = No_Results_State,
@@ -270,10 +270,10 @@ package body Editor.Empty_State_Guidance.Tests is
       Snapshot : Empty_State_Snapshot;
    begin
       Editor.Project.Apply_Open_Result (S.Project_Runtime.Project, Result);
-      Editor.Project_Search.Set_Query (S.Project_Search, "needle");
+      Editor.Project_Search.Set_Query (S.Surface.Project_Search, "needle");
       Editor.Project_Search.Set_Status
-        (S.Project_Search, Editor.Project_Search.Project_Search_Ok);
-      Editor.Project_Search.Mark_Stale_Unconditionally (S.Project_Search);
+        (S.Surface.Project_Search, Editor.Project_Search.Project_Search_Ok);
+      Editor.Project_Search.Mark_Stale_Unconditionally (S.Surface.Project_Search);
 
       Snapshot := Build_Project_Search_Empty_State (S);
       Assert (Snapshot.Kind = Stale_State,

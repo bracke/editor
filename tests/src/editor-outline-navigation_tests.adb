@@ -188,7 +188,7 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "open selected outline item navigates to its buffer target");
-      Editor.State.Row_Col_For_Index (S, S.Carets (0).Pos, Row, Col);
+      Editor.State.Row_Col_For_Index (S, S.Caret.Carets (0).Pos, Row, Col);
       Assert (Row = 1 and then Col = 0,
               "open selected moves the primary caret to the captured line/column");
       Assert (Editor.State.Current_Text (S) =
@@ -794,7 +794,7 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "open selected executes against selected row");
-      Editor.State.Row_Col_For_Index (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
+      Editor.State.Row_Col_For_Index (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos, Row, Col);
       Assert (Row = 0,
               "open-selected navigates to selected row, not current symbol");
    end Test_Open_Selected_Does_Not_Use_Current_Symbol;
@@ -887,7 +887,7 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Command_Ids.Command_Open_Selected_Outline_Item);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "open-selected should navigate the selected row");
-      Editor.State.Row_Col_For_Index (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
+      Editor.State.Row_Col_For_Index (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos, Row, Col);
       Assert (Row = 0 and then Col = 0,
               "open-selected must not navigate to passive current-symbol row");
    end Test_Outline_Open_Selected_Does_Not_Use_Current_Symbol;
@@ -940,13 +940,13 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Command_Ids.Command_Move_Down);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Move_Down);
-      Before := S.Carets (S.Carets.First_Index).Pos;
+      Before := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Reveal_Current_Outline_Symbol);
       Assert (Result.Status = Editor.Executor.Command_Executed,
               "reveal-current-symbol executes");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before,
               "reveal-current-symbol must not move the editor cursor");
    end Test_Outline_Reveal_Current_Symbol_Does_Not_Move_Editor_Cursor;
 
@@ -1014,7 +1014,7 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Command_Ids.Command_Refresh_Outline);
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Focus_Outline);
-      Before := S.Carets (S.Carets.First_Index).Pos;
+      Before := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Result := Editor.Executor.Outline_Commands.Execute_Outline_Row_Click (S, 2);
       Assert (Result.Status = Editor.Executor.Command_Executed,
@@ -1023,7 +1023,7 @@ package body Editor.Outline.Navigation_Tests is
               "mouse click updates outline selection");
       Assert (Editor.Feature_Panel.Selected_Row (S.Panel.Feature_Panel) = 2,
               "mouse click mirrors feature-panel selection");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before,
               "mouse click must not navigate the editor cursor");
       Assert (Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel),
               "mouse click preserves feature-panel focus");
@@ -1055,7 +1055,7 @@ package body Editor.Outline.Navigation_Tests is
               "mouse activation should dispatch through open-selected");
       Assert (Editor.Outline.Selected_Index (S.Outline) = 2,
               "mouse activation selects the activated row first");
-      Editor.State.Row_Col_For_Index (S, S.Carets (S.Carets.First_Index).Pos, Row, Col);
+      Editor.State.Row_Col_For_Index (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos, Row, Col);
       Assert (Row = 2,
               "mouse activation navigates to the selected row target");
       Assert (Editor.Panel_Focus.Editor_Text_Has_Focus (S.Panel.Panel_Focus),
@@ -1080,13 +1080,13 @@ package body Editor.Outline.Navigation_Tests is
         (S, Editor.Command_Ids.Command_Focus_Outline);
       Populate_Synthetic_Outline (S.Outline);
       Editor.Outline.Set_Rows_From_Outline (S.Outline, S.Panel.Feature_Panel);
-      Before := S.Carets (S.Carets.First_Index).Pos;
+      Before := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Result :=
         Editor.Executor.Outline_Commands.Execute_Outline_Row_Activation (S, 1);
       Assert (Result.Status = Editor.Executor.Command_No_Op,
               "placeholder/diagnostic row activation should be rejected");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before,
               "rejected diagnostic activation must not move the cursor");
       Assert (Editor.Feature_Panel.Is_Focused (S.Panel.Feature_Panel),
               "rejected diagnostic activation must not return focus to editor text");
@@ -1108,7 +1108,7 @@ package body Editor.Outline.Navigation_Tests is
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Focus_Outline);
       Gen := Editor.Feature_Panel.Projection_Generation (S.Panel.Feature_Panel);
-      Before := S.Carets (S.Carets.First_Index).Pos;
+      Before := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
       Result := Editor.Executor.Execute_Command_With_Result
         (S, Editor.Command_Ids.Command_Clear_Outline);
 
@@ -1118,7 +1118,7 @@ package body Editor.Outline.Navigation_Tests is
               "stale mouse projection should be rejected");
       Assert (not Editor.Feature_Panel.Has_Selection (S.Panel.Feature_Panel),
               "stale mouse projection must not recreate selection");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before,
               "stale mouse projection must not navigate");
    end Test_Outline_Mouse_Click_Rejects_Stale_Projection;
 
@@ -1754,7 +1754,7 @@ package body Editor.Outline.Navigation_Tests is
       Assert (Item_Count (S.Outline) > 0,
               "close-buffer setup has outline rows");
       Editor.Feature_Panel.Select_First (S.Panel.Feature_Panel);
-      Before := S.Carets (S.Carets.First_Index).Pos;
+      Before := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
 
       Reset_Outline_For_Buffer_Close (S.Outline, S.Buffer_Lifecycle.Active_Buffer_Token);
       Result := Editor.Executor.Execute_Command_With_Result
@@ -1762,7 +1762,7 @@ package body Editor.Outline.Navigation_Tests is
       Assert (Result.Status = Editor.Executor.Command_Unavailable
                 or else Result.Status = Editor.Executor.Command_No_Op,
               "closed-buffer outline navigation is blocked");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before,
               "closed-buffer outline navigation does not move caret");
       Assert (Freshness_For_Active_Buffer
         (S.Outline, S.Buffer_Lifecycle.Active_Buffer_Token, Editor.State.Current_Buffer_Revision (S)) =

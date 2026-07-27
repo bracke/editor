@@ -139,8 +139,8 @@ package body Editor.Quick_Open.Surface_Rendering is
         Editor.Quick_Open.Geometry (Message_Body, Config, Cell_W, Cell_H);
       Snapshot : constant Editor.Quick_Open.Quick_Open_Snapshot :=
         Editor.Quick_Open_Markers.Build_Snapshot
-          (State    => State.Quick_Open,
-           Tree     => State.File_Tree,
+          (State    => State.Surface.Quick_Open,
+           Tree     => State.Surface.File_Tree,
            Project  => State.Project_Runtime.Project,
            Registry => Editor.Buffers.Global_Registry_For_UI,
            Recent   => State.Recent_Buffers);
@@ -151,7 +151,7 @@ package body Editor.Quick_Open.Surface_Rendering is
         Float (G.Y + Integer ((Config.Header_Height_In_Rows + Config.Field_Height_In_Rows) * Cell_H));
       Text_X : constant Float := Float (G.X + Integer (Config.Result_Padding_Columns * Cell_W));
       Q_Snap : constant Editor.Input_Field.Field_Snapshot :=
-        Editor.Quick_Open.Query_Snapshot (State.Quick_Open, Text_Cols);
+        Editor.Quick_Open.Query_Snapshot (State.Surface.Quick_Open, Text_Cols);
       Active : constant Boolean :=
         Editor.Overlay_Focus.Is_Active
           (State.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay);
@@ -168,7 +168,7 @@ package body Editor.Quick_Open.Surface_Rendering is
       Caret_Rectangles.Clear;
       Text.Clear;
       Accessibility.Clear;
-      Visible := Editor.Quick_Open.Is_Open (State.Quick_Open)
+      Visible := Editor.Quick_Open.Is_Open (State.Surface.Quick_Open)
         and then G.Width > 0
         and then Viewport_Width > 0
         and then Viewport_Height > 0;
@@ -266,7 +266,7 @@ package body Editor.Quick_Open.Surface_Rendering is
                for Row in 1 .. Config.Max_Visible_Results loop
                   declare
                      Index : constant Natural :=
-                       Editor.Quick_Open.Top_Result_Index (State.Quick_Open) + Row - 1;
+                       Editor.Quick_Open.Top_Result_Index (State.Surface.Quick_Open) + Row - 1;
                   begin
                      exit when Index > Natural (Snapshot.Candidates.Length);
                      declare

@@ -109,12 +109,12 @@ package body Editor.Selection is
 
       if not Editor.State.Has_Active_Buffer (S) then
          return Selection_No_Active_Buffer;
-      elsif S.Carets.Length = 0 then
+      elsif S.Caret.Carets.Length = 0 then
          return Selection_No_Caret;
       end if;
 
       declare
-         C : constant Editor.Cursors.Caret_State := S.Carets (S.Carets.First_Index);
+         C : constant Editor.Cursors.Caret_State := S.Caret.Carets (S.Caret.Carets.First_Index);
          L : constant Cursor_Index := Cursor_Index'Min (C.Pos, C.Anchor);
          H : constant Cursor_Index := Cursor_Index'Max (C.Pos, C.Anchor);
       begin
@@ -257,13 +257,13 @@ package body Editor.Selection is
       Found := False;
 
       if not Editor.State.Has_Active_Buffer (S)
-        or else S.Carets.Length = 0
+        or else S.Caret.Carets.Length = 0
         or else Len = 0
       then
          return (Low => 0, High => 0);
       end if;
 
-      Caret := Natural'Min (Natural (S.Carets (S.Carets.First_Index).Pos), Len);
+      Caret := Natural'Min (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos), Len);
 
       if Caret < Len
         and then Is_Selection_Word_Character
@@ -309,19 +309,19 @@ package body Editor.Selection is
    is
       C : Editor.Cursors.Caret_State;
    begin
-      if S.Carets.Length = 0 then
-         S.Carets.Append
+      if S.Caret.Carets.Length = 0 then
+         S.Caret.Carets.Append
            (Editor.Cursors.Caret_State'(Pos                   => Pos,
              Anchor                => Anchor,
              Virtual_Column        => 0,
              Anchor_Virtual_Column => 0));
       else
-         C := S.Carets (S.Carets.First_Index);
+         C := S.Caret.Carets (S.Caret.Carets.First_Index);
          C.Pos := Pos;
          C.Anchor := Anchor;
          C.Virtual_Column := 0;
          C.Anchor_Virtual_Column := 0;
-         S.Carets.Replace_Element (S.Carets.First_Index, C);
+         S.Caret.Carets.Replace_Element (S.Caret.Carets.First_Index, C);
       end if;
    end Apply_Active_Buffer_Selection;
 
@@ -532,7 +532,7 @@ package body Editor.Selection is
          return Rectangular_Selection;
       end if;
 
-      for C of S.Carets loop
+      for C of S.Caret.Carets loop
          if Editor.Rectangle_Selection.Has_Selection (C) then
             Selected_Count := Selected_Count + 1;
          end if;
@@ -544,7 +544,7 @@ package body Editor.Selection is
          return Multi_Selection;
       else
          declare
-            C : constant Editor.Cursors.Caret_State := S.Carets (S.Carets.First_Index);
+            C : constant Editor.Cursors.Caret_State := S.Caret.Carets (S.Caret.Carets.First_Index);
             L : constant Editor.Cursors.Cursor_Index := Editor.Cursors.Cursor_Index'Min (C.Pos, C.Anchor);
             H : constant Editor.Cursors.Cursor_Index := Editor.Cursors.Cursor_Index'Max (C.Pos, C.Anchor);
             SR, SC, ER, EC : Natural := 0;

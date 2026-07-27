@@ -790,11 +790,11 @@ package body Editor.Render_Model is
       O.Panel_Focus_Target := Editor.Panel_Focus.Target (S.Panel.Panel_Focus);
       O.Bottom_Focus_Content := Editor.Panel_Focus.Bottom_Content (S.Panel.Panel_Focus);
       O.Active_Overlay := Editor.Overlay_Focus.Active_Overlay (S.Panel.Overlay_Focus);
-      O.Goto_Line_Visible := Editor.Go_To_Line.Is_Open (S.Go_To_Line);
-      O.Goto_Line_Query := To_Unbounded_String (Editor.Go_To_Line.Text (S.Go_To_Line));
+      O.Goto_Line_Visible := Editor.Go_To_Line.Is_Open (S.Surface.Go_To_Line);
+      O.Goto_Line_Query := To_Unbounded_String (Editor.Go_To_Line.Text (S.Surface.Go_To_Line));
       O.Goto_Line_Error_Message :=
-        To_Unbounded_String (Editor.Go_To_Line.Error_Text (S.Go_To_Line));
-      O.Goto_Line_Field := Editor.Go_To_Line.Snapshot (S.Go_To_Line, 30);
+        To_Unbounded_String (Editor.Go_To_Line.Error_Text (S.Surface.Go_To_Line));
+      O.Goto_Line_Field := Editor.Go_To_Line.Snapshot (S.Surface.Go_To_Line, 30);
       declare
          Active_Find_Renderable : constant Boolean :=
            S.Search.Active_Find_Prompt
@@ -1067,16 +1067,16 @@ package body Editor.Render_Model is
          end if;
       end;
 
-      if S.Carets.Length > 0 then
+      if S.Caret.Carets.Length > 0 then
          O.Primary_Caret_Row :=
-           Editor.State.Row_For_Index (S, S.Carets (S.Carets.First_Index).Pos);
+           Editor.State.Row_For_Index (S, S.Caret.Carets (S.Caret.Carets.First_Index).Pos);
          O.Primary_Caret_Logical_Row := O.Primary_Caret_Row;
          O.Primary_Caret_Col :=
-           Natural (S.Carets (S.Carets.First_Index).Pos)
+           Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos)
            - Natural (Editor.State.Line_Start (S, O.Primary_Caret_Row));
 
-         if S.Carets (S.Carets.First_Index).Virtual_Column > 0 then
-            O.Primary_Caret_Col := S.Carets (S.Carets.First_Index).Virtual_Column;
+         if S.Caret.Carets (S.Caret.Carets.First_Index).Virtual_Column > 0 then
+            O.Primary_Caret_Col := S.Caret.Carets (S.Caret.Carets.First_Index).Virtual_Column;
          end if;
 
          declare
@@ -1186,15 +1186,15 @@ package body Editor.Render_Model is
          pragma Assert (O.Text_Base_Index + O.Length <= Text_Buffer.Length (S.Buffer));
       end;
 
-      if S.Carets.Length > 0 then
+      if S.Caret.Carets.Length > 0 then
          declare
             Count : Natural := 0;
          begin
-            for I in S.Carets.First_Index .. S.Carets.Last_Index loop
+            for I in S.Caret.Carets.First_Index .. S.Caret.Carets.Last_Index loop
                exit when Count >= Max_Render_Carets;
                Count := Count + 1;
-               O.Caret_Pos (Count) := S.Carets (I).Pos;
-               O.Caret_Virtual_Column (Count) := S.Carets (I).Virtual_Column;
+               O.Caret_Pos (Count) := S.Caret.Carets (I).Pos;
+               O.Caret_Virtual_Column (Count) := S.Caret.Carets (I).Virtual_Column;
             end loop;
             O.Caret_Count := Count;
          end;
@@ -1312,7 +1312,7 @@ package body Editor.Render_Model is
          O.Selected_Character_Count := 0;
          O.Selected_Line_Count := 0;
          if Status = Editor.Selection.Selection_Ok
-           and then not S.Rect_Select_Active
+           and then not S.Caret.Rect_Select_Active
          then
             O.Selection_Count := 1;
             O.Selected_Character_Count :=
@@ -1331,13 +1331,13 @@ package body Editor.Render_Model is
       --  selected document row; expose that explicitly so packet generation
       --  no longer has to infer rectangular geometry from linear ranges.
       O.Rectangular_Selection_Count := 0;
-      if S.Rect_Select_Active and then S.Carets.Length > 0 then
+      if S.Caret.Rect_Select_Active and then S.Caret.Carets.Length > 0 then
          declare
             Count : Natural := 0;
             Row   : Natural := 0;
             Col   : Natural := 0;
          begin
-            for C of S.Carets loop
+            for C of S.Caret.Carets loop
                exit when Count >= Max_Render_Selections;
                if Editor.Rectangle_Selection.Has_Selection (C) then
                   Editor.State.Row_Col_For_Index (S, C.Pos, Row, Col);

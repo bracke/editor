@@ -442,8 +442,8 @@ package body Editor.Status_Bar.Tests is
       Editor.State.Init (S);
       Editor.State.Load_Text
         (S, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => 40,
             Anchor                => 40,

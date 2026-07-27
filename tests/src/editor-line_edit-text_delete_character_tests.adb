@@ -49,8 +49,8 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Pos : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Pos,
             Anchor                => Pos,
@@ -64,8 +64,8 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Pos    : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Pos,
             Anchor                => Anchor,
@@ -109,9 +109,9 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Row : Natural := 0;
       Col : Natural := 0;
    begin
-      Assert (S.Carets.Length > 0, Why & ": expected a caret");
+      Assert (S.Caret.Carets.Length > 0, Why & ": expected a caret");
       Editor.Navigation.Line_Column_For_Index
-        (S, Natural (S.Carets (S.Carets.First_Index).Pos), Row, Col);
+        (S, Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos), Row, Col);
       Assert (Row = Expected_Row, Why & ": caret row mismatch");
       Assert (Col = Expected_Col, Why & ": caret column mismatch");
    end Assert_Caret_Row_Col;
@@ -273,7 +273,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       end if;
 
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               Why & ": text-changing word delete must create one undo entry");
@@ -379,7 +379,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       end if;
 
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               Why & ": character delete must create one undo entry");
@@ -500,7 +500,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       end if;
 
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               Why & ": text-changing Character Delete must create one undo entry");
@@ -660,7 +660,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Assert (Message_Text (S) = "Deleted selection", Why & ": message mismatch");
       Assert (not Editor.Selection.Has_Selection (S), Why & ": selection must collapse");
       Assert
-        (Natural (S.Carets (S.Carets.First_Index).Pos) =
+        (Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos) =
          Natural (Cursor_Index'Min (Anchor, Pos)),
          Why & ": caret must land at normalized deletion start");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
@@ -832,7 +832,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
 
       Editor.State.Init (S);
       Editor.State.Load_Text (S, "AB");
-      S.Carets.Clear;
+      S.Caret.Carets.Clear;
       Avail := Editor.Executor.Command_Availability
         (S, Editor.Command_Ids.Command_Char_Delete_Next);
       Assert (not Editor.Commands.Availability_Metadata.Is_Available (Avail)
@@ -848,7 +848,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Set_Caret (S, 2);
       Editor.State.Set_Dirty (S, False);
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
-      Before_Caret := S.Carets (S.Carets.First_Index).Pos;
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
       Before_Dirty := Editor.State.Is_Dirty (S);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
@@ -857,7 +857,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "character delete must be available for active buffer and caret");
       Assert (To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer)) = Before_Text
-              and then S.Carets (S.Carets.First_Index).Pos = Before_Caret
+              and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Caret
               and then Editor.State.Is_Dirty (S) = Before_Dirty
               and then Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo
@@ -1092,7 +1092,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Assert_Buffer_Text
         (S, "Alpha eta Gamma",
          "delete-next must operate at caret, not consume selection");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 6,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 6,
               "delete-next caret must remain at deletion start");
       Assert (not Editor.Selection.Has_Selection (S),
               "successful Character Delete must clear selection");
@@ -1118,7 +1118,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Editor.State.Set_Dirty (S, False);
       Set_Caret (S, 2);
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
-      Before_Caret := S.Carets (S.Carets.First_Index).Pos;
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
       Before_Dirty := Editor.State.Is_Dirty (S);
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
@@ -1127,7 +1127,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Assert (Editor.Commands.Availability_Metadata.Is_Available (Avail),
               "Character Delete availability must remain available with active buffer and caret");
       Assert (To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer)) = Before_Text
-              and then S.Carets (S.Carets.First_Index).Pos = Before_Caret
+              and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Caret
               and then Editor.State.Is_Dirty (S) = Before_Dirty
               and then Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo
@@ -1135,7 +1135,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
               "Character Delete availability must be side-effect-free");
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer)) = Before_Text
-              and then S.Carets (S.Carets.First_Index).Pos = Before_Caret
+              and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Caret
               and then Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
               "render snapshot must not repair or perform Character Delete");
@@ -1345,7 +1345,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Assert_Buffer_Text
         (S, "Alpha Bet Gamma",
          "previous delete must remove exact adjacent character after selection/find setup");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 9,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 9,
               "previous delete caret must move to deleted range start");
       Assert (not Editor.Selection.Has_Selection (S),
               "successful Character Delete must clear active selection");
@@ -1396,7 +1396,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       Editor.State.Set_Dirty (S, False);
       Set_Caret (S, 2);
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
-      Before_Caret := S.Carets (S.Carets.First_Index).Pos;
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Before_Dirty := Editor.State.Is_Dirty (S);
@@ -1414,7 +1414,7 @@ package body Editor.Line_Edit.Text_Delete_Character_Tests is
       end;
       Editor.Render_Model.Build_Render_Snapshot (S, Snap);
       Assert (To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer)) = Before_Text
-              and then S.Carets (S.Carets.First_Index).Pos = Before_Caret
+              and then S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Caret
               and then Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo
               and then Editor.State.Is_Dirty (S) = Before_Dirty,

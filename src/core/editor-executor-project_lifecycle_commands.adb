@@ -739,10 +739,10 @@ package body Editor.Executor.Project_Lifecycle_Commands is
    is
    begin
       Editor.Project.Clear_Known_Files (S.Project_Runtime.Project);
-      for I in 1 .. Editor.File_Tree.File_Node_Count (S.File_Tree) loop
+      for I in 1 .. Editor.File_Tree.File_Node_Count (S.Surface.File_Tree) loop
          declare
             Node : constant Editor.File_Tree.File_Tree_Node_Summary :=
-              Editor.File_Tree.File_Node_At (S.File_Tree, I);
+              Editor.File_Tree.File_Node_At (S.Surface.File_Tree, I);
          begin
             if Node.Id /= Editor.File_Tree.No_File_Tree_Node then
                Editor.Project.Add_Known_File
@@ -956,7 +956,7 @@ package body Editor.Executor.Project_Lifecycle_Commands is
             end;
          end if;
          Promote_Open_Project_To_Recent (S, Result);
-         Editor.Project_Search.Clear (S.Project_Search);
+         Editor.Project_Search.Clear (S.Surface.Project_Search);
          if Editor.Overlay_Focus.Is_Active
            (S.Panel.Overlay_Focus, Editor.Overlay_Focus.Quick_Open_Overlay)
            or else Editor.Overlay_Focus.Is_Active
@@ -965,21 +965,21 @@ package body Editor.Executor.Project_Lifecycle_Commands is
             Dismiss_Active_Overlay
               (S, Editor.Overlay_Focus.Dismiss_Command);
          else
-            Editor.Quick_Open.Close (S.Quick_Open);
-            Editor.Project_Search_Bar.Close (S.Project_Search_Bar);
+            Editor.Quick_Open.Close (S.Surface.Quick_Open);
+            Editor.Project_Search_Bar.Close (S.Surface.Project_Search_Bar);
          end if;
          if not Explicit_Switch then
             Tree := Editor.File_Tree.Scan_Project (Editor.Project.Root_Path (S.Project_Runtime.Project));
             Tree_Result := Editor.File_Tree.Scan_Status (Tree);
          end if;
          if Tree_Result.Status = Editor.File_Tree.File_Tree_Scan_Ok then
-            S.File_Tree := Tree;
+            S.Surface.File_Tree := Tree;
             Populate_Project_Known_Files_From_File_Tree (S);
             Editor.Executor.Semantic_Index_Commands
               .Rebuild_Language_Index_After_File_Lifecycle (S);
             Validate_File_Tree_View (S);
-            Editor.Project_Search.Clear (S.Project_Search);
-            if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+            Editor.Project_Search.Clear (S.Surface.Project_Search);
+            if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
                Recompute_Quick_Open (S);
             end if;
             Report_Success
@@ -999,11 +999,11 @@ package body Editor.Executor.Project_Lifecycle_Commands is
                Apply_Project_Open_Workspace_Policy (S);
             end if;
          else
-            Editor.File_Tree.Clear (S.File_Tree);
+            Editor.File_Tree.Clear (S.Surface.File_Tree);
             Editor.Project.Clear_Known_Files (S.Project_Runtime.Project);
-            Editor.File_Tree_View.Clear_View (S.File_Tree_View);
-            Editor.Project_Search.Clear (S.Project_Search);
-            if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+            Editor.File_Tree_View.Clear_View (S.Surface.File_Tree_View);
+            Editor.Project_Search.Clear (S.Surface.Project_Search);
+            if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
                Recompute_Quick_Open (S);
             end if;
             Report_Warning

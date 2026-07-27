@@ -49,8 +49,8 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Pos : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Pos,
             Anchor                => Pos,
@@ -64,8 +64,8 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Pos    : Cursor_Index)
    is
    begin
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => Pos,
             Anchor                => Anchor,
@@ -109,9 +109,9 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       Row : Natural := 0;
       Col : Natural := 0;
    begin
-      Assert (S.Carets.Length > 0, Why & ": expected a caret");
+      Assert (S.Caret.Carets.Length > 0, Why & ": expected a caret");
       Editor.Navigation.Line_Column_For_Index
-        (S, Natural (S.Carets (S.Carets.First_Index).Pos), Row, Col);
+        (S, Natural (S.Caret.Carets (S.Caret.Carets.First_Index).Pos), Row, Col);
       Assert (Row = Expected_Row, Why & ": caret row mismatch");
       Assert (Col = Expected_Col, Why & ": caret column mismatch");
    end Assert_Caret_Row_Col;
@@ -273,7 +273,7 @@ package body Editor.Line_Edit.Line_Join_Split_Tests is
       end if;
 
       Assert_Buffer_Text (S, Expected_Text, Why);
-      Assert (S.Carets (S.Carets.First_Index).Pos = Expected_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Expected_Caret,
               Why & ": caret mismatch");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               Why & ": text-changing word delete must create one undo entry");
@@ -1738,7 +1738,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
               "split and undo must not activate another buffer");
 
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
-      Before_Caret := S.Carets (S.Carets.First_Index).Pos;
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
       Availability := Editor.Executor.Command_Availability
@@ -1747,7 +1747,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
               "split availability should be available with active buffer and caret");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
               "availability must not mutate buffer text");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Caret,
               "availability must not move caret");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
@@ -2105,7 +2105,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
       S.Search.Active_Replace_Text := To_Unbounded_String ("ReplaceSeed");
       Editor.Clipboard.Set_Text (To_Unbounded_String ("FEATURE-CLIP"));
       Before_Text := To_Unbounded_String (Text_Buffer.UTF8_Text (S.Buffer));
-      Before_Caret := S.Carets (S.Carets.First_Index).Pos;
+      Before_Caret := S.Caret.Carets (S.Caret.Carets.First_Index).Pos;
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
 
@@ -2127,7 +2127,7 @@ procedure Test_Line_Join_Canonical_Behavior_And_Persistence
               "split availability available with active buffer/caret");
       Assert (Text_Buffer.UTF8_Text (S.Buffer) = To_String (Before_Text),
               "availability must not mutate text");
-      Assert (S.Carets (S.Carets.First_Index).Pos = Before_Caret,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = Before_Caret,
               "availability must not move caret");
       Assert (Natural (Editor.History.Undo_Stack.Length) = Before_Undo
               and then Natural (Editor.History.Redo_Stack.Length) = Before_Redo,
@@ -2308,10 +2308,10 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
       Editor.Clipboard.Set_Text (Before_Clip);
       Set_Primary_Selection (S, 0, 5);
       declare
-         C : Editor.Cursors.Caret_State := S.Carets (S.Carets.First_Index);
+         C : Editor.Cursors.Caret_State := S.Caret.Carets (S.Caret.Carets.First_Index);
       begin
          C.Pos := Cursor_Index (Text_Buffer.Length (S.Buffer) + 50);
-         S.Carets.Replace_Element (S.Carets.First_Index, C);
+         S.Caret.Carets.Replace_Element (S.Caret.Carets.First_Index, C);
       end;
       Before_Undo := Natural (Editor.History.Undo_Stack.Length);
       Before_Redo := Natural (Editor.History.Redo_Stack.Length);
@@ -2352,7 +2352,7 @@ procedure Test_Line_Split_Canonical_Behavior_And_State_Boundaries
       Assert_Buffer_Text
         (S, "Alpha" & ASCII.LF & "Beta",
          "Insert Newline command must normalize through canonical Text Insert");
-      Assert (S.Carets (S.Carets.First_Index).Pos = 6,
+      Assert (S.Caret.Carets (S.Caret.Carets.First_Index).Pos = 6,
               "line-boundary payload moves caret after canonical boundary");
       Assert (Natural (Editor.History.Undo_Stack.Length) = 1,
               "line-boundary insertion creates one undo entry");

@@ -238,7 +238,7 @@ package body Editor.Configuration_Audit is
    is
       Selected_Audit : constant Editor.Buffer_Switcher.Audits.Selected_Buffer_List_Audit :=
         Editor.Buffer_Switcher.Audit_Selected_Buffer_List_State
-          (State.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI);
+          (State.Surface.Buffer_Switcher, Editor.Buffers.Global_Registry_For_UI);
       Buffer_Audit : constant Editor.Buffers.Buffer_Audit_Summary :=
         Editor.Buffers.Global_Audit_Buffers
           (State.Project_Runtime.Project, Selected_Audit.Selected_Buffer_Id);
@@ -261,7 +261,7 @@ package body Editor.Configuration_Audit is
       --  keybinding records, Buffer List route metadata, and serialized
       --  workspace text must not carry runtime buffer identities.
       Editor.Command_Route_Audit.Inspect_Buffer_Route_Surfaces_No_Buffer_Payload
-        (Route_Audit, State.Buffer_Switcher, Serialized_Workspace);
+        (Route_Audit, State.Surface.Buffer_Switcher, Serialized_Workspace);
 
       Result.Buffer_Metadata_Coherent :=
         Buffer_Audit.Metadata_Projection_Coherent

@@ -420,7 +420,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
            (S, "Derived state is stale after save");
          Editor.Executor.Project_Search_Result_Commands
            .Refresh_Project_Search_After_File_Lifecycle (S);
-         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+         if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
@@ -546,17 +546,17 @@ package body Editor.Executor.File_Save_Basic_Commands is
       Editor.History.Undo_Stack.Clear;
       Editor.History.Redo_Stack.Clear;
 
-      S.Carets.Clear;
-      S.Carets.Append
+      S.Caret.Carets.Clear;
+      S.Caret.Carets.Append
         (Editor.Cursors.Caret_State'
            (Pos                   => 0,
             Anchor                => 0,
             Virtual_Column        => 0,
             Anchor_Virtual_Column => 0));
-      S.Preferred_Column := 0;
-      S.Rect_Select_Active := False;
-      S.Rect_Anchor_Row := 0;
-      S.Rect_Anchor_Col := 0;
+      S.Caret.Preferred_Column := 0;
+      S.Caret.Rect_Select_Active := False;
+      S.Caret.Rect_Anchor_Row := 0;
+      S.Caret.Rect_Anchor_Col := 0;
       Editor.View.Reset_Scroll;
    end Apply_Reload_Buffer_Local_Lifecycle;
 
@@ -580,9 +580,9 @@ package body Editor.Executor.File_Save_Basic_Commands is
       --  query is active.
       S.Search.Active_Find_Stale := True;
       Editor.Outline.Clear (S.Outline);
-      S.Outline_Cursor_Key_Valid := False;
-      Editor.Project_Search.Mark_Stale_Unconditionally (S.Project_Search);
-      Editor.Project_Search.Mark_Replace_Preview_Stale (S.Project_Search);
+      S.Outline_Cursor.Key_Valid := False;
+      Editor.Project_Search.Mark_Stale_Unconditionally (S.Surface.Project_Search);
+      Editor.Project_Search.Mark_Replace_Preview_Stale (S.Surface.Project_Search);
       Editor.Feature_Diagnostics.Mark_Diagnostics_For_Buffer_Stale
         (S.Panel.Feature_Diagnostics, S.Buffer_Lifecycle.Active_Buffer_Token);
 
@@ -712,7 +712,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
            (S, "Derived state is stale after reload");
          Editor.Executor.Project_Search_Result_Commands
            .Refresh_Project_Search_After_File_Lifecycle (S);
-         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+         if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
@@ -1000,7 +1000,7 @@ package body Editor.Executor.File_Save_Basic_Commands is
            (S, "Derived state is stale after save all");
          Editor.Executor.Project_Search_Result_Commands
            .Refresh_Project_Search_After_File_Lifecycle (S);
-         if Editor.Quick_Open.Is_Open (S.Quick_Open) then
+         if Editor.Quick_Open.Is_Open (S.Surface.Quick_Open) then
             Editor.Executor.Recompute_Quick_Open (S);
          end if;
          Editor.Executor.Semantic_Index_Commands.Rebuild_Language_Index_After_File_Lifecycle (S);
