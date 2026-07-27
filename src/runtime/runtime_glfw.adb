@@ -140,6 +140,21 @@ package body Runtime_GLFW is
    procedure Render_Backend_Destroy (Backend : System.Address);
    pragma Import (C, Render_Backend_Destroy, "render_backend_destroy");
 
+   --  Present-grace window (frames). After an input event the loop keeps
+   --  presenting every frame for this long even when the render packet is
+   --  unchanged, which keeps us on the compositor's frame clock so input stays
+   --  paced to the display; without it the first interaction after an idle gap
+   --  stalls. ~24 frames is ~0.4s at 60fps. It is refilled by INPUT (not by the
+   --  content-changed gate) so a blinking caret -- which changes content every
+   --  toggle -- still presents only on its toggle and does not hold the window
+   --  open, preserving the idle-CPU win.
+   Present_Grace_Frames : constant := 24;
+
+   --  Refilled by Send_Event (i.e. by every input event) and counted down one per
+   --  loop iteration; the loop presents while it is non-zero. Package-level
+   --  because the runtime drives a single window.
+   Input_Grace : Natural := 0;
+
    type Editor_Window is new Glfw.Windows.Window with record
       Backend         : System.Address := System.Null_Address;
       Left_Mouse_Down : Boolean := False;
@@ -200,6 +215,9 @@ package body Runtime_GLFW is
 
    procedure Send_Event (Ev : Editor.Bridge.Platform_Event) is
    begin
+      --  Any input event opens the present-grace window so the loop keeps
+      --  presenting for a short spell and input stays paced to the display.
+      Input_Grace := Present_Grace_Frames;
       Editor.C_API.Editor_Handle_Platform_Event (Ev);
    end Send_Event;
 
@@ -757,22 +775,37 @@ package body Runtime_GLFW is
                   end if;
 
                   --  Present gate: outside smoke, skip the whole begin/draw/end
-                  --  frame path when the render packet is unchanged since the last
-                  --  present. Smoke short-circuits (and never calls Content_Changed)
-                  --  so its frame counts and visual-contract capture are unchanged.
-                  if Smoke_Mode
-                    or else Render_Backend_Content_Changed (Window.Backend) /= 0
-                  then
-                     if Render_Backend_Begin_Frame
-                          (Window.Backend, C.int (Width), C.int (Height)) = 0
-                       or else Render_Backend_Draw_Editor
-                          (Window.Backend) = 0
-                       or else Render_Backend_End_Frame
-                          (Window.Backend) = 0
-                     then
-                        return Fail ("runtime error: render frame failed");
+                  --  frame path when the render packet is unchanged AND the input
+                  --  grace window has elapsed. The grace window keeps us presenting
+                  --  every frame for a short spell after input so the compositor
+                  --  keeps waking us and input stays responsive; a blinking caret
+                  --  changes content on its own toggle and so still presents then,
+                  --  without holding the window open. Smoke short-circuits (and
+                  --  never calls Content_Changed) so its frame counts and
+                  --  visual-contract capture are unchanged.
+                  declare
+                     Content_Changed : constant Boolean :=
+                       (not Smoke_Mode)
+                       and then Render_Backend_Content_Changed (Window.Backend) /= 0;
+                     Present_Now : constant Boolean :=
+                       Smoke_Mode or else Content_Changed or else Input_Grace > 0;
+                  begin
+                     if Input_Grace > 0 then
+                        Input_Grace := Input_Grace - 1;
                      end if;
-                  end if;
+
+                     if Present_Now then
+                        if Render_Backend_Begin_Frame
+                             (Window.Backend, C.int (Width), C.int (Height)) = 0
+                          or else Render_Backend_Draw_Editor
+                             (Window.Backend) = 0
+                          or else Render_Backend_End_Frame
+                             (Window.Backend) = 0
+                        then
+                           return Fail ("runtime error: render frame failed");
+                        end if;
+                     end if;
+                  end;
 
                   if Render_Backend_Frame_Was_Rendered
                        (Window.Backend) /= 0
