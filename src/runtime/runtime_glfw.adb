@@ -278,6 +278,15 @@ package body Runtime_GLFW is
               and then abs (Integer (IY - Object.Last_Click_Y)) <= 3;
             Kind : Editor.Bridge.Event_Kind := Editor.Bridge.Mouse_Down;
          begin
+            --  Drop a press that follows the previous one too closely to be a real
+            --  click -- a switch bounce that would otherwise double-fire (and, via
+            --  Click_Count, spuriously trigger word/line selection).
+            if Object.Last_Click_Time >= 0.0
+              and then Now - Object.Last_Click_Time < 0.040
+            then
+               return;
+            end if;
+
             Object.Left_Mouse_Down := True;
             Object.Drag_Shift := Mods.Shift;
             Object.Drag_Ctrl := Mods.Control;
