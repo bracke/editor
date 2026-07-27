@@ -5,6 +5,7 @@ with System;
 
 with Editor.Bridge;
 with Editor.C_API;
+with Editor.Cursor;
 with Glfw;
 with Glfw.Errors;
 with Glfw.Input;
@@ -983,11 +984,19 @@ package body Runtime_GLFW is
 
          --  Outside smoke, sleep for a bounded time instead of spinning: present
          --  is now skipped for unchanged frames, so nothing paces the poll loop.
-         --  A short wait keeps the blinking caret responsive (the present gate
-         --  redraws it on each toggle); input and window events wake immediately.
-         --  Smoke keeps its fast bounded poll loop.
+         --  Sleep until the caret's next blink toggle so it stays crisp, and up
+         --  to a second when the caret does not blink (Seconds_To_Next_Change
+         --  returns a far-future value then). Input and window events wake it
+         --  immediately. Smoke keeps its fast bounded poll loop.
          if not Smoke_Mode then
-            Glfw_Wait_Events_Timeout (0.25);
+            declare
+               To_Change : constant Float :=
+                 Editor.Cursor.Seconds_To_Next_Change (Float (Glfw.Time));
+               Wait : constant Float :=
+                 Float'Max (0.005, Float'Min (1.0, To_Change));
+            begin
+               Glfw_Wait_Events_Timeout (C.double (Wait));
+            end;
          end if;
       end loop;
 

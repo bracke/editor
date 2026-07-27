@@ -104,4 +104,43 @@ package body Editor.Cursor is
       return Phase < Period * Duty;
    end Visible;
 
+   function Seconds_To_Next_Change
+     (Now_Sec : Float) return Float
+   is
+      --  A caret that never toggles: any value large enough that the caller
+      --  clamps it to its own maximum idle wait.
+      Never  : constant Float := 3600.0;
+      Period : constant Float := Current_Blink_Config.Blink_Period_Sec;
+      Duty   : constant Float := Current_Blink_Config.Blink_Duty_Cycle;
+      On_End : constant Float := Period * Duty;
+      Phase  : Float;
+   begin
+      if not Current_Blink_Config.Blink_Enabled
+        or else Period <= 0.0
+        or else Duty <= 0.0
+        or else Duty >= 1.0
+      then
+         return Never;
+      end if;
+
+      --  Freshly reset (clock at or before the last input): visible now, the
+      --  first toggle is one on-phase away.
+      if Now_Sec <= Current_Blink_Config.Last_Input_Time_Sec then
+         return On_End;
+      end if;
+
+      Phase :=
+        Positive_Mod
+          (Now_Sec - Current_Blink_Config.Last_Input_Time_Sec,
+           Period);
+
+      --  Toggles happen at Phase = On_End (visible -> hidden) and Phase = Period
+      --  (hidden -> visible); return the distance to whichever comes next.
+      if Phase < On_End then
+         return On_End - Phase;
+      else
+         return Period - Phase;
+      end if;
+   end Seconds_To_Next_Change;
+
 end Editor.Cursor;

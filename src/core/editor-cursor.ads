@@ -58,4 +58,12 @@ package Editor.Cursor is
    function Visible
      (Now_Sec : Float) return Boolean;
 
+   --  Seconds from Now_Sec until the caret next changes visibility (its next
+   --  blink toggle). Returns a large "far future" value when the caret does not
+   --  blink (disabled, or a degenerate always-on/always-off duty), so an event
+   --  loop can sleep until the next toggle -- or sleep long when blink is off --
+   --  instead of polling.
+   function Seconds_To_Next_Change
+     (Now_Sec : Float) return Float;
+
 end Editor.Cursor;
