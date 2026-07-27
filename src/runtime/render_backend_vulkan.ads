@@ -28,6 +28,10 @@ package Render_Backend_Vulkan is
    pragma Export
      (C, Frame_Was_Rendered, "render_backend_frame_was_rendered");
 
+   function Content_Changed (Backend : System.Address) return C.int;
+   pragma Export
+     (C, Content_Changed, "render_backend_content_changed");
+
    function Swapchain_Recreate_Count
      (Backend : System.Address) return C.unsigned;
    pragma Export

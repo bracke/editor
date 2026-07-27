@@ -216,6 +216,12 @@ package body Render_Backend_Vulkan is
       Last_Visual_Glyph_Count_Value : C.unsigned := 0;
       Last_Visual_Geometry_Checksum_Value : C.unsigned := 0;
       Last_Visual_Color_Checksum_Value : C.unsigned := 0;
+      --  Checksums of the last frame actually presented, and whether any frame
+      --  has been. The present gate skips begin/draw/end_frame when a freshly
+      --  built packet hashes equal to these and nothing else forces a redraw.
+      Prev_Geometry_Checksum : C.unsigned := 0;
+      Prev_Color_Checksum : C.unsigned := 0;
+      Has_Presented_Once : Boolean := False;
    end record;
 
    type Backend_Access is access all Backend_Record;
@@ -2596,6 +2602,11 @@ package body Render_Backend_Vulkan is
 
       B.Frame_Active := False;
       B.Frame_Rendered := True;
+      --  Remember what we just presented so the next Content_Changed can tell
+      --  whether the view is unchanged and the frame can be skipped.
+      B.Prev_Geometry_Checksum := B.Last_Visual_Geometry_Checksum_Value;
+      B.Prev_Color_Checksum := B.Last_Visual_Color_Checksum_Value;
+      B.Has_Presented_Once := True;
       return 1;
    end End_Frame;
 
@@ -2612,6 +2623,28 @@ package body Render_Backend_Vulkan is
    begin
       return (if B /= null then To_C_Int (B.Frame_Rendered) else 0);
    end Frame_Was_Rendered;
+
+   function Content_Changed (Backend : System.Address) return C.int is
+      B      : constant Backend_Access := To_Backend (Backend);
+      Packet : Editor.Render_Packet.Render_Packet;
+   begin
+      if B = null then
+         return 1;
+      end if;
+
+      --  Build and hash the render packet (no Vulkan, no image acquire) and
+      --  compare against the last presented frame. Any difference -- or a pending
+      --  font-atlas upload or swapchain recreate, or the very first frame -- means
+      --  the view changed and must be presented.
+      Editor.C_API.Editor_Get_Render_Packet (Packet);
+      Capture_Visual_Contract (B.all, Packet);
+      return To_C_Int
+        (not B.Has_Presented_Once
+         or else B.Swapchain_Needs_Recreate
+         or else Editor.Font_Bridge.Atlas_Dirty /= 0
+         or else B.Last_Visual_Geometry_Checksum_Value /= B.Prev_Geometry_Checksum
+         or else B.Last_Visual_Color_Checksum_Value /= B.Prev_Color_Checksum);
+   end Content_Changed;
 
    function Swapchain_Recreate_Count
      (Backend : System.Address) return C.unsigned

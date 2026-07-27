@@ -58,6 +58,18 @@ package body Runtime_GLFW is
      (C, Render_Backend_Frame_Was_Rendered,
       "render_backend_frame_was_rendered");
 
+   function Render_Backend_Content_Changed
+     (Backend : System.Address) return C.int;
+   pragma Import
+     (C, Render_Backend_Content_Changed,
+      "render_backend_content_changed");
+
+   --  glfwWaitEventsTimeout: the Glfw binding exposes only Poll_Events and an
+   --  indefinite Wait_For_Events, so import the timed wait directly to let the
+   --  loop sleep for a bounded time instead of spinning.
+   procedure Glfw_Wait_Events_Timeout (Timeout : C.double);
+   pragma Import (C, Glfw_Wait_Events_Timeout, "glfwWaitEventsTimeout");
+
    function Render_Backend_Swapchain_Recreate_Count
      (Backend : System.Address) return C.unsigned;
    pragma Import
@@ -734,14 +746,22 @@ package body Runtime_GLFW is
                      Smoke_Resize_Requests := Smoke_Resize_Requests + 1;
                   end if;
 
-                  if Render_Backend_Begin_Frame
-                       (Window.Backend, C.int (Width), C.int (Height)) = 0
-                    or else Render_Backend_Draw_Editor
-                       (Window.Backend) = 0
-                    or else Render_Backend_End_Frame
-                       (Window.Backend) = 0
+                  --  Present gate: outside smoke, skip the whole begin/draw/end
+                  --  frame path when the render packet is unchanged since the last
+                  --  present. Smoke short-circuits (and never calls Content_Changed)
+                  --  so its frame counts and visual-contract capture are unchanged.
+                  if Smoke_Mode
+                    or else Render_Backend_Content_Changed (Window.Backend) /= 0
                   then
-                     return Fail ("runtime error: render frame failed");
+                     if Render_Backend_Begin_Frame
+                          (Window.Backend, C.int (Width), C.int (Height)) = 0
+                       or else Render_Backend_Draw_Editor
+                          (Window.Backend) = 0
+                       or else Render_Backend_End_Frame
+                          (Window.Backend) = 0
+                     then
+                        return Fail ("runtime error: render frame failed");
+                     end if;
                   end if;
 
                   if Render_Backend_Frame_Was_Rendered
@@ -960,6 +980,15 @@ package body Runtime_GLFW is
                end if;
             end if;
          end;
+
+         --  Outside smoke, sleep for a bounded time instead of spinning: present
+         --  is now skipped for unchanged frames, so nothing paces the poll loop.
+         --  A short wait keeps the blinking caret responsive (the present gate
+         --  redraws it on each toggle); input and window events wake immediately.
+         --  Smoke keeps its fast bounded poll loop.
+         if not Smoke_Mode then
+            Glfw_Wait_Events_Timeout (0.25);
+         end if;
       end loop;
 
       Cleanup;
