@@ -621,6 +621,26 @@ package body Text_Backend.Rope_Impl is
       return To_String (Result);
    end Normalize_UTF8;
 
+   --  Rebuild Into with the code-point start index of each line, reproducing the
+   --  original Line_Start_Index scan exactly: LF-only newline (Is_Newline), one
+   --  Index step per code point, each line start recorded as Index + 1 just after
+   --  its preceding line feed. The first entry is line 0 starting at code-point 0.
+   procedure Build_Line_Starts (Text : String; Into : in out Nat_Vectors.Vector) is
+      Index : Natural := 0;
+
+      procedure Visit (Code : Editor.Unicode.Code_Point) is
+      begin
+         if Editor.Unicode.Is_Newline (Code) then
+            Into.Append (Index + 1);
+         end if;
+         Index := Index + 1;
+      end Visit;
+   begin
+      Into.Clear;
+      Into.Append (0);
+      Editor.UTF8.Decode_UTF8 (Text, Visit'Access, Editor.UTF8.Replace);
+   end Build_Line_Starts;
+
    procedure Rebuild_From_UTF8 (B : in out Buffer_Type; Text : String) is
       Safe_Text : constant String := Normalize_UTF8 (Text);
    begin
@@ -628,6 +648,7 @@ package body Text_Backend.Rope_Impl is
       B.Root := Build_Balanced (Safe_Text);
       B.Last := UTF8_Code_Point_Count (Safe_Text);
       B.Line_Breaks := Count_Line_Breaks (Safe_Text);
+      Build_Line_Starts (Safe_Text, B.Line_Starts_Cache);
    end Rebuild_From_UTF8;
 
    procedure Refresh_Buffer_Counts (B : in out Buffer_Type) is
@@ -635,6 +656,7 @@ package body Text_Backend.Rope_Impl is
    begin
       B.Last        := UTF8_Code_Point_Count (Flat);
       B.Line_Breaks := Count_Line_Breaks (Flat);
+      Build_Line_Starts (Flat, B.Line_Starts_Cache);
    end Refresh_Buffer_Counts;
 
    ------------------------------------------------------------------------
@@ -662,6 +684,7 @@ package body Text_Backend.Rope_Impl is
       Free_Tree (B.Root);
       B.Last := 0;
       B.Line_Breaks := 0;
+      B.Line_Starts_Cache.Clear;
    end Clear;
 
    procedure Set_Text
@@ -841,34 +864,23 @@ package body Text_Backend.Rope_Impl is
 
    function Line_Start_Index
      (B   : Buffer_Type;
-      Row : Natural) return Natural
-   is
-      Text : constant String := Flat_Text (B);
-      Cur_Row : Natural := 0;
-      Index   : Natural := 0;
-      Result  : Natural := B.Last;
-      Found   : Boolean := Row = 0;
-      procedure Visit (Code : Editor.Unicode.Code_Point) is
-      begin
-         if Found then
-            return;
-         end if;
-
-         if Editor.Unicode.Is_Newline (Code) then
-            Cur_Row := Cur_Row + 1;
-            if Cur_Row = Row then
-               Result := Index + 1;
-               Found := True;
-            end if;
-         end if;
-         Index := Index + 1;
-      end Visit;
+      Row : Natural) return Natural is
    begin
+      --  Served from the eagerly maintained line-start cache in O(1). The cache
+      --  holds Line_Breaks + 1 entries (one per line); Row 0 always starts at 0,
+      --  and a Row past the last line reports B.Last, exactly as the previous
+      --  flatten-and-scan did. The length guard keeps this safe even if the cache
+      --  has not been populated yet (e.g. a freshly cleared buffer).
       if Row = 0 then
          return 0;
+      elsif Row <= B.Line_Breaks
+        and then Row < Natural (B.Line_Starts_Cache.Length)
+      then
+         return B.Line_Starts_Cache.Element
+                  (B.Line_Starts_Cache.First_Index + Row);
+      else
+         return B.Last;
       end if;
-      Editor.UTF8.Decode_UTF8 (Text, Visit'Access, Editor.UTF8.Replace);
-      return Result;
    end Line_Start_Index;
 
    function Line_End_Index

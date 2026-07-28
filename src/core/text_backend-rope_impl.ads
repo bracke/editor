@@ -1,3 +1,4 @@
+with Ada.Containers.Vectors;
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
 with Editor.Unicode;
@@ -163,10 +164,20 @@ private
       end case;
    end record;
 
+   package Nat_Vectors is new Ada.Containers.Vectors (Positive, Natural);
+
    type Buffer_Type is new Ada.Finalization.Controlled with record
       Root        : Rope_Node_Access := null;
       Last        : Natural := 0;
       Line_Breaks : Natural := 0;
+      --  Code-point start index of every line (entry K, one-based, is the start
+      --  of line K-1), rebuilt eagerly whenever the content changes (through
+      --  Rebuild_From_UTF8 / Refresh_Buffer_Counts / Clear). Lets Line_Start_Index
+      --  answer in O(1) instead of re-flattening and rescanning the whole rope on
+      --  every call -- the render snapshot queries it once per visible row. The
+      --  vector copies and finalizes with the record, so the Controlled Adjust
+      --  (which clones the tree) and Finalize need no extra handling.
+      Line_Starts_Cache : Nat_Vectors.Vector;
    end record;
 
 end Text_Backend.Rope_Impl;
