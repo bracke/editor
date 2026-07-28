@@ -27,6 +27,8 @@ with Editor.Feature_Search_Results;
 with Editor.Outline;
 with Editor.Buffers;
 with Editor.Bookmarks;
+with Editor.UTF8;
+with Editor.Unicode;
 with Editor.Build_UI;
 with Editor.Build_UI_Actions;
 with Editor.Terminal_Tasks;
@@ -382,11 +384,47 @@ package body Editor.Render_Model is
       FR        : constant Natural := Natural'Min (First_Row, Doc_Last);
       LR        : constant Natural := Natural'Min (Last_Row, Doc_Last);
       Copy_Last : constant Natural := (if LR < Doc_Last then LR + 1 else LR);
+
+      --  Compute the whole row range's line starts from a single flat copy of the
+      --  buffer, mirroring Text_Buffer.Line_Start_Index's code-point counting
+      --  exactly (same Current_Text/Flat_Text, same Decode_UTF8 + Replace, same
+      --  LF-only newline). Previously every row called Editor.State.Line_Start,
+      --  which re-flattened the entire document per row -- O(rows x document
+      --  length) per snapshot, once per visible row every frame.
+      Text  : constant String := Editor.State.Current_Text (S);
+      Row   : Natural := 0;
+      Index : Natural := 0;
+      Done  : Boolean := False;
+
+      procedure Visit (Code : Editor.Unicode.Code_Point) is
+      begin
+         if Done then
+            return;
+         end if;
+         if Editor.Unicode.Is_Newline (Code) then
+            Row := Row + 1;
+            if Row >= FR and then Row <= Copy_Last then
+               O.Line_Starts.Append (Index + 1);
+            end if;
+            if Row >= Copy_Last then
+               Done := True;
+            end if;
+         end if;
+         Index := Index + 1;
+      end Visit;
    begin
       O.Line_Start_Row_Base := FR;
-      for Row in FR .. Copy_Last loop
-         O.Line_Starts.Append (Natural (Editor.State.Line_Start (S, Row)));
-      end loop;
+
+      --  Row 0 starts at code-point 0; each later row starts just after its
+      --  preceding line feed. This reproduces Line_Start (S, Row) for every Row
+      --  in FR .. Copy_Last, in order, with one pass instead of one flatten each.
+      if FR = 0 then
+         O.Line_Starts.Append (0);
+      end if;
+
+      if Copy_Last >= 1 then
+         Editor.UTF8.Decode_UTF8 (Text, Visit'Access, Editor.UTF8.Replace);
+      end if;
    end Append_Line_Starts_For_Range;
 
    procedure Build_Unwrapped_Visuals
@@ -1558,7 +1596,18 @@ package body Editor.Render_Model is
                for Row in First_Row .. Last_Row loop
                   exit when Count >= Max_Render_Syntax_Spans;
                   declare
-                     Row_Start : constant Natural := Natural (Editor.State.Line_Start (S, Row));
+                     --  Reuse the line starts already computed for this visible
+                     --  range (see Append_Line_Starts_For_Range) rather than
+                     --  paying another full-buffer flatten per row; fall back to
+                     --  the direct query for any row outside the cached range.
+                     Row_Start : constant Natural :=
+                       (if Row >= O.Line_Start_Row_Base
+                          and then Row - O.Line_Start_Row_Base
+                                   < Natural (O.Line_Starts.Length)
+                        then O.Line_Starts.Element
+                               (O.Line_Starts.First_Index
+                                + (Row - O.Line_Start_Row_Base))
+                        else Natural (Editor.State.Line_Start (S, Row)));
                      Line : constant String := Line_Text (Row);
                      Row_End : constant Natural := Row_Start + Line'Length;
                   begin
