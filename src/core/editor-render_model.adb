@@ -1362,36 +1362,40 @@ package body Editor.Render_Model is
       --  immutable render spans.  The packet builder must only consume these
       --  spans; it must not invoke the lexer or mutate editor/buffer state.
       declare
+         --  Flatten the buffer once for this snapshot rather than once per
+         --  visible row: Line_Text previously called Editor.State.Current_Text
+         --  (a full-buffer copy) on every call, so the syntax loop cost
+         --  O(visible_rows x document_length) in allocation alone.
+         Full_Text : constant String := Editor.State.Current_Text (S);
          Count : Natural := 0;
 
          function Line_Text (Row : Natural) return String is
-            Text : constant String := Editor.State.Current_Text (S);
             Current_Row : Natural := 0;
-            Start : Natural := Text'First;
-            Stop : Natural := Text'First - 1;
+            Start : Natural := Full_Text'First;
+            Stop : Natural := Full_Text'First - 1;
          begin
-            if Text'Length = 0 then
+            if Full_Text'Length = 0 then
                return "";
             end if;
 
-            for I in Text'Range loop
+            for I in Full_Text'Range loop
                if Current_Row = Row then
                   Start := I;
                   Stop := I;
-                  while Stop <= Text'Last
-                    and then Text (Stop) /= ASCII.LF
-                    and then Text (Stop) /= ASCII.CR
+                  while Stop <= Full_Text'Last
+                    and then Full_Text (Stop) /= ASCII.LF
+                    and then Full_Text (Stop) /= ASCII.CR
                   loop
                      Stop := Stop + 1;
                   end loop;
                   if Stop <= Start then
                      return "";
                   else
-                     return Text (Start .. Stop - 1);
+                     return Full_Text (Start .. Stop - 1);
                   end if;
                end if;
 
-               if Text (I) = ASCII.LF then
+               if Full_Text (I) = ASCII.LF then
                   Current_Row := Current_Row + 1;
                end if;
             end loop;
