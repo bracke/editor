@@ -14,6 +14,7 @@ with Editor.Build_Command;
 with Editor.External_Producers.Execution_Policy;
 with Editor.Fonts.Init;
 with Editor.Recent_Projects;
+with Editor.Test_Temp;
 
 --  Test_Runner exits zero whatever happens, so this suite could not fail: a failing
 --  test reported success, "alr test" was green over it, and nothing would ever have
@@ -42,6 +43,24 @@ begin
          & " sleep_exists="
          & Boolean'Image (Ada.Directories.Exists ("/bin/sleep"))
          & " sep=[" & GNAT.OS_Lib.Directory_Separator & "]");
+
+      --  Compare a Test_Temp.Path-built path against the editor's canonical
+      --  form (Ada.Directories.Full_Name of the created file): if they differ,
+      --  that mismatch is why the file-operation association assertions fail.
+      declare
+         Dir : constant String := Editor.Test_Temp.Path ("editor-tests");
+         Built : constant String := Editor.Test_Temp.Path ("editor-tests/diag.txt");
+         F : Ada.Text_IO.File_Type;
+      begin
+         Ada.Directories.Create_Path (Dir);
+         Ada.Text_IO.Create (F, Ada.Text_IO.Out_File, Built);
+         Ada.Text_IO.Close (F);
+         Ada.Text_IO.Put_Line
+           ("DIAGPATH built=[" & Built & "]"
+            & " full=[" & Ada.Directories.Full_Name (Built) & "]"
+            & " match=" & Boolean'Image (Built = Ada.Directories.Full_Name (Built)));
+         Ada.Directories.Delete_File (Built);
+      end;
       Ada.Text_IO.Flush;
       return;
    end if;
