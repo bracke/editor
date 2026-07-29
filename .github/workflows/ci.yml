@@ -216,7 +216,18 @@ jobs:
               echo "::error::the test binary has unresolved DLL imports (listed above)"
               exit 1
             fi
-            alr --non-interactive exec -- ./bin/tests.exe
+            BIN=./bin/tests.exe
           else
-            alr --non-interactive exec -- ./bin/tests
+            BIN=./bin/tests
           fi
+          # TEMP (Windows-hang bisection): run each sub-suite as its own process
+          # under a hard timeout so a hang is isolated and named in the log.
+          HUNG=""
+          for s in core ui workspace build outline langservice lang rm text; do
+            echo "=== SUITE START: $s ==="
+            EDITOR_TEST_SUITE="$s" timeout --signal=KILL 240 alr --non-interactive exec -- "$BIN"
+            rc=$?
+            echo "=== SUITE END: $s (rc=$rc) ==="
+            if [ "$rc" = "124" ] || [ "$rc" = "137" ]; then HUNG="$HUNG $s"; fi
+          done
+          if [ -n "$HUNG" ]; then echo "::error::hung suites:$HUNG"; exit 1; fi
