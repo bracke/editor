@@ -250,9 +250,20 @@ jobs:
               for c in problems diagnostics diagux cmdext prodcontract extprod buildui \
                        terminal candidates builddiag builddiagrev milestone resultsum \
                        outputdetails execwf slice; do
-                run_one "build:$c" \
-                  env EDITOR_TEST_SUITE=build EDITOR_BUILD_CASE="$c" \
-                  alr --non-interactive exec -- "$BIN"
+                if [ "$c" = "execwf" ]; then
+                  # execwf is the hanging case; a SIGKILL loses its buffered
+                  # stdout so bisect it per registration index (1..43) to name
+                  # the exact hanging routine.
+                  for i in $(seq 1 43); do
+                    run_one "execwf:$i" \
+                      env EDITOR_TEST_SUITE=build EDITOR_BUILD_CASE=execwf EDITOR_EXECWF_ONLY="$i" \
+                      alr --non-interactive exec -- "$BIN"
+                  done
+                else
+                  run_one "build:$c" \
+                    env EDITOR_TEST_SUITE=build EDITOR_BUILD_CASE="$c" \
+                    alr --non-interactive exec -- "$BIN"
+                fi
               done
             else
               run_one "$s" \

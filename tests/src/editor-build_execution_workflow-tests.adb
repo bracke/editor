@@ -3,6 +3,7 @@ with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Editor.Test_Temp;
 with Ada.Directories;
+with Ada.Environment_Variables;
 with Ada.Text_IO;
 with AUnit.Assertions; use AUnit.Assertions;
 with AUnit.Test_Cases;
@@ -1407,136 +1408,160 @@ use type Editor.Build_Result_Summary.Diagnostics_Ingestion_Summary_Status;
      (T : in out Build_Execution_Workflow_Test_Case)
    is
       use AUnit.Test_Cases.Registration;
+      --  TEMP (Windows-hang bisection): EDITOR_EXECWF_ONLY selects a single
+      --  routine by 1-based registration index so CI can pinpoint which one
+      --  hangs; unset (0) registers them all as before.
+      function Selected return Natural is
+      begin
+         if Ada.Environment_Variables.Exists ("EDITOR_EXECWF_ONLY") then
+            return Natural'Value (Ada.Environment_Variables.Value ("EDITOR_EXECWF_ONLY"));
+         end if;
+         return 0;
+      exception
+         when others =>
+            return 0;
+      end Selected;
+
+      Sel : constant Natural := Selected;
+      Idx : Natural := 0;
+
+      procedure Reg (Routine : AUnit.Test_Cases.Test_Routine; Name : String) is
+      begin
+         Idx := Idx + 1;
+         if Sel = 0 or else Sel = Idx then
+            Register_Routine (T, Routine, Name);
+         end if;
+      end Reg;
    begin
-      Register_Routine
-        (T, Test_Unavailable_Reasons_Are_Complete_And_Direct'Access,
+      Reg
+        (Test_Unavailable_Reasons_Are_Complete_And_Direct'Access,
          "unavailable reasons are complete and direct");
-      Register_Routine
-        (T, Test_Repeated_Preflight_Failures_Replace_Latest_Result_Not_History'Access,
+      Reg
+        (Test_Repeated_Preflight_Failures_Replace_Latest_Result_Not_History'Access,
          "repeated preflight failures replace latest result, not history");
-      Register_Routine
-        (T, Test_Preflight_Rejections_Do_Not_Run_Diagnostics_Ingestion'Access,
+      Reg
+        (Test_Preflight_Rejections_Do_Not_Run_Diagnostics_Ingestion'Access,
          "preflight rejections do not run diagnostics ingestion");
-      Register_Routine
-        (T, Test_Preflight_Rejects_No_Project_Before_Runner'Access,
+      Reg
+        (Test_Preflight_Rejects_No_Project_Before_Runner'Access,
          "pre-run validation rejects no-project state before runner");
-      Register_Routine
-        (T, Test_Preflight_Rejects_Unconsented_Or_Invalid_Request'Access,
+      Reg
+        (Test_Preflight_Rejects_Unconsented_Or_Invalid_Request'Access,
          "pre-run validation rejects missing/stale consent before runner");
-      Register_Routine
-        (T, Test_Preflight_Rejects_No_Candidate_And_Stale_Candidate'Access,
+      Reg
+        (Test_Preflight_Rejects_No_Candidate_And_Stale_Candidate'Access,
          "pre-run validation rejects missing and stale candidates before runner");
-      Register_Routine
-        (T, Test_Preflight_Rejects_Missing_Candidate_File'Access,
+      Reg
+        (Test_Preflight_Rejects_Missing_Candidate_File'Access,
          "pre-run validation rejects missing candidate source files before runner");
-      Register_Routine
-        (T, Test_Structured_Gated_Run_Produces_Latest_Result_And_Output'Access,
+      Reg
+        (Test_Structured_Gated_Run_Produces_Latest_Result_And_Output'Access,
          "structured gated build run produces result and bounded output");
-      Register_Routine
-        (T, Test_Preflight_Rejects_Working_Context_Failures'Access,
+      Reg
+        (Test_Preflight_Rejects_Working_Context_Failures'Access,
          "pre-run validation rejects missing and unavailable working contexts before runner");
-      Register_Routine
-        (T, Test_Execution_Gate_Carries_Output_And_Diagnostics_Policies'Access,
+      Reg
+        (Test_Execution_Gate_Carries_Output_And_Diagnostics_Policies'Access,
          "execution gate carries consent output and diagnostics request policies");
-      Register_Routine
-        (T, Test_Execution_Gate_Consent_Follows_Preflight_Readiness'Access,
+      Reg
+        (Test_Execution_Gate_Consent_Follows_Preflight_Readiness'Access,
          "execution gate consent follows preflight readiness");
-      Register_Routine
-        (T, Test_Request_Mutation_Invalidates_Consent_And_Blocks_Run'Access,
+      Reg
+        (Test_Request_Mutation_Invalidates_Consent_And_Blocks_Run'Access,
          "request mutation invalidates consent and blocks build.run");
-      Register_Routine
-        (T, Test_Preflight_Failure_Preserves_Request_Configuration_Surface'Access,
+      Reg
+        (Test_Preflight_Failure_Preserves_Request_Configuration_Surface'Access,
          "preflight failures preserve request configuration and selection surface");
-      Register_Routine
-        (T, Test_Build_Cancel_Command_Uses_Active_Job_Model'Access,
+      Reg
+        (Test_Build_Cancel_Command_Uses_Active_Job_Model'Access,
          "Build cancel is advertised through the active build-job cancellation/unsupported model");
-      Register_Routine
-        (T, Test_Active_Build_Job_Streams_Output_Before_Final_Result'Access,
+      Reg
+        (Test_Active_Build_Job_Streams_Output_Before_Final_Result'Access,
          "active build job streams bounded output before the final result");
-      Register_Routine
-        (T, Test_Async_Build_Cancel_Handoff_State_Machine'Access,
+      Reg
+        (Test_Async_Build_Cancel_Handoff_State_Machine'Access,
          "async build handoff cancels a running job and finalizes cancelled");
-      Register_Routine
-        (T, Test_Async_Build_Output_Snapshot_Handoff_State_Machine'Access,
+      Reg
+        (Test_Async_Build_Output_Snapshot_Handoff_State_Machine'Access,
          "async build handoff publishes running stdout/stderr snapshots");
-      Register_Routine
-        (T, Test_Async_Build_Partial_Stdout_Stderr_Before_Completion'Access,
+      Reg
+        (Test_Async_Build_Partial_Stdout_Stderr_Before_Completion'Access,
          "async build exposes partial stdout/stderr before final completion");
-      Register_Routine
-        (T, Test_Async_Build_State_Slots_Are_Isolated'Access,
+      Reg
+        (Test_Async_Build_State_Slots_Are_Isolated'Access,
          "async build state slots isolate handoff payloads");
-      Register_Routine
-        (T, Test_Async_Build_Slot_Id_Is_Stable_Per_State'Access,
+      Reg
+        (Test_Async_Build_Slot_Id_Is_Stable_Per_State'Access,
          "async build slot id remains stable per editor state across jobs");
-      Register_Routine
-        (T, Test_Async_Build_Slot_Pool_Exhaustion_Is_Rejected'Access,
+      Reg
+        (Test_Async_Build_Slot_Pool_Exhaustion_Is_Rejected'Access,
          "async build slot pool rejects simultaneous over-capacity state slots");
-      Register_Routine
-        (T, Test_Async_Build_Lifecycle_Shutdown_Handoff'Access,
+      Reg
+        (Test_Async_Build_Lifecycle_Shutdown_Handoff'Access,
          "async build lifecycle shutdown requests cancellation before project transitions");
-      Register_Routine
-        (T, Test_Async_Build_Worker_Shutdown_Drain'Access,
+      Reg
+        (Test_Async_Build_Worker_Shutdown_Drain'Access,
          "async build worker shutdown drains active job and clears process state");
-      Register_Routine
-        (T, Test_Async_Build_Real_Process_Cancel_Integration'Access,
+      Reg
+        (Test_Async_Build_Real_Process_Cancel_Integration'Access,
          "async build cancels a live real process and finalizes cancelled");
-      Register_Routine
-        (T, Test_Native_Process_Control_Backend_Is_Explicitly_POSIX'Access,
+      Reg
+        (Test_Native_Process_Control_Backend_Is_Explicitly_POSIX'Access,
          "native build process-control backend is explicitly POSIX-scoped");
-      Register_Routine
-        (T, Test_Runner_Failure_Statuses_Are_Represented'Access,
+      Reg
+        (Test_Runner_Failure_Statuses_Are_Represented'Access,
          "runner failure statuses are represented clearly");
-      Register_Routine
-        (T, Test_Output_Truncation_And_Latest_Result_Replacement'Access,
+      Reg
+        (Test_Output_Truncation_And_Latest_Result_Replacement'Access,
          "output truncation and latest-result replacement remain bounded");
-      Register_Routine
-        (T, Test_Output_Capture_Over_Limit_Is_Clear_Failure_Not_Unbounded_Log'Access,
+      Reg
+        (Test_Output_Capture_Over_Limit_Is_Clear_Failure_Not_Unbounded_Log'Access,
          "output capture over limit is a clear failure, not an unbounded log");
-      Register_Routine
-        (T, Test_Output_Details_No_Output_State_Is_Clear'Access,
+      Reg
+        (Test_Output_Details_No_Output_State_Is_Clear'Access,
          "output details represent no-output builds clearly");
-      Register_Routine
-        (T, Test_Diagnostics_Ingestion_Is_Request_Controlled_And_Owned'Access,
+      Reg
+        (Test_Diagnostics_Ingestion_Is_Request_Controlled_And_Owned'Access,
          "diagnostics ingestion is request controlled and Diagnostics-owned");
-      Register_Routine
-        (T, Test_Diagnostics_Ingestion_Failure_Is_Scalar_And_Does_Not_Hide_Result'Access,
+      Reg
+        (Test_Diagnostics_Ingestion_Failure_Is_Scalar_And_Does_Not_Hide_Result'Access,
          "diagnostics ingestion failure is scalar and does not hide build result");
-      Register_Routine
-        (T, Test_Shell_Payloads_Are_Rejected_By_Coherence_Guards'Access,
+      Reg
+        (Test_Shell_Payloads_Are_Rejected_By_Coherence_Guards'Access,
          "shell payloads are rejected by execution coherence guards");
-      Register_Routine
-        (T, Test_Gated_Runner_Rejects_Shell_Shaped_Tokens_Without_Diagnostics'Access,
+      Reg
+        (Test_Gated_Runner_Rejects_Shell_Shaped_Tokens_Without_Diagnostics'Access,
          "gated runner rejects shell-shaped tokens without diagnostics");
-      Register_Routine
-        (T, Test_Executor_Route_Rejects_Build_Run_Before_Runner'Access,
+      Reg
+        (Test_Executor_Route_Rejects_Build_Run_Before_Runner'Access,
          "Executor route rejects build.run before runner and emits one outcome");
-      Register_Routine
-        (T, Test_Result_And_Output_Surfaces_Carry_No_Rerun_Or_Process_Control'Access,
+      Reg
+        (Test_Result_And_Output_Surfaces_Carry_No_Rerun_Or_Process_Control'Access,
          "result and output surfaces carry no rerun or process control state");
-      Register_Routine
-        (T, Test_Unavailable_Preflight_Updates_Transient_Result_And_Output'Access,
+      Reg
+        (Test_Unavailable_Preflight_Updates_Transient_Result_And_Output'Access,
          "pre-run failures update only transient result and output surfaces");
-      Register_Routine
-        (T, Test_Build_UI_Projects_Result_Output_And_Diagnostics_As_Display_Only'Access,
+      Reg
+        (Test_Build_UI_Projects_Result_Output_And_Diagnostics_As_Display_Only'Access,
          "Build UI projects result output and diagnostics as display-only state");
 
-      Register_Routine
-        (T, Test_Availability_Is_Side_Effect_Free_With_Populated_Execution_State'Access,
+      Reg
+        (Test_Availability_Is_Side_Effect_Free_With_Populated_Execution_State'Access,
          "availability remains side-effect-free with populated execution state");
-      Register_Routine
-        (T, Test_Command_Surface_Has_No_Execution_Payloads'Access,
+      Reg
+        (Test_Command_Surface_Has_No_Execution_Payloads'Access,
          "command surface carries no execution payloads");
-      Register_Routine
-        (T, Test_Populated_Execution_State_Is_Still_Not_Persisted'Access,
+      Reg
+        (Test_Populated_Execution_State_Is_Still_Not_Persisted'Access,
          "populated execution state remains excluded from persistence");
-      Register_Routine
-        (T, Test_Disabled_Diagnostics_Result_Cannot_Request_Diagnostics_Reveal'Access,
+      Reg
+        (Test_Disabled_Diagnostics_Result_Cannot_Request_Diagnostics_Reveal'Access,
          "disabled diagnostics ingestion cannot request reveal or rows");
-      Register_Routine
-        (T, Test_Render_Command_And_Persistence_Boundaries'Access,
+      Reg
+        (Test_Render_Command_And_Persistence_Boundaries'Access,
          "render command routing and persistence boundaries remain closed");
-      Register_Routine
-        (T, Test_Async_Build_Worker_Stop_Terminates_Pool'Access,
+      Reg
+        (Test_Async_Build_Worker_Stop_Terminates_Pool'Access,
          "async build worker stop terminates the application-exit worker pool");
    end Register_Tests;
 
