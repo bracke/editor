@@ -19,9 +19,17 @@ package body Editor.Files.Test_Helpers is
    package Stream_IO renames Ada.Streams.Stream_IO;
 
    function Temp_Path (Name : String) return String is
+      --  Compose the "editor-tests" segment with the platform separator rather
+      --  than a literal '/'. The editor stores a file's identity as
+      --  Ada.Directories.Full_Name, which is all-backslash on Windows; a path
+      --  built as Base & "/editor-tests" keeps a forward slash there and then
+      --  never equals that canonical form, so every association/identity
+      --  assertion fails on Windows while passing on Linux (where '/' is native).
+      Dir : constant String :=
+        Ada.Directories.Compose (Editor.Test_Temp.Base, "editor-tests");
    begin
-      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
-      return Ada.Directories.Compose (Editor.Test_Temp.Base & "/editor-tests", Name);
+      Ada.Directories.Create_Path (Dir);
+      return Ada.Directories.Compose (Dir, Name);
    end Temp_Path;
 
    procedure Write_Bytes (Path : String; Bytes : String) is
