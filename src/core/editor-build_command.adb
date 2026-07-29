@@ -856,9 +856,20 @@ package body Editor.Build_Command is
          Worker_State : Editor.State.State_Type;
          Worker_Slot : Natural := 0;
       begin
-         accept Start (Slot_Id : Natural) do
-            Worker_Slot := Slot_Id;
-         end Start;
+         --  This task object is elaborated (and activated) with the enclosing
+         --  declarative part, before the POSIX skip below can return. On a
+         --  skipped run Start is never called, so without a terminate
+         --  alternative the task would sit here forever and the function's scope
+         --  exit would wait on it forever -- exactly the Windows CI hang. The
+         --  terminate alternative lets it finish cleanly when the master is
+         --  completing and no Start will come.
+         select
+            accept Start (Slot_Id : Natural) do
+               Worker_Slot := Slot_Id;
+            end Start;
+         or
+            terminate;
+         end select;
          Public_Build_Jobs.Mark_Worker_Running (Worker_Slot);
          Public_Build_Jobs.Snapshot_While_Running (Worker_Slot, Worker_State);
          Process_Result :=
