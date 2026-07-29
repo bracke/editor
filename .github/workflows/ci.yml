@@ -235,6 +235,9 @@ jobs:
             if [ "$rc" = "124" ] || [ "$rc" = "137" ]; then HUNG="$HUNG $label"; fi
             if [ "$rc" != "0" ]; then FAILED="$FAILED $label"; fi
           }
+          # TEMP: print the host facts the real-process cancel guard reads, so we
+          # can see why Is_POSIX/Host.Current come out as they do on Windows.
+          run_one "DIAG" env EDITOR_DIAG_HOST=1 alr --non-interactive exec -- "$BIN"
           # Pass the selection through `env` in the argv, not a prefix on the
           # run_one call: a var set before a shell function is not exported to
           # the tests.exe grandchild, so the selection would be ignored.
