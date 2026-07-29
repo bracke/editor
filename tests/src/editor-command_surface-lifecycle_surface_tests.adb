@@ -558,7 +558,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       Path   : out Unbounded_String;
       Node   : out Editor.File_Tree.File_Tree_Node_Summary)
    is
-      Root : constant String := Editor.Test_Temp.Base & "/editor_affordance_tree";
+      Root : constant String := Editor.Test_Temp.Path ("editor_affordance_tree");
       File_Path : constant String := Root & "/a.txt";
       Found : Boolean := False;
       Node_Id : Editor.File_Tree.File_Tree_Node_Id;
@@ -603,10 +603,10 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       R     : Editor.Executor.Command_Execution_Result;
       Found : Boolean := False;
       Msg   : Editor.Messages.Editor_Message;
-      Settings_Path : constant String := Editor.Test_Temp.Base & "/editor-tests/invalid-settings.tmp";
-      Keybindings_Path : constant String := Editor.Test_Temp.Base & "/editor-tests/invalid-keybindings.tmp";
+      Settings_Path : constant String := Editor.Test_Temp.Path ("editor-tests/invalid-settings.tmp");
+      Keybindings_Path : constant String := Editor.Test_Temp.Path ("editor-tests/invalid-keybindings.tmp");
    begin
-      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Path ("editor-tests"));
       Ada.Environment_Variables.Set
         ("EDITOR_SETTINGS_PATH", Settings_Path);
       Ada.Environment_Variables.Set
@@ -749,7 +749,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
-      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/active.adb");
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Path ("active.adb"));
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("active.adb");
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       Editor.Buffers.Ensure_Global_Registry (S);
@@ -865,7 +865,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
-      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/status.adb");
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Path ("status.adb"));
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("status.adb");
       S.Buffer_Lifecycle.File_Info.Dirty := False;
       Editor.Settings.Set_Command_Palette_Show_Keybindings (S.Configuration.Settings, False);
@@ -900,7 +900,7 @@ package body Editor.Command_Surface.Lifecycle_Surface_Tests is
       Editor.Buffers.Reset_Global_For_Test;
       Editor.State.Init (S);
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
-      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/row.adb");
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Path ("row.adb"));
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("row.adb");
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;

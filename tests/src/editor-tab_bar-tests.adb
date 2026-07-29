@@ -40,11 +40,11 @@ package body Editor.Tab_Bar.Tests is
    is
    begin
       First := Editor.Buffers.Add_Buffer_From_File
-        (Registry, Editor.Test_Temp.Base & "/alpha.adb", "alpha.adb", "alpha");
+        (Registry, Editor.Test_Temp.Path ("alpha.adb"), "alpha.adb", "alpha");
       Second := Editor.Buffers.Add_Buffer_From_File
-        (Registry, Editor.Test_Temp.Base & "/beta.adb", "beta.adb", "beta");
+        (Registry, Editor.Test_Temp.Path ("beta.adb"), "beta.adb", "beta");
       Third := Editor.Buffers.Add_Buffer_From_File
-        (Registry, Editor.Test_Temp.Base & "/gamma.adb", "gamma.adb", "gamma");
+        (Registry, Editor.Test_Temp.Path ("gamma.adb"), "gamma.adb", "gamma");
    end Build_Three_Buffers;
 
    procedure Test_Height_Follows_Config
@@ -196,9 +196,9 @@ package body Editor.Tab_Bar.Tests is
       Second_Summary : Editor.Buffers.Buffer_Summary;
    begin
       First := Editor.Buffers.Add_Buffer_From_File
-        (Registry, Editor.Test_Temp.Base & "/one/main.adb", "main.adb", "one");
+        (Registry, Editor.Test_Temp.Path ("one/main.adb"), "main.adb", "one");
       Second := Editor.Buffers.Add_Buffer_From_File
-        (Registry, Editor.Test_Temp.Base & "/two/main.adb", "main.adb", "two");
+        (Registry, Editor.Test_Temp.Path ("two/main.adb"), "main.adb", "two");
 
       First_Summary := Editor.Buffers.Summary_For (Registry, First);
       Second_Summary := Editor.Buffers.Summary_For (Registry, Second);

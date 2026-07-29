@@ -50,9 +50,9 @@ package body Editor.Project.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Path ("editor-tests"));
       return Ada.Directories.Compose
-        (Editor.Test_Temp.Base & "/editor-tests", "" & Name);
+        (Editor.Test_Temp.Path ("editor-tests"), "" & Name);
    end Temp_Path;
 
    procedure Remove_If_Exists (Path : String) is
@@ -717,7 +717,7 @@ package body Editor.Project.Tests is
       Editor.Recent_Projects.Set_Config_Directory_For_Tests (Config_Dir);
       Editor.State.Init (S);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/editor", "editor", 1);
+        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Path ("editor"), "editor", 1);
 
       Editor.Executor.Execute_Command
         (S, Editor.Command_Ids.Command_Clear_Recent_Projects);

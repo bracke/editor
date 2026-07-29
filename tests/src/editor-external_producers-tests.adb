@@ -132,7 +132,7 @@ package body Editor.External_Producers.Tests is
 
    procedure Name_Current_Buffer
      (S            : in out Editor.State.State_Type;
-      Path         : String := Editor.Test_Temp.Base & "/main.adb";
+      Path         : String := Editor.Test_Temp.Path ("main.adb");
       Display_Name : String := "main.adb")
    is
       File : Editor.State_Buffer.File_State := S.Buffer_Lifecycle.File_Info;
@@ -571,7 +571,7 @@ package body Editor.External_Producers.Tests is
       R : Editor.External_Producers.Diagnostics.Diagnostic_Record;
    begin
       Prepare_State (S);
-      Name_Current_Buffer (S, Path => Editor.Test_Temp.Base & "/main.adb", Display_Name => "main.adb");
+      Name_Current_Buffer (S, Path => Editor.Test_Temp.Path ("main.adb"), Display_Name => "main.adb");
       R := Editor.External_Producers.Diagnostics.Normalize_Compiler_Diagnostic
         (S, Compiler_Source,
          CRec ("other file", File_Label => "other.adb",

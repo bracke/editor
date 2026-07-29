@@ -559,7 +559,7 @@ package body Editor.Command_Surface.Public_Build_Guardrail_Contract_Tests is
       Path   : out Unbounded_String;
       Node   : out Editor.File_Tree.File_Tree_Node_Summary)
    is
-      Root : constant String := Editor.Test_Temp.Base & "/editor_affordance_tree";
+      Root : constant String := Editor.Test_Temp.Path ("editor_affordance_tree");
       File_Path : constant String := Root & "/a.txt";
       Found : Boolean := False;
       Node_Id : Editor.File_Tree.File_Tree_Node_Id;

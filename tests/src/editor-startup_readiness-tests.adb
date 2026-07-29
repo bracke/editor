@@ -172,7 +172,7 @@ package body Editor.Startup_Readiness.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Base : constant String := Editor.Test_Temp.Base & "/editor_startup_";
+      Base : constant String := Editor.Test_Temp.Path ("editor_startup_");
       Settings_Path : constant String := Base & "settings";
       Keybindings_Path : constant String := Base & "keybindings";
       Workspace_Path : constant String := Base & "workspace";
@@ -274,7 +274,7 @@ package body Editor.Startup_Readiness.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Base : constant String := Editor.Test_Temp.Base & "/editor_relative_workspace";
+      Base : constant String := Editor.Test_Temp.Path ("editor_relative_workspace");
       Project_Root : constant String := Base & "/project";
       Source_Dir   : constant String := Project_Root & "/src";
       Source_File  : constant String := Source_Dir & "/main.adb";
@@ -345,7 +345,7 @@ package body Editor.Startup_Readiness.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Project_Root : constant String := Editor.Test_Temp.Base & "/editor_active_focus_project";
+      Project_Root : constant String := Editor.Test_Temp.Path ("editor_active_focus_project");
       Source_Dir   : constant String := Project_Root & "/src";
       Existing_File : constant String := Source_Dir & "/main.adb";
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
@@ -388,7 +388,7 @@ package body Editor.Startup_Readiness.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Project_Root : constant String := Editor.Test_Temp.Base & "/editor_active_membership_project";
+      Project_Root : constant String := Editor.Test_Temp.Path ("editor_active_membership_project");
       Source_Dir   : constant String := Project_Root & "/src";
       Open_File    : constant String := Source_Dir & "/open.adb";
       Active_File  : constant String := Source_Dir & "/active.adb";
@@ -568,7 +568,7 @@ package body Editor.Startup_Readiness.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Base : constant String := Editor.Test_Temp.Base & "/editor_observed_workspace";
+      Base : constant String := Editor.Test_Temp.Path ("editor_observed_workspace");
       Missing_Project : constant String := Base & "/missing-project";
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Item : Editor.Workspace_Persistence.Workspace_File_Entry;
@@ -603,7 +603,7 @@ package body Editor.Startup_Readiness.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Project_Dir : constant String := Editor.Test_Temp.Base & "/editor_restore_disabled_project";
+      Project_Dir : constant String := Editor.Test_Temp.Path ("editor_restore_disabled_project");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Item : Editor.Workspace_Persistence.Workspace_File_Entry;
       Summary : Startup_Summary;
@@ -642,10 +642,10 @@ package body Editor.Startup_Readiness.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Project_Dir : constant String := Editor.Test_Temp.Base & "/editor_workspace_diag_project";
+      Project_Dir : constant String := Editor.Test_Temp.Path ("editor_workspace_diag_project");
       Source_Dir  : constant String := Project_Dir & "/src";
       Source_File : constant String := Source_Dir & "/main.adb";
-      Workspace_Path : constant String := Editor.Test_Temp.Base & "/editor_workspace_diag.session";
+      Workspace_Path : constant String := Editor.Test_Temp.Path ("editor_workspace_diag.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary : Startup_Summary;
@@ -691,8 +691,8 @@ package body Editor.Startup_Readiness.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Project_Dir : constant String := Editor.Test_Temp.Base & "/editor_missing_count_project";
-      Workspace_Path : constant String := Editor.Test_Temp.Base & "/editor_missing_count.session";
+      Project_Dir : constant String := Editor.Test_Temp.Path ("editor_missing_count_project");
+      Workspace_Path : constant String := Editor.Test_Temp.Path ("editor_missing_count.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary : Startup_Summary;
@@ -736,8 +736,8 @@ package body Editor.Startup_Readiness.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Project_Dir : constant String := Editor.Test_Temp.Base & "/editor_recovery_missing_project";
-      Workspace_Path : constant String := Editor.Test_Temp.Base & "/editor_recovery_missing.session";
+      Project_Dir : constant String := Editor.Test_Temp.Path ("editor_recovery_missing_project");
+      Workspace_Path : constant String := Editor.Test_Temp.Path ("editor_recovery_missing.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary : Startup_Summary;
@@ -775,8 +775,8 @@ package body Editor.Startup_Readiness.Tests is
      (T : in out AUnit.Test_Cases.Test_Case'Class)
    is
       pragma Unreferenced (T);
-      Missing_Project_Dir : constant String := Editor.Test_Temp.Base & "/editor_missing_project_root_absent";
-      Workspace_Path : constant String := Editor.Test_Temp.Base & "/editor_missing_project_cascade.session";
+      Missing_Project_Dir : constant String := Editor.Test_Temp.Path ("editor_missing_project_root_absent");
+      Workspace_Path : constant String := Editor.Test_Temp.Path ("editor_missing_project_cascade.session");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status : Editor.Workspace_Persistence.Workspace_Persistence_Status;
       Summary : Startup_Summary;
@@ -823,9 +823,9 @@ package body Editor.Startup_Readiness.Tests is
    is
       pragma Unreferenced (T);
       Missing_Project_Dir : constant String :=
-        Editor.Test_Temp.Base & "/editor_abs_restore_missing_project_root";
+        Editor.Test_Temp.Path ("editor_abs_restore_missing_project_root");
       Absolute_File : constant String :=
-        Editor.Test_Temp.Base & "/editor_absolute_workspace_file.adb";
+        Editor.Test_Temp.Path ("editor_absolute_workspace_file.adb");
       Snapshot : Editor.Workspace_Persistence.Workspace_Snapshot;
       Item : Editor.Workspace_Persistence.Workspace_File_Entry;
       Summary : Startup_Summary;

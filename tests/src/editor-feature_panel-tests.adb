@@ -470,9 +470,9 @@ package body Editor.Feature_Panel.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Path ("editor-tests"));
       return Ada.Directories.Compose
-        (Editor.Test_Temp.Base & "/editor-tests", "" & Name);
+        (Editor.Test_Temp.Path ("editor-tests"), "" & Name);
    end Temp_Path;
 
    function Read_Text (Path : String) return String is
@@ -702,7 +702,7 @@ package body Editor.Feature_Panel.Tests is
         (Dirty_Count => 1, Untitled_Count => 0, File_Backed_Count => 1);
       Target  : Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => Ada.Strings.Unbounded.To_Unbounded_String (Editor.Test_Temp.Base & "/project-b"),
+         Path       => Ada.Strings.Unbounded.To_Unbounded_String (Editor.Test_Temp.Path ("project-b")),
          Display    => Ada.Strings.Unbounded.To_Unbounded_String ("project-b"),
          Buffer_Id  => 0,
          Has_Buffer => False,

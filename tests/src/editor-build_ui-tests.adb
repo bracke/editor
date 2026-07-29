@@ -446,8 +446,8 @@ package body Editor.Build_UI.Tests is
       Raw : constant Editor.Build_Working_Context.Build_Working_Context_Record :=
         Editor.Build_Working_Context.Unsafe_Context
           (Editor.Build_Working_Context.Build_Working_Context_Unavailable,
-           Editor.Test_Temp.Base & "/build", Editor.Build_Working_Context.Working_Context_Source_Raw_Text,
-           Editor.Test_Temp.Base & "/build");
+           Editor.Test_Temp.Path ("build"), Editor.Build_Working_Context.Working_Context_Source_Raw_Text,
+           Editor.Test_Temp.Path ("build"));
       Shell : constant Editor.Build_Working_Context.Build_Working_Context_Record :=
         Editor.Build_Working_Context.Unsafe_Context
           (Editor.Build_Working_Context.Build_Working_Context_Unavailable,
@@ -507,9 +507,9 @@ package body Editor.Build_UI.Tests is
       S.Selected_Working_Context :=
         Editor.Build_Working_Context.Unsafe_Context
           (Editor.Build_Working_Context.Build_Working_Context_Unavailable,
-           Editor.Test_Temp.Base & "/build",
+           Editor.Test_Temp.Path ("build"),
            Editor.Build_Working_Context.Working_Context_Source_Raw_Text,
-           Editor.Test_Temp.Base & "/build");
+           Editor.Test_Temp.Path ("build"));
       Editor.Build_UI.Acknowledge_Consent (S);
       C := Editor.Build_Public_Request.Build_Public_Request_From_UI_State (S);
       Assert (C.Status = Editor.Build_UI.Build_UI_Rejected_Unsafe_Working_Context,

@@ -84,7 +84,7 @@ package body Editor.Core_Editing_Workflow.Tests is
       Assert (S.Buffer_Lifecycle.Buffer_Revision = Before_Revision, "labels do not mutate buffer revision");
 
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
-      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/example.adb");
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Path ("example.adb"));
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("example.adb");
       S.Buffer_Lifecycle.File_Info.Dirty := True;
       S.Buffer_Lifecycle.File_Info.Last_Save_Failed := True;
@@ -116,7 +116,7 @@ package body Editor.Core_Editing_Workflow.Tests is
          "save-as is available for an active unbacked buffer");
 
       S.Buffer_Lifecycle.File_Info.Has_Path := True;
-      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Base & "/example.adb");
+      S.Buffer_Lifecycle.File_Info.Path := To_Unbounded_String (Editor.Test_Temp.Path ("example.adb"));
       S.Buffer_Lifecycle.File_Info.Display_Name := To_Unbounded_String ("example.adb");
       Assert
         (Editor.Core_Editing_Workflow.Editing_Availability_Reason

@@ -1,3 +1,5 @@
+with Ada.Directories;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with GNAT.OS_Lib;
 
 with Hostkit.Fs;
@@ -25,5 +27,28 @@ package body Editor.Test_Temp is
 
       return Resolved;
    end Base;
+
+   function Path (Relative : String) return String is
+      Result : Unbounded_String := To_Unbounded_String (Base);
+      First  : Positive := Relative'First;
+
+      procedure Add (Segment : String) is
+      begin
+         --  Skip empty segments from a leading, trailing or doubled '/'.
+         if Segment'Length > 0 then
+            Result := To_Unbounded_String
+              (Ada.Directories.Compose (To_String (Result), Segment));
+         end if;
+      end Add;
+   begin
+      for I in Relative'Range loop
+         if Relative (I) = '/' then
+            Add (Relative (First .. I - 1));
+            First := I + 1;
+         end if;
+      end loop;
+      Add (Relative (First .. Relative'Last));
+      return To_String (Result);
+   end Path;
 
 end Editor.Test_Temp;

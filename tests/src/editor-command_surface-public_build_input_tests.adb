@@ -557,7 +557,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
       Path   : out Unbounded_String;
       Node   : out Editor.File_Tree.File_Tree_Node_Summary)
    is
-      Root : constant String := Editor.Test_Temp.Base & "/editor_affordance_tree";
+      Root : constant String := Editor.Test_Temp.Path ("editor_affordance_tree");
       File_Path : constant String := Root & "/a.txt";
       Found : Boolean := False;
       Node_Id : Editor.File_Tree.File_Tree_Node_Id;
@@ -884,10 +884,10 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
               "unsupported working context must reject validation");
 
       Input := Valid_Public_Input;
-      Input.Working_Context := Editor.External_Producers.Build_Requests.Build_Explicit_Label_Working_Context (Editor.Test_Temp.Base & "/project");
+      Input.Working_Context := Editor.External_Producers.Build_Requests.Build_Explicit_Label_Working_Context (Editor.Test_Temp.Path ("project"));
       Input.Working_Context_Model :=
         (Source => Public_Build_Working_Context_User_Form_Label,
-         Label  => To_Unbounded_String (Editor.Test_Temp.Base & "/project"),
+         Label  => To_Unbounded_String (Editor.Test_Temp.Path ("project")),
          User_Acknowledged_Context => True);
       Assert (Editor.External_Producers.Build_Requests.Validate_Public_Build_Command_Input (Input) =
               Public_Build_Input_Rejected_Unsafe_Working_Context,
@@ -1150,7 +1150,7 @@ package body Editor.Command_Surface.Public_Build_Input_Tests is
               "control-character working labels must reject deterministically");
 
       Context := Valid_User_Form_Working_Context;
-      Context.Label := To_Unbounded_String (Editor.Test_Temp.Base & "/project");
+      Context.Label := To_Unbounded_String (Editor.Test_Temp.Path ("project"));
       Assert (Editor.External_Producers.Public_Build.Validate_Public_Build_Working_Context (Context) =
               Public_Build_Working_Context_Rejected_Unsafe_Label,
               "path-like working labels must reject until safe directory UX exists");

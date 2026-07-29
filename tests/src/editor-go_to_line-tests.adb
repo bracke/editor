@@ -714,7 +714,7 @@ package body Editor.Go_To_Line.Tests is
       Editor.Project_Search.Set_Status
         (S.Surface.Project_Search, Editor.Project_Search.Project_Search_Ok);
       Editor.Bookmarks.Toggle
-        (S.Navigation.Bookmarks, Editor.Test_Temp.Base & "/a.adb", "a.adb", 1, 0, False, Added);
+        (S.Navigation.Bookmarks, Editor.Test_Temp.Path ("a.adb"), "a.adb", 1, 0, False, Added);
       Editor.Buffer_Switcher.Open (S.Surface.Buffer_Switcher);
       Editor.Buffer_Switcher.Set_Filter_Text
         (S.Surface.Buffer_Switcher, "switch-query");

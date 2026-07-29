@@ -13,8 +13,8 @@ package body Editor.Missing_Stale_Recovery.Target_Validation_Tests is
 
    function Fixture_Root return String is
    begin
-      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
-      return Editor.Test_Temp.Base & "/editor-tests/missing_stale_fixture";
+      Ada.Directories.Create_Path (Editor.Test_Temp.Path ("editor-tests"));
+      return Editor.Test_Temp.Path ("editor-tests/missing_stale_fixture");
    end Fixture_Root;
 
    procedure Write_File (Path : String; Text : String := "demo") is
@@ -142,7 +142,7 @@ package body Editor.Missing_Stale_Recovery.Target_Validation_Tests is
       Root : constant String := Fixture_Root;
       Existing : constant String := Root & "/src/main.adb";
       Missing  : constant String := Root & "/src/missing.adb";
-      Outside  : constant String := Editor.Test_Temp.Base & "/editor-tests/outside.adb";
+      Outside  : constant String := Editor.Test_Temp.Path ("editor-tests/outside.adb");
    begin
       Reset_Fixture;
       Write_File (Outside, "outside");

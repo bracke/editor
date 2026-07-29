@@ -393,9 +393,9 @@ package body Editor.Executor.Project_Workspace_File_Tree_Tests is
    begin
       Init_Executor_Test_State (S);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/a", "a", 1);
+        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Path ("a"), "a", 1);
       Editor.Recent_Projects.Add_Or_Promote
-        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Base & "/b", "b", 2);
+        (S.Project_Runtime.Recent_Projects, Editor.Test_Temp.Path ("b"), "b", 2);
 
       S.Project_Runtime.Recent_Project_Selected_Index := 0;
       Editor.Executor.Execute_Command

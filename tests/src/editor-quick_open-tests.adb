@@ -158,9 +158,9 @@ package body Editor.Quick_Open.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Path ("editor-tests"));
       return Ada.Directories.Compose
-        (Editor.Test_Temp.Base & "/editor-tests", "" & Name);
+        (Editor.Test_Temp.Path ("editor-tests"), "" & Name);
    end Temp_Path;
 
    procedure Remove_File_If_Exists (Path : String) is
@@ -1782,7 +1782,7 @@ package body Editor.Quick_Open.Tests is
       Assert (R.Status = Editor.Quick_Open.Quick_Open_Create_Target_No_Query,
               "empty query must be rejected as no query");
 
-      Editor.Quick_Open.Set_Query_Text (S, Editor.Test_Temp.Base & "/x.adb");
+      Editor.Quick_Open.Set_Query_Text (S, Editor.Test_Temp.Path ("x.adb"));
       R := Editor.Quick_Open.Create_Target_From_Query (S);
       Assert (R.Status = Editor.Quick_Open.Quick_Open_Create_Target_Invalid_Path,
               "absolute paths must be rejected");

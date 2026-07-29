@@ -39,7 +39,7 @@ package body Editor.Pending_Transitions.Tests is
       State : Editor.Pending_Transitions.Pending_Transition_State;
       Target : Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/project"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Path ("project")),
          Display    => To_Unbounded_String ("project"),
          Buffer_Id  => 0,
          Has_Buffer => False,
@@ -56,7 +56,7 @@ package body Editor.Pending_Transitions.Tests is
               "set pending must make state pending");
       Assert (Stored.Kind = Editor.Pending_Transitions.Pending_Open_Project,
               "pending target kind must be stored");
-      Assert (Stored.Has_Path and then To_String (Stored.Path) = Editor.Test_Temp.Base & "/project",
+      Assert (Stored.Has_Path and then To_String (Stored.Path) = Editor.Test_Temp.Path ("project"),
               "pending target path metadata must be stored");
       Assert (Stored_Summary.Dirty_Count = 2
               and then Stored_Summary.Untitled_Count = 1
@@ -99,7 +99,7 @@ package body Editor.Pending_Transitions.Tests is
          others     => <>);
       Second_Target : Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Restore_Workspace,
-         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/project"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Path ("project")),
          Display    => To_Unbounded_String ("workspace"),
          Buffer_Id  => 0,
          Has_Buffer => False,
@@ -121,7 +121,7 @@ package body Editor.Pending_Transitions.Tests is
       State : Editor.Pending_Transitions.Pending_Transition_State;
       Target : Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Recent_Project,
-         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/recent"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Path ("recent")),
          Display    => To_Unbounded_String ("recent"),
          Buffer_Id  => 0,
          Has_Buffer => False,
@@ -176,7 +176,7 @@ package body Editor.Pending_Transitions.Tests is
       State : Editor.Pending_Transitions.Pending_Transition_State;
       Target : Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/project-b"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Path ("project-b")),
          Display    => To_Unbounded_String ("project-b"),
          Buffer_Id  => 0,
          Has_Buffer => False,
@@ -204,7 +204,7 @@ package body Editor.Pending_Transitions.Tests is
               "target kind accessor must expose the current pending kind");
       Assert (Editor.Pending_Transitions.Has_Target_Path (State),
               "path accessor must report stored path metadata");
-      Assert (Found and then To_String (Path) = Editor.Test_Temp.Base & "/project-b",
+      Assert (Found and then To_String (Path) = Editor.Test_Temp.Path ("project-b"),
               "path accessor must return the stored path and Found flag");
       Assert (not Editor.Pending_Transitions.Has_Target_Buffer (State),
               "path-only target must not report a buffer target");
@@ -217,7 +217,7 @@ package body Editor.Pending_Transitions.Tests is
       State : Editor.Pending_Transitions.Pending_Transition_State;
       First_Target : Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/project-a"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Path ("project-a")),
          Display    => To_Unbounded_String ("Project A"),
          Buffer_Id  => 0,
          Has_Buffer => False,
@@ -225,7 +225,7 @@ package body Editor.Pending_Transitions.Tests is
          others     => <>);
       Second_Target : Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/project-b"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Path ("project-b")),
          Display    => To_Unbounded_String ("Project B"),
          Buffer_Id  => 0,
          Has_Buffer => False,
@@ -251,7 +251,7 @@ package body Editor.Pending_Transitions.Tests is
       Revert_State : Editor.Pending_Transitions.Pending_Transition_State;
       Reload_Target : Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Reload_Active_Buffer,
-         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/main.adb"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Path ("main.adb")),
          Display    => To_Unbounded_String ("main.adb"),
          Buffer_Id  => 7,
          Has_Buffer => True,
@@ -259,7 +259,7 @@ package body Editor.Pending_Transitions.Tests is
          others     => <>);
       Revert_Target : Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Revert_Active_Buffer,
-         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/main.adb"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Path ("main.adb")),
          Display    => To_Unbounded_String ("main.adb"),
          Buffer_Id  => 7,
          Has_Buffer => True,
@@ -304,7 +304,7 @@ package body Editor.Pending_Transitions.Tests is
          State : Editor.Pending_Transitions.Pending_Transition_State;
          Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
            (Kind       => Kind,
-            Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/lifecycle-target"),
+            Path       => To_Unbounded_String (Editor.Test_Temp.Path ("lifecycle-target")),
             Display    => To_Unbounded_String ("lifecycle-target"),
             Buffer_Id  => 42,
             Has_Buffer => Buffer_Required,
@@ -322,7 +322,7 @@ package body Editor.Pending_Transitions.Tests is
                  "path revalidation metadata must match lifecycle target kind");
          if Path_Required then
             Assert (Editor.Pending_Transitions.Target_Path (State, Found) =
-                    Editor.Test_Temp.Base & "/lifecycle-target",
+                    Editor.Test_Temp.Path ("lifecycle-target"),
                     "path revalidation key must round-trip");
             Assert (Found, "path target lookup must report found");
          end if;

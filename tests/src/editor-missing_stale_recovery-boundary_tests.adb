@@ -13,8 +13,8 @@ package body Editor.Missing_Stale_Recovery.Boundary_Tests is
 
    function Fixture_Root return String is
    begin
-      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
-      return Editor.Test_Temp.Base & "/editor-tests/missing_stale_fixture";
+      Ada.Directories.Create_Path (Editor.Test_Temp.Path ("editor-tests"));
+      return Editor.Test_Temp.Path ("editor-tests/missing_stale_fixture");
    end Fixture_Root;
 
    procedure Write_File (Path : String; Text : String := "demo") is

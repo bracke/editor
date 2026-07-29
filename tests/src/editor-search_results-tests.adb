@@ -28,9 +28,9 @@ package body Editor.Search_Results.Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      Ada.Directories.Create_Path (Editor.Test_Temp.Base & "/editor-tests");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Path ("editor-tests"));
       return Ada.Directories.Compose
-        (Editor.Test_Temp.Base & "/editor-tests", "search_results_" & Name);
+        (Editor.Test_Temp.Path ("editor-tests"), "search_results_" & Name);
    end Temp_Path;
 
    procedure Remove_File_If_Exists (Path : String) is

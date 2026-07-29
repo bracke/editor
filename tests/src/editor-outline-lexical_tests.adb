@@ -116,7 +116,7 @@ package body Editor.Outline.Lexical_Tests is
 
    function Temp_Path (Name : String) return String is
    begin
-      return Editor.Test_Temp.Base & "/editor_outline_" & Name;
+      return Editor.Test_Temp.Path ("editor_outline_") & Name;
    end Temp_Path;
 
    procedure Remove_If_Exists (Path : String) is

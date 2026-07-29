@@ -40,7 +40,7 @@ package body Editor.Pending_Transition_Bar.Tests is
       State : Editor.Pending_Transitions.Pending_Transition_State;
       Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Kind,
-         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/target"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Path ("target")),
          Display    => To_Unbounded_String (Display),
          Buffer_Id  => 7,
          Has_Buffer => Kind = Editor.Pending_Transitions.Pending_Close_Buffer,
@@ -270,7 +270,7 @@ package body Editor.Pending_Transition_Bar.Tests is
       State : Editor.Pending_Transitions.Pending_Transition_State;
       First_Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/a"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Path ("a")),
          Display    => To_Unbounded_String ("Project A"),
          Buffer_Id  => 0,
          Has_Buffer => False,
@@ -278,7 +278,7 @@ package body Editor.Pending_Transition_Bar.Tests is
          others     => <>);
       Second_Target : constant Editor.Pending_Transitions.Pending_Transition_Target :=
         (Kind       => Editor.Pending_Transitions.Pending_Open_Project,
-         Path       => To_Unbounded_String (Editor.Test_Temp.Base & "/b"),
+         Path       => To_Unbounded_String (Editor.Test_Temp.Path ("b")),
          Display    => To_Unbounded_String ("Project B"),
          Buffer_Id  => 0,
          Has_Buffer => False,
