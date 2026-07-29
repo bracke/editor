@@ -1,5 +1,6 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Hostkit.Host;
 with Hostkit.Process;
 with Editor.External_Producers.Build_Types; use Editor.External_Producers.Build_Types;
 with Editor.External_Producers.Request_Policies;
@@ -217,8 +218,14 @@ package body Editor.External_Producers.Execution_Policy is
    function Current_Native_Process_Control_Backend
      return Editor.External_Producers.Build_Types.Native_Process_Control_Backend
    is
+      use type Hostkit.Host.Kind;
    begin
-      if Hostkit.Process.Native_Backend_Label = "Windows/CreateProcess-TerminateProcess" then
+      --  Ask Hostkit which host this is, rather than pattern-matching the
+      --  human-readable process-control label: Hostkit.Host.Current is answered
+      --  by a per-OS body that cannot be fooled, whereas matching the label
+      --  string silently treated every value it did not recognise -- including a
+      --  Windows build whose label was not seen as expected -- as POSIX.
+      if Hostkit.Host.Current = Hostkit.Host.Windows then
          return Native_Process_Control_Windows;
       end if;
 
