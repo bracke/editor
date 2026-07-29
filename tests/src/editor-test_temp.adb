@@ -1,34 +1,18 @@
-with Ada.Environment_Variables;
-
 with GNAT.OS_Lib;
+
+with Hostkit.Fs;
 
 package body Editor.Test_Temp is
 
-   function Env (Name : String) return String is
-   begin
-      if Ada.Environment_Variables.Exists (Name)
-        and then Ada.Environment_Variables.Value (Name) /= ""
-      then
-         return Ada.Environment_Variables.Value (Name);
-      end if;
-
-      return "";
-   exception
-      when others =>
-         return "";
-   end Env;
-
    function Base return String is
-      --  TMPDIR is macOS and most Unix; TEMP and TMP are Windows. /tmp is the last resort,
-      --  for a Linux box that sets none of them.
-      Raw : constant String :=
-        (if Env ("TMPDIR") /= "" then Env ("TMPDIR")
-         elsif Env ("TEMP") /= "" then Env ("TEMP")
-         elsif Env ("TMP") /= "" then Env ("TMP")
-         else "/tmp");
+      --  Ask hostkit for the host's temp directory rather than reading
+      --  TMPDIR/TEMP/TMP by hand. On Windows that is GetTempPathA, which stays
+      --  valid even when the process carries no temp variable, and it is never
+      --  empty -- the same discovery the rest of the workspace already shares.
+      Raw : constant String := Hostkit.Fs.Temp_Directory;
 
-      --  Resolve_Links so the base matches the canonical form the editor produces: on
-      --  macOS this is what turns /tmp into /private/tmp.
+      --  Resolve_Links so the base matches the canonical form the editor
+      --  produces: on macOS this is what turns /tmp into /private/tmp.
       Resolved : constant String :=
         GNAT.OS_Lib.Normalize_Pathname (Raw, Resolve_Links => True);
    begin
