@@ -920,10 +920,17 @@ package body Editor.Build_Command is
          return False;
       end Wait_For_Final_Result;
    begin
-      if not Ada.Directories.Exists (Sleep_Path) then
-         --  Host fixture is unavailable; keep the test non-failing on systems
-         --  without the POSIX sleep binary while release_check still guards
-         --  that the real-process integration assertion exists.
+      if not Editor.External_Producers.Execution_Policy.Native_Process_Control_Is_POSIX
+        or else not Ada.Directories.Exists (Sleep_Path)
+      then
+         --  POSIX-only integration: it spawns /bin/sleep and cancels it through
+         --  the POSIX process-control backend. On Windows a stray MSYS/Git
+         --  /bin/sleep makes the Exists check pass, and the test then drives a
+         --  real-process cancel on a non-POSIX host where the local worker task
+         --  never finishes -- and the function's scope exit blocks on it forever
+         --  (this is the Windows CI hang). Gate on the backend being POSIX, not
+         --  merely on the path existing, so the test skips cleanly off POSIX.
+         --  release_check still guards that this integration assertion exists.
          return True;
       end if;
 
