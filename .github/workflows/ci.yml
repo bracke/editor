@@ -221,13 +221,18 @@ jobs:
             BIN=./bin/tests
           fi
           # TEMP (Windows-hang bisection): run each sub-suite as its own process
-          # under a hard timeout so a hang is isolated and named in the log.
+          # under a hard timeout so a hang is isolated and named in the log. The
+          # step runs under `set -e`, so guard each run with `|| rc=$?` -- a suite
+          # that fails or times out must be recorded, not abort the whole loop.
           HUNG=""
+          FAILED=""
           for s in core ui workspace build outline langservice lang rm text; do
             echo "=== SUITE START: $s ==="
-            EDITOR_TEST_SUITE="$s" timeout --signal=KILL 240 alr --non-interactive exec -- "$BIN"
-            rc=$?
+            rc=0
+            EDITOR_TEST_SUITE="$s" timeout --signal=KILL 240 alr --non-interactive exec -- "$BIN" || rc=$?
             echo "=== SUITE END: $s (rc=$rc) ==="
             if [ "$rc" = "124" ] || [ "$rc" = "137" ]; then HUNG="$HUNG $s"; fi
+            if [ "$rc" != "0" ]; then FAILED="$FAILED $s"; fi
           done
-          if [ -n "$HUNG" ]; then echo "::error::hung suites:$HUNG"; exit 1; fi
+          [ -n "$HUNG" ] && echo "::error::hung suites:$HUNG"
+          if [ -n "$FAILED" ]; then echo "::error::failed suites:$FAILED"; exit 1; fi
