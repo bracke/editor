@@ -2,6 +2,7 @@ with Editor.Commands.Availability_Metadata;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
 with Ada.Directories;
 with Ada.Strings.Fixed;
+with GNAT.OS_Lib;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Build_Public_Request;
 with Editor.Build_UI;
@@ -920,17 +921,19 @@ package body Editor.Build_Command is
          return False;
       end Wait_For_Final_Result;
    begin
-      if not Editor.External_Producers.Execution_Policy.Native_Process_Control_Is_POSIX
+      if GNAT.OS_Lib.Directory_Separator /= '/'
         or else not Ada.Directories.Exists (Sleep_Path)
       then
          --  POSIX-only integration: it spawns /bin/sleep and cancels it through
          --  the POSIX process-control backend. On Windows a stray MSYS/Git
          --  /bin/sleep makes the Exists check pass, and the test then drives a
-         --  real-process cancel on a non-POSIX host where the local worker task
-         --  never finishes -- and the function's scope exit blocks on it forever
-         --  (this is the Windows CI hang). Gate on the backend being POSIX, not
-         --  merely on the path existing, so the test skips cleanly off POSIX.
-         --  release_check still guards that this integration assertion exists.
+         --  real-process cancel on a host where the local worker task never
+         --  finishes -- and the function's scope exit blocks on it forever (this
+         --  is the Windows CI hang). Gate on the host directory separator: it is
+         --  '\' on Windows and '/' on POSIX, and unlike Native_Process_Control_
+         --  Is_POSIX (which reports POSIX on the Windows CI build, so it did not
+         --  skip) it actually reflects the host. release_check still guards that
+         --  this integration assertion exists.
          return True;
       end if;
 
