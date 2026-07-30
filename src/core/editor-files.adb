@@ -8,6 +8,7 @@ with Editor.State;
 with Editor.UTF8;
 with Editor.View;
 with GNAT.OS_Lib;
+with Hostkit.Fs;
 
 package body Editor.Files is
 
@@ -911,9 +912,14 @@ package body Editor.Files is
       Stream_IO.Close (F);
 
       declare
-         Success : Boolean := False;
+         --  A replacing rename, not GNAT.OS_Lib.Rename_File: the target usually
+         --  already exists (we are rewriting a file), and on Windows a plain
+         --  rename over an existing target fails -- which reported every save of
+         --  an existing file as a write error. Hostkit.Fs.Replace_File is rename
+         --  on POSIX and MoveFileEx with MOVEFILE_REPLACE_EXISTING on Windows.
+         Success : constant Boolean :=
+           Hostkit.Fs.Replace_File (To_String (Temp), Path);
       begin
-         GNAT.OS_Lib.Rename_File (To_String (Temp), Path, Success);
          if not Success then
             Remove_Temp_Best_Effort;
             Result.Status := File_Save_Write_Error;

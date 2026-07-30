@@ -4,7 +4,7 @@ with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;
-with GNAT.OS_Lib;
+with Hostkit.Fs;
 with Editor.Workspace_Persistence.Text_Format; use Editor.Workspace_Persistence.Text_Format;
 with Editor.Workspace_Persistence.Path_Validation; use Editor.Workspace_Persistence.Path_Validation;
 with Editor.Workspace_Persistence.Snapshot_Model; use Editor.Workspace_Persistence.Snapshot_Model;
@@ -135,9 +135,12 @@ package body Editor.Workspace_Persistence.File_IO is
       end if;
 
       declare
-         Success : Boolean := False;
+         --  Replacing rename: the workspace file normally already exists, and a
+         --  plain rename over an existing target fails on Windows (see
+         --  Hostkit.Fs.Replace_File) -- which made every workspace save after the
+         --  first a write error there.
+         Success : constant Boolean := Hostkit.Fs.Replace_File (Temp, Path);
       begin
-         GNAT.OS_Lib.Rename_File (Temp, Path, Success);
          if not Success then
             Remove_Temp_Best_Effort;
             Status := Workspace_Persistence_Write_Error;
