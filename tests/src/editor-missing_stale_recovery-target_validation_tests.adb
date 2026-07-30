@@ -32,9 +32,9 @@ package body Editor.Missing_Stale_Recovery.Target_Validation_Tests is
          Ada.Directories.Delete_Tree (Root);
       end if;
       Ada.Directories.Create_Path (Root);
-      Ada.Directories.Create_Path (Root & "/src");
-      Write_File (Root & "/src/main.adb", "procedure Main is begin null; end Main;");
-      Write_File (Root & "/demo.gpr", "project Demo is end Demo;");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Join (Root, "src"));
+      Write_File (Editor.Test_Temp.Join (Root, "src/main.adb"), "procedure Main is begin null; end Main;");
+      Write_File (Editor.Test_Temp.Join (Root, "demo.gpr"), "project Demo is end Demo;");
    end Reset_Fixture;
 
    procedure Test_User_Readable_Labels_Are_Stable
@@ -76,7 +76,7 @@ package body Editor.Missing_Stale_Recovery.Target_Validation_Tests is
    is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
-      Missing : constant String := Root & "/missing-project";
+      Missing : constant String := Editor.Test_Temp.Join (Root, "missing-project");
       Summary : constant Editor.Missing_Stale_Recovery.Workspace_Recovery_Summary :=
         (Project_Missing        => False,
          Missing_Open_Files     => 2,
@@ -112,9 +112,9 @@ package body Editor.Missing_Stale_Recovery.Target_Validation_Tests is
    is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
-      Source : constant String := Root & "/src/main.adb";
-      Missing : constant String := Root & "/src/deleted.adb";
-      Missing_Parent : constant String := Root & "/gone/new.adb";
+      Source : constant String := Editor.Test_Temp.Join (Root, "src/main.adb");
+      Missing : constant String := Editor.Test_Temp.Join (Root, "src/deleted.adb");
+      Missing_Parent : constant String := Editor.Test_Temp.Join (Root, "gone/new.adb");
    begin
       Reset_Fixture;
       Ada.Directories.Delete_File (Source);
@@ -140,8 +140,8 @@ package body Editor.Missing_Stale_Recovery.Target_Validation_Tests is
    is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
-      Existing : constant String := Root & "/src/main.adb";
-      Missing  : constant String := Root & "/src/missing.adb";
+      Existing : constant String := Editor.Test_Temp.Join (Root, "src/main.adb");
+      Missing  : constant String := Editor.Test_Temp.Join (Root, "src/missing.adb");
       Outside  : constant String := Editor.Test_Temp.Path ("editor-tests/outside.adb");
    begin
       Reset_Fixture;
@@ -149,7 +149,7 @@ package body Editor.Missing_Stale_Recovery.Target_Validation_Tests is
       Assert (Editor.Missing_Stale_Recovery.Validate_Project_Target (Root).State =
                 Editor.Missing_Stale_Recovery.Target_Available,
               "existing project root is available");
-      Assert (Editor.Missing_Stale_Recovery.Validate_Project_Target (Root & "/gone").State =
+      Assert (Editor.Missing_Stale_Recovery.Validate_Project_Target (Editor.Test_Temp.Join (Root, "gone")).State =
                 Editor.Missing_Stale_Recovery.Target_Missing,
               "missing workspace project is reported as missing");
       Assert (Editor.Missing_Stale_Recovery.Validate_Project_File_Target
@@ -169,8 +169,8 @@ package body Editor.Missing_Stale_Recovery.Target_Validation_Tests is
    is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
-      Existing : constant String := Root & "/src/main.adb";
-      Missing  : constant String := Root & "/src/gone.adb";
+      Existing : constant String := Editor.Test_Temp.Join (Root, "src/main.adb");
+      Missing  : constant String := Editor.Test_Temp.Join (Root, "src/gone.adb");
    begin
       Reset_Fixture;
       Assert (Editor.Missing_Stale_Recovery.Validate_File_Tree_Node_Target
@@ -195,8 +195,8 @@ package body Editor.Missing_Stale_Recovery.Target_Validation_Tests is
    is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
-      Source : constant String := Root & "/src/main.adb";
-      Candidate : constant String := Root & "/demo.gpr";
+      Source : constant String := Editor.Test_Temp.Join (Root, "src/main.adb");
+      Candidate : constant String := Editor.Test_Temp.Join (Root, "demo.gpr");
    begin
       Reset_Fixture;
       Assert (Editor.Missing_Stale_Recovery.Validate_Outline_Target

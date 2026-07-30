@@ -137,19 +137,34 @@ package body Editor.Buffers.Path_And_Labeling is
       P : constant String := Pure_Normalize_Path (Path);
       R : constant String := Pure_Normalize_Path (Root);
       Start : Integer := P'First + R'Length + 1;
+
+      function Display (Value : String) return String is
+         --  A project-relative label is portable display text -- always
+         --  '/'-separated, on every host -- even though the identity paths it
+         --  is cut from use the host separator. Without this the label read
+         --  "src\main.adb" on Windows where every caller expects "src/main.adb".
+         Result : String := Value;
+      begin
+         for I in Result'Range loop
+            if Result (I) = Character'Val (16#5C#) then
+               Result (I) := '/';
+            end if;
+         end loop;
+         return Result;
+      end Display;
    begin
       if P = R then
          return ".";
       elsif not Pure_Same_Or_Descendant_Path (P, R) then
-         return Path;
+         return Display (Path);
       elsif Start <= P'Last then
-         return P (Start .. P'Last);
+         return Display (P (Start .. P'Last));
       else
          return ".";
       end if;
    exception
       when others =>
-         return Path;
+         return Display (Path);
    end Pure_Relative_Path;
 
    function Classify_Buffer_Ownership

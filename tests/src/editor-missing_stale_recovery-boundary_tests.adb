@@ -32,9 +32,9 @@ package body Editor.Missing_Stale_Recovery.Boundary_Tests is
          Ada.Directories.Delete_Tree (Root);
       end if;
       Ada.Directories.Create_Path (Root);
-      Ada.Directories.Create_Path (Root & "/src");
-      Write_File (Root & "/src/main.adb", "procedure Main is begin null; end Main;");
-      Write_File (Root & "/demo.gpr", "project Demo is end Demo;");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Join (Root, "src"));
+      Write_File (Editor.Test_Temp.Join (Root, "src/main.adb"), "procedure Main is begin null; end Main;");
+      Write_File (Editor.Test_Temp.Join (Root, "demo.gpr"), "project Demo is end Demo;");
    end Reset_Fixture;
 
    procedure Test_Render_Persistence_And_Command_Payload_Boundaries
@@ -67,7 +67,7 @@ package body Editor.Missing_Stale_Recovery.Boundary_Tests is
    is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
-      Candidate : constant String := Root & "/demo.gpr";
+      Candidate : constant String := Editor.Test_Temp.Join (Root, "demo.gpr");
    begin
       Reset_Fixture;
       Assert (Editor.Missing_Stale_Recovery.Surface_Cleared_On_Project_Transition
@@ -107,8 +107,8 @@ package body Editor.Missing_Stale_Recovery.Boundary_Tests is
    is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
-      Source : constant String := Root & "/src/main.adb";
-      Candidate : constant String := Root & "/demo.gpr";
+      Source : constant String := Editor.Test_Temp.Join (Root, "src/main.adb");
+      Candidate : constant String := Editor.Test_Temp.Join (Root, "demo.gpr");
    begin
       Reset_Fixture;
       Assert (Editor.Missing_Stale_Recovery.Stale_State_After_Content_Change
@@ -186,7 +186,7 @@ package body Editor.Missing_Stale_Recovery.Boundary_Tests is
    is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
-      Missing_Parent : constant String := Root & "/gone/new.adb";
+      Missing_Parent : constant String := Editor.Test_Temp.Join (Root, "gone/new.adb");
    begin
       Reset_Fixture;
       Assert (Editor.Missing_Stale_Recovery.Target_Outcome_Message
