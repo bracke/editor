@@ -3565,6 +3565,18 @@ package body Editor.External_Producers.Tests is
               Editor.External_Producers.Build_Requests.Build_Process_Argument_Vector ("ok")),
            Real_Process_Policy (Timeout_Milliseconds => 1));
    begin
+      if not Editor.External_Producers.Execution_Policy.Native_Process_Control_Is_POSIX then
+         --  POSIX-only fixture: it runs /bin/echo, which is absent on Windows,
+         --  so the real runner reports an execution error rather than success or
+         --  a timeout. The native supervisor still handled the request; the
+         --  Succeeded/Timed_Out shape is only meaningful where /bin/echo exists.
+         Assert (Result.Status =
+                   Editor.External_Producers.Build_Types.Process_Run_Execution_Error
+                 or else Result.Status =
+                   Editor.External_Producers.Build_Types.Process_Run_Not_Available,
+                 "off POSIX the /bin/echo fixture is unavailable and handled cleanly");
+         return;
+      end if;
       Assert (Result.Status =
                 Editor.External_Producers.Build_Types.Process_Run_Succeeded
               or else Result.Status =

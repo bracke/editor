@@ -1,8 +1,20 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Hostkit.Host;
 with Editor.State;
 
 package body Editor.Buffers.Path_And_Labeling is
+
+   use type Hostkit.Host.Kind;
+
+   --  Rebuild normalised paths with the host's own separator, so a normalised
+   --  path equals the identity the editor stores elsewhere (Ada.Directories.
+   --  Full_Name, which is all backslashes on Windows). Rebuilding with '/'
+   --  regardless of host made every normalised path forward-slash on Windows,
+   --  where it then matched neither Full_Name nor the paths tests build -- the
+   --  root of the metadata/label/project-boundary mismatches there.
+   Separator : constant Character :=
+     (if Hostkit.Host.Current = Hostkit.Host.Windows then '\' else '/');
 
    function Metadata_Label_Max_Length return Positive is
    begin
@@ -72,13 +84,13 @@ package body Editor.Buffers.Path_And_Labeling is
       Flush_Token;
 
       if Absolute then
-         Append (Result, "/");
+         Append (Result, Separator);
       end if;
 
       if not Parts.Is_Empty then
          for I in Parts.First_Index .. Parts.Last_Index loop
-            if Length (Result) > 0 and then To_String (Result) /= "/" then
-               Append (Result, "/");
+            if Length (Result) > 0 and then To_String (Result) /= (1 => Separator) then
+               Append (Result, Separator);
             end if;
             Append (Result, To_String (Parts.Element (I)));
          end loop;
@@ -86,7 +98,7 @@ package body Editor.Buffers.Path_And_Labeling is
 
       if Length (Result) = 0 then
          if Absolute then
-            return "/";
+            return (1 => Separator);
          else
             return ".";
          end if;
@@ -111,7 +123,7 @@ package body Editor.Buffers.Path_And_Labeling is
          return False;
       else
          return P (P'First .. P'First + R'Length - 1) = R
-           and then P (P'First + R'Length) = '/';
+           and then P (P'First + R'Length) = Separator;
       end if;
    exception
       when others =>
