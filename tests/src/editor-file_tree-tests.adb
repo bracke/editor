@@ -814,6 +814,17 @@ package body Editor.File_Tree.Tests is
       --  raises there. Join falls back to a plain join for such names.
       File_Path  : constant String := Editor.Test_Temp.Join (Root, "C:tmp.txt");
       Dir_Path   : constant String := Editor.Test_Temp.Join (Root, "D:generated");
+
+      function Absent (Path : String) return Boolean is
+      begin
+         --  On Windows an embedded drive letter makes this an invalid path name,
+         --  and Ada.Directories.Exists raises rather than returning False. A path
+         --  the host will not even represent certainly was not created.
+         return not Ada.Directories.Exists (Path);
+      exception
+         when others =>
+            return True;
+      end Absent;
       S          : Editor.State.State_Type;
       Opened     : Editor.Project.Project_Open_Result;
       Msg_Found  : Boolean := False;
@@ -838,7 +849,7 @@ package body Editor.File_Tree.Tests is
       Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "Invalid file name",
               "create-file execution must reject drive-relative text as invalid syntax");
-      Assert (not Ada.Directories.Exists (File_Path),
+      Assert (Absent (File_Path),
               "drive-relative create-file text must not become an in-project filename");
 
       Editor.Messages.Clear (S.Panel.Messages);
@@ -847,7 +858,7 @@ package body Editor.File_Tree.Tests is
       Msg := Editor.Messages.Active_Message (S.Panel.Messages, Msg_Found);
       Assert (Msg_Found and then To_String (Msg.Text) = "Invalid directory name",
               "create-directory execution must reject drive-relative text as invalid syntax");
-      Assert (not Ada.Directories.Exists (Dir_Path),
+      Assert (Absent (Dir_Path),
               "drive-relative create-directory text must not become an in-project directory");
 
       Cleanup_Fixture (Root);

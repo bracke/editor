@@ -6,8 +6,14 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Editor.Path_Helpers;
 with Editor.Text_Helpers;
+with Hostkit.Host;
 
 package body Editor.Recent_Projects is
+
+   use type Hostkit.Host.Kind;
+
+   Host_Separator : constant Character :=
+     (if Hostkit.Host.Current = Hostkit.Host.Windows then '\' else '/');
 
    use type Ada.Containers.Count_Type;
    use type Ada.Directories.File_Kind;
@@ -92,8 +98,19 @@ package body Editor.Recent_Projects is
    function Path_Label
      (Item : Recent_Project_Entry) return String
    is
+      --  Root_Path is stored in the '/'-separated comparison form (it is also a
+      --  project-identity key). For display, render it with the host's own
+      --  separator so a Windows user sees C:\... not C:/...
+      Result : String := To_String (Item.Root_Path);
    begin
-      return To_String (Item.Root_Path);
+      if Host_Separator /= '/' then
+         for I in Result'Range loop
+            if Result (I) = '/' then
+               Result (I) := Host_Separator;
+            end if;
+         end loop;
+      end if;
+      return Result;
    end Path_Label;
 
    function Last_Opened_Label
