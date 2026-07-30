@@ -3008,7 +3008,7 @@ package body Editor.Buffers.Tests is
       Scratch_Metadata : Editor.Buffers.Buffer_Metadata_Snapshot;
    begin
       Project_Id := Editor.Buffers.Add_Buffer_From_File
-        (Registry, Root & "/src/main.adb", "main.adb", "project text must not leak");
+        (Registry, Editor.Test_Temp.Join (Root, "src/main.adb"), "main.adb", "project text must not leak");
       Outside_Id := Editor.Buffers.Add_Buffer_From_File
         (Registry, Editor.Test_Temp.Path ("editor_outside.adb"), "outside.adb", "outside text");
       Scratch_Id := Editor.Buffers.Create_Untitled_Buffer (Registry);
@@ -3068,12 +3068,12 @@ package body Editor.Buffers.Tests is
       Sets : Editor.Buffers.Buffer_Project_Lifecycle_Sets;
       Dirty_Ids : array (Positive range 1 .. 6) of Editor.Buffers.Buffer_Id;
    begin
-      Project_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Root & "/a.adb", "a.adb", "a");
+      Project_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Editor.Test_Temp.Join (Root, "a.adb"), "a.adb", "a");
       Outside_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Editor.Test_Temp.Path ("outside-a.adb"), "outside-a.adb", "b");
       Scratch_Id := Editor.Buffers.Create_Untitled_Buffer (Registry);
-      Missing_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Root & "/missing.adb", "missing.adb", "c");
-      Conflict_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Root & "/conflict.adb", "conflict.adb", "d");
-      Unwritable_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Root & "/readonly.adb", "readonly.adb", "e");
+      Missing_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Editor.Test_Temp.Join (Root, "missing.adb"), "missing.adb", "c");
+      Conflict_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Editor.Test_Temp.Join (Root, "conflict.adb"), "conflict.adb", "d");
+      Unwritable_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Editor.Test_Temp.Join (Root, "readonly.adb"), "readonly.adb", "e");
 
       Dirty_Ids := (Project_Id, Outside_Id, Scratch_Id, Missing_Id, Conflict_Id, Unwritable_Id);
       for Id of Dirty_Ids loop
@@ -3317,7 +3317,7 @@ package body Editor.Buffers.Tests is
       M := Editor.Buffers.Metadata_For (Registry, Project, In_Id);
       Assert (M.Ownership = Editor.Buffers.Buffer_Project_Owned,
         "normalized project-root descendant should classify as project-owned");
-      Assert (To_String (M.File_Path) = Root & "/unit.adb",
+      Assert (To_String (M.File_Path) = Editor.Test_Temp.Join (Root, "unit.adb"),
         "metadata file path projection should be normalized rather than a raw input string");
       Assert (M.Has_Project_Relative_Path,
         "project-owned metadata should expose a project-relative label");
@@ -3435,9 +3435,9 @@ package body Editor.Buffers.Tests is
       Audit : Editor.Buffers.Buffer_Audit_Summary;
       M : Editor.Buffers.Buffer_Metadata_Snapshot;
    begin
-      Clean_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Root & "/clean.adb", "clean.adb", "clean");
-      Read_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Root & "/read.adb", "read.adb", "read");
-      Blocked_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Root & "/blocked.adb", "blocked.adb", "blocked");
+      Clean_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Editor.Test_Temp.Join (Root, "clean.adb"), "clean.adb", "clean");
+      Read_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Editor.Test_Temp.Join (Root, "read.adb"), "read.adb", "read");
+      Blocked_Id := Editor.Buffers.Add_Buffer_From_File (Registry, Editor.Test_Temp.Join (Root, "blocked.adb"), "blocked.adb", "blocked");
 
       B := Editor.Buffers.Buffer_Access (Registry, Read_Id);
       B.Buffer_Lifecycle.File_Info.Unreadable_Target_Surfaced := True;
@@ -3512,11 +3512,11 @@ package body Editor.Buffers.Tests is
       S    : Editor.State.State_Type;
       Snap : Editor.Render_Model.Render_Snapshot;
       Root : constant String := Editor.Test_Temp.Path ("editor_render_project");
-      Path : constant String := Root & "/src/rendered.adb";
+      Path : constant String := Editor.Test_Temp.Join (Root, "src/rendered.adb");
    begin
       Editor.Buffers.Reset_Global_For_Test;
-      if not Ada.Directories.Exists (Root & "/src") then
-         Ada.Directories.Create_Path (Root & "/src");
+      if not Ada.Directories.Exists (Editor.Test_Temp.Join (Root, "src")) then
+         Ada.Directories.Create_Path (Editor.Test_Temp.Join (Root, "src"));
       end if;
       Write_File (Path, "procedure Rendered is begin null; end Rendered;");
       Editor.State.Init (S);

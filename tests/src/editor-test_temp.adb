@@ -28,7 +28,7 @@ package body Editor.Test_Temp is
       return Resolved;
    end Base;
 
-   function Path (Relative : String) return String is
+   function Join (Base : String; Relative : String) return String is
       Result : Unbounded_String := To_Unbounded_String (Base);
       First  : Positive := Relative'First;
 
@@ -49,6 +49,11 @@ package body Editor.Test_Temp is
       end loop;
       Add (Relative (First .. Relative'Last));
       return To_String (Result);
+   end Join;
+
+   function Path (Relative : String) return String is
+   begin
+      return Join (Base, Relative);
    end Path;
 
 end Editor.Test_Temp;

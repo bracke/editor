@@ -166,18 +166,18 @@ package body Editor.Dogfood_Workflow.Tests is
    end Active_Message_Text;
 
    procedure Build_Dogfood_Fixture (Root : String) is
-      Src : constant String := Root & "/src";
+      Src : constant String := Editor.Test_Temp.Join (Root, "src");
    begin
       Remove_Tree_If_Exists (Root);
       Ada.Directories.Create_Path (Src);
       Write_File
-        (Root & "/dogfood_project.gpr",
+        (Editor.Test_Temp.Join (Root, "dogfood_project.gpr"),
          "project Dogfood_Project is" & ASCII.LF &
          "   for Source_Dirs use (""src"");" & ASCII.LF &
          "   for Main use (""main.adb"");" & ASCII.LF &
          "end Dogfood_Project;" & ASCII.LF);
       Write_File
-        (Src & "/dogfood_demo.ads",
+        (Editor.Test_Temp.Join (Src, "dogfood_demo.ads"),
          "package Dogfood_Demo is" & ASCII.LF &
          "   type Dogfood_State is record" & ASCII.LF &
          "      Value : Integer := 0;" & ASCII.LF &
@@ -186,7 +186,7 @@ package body Editor.Dogfood_Workflow.Tests is
          "   function Known_Token return String;" & ASCII.LF &
          "end Dogfood_Demo;" & ASCII.LF);
       Write_File
-        (Src & "/dogfood_demo.adb",
+        (Editor.Test_Temp.Join (Src, "dogfood_demo.adb"),
          "package body Dogfood_Demo is" & ASCII.LF &
          "   procedure Run (State : in out Dogfood_State) is" & ASCII.LF &
          "   begin" & ASCII.LF &
@@ -198,7 +198,7 @@ package body Editor.Dogfood_Workflow.Tests is
          "   end Known_Token;" & ASCII.LF &
          "end Dogfood_Demo;" & ASCII.LF);
       Write_File
-        (Src & "/main.adb",
+        (Editor.Test_Temp.Join (Src, "main.adb"),
          "with Dogfood_Demo;" & ASCII.LF & ASCII.LF &
          "procedure Main is" & ASCII.LF &
          "   State : Dogfood_Demo.Dogfood_State;" & ASCII.LF &
@@ -294,10 +294,10 @@ package body Editor.Dogfood_Workflow.Tests is
    is
       pragma Unreferenced (T);
       Root          : constant String := Temp_Root;
-      Source_Path   : constant String := Root & "/src/dogfood_demo.adb";
-      Created_Path  : constant String := Root & "/src/new_widget.adb";
-      Renamed_Path  : constant String := Root & "/src/renamed_widget.adb";
-      Dirty_Block_Path : constant String := Root & "/src/dirty_block.adb";
+      Source_Path   : constant String := Editor.Test_Temp.Join (Root, "src/dogfood_demo.adb");
+      Created_Path  : constant String := Editor.Test_Temp.Join (Root, "src/new_widget.adb");
+      Renamed_Path  : constant String := Editor.Test_Temp.Join (Root, "src/renamed_widget.adb");
+      Dirty_Block_Path : constant String := Editor.Test_Temp.Join (Root, "src/dirty_block.adb");
       S             : Editor.State.State_Type;
       S2            : Editor.State.State_Type;
       Project_Files : Editor.Project.Project_File_Refresh_Result;
@@ -328,7 +328,7 @@ package body Editor.Dogfood_Workflow.Tests is
       Workspace     : Editor.Workspace_Persistence.Workspace_Snapshot;
       Loaded        : Editor.Workspace_Persistence.Workspace_Snapshot;
       Status        : Editor.Workspace_Persistence.Workspace_Persistence_Status;
-      Workspace_Path : constant String := Root & "/.workspace";
+      Workspace_Path : constant String := Editor.Test_Temp.Join (Root, ".workspace");
       Persisted     : Unbounded_String;
    begin
       Build_Dogfood_Fixture (Root);
@@ -566,14 +566,14 @@ package body Editor.Dogfood_Workflow.Tests is
       Assert (Found and then Row > 0,
               "stale selected-node setup maps to a visible row");
       Editor.File_Tree_View.Set_Selected_Row_Index (S.Surface.File_Tree_View, Row);
-      Remove_File_If_Exists (Root & "/src/stale_widget.adb");
+      Remove_File_If_Exists (Editor.Test_Temp.Join (Root, "src/stale_widget.adb"));
       Run_File_Tree_Text_Prompt_Command
         (S,
          Editor.Command_Ids.Command_File_Tree_Rename_Selected,
          "should_not_exist.adb",
          Editor.Guided_Prompts.File_Tree_Rename_Prompt,
          "stale rename");
-      Assert (not Ada.Directories.Exists (Root & "/src/should_not_exist.adb"),
+      Assert (not Ada.Directories.Exists (Editor.Test_Temp.Join (Root, "src/should_not_exist.adb")),
               "stale File Tree rename does not create or move a replacement target");
       Assert (Editor.Focus_Management.Effective_Focus_Owner (S) =
                 Editor.Focus_Management.Focus_File_Tree,
@@ -615,7 +615,7 @@ package body Editor.Dogfood_Workflow.Tests is
          "dirty rename block");
       Assert (Ada.Directories.Exists (Dirty_Block_Path)
                 and then not Ada.Directories.Exists
-                  (Root & "/src/dirty_block_renamed.adb"),
+                  (Editor.Test_Temp.Join (Root, "src/dirty_block_renamed.adb")),
               "dirty File Tree rename is blocked without moving the file");
       Run_File_Tree_Delete_Confirmation (S);
       Assert (Ada.Directories.Exists (Dirty_Block_Path),
@@ -1196,7 +1196,7 @@ package body Editor.Dogfood_Workflow.Tests is
    is
       pragma Unreferenced (T);
       Root        : constant String := Temp_Root & "_conflict";
-      Source_Path : constant String := Root & "/src/dogfood_demo.adb";
+      Source_Path : constant String := Editor.Test_Temp.Join (Root, "src/dogfood_demo.adb");
       S           : Editor.State.State_Type;
       Node        : Editor.File_Tree.File_Tree_Node_Id;
       Found       : Boolean := False;
@@ -1413,7 +1413,7 @@ package body Editor.Dogfood_Workflow.Tests is
         "/switch_project_a";
       Root_B             : constant String := Ada.Directories.Current_Directory &
         "/switch_project_b";
-      Source_A           : constant String := Root_A & "/src/dogfood_demo.adb";
+      Source_A           : constant String := Editor.Test_Temp.Join (Root_A, "src/dogfood_demo.adb");
       Session_A          : constant String :=
         Editor.Workspace_Persistence.Session_File_Path (Root_A);
       S                  : Editor.State.State_Type;
@@ -2479,8 +2479,8 @@ package body Editor.Dogfood_Workflow.Tests is
    is
       pragma Unreferenced (T);
       Root        : constant String := Temp_Root;
-      Source_Path : constant String := Root & "/src/dogfood_demo.adb";
-      Cancel_Path : constant String := Root & "/src/cancelled_from_prompt.adb";
+      Source_Path : constant String := Editor.Test_Temp.Join (Root, "src/dogfood_demo.adb");
+      Cancel_Path : constant String := Editor.Test_Temp.Join (Root, "src/cancelled_from_prompt.adb");
       S           : Editor.State.State_Type;
       Before_Text : Unbounded_String;
       Workspace_Command_Result : Editor.Command_Execution.Command_Execution_Result;
@@ -2643,8 +2643,8 @@ package body Editor.Dogfood_Workflow.Tests is
    is
       pragma Unreferenced (T);
       Root         : constant String := Temp_Root;
-      Source_Path  : constant String := Root & "/src/clean_open.adb";
-      Renamed_Path : constant String := Root & "/src/clean_open_renamed.adb";
+      Source_Path  : constant String := Editor.Test_Temp.Join (Root, "src/clean_open.adb");
+      Renamed_Path : constant String := Editor.Test_Temp.Join (Root, "src/clean_open_renamed.adb");
       S            : Editor.State.State_Type;
       Found        : Boolean := False;
       Node         : Editor.File_Tree.File_Tree_Node_Id;
@@ -2742,8 +2742,8 @@ package body Editor.Dogfood_Workflow.Tests is
    is
       pragma Unreferenced (T);
       Root         : constant String := Temp_Root;
-      First_Path   : constant String := Root & "/src/delete_keep_first.adb";
-      Second_Path  : constant String := Root & "/src/delete_active_second.adb";
+      First_Path   : constant String := Editor.Test_Temp.Join (Root, "src/delete_keep_first.adb");
+      Second_Path  : constant String := Editor.Test_Temp.Join (Root, "src/delete_active_second.adb");
       S            : Editor.State.State_Type;
       Found        : Boolean := False;
       Node         : Editor.File_Tree.File_Tree_Node_Id;
@@ -2818,11 +2818,11 @@ package body Editor.Dogfood_Workflow.Tests is
    is
       pragma Unreferenced (T);
       Root            : constant String := Temp_Root;
-      Old_Dir         : constant String := Root & "/src/rename_dir_active";
-      New_Dir         : constant String := Root & "/src/rename_dir_done";
-      Old_Child_Path  : constant String := Old_Dir & "/open_child.adb";
-      New_Child_Path  : constant String := New_Dir & "/open_child.adb";
-      Other_Path      : constant String := Root & "/src/rename_dir_other.adb";
+      Old_Dir         : constant String := Editor.Test_Temp.Join (Root, "src/rename_dir_active");
+      New_Dir         : constant String := Editor.Test_Temp.Join (Root, "src/rename_dir_done");
+      Old_Child_Path  : constant String := Editor.Test_Temp.Join (Old_Dir, "open_child.adb");
+      New_Child_Path  : constant String := Editor.Test_Temp.Join (New_Dir, "open_child.adb");
+      Other_Path      : constant String := Editor.Test_Temp.Join (Root, "src/rename_dir_other.adb");
       S               : Editor.State.State_Type;
       Found           : Boolean := False;
       Node            : Editor.File_Tree.File_Tree_Node_Id;
@@ -2925,8 +2925,8 @@ package body Editor.Dogfood_Workflow.Tests is
    is
       pragma Unreferenced (T);
       Root        : constant String := Temp_Root & "_main_workflow_smoke";
-      Source_Path : constant String := Root & "/src/dogfood_demo.adb";
-      Main_Path   : constant String := Root & "/src/main.adb";
+      Source_Path : constant String := Editor.Test_Temp.Join (Root, "src/dogfood_demo.adb");
+      Main_Path   : constant String := Editor.Test_Temp.Join (Root, "src/main.adb");
       S           : Editor.State.State_Type;
       Search_Result : Editor.Project_Search.Project_Search_Result;
       Build_Run      : Editor.Command_Execution.Command_Execution_Result;
@@ -3108,8 +3108,8 @@ package body Editor.Dogfood_Workflow.Tests is
    is
       pragma Unreferenced (T);
       Root          : constant String := Temp_Root & "_full_daily_loop";
-      Source_Path   : constant String := Root & "/src/dogfood_demo.adb";
-      Main_Path     : constant String := Root & "/src/main.adb";
+      Source_Path   : constant String := Editor.Test_Temp.Join (Root, "src/dogfood_demo.adb");
+      Main_Path     : constant String := Editor.Test_Temp.Join (Root, "src/main.adb");
       S             : Editor.State.State_Type;
       S2            : Editor.State.State_Type;
       Found         : Boolean := False;
@@ -3357,9 +3357,9 @@ package body Editor.Dogfood_Workflow.Tests is
    is
       pragma Unreferenced (T);
       Root         : constant String := Temp_Root;
-      Source_Path  : constant String := Root & "/src/dogfood_demo.adb";
-      Save_As_Path : constant String := Root & "/src/dogfood_saved_as.adb";
-      Dir_Target   : constant String := Root & "/src";
+      Source_Path  : constant String := Editor.Test_Temp.Join (Root, "src/dogfood_demo.adb");
+      Save_As_Path : constant String := Editor.Test_Temp.Join (Root, "src/dogfood_saved_as.adb");
+      Dir_Target   : constant String := Editor.Test_Temp.Join (Root, "src");
       S            : Editor.State.State_Type;
       Before_Text  : Unbounded_String;
       Before_Path  : Unbounded_String;
@@ -4057,8 +4057,8 @@ package body Editor.Dogfood_Workflow.Tests is
       pragma Unreferenced (T);
       Root_A      : constant String := Temp_Root & "_dirty_a";
       Root_B      : constant String := Temp_Root & "_dirty_b";
-      Dirty_Path  : constant String := Root_A & "/src/dogfood_demo.adb";
-      Clean_Path  : constant String := Root_A & "/src/main.adb";
+      Dirty_Path  : constant String := Editor.Test_Temp.Join (Root_A, "src/dogfood_demo.adb");
+      Clean_Path  : constant String := Editor.Test_Temp.Join (Root_A, "src/main.adb");
       S           : Editor.State.State_Type;
       Cmd         : Editor.Commands.Payloads.Command;
       Dirty_Text  : Unbounded_String;
@@ -4225,8 +4225,8 @@ package body Editor.Dogfood_Workflow.Tests is
    is
       pragma Unreferenced (T);
       Root          : constant String := Temp_Root & "_restore_edges";
-      Valid_Path    : constant String := Root & "/src/main.adb";
-      Missing_Path  : constant String := Root & "/src/missing.adb";
+      Valid_Path    : constant String := Editor.Test_Temp.Join (Root, "src/main.adb");
+      Missing_Path  : constant String := Editor.Test_Temp.Join (Root, "src/missing.adb");
       Mismatch_Root : constant String := Root & "_missing_root";
       S             : Editor.State.State_Type;
       Snapshot      : Editor.Workspace_Persistence.Workspace_Snapshot;

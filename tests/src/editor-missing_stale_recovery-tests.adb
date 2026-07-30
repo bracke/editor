@@ -55,9 +55,9 @@ package body Editor.Missing_Stale_Recovery.Tests is
          Ada.Directories.Delete_Tree (Root);
       end if;
       Ada.Directories.Create_Path (Root);
-      Ada.Directories.Create_Path (Root & "/src");
-      Write_File (Root & "/src/main.adb", "procedure Main is begin null; end Main;");
-      Write_File (Root & "/demo.gpr", "project Demo is end Demo;");
+      Ada.Directories.Create_Path (Editor.Test_Temp.Join (Root, "src"));
+      Write_File (Editor.Test_Temp.Join (Root, "src/main.adb"), "procedure Main is begin null; end Main;");
+      Write_File (Editor.Test_Temp.Join (Root, "demo.gpr"), "project Demo is end Demo;");
    end Reset_Fixture;
 
 
@@ -70,9 +70,9 @@ package body Editor.Missing_Stale_Recovery.Tests is
    is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
-      Source : constant String := Root & "/src/main.adb";
-      Missing : constant String := Root & "/src/gone.adb";
-      Missing_Parent_Target : constant String := Root & "/gone/new.adb";
+      Source : constant String := Editor.Test_Temp.Join (Root, "src/main.adb");
+      Missing : constant String := Editor.Test_Temp.Join (Root, "src/gone.adb");
+      Missing_Parent_Target : constant String := Editor.Test_Temp.Join (Root, "gone/new.adb");
       Skipped : constant Editor.Missing_Stale_Recovery.Replace_Apply_Validation_Summary :=
         (Applied_Targets => 0,
          Missing_Targets => 1,
@@ -97,7 +97,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
               "File Tree rename preflight accepts existing in-project nodes");
       Assert (Editor.Missing_Stale_Recovery.Validate_File_Tree_Mutation_Target
                 (Editor.Missing_Stale_Recovery.File_Tree_Create_File,
-                 Missing_Parent_Target, Root, Root & "/gone").State =
+                 Missing_Parent_Target, Root, Editor.Test_Temp.Join (Root, "gone")).State =
                 Editor.Missing_Stale_Recovery.Target_Parent_Directory_Missing,
               "File Tree create preflight reports missing parent instead of fabricating directories");
       Assert (Editor.Missing_Stale_Recovery.Workspace_Active_File_Fallback_Policy
@@ -312,18 +312,18 @@ package body Editor.Missing_Stale_Recovery.Tests is
    is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
-      Source : constant String := Root & "/src/main.adb";
+      Source : constant String := Editor.Test_Temp.Join (Root, "src/main.adb");
       Outside : constant String := Editor.Test_Temp.Path ("editor-tests/outside_search.adb");
    begin
       Reset_Fixture;
       Write_File (Outside, "outside");
       Assert (Editor.Missing_Stale_Recovery.Target_Outcome_Message
                 (Editor.Missing_Stale_Recovery.Validate_Quick_Open_Result_Target
-                   (Root & "/src/gone.adb", Root)) = "Quick Open result is stale.",
+                   (Editor.Test_Temp.Join (Root, "src/gone.adb"), Root)) = "Quick Open result is stale.",
               "Quick Open stale activation gets surface-specific wording");
       Assert (Editor.Missing_Stale_Recovery.Target_Outcome_Message
                 (Editor.Missing_Stale_Recovery.Validate_Search_Result_Target
-                   (Root & "/src/gone.adb", 1, 1)) = "Search target no longer exists.",
+                   (Editor.Test_Temp.Join (Root, "src/gone.adb"), 1, 1)) = "Search target no longer exists.",
               "missing Project Search target message names the Search surface");
       Assert (Editor.Missing_Stale_Recovery.Target_Outcome_Message
                 (Editor.Missing_Stale_Recovery.Validate_Search_Result_Target
@@ -340,16 +340,16 @@ package body Editor.Missing_Stale_Recovery.Tests is
               "Outline previous-buffer target gets explicit wording");
       Assert (Editor.Missing_Stale_Recovery.Target_Outcome_Message
                 (Editor.Missing_Stale_Recovery.Validate_Diagnostic_Target
-                   (Root & "/src/gone.adb", True, 1, 1, 1, 80)) =
+                   (Editor.Test_Temp.Join (Root, "src/gone.adb"), True, 1, 1, 1, 80)) =
                 "Diagnostic target file is unavailable.",
               "missing Diagnostic source message is explicit");
       Assert (Editor.Missing_Stale_Recovery.Target_Outcome_Message
                 (Editor.Missing_Stale_Recovery.Validate_Build_Candidate_Target
-                   (Root & "/gone.gpr", Root)) = "Build candidate file no longer exists.",
+                   (Editor.Test_Temp.Join (Root, "gone.gpr"), Root)) = "Build candidate file no longer exists.",
               "missing Build candidate message is explicit");
       Assert (Editor.Missing_Stale_Recovery.Target_Outcome_Message
                 (Editor.Missing_Stale_Recovery.Validate_Build_Working_Context_Target
-                   (Root & "/gone-root")) = "Build working directory is unavailable.",
+                   (Editor.Test_Temp.Join (Root, "gone-root"))) = "Build working directory is unavailable.",
               "missing Build working context message is explicit");
       Assert (Editor.Missing_Stale_Recovery.Validate_Search_Result_Target
                 (Outside, 1, 1, Project_Root => Root).State =
@@ -404,7 +404,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
    is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
-      Source : constant String := Root & "/src/main.adb";
+      Source : constant String := Editor.Test_Temp.Join (Root, "src/main.adb");
       Result : Editor.Missing_Stale_Recovery.Target_Validation_Result;
    begin
       Reset_Fixture;
@@ -438,7 +438,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
    is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
-      Source : constant String := Root & "/src/main.adb";
+      Source : constant String := Editor.Test_Temp.Join (Root, "src/main.adb");
       Outside : constant String := Editor.Test_Temp.Path ("editor-tests/recent_outside.adb");
       Summary : constant Editor.Missing_Stale_Recovery.Replace_Apply_Validation_Summary :=
         (Applied_Targets => 2, Missing_Targets => 1, Stale_Targets => 1,
@@ -466,7 +466,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
                 (Outside, Root),
               "session-recent boost cannot inject an outside-project target");
       Assert (not Editor.Missing_Stale_Recovery.Quick_Open_Session_Recent_Boost_Allowed
-                (Root & "/src/gone.adb", Root),
+                (Editor.Test_Temp.Join (Root, "src/gone.adb"), Root),
               "session-recent boost cannot inject a stale missing target");
       Ada.Directories.Delete_File (Outside);
    end Test_Search_Content_Replace_Summary_And_Stale_Boost_Gates;
@@ -476,7 +476,7 @@ package body Editor.Missing_Stale_Recovery.Tests is
    is
       pragma Unreferenced (T);
       Root : constant String := Fixture_Root;
-      Candidate : constant String := Root & "/demo.gpr";
+      Candidate : constant String := Editor.Test_Temp.Join (Root, "demo.gpr");
    begin
       Reset_Fixture;
       Assert (Editor.Missing_Stale_Recovery.Build_Request_Consent_Remains_Valid
@@ -488,10 +488,10 @@ package body Editor.Missing_Stale_Recovery.Tests is
                    (Candidate, Root, Stale => True)),
               "stale selected candidate invalidates build request consent");
       Assert (Editor.Missing_Stale_Recovery.File_Tree_Expanded_Path_Restore_State
-                (Root & "/src") = Editor.Missing_Stale_Recovery.Target_Available,
+                (Editor.Test_Temp.Join (Root, "src")) = Editor.Missing_Stale_Recovery.Target_Available,
               "workspace File Tree expansion restore keeps existing directories");
       Assert (Editor.Missing_Stale_Recovery.File_Tree_Expanded_Path_Restore_State
-                (Root & "/src/gone") = Editor.Missing_Stale_Recovery.Target_Missing,
+                (Editor.Test_Temp.Join (Root, "src/gone")) = Editor.Missing_Stale_Recovery.Target_Missing,
               "workspace File Tree expansion restore ignores missing paths");
       Assert (Editor.Missing_Stale_Recovery.Recovery_Command_No_Op_Message
                 (Editor.Missing_Stale_Recovery.Recovery_Project_Search_Clear_Results) =

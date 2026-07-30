@@ -22,4 +22,10 @@ package Editor.Test_Temp is
    --  every host. Relative is always written with '/' regardless of platform.
    function Path (Relative : String) return String;
 
+   --  Like Path, but joined onto an arbitrary Base rather than the temp dir --
+   --  for paths built on a directory a test already holds (a project root, a
+   --  fixture dir). Same rule: `Base & "/a/b"` keeps forward slashes that never
+   --  match the editor's backslash Full_Name on Windows; Join composes natively.
+   function Join (Base : String; Relative : String) return String;
+
 end Editor.Test_Temp;
