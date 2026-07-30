@@ -97,6 +97,8 @@ package body Editor.Render_Packet.Guikit_Adapters is
                      Packet.Glyphs (Integer (Packet.Glyph_Count)).R  := Editor.Render_Packet.C_Float (Color.R);
                      Packet.Glyphs (Integer (Packet.Glyph_Count)).G  := Editor.Render_Packet.C_Float (Color.G);
                      Packet.Glyphs (Integer (Packet.Glyph_Count)).B  := Editor.Render_Packet.C_Float (Color.B);
+                     Packet.Glyphs (Integer (Packet.Glyph_Count)).Colour :=
+                       (if M.Colour then 1 else 0);
                      Packet.Glyph_Count := Packet.Glyph_Count + 1;
                   end if;
                end if;

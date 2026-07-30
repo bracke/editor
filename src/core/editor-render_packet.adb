@@ -29,7 +29,8 @@ package body Editor.Render_Packet is
       Layer          : Render_Layer;
       X, Y, W, H     : Float;
       U0, V0, U1, V1 : Float;
-      R, G, B        : Float)
+      R, G, B        : Float;
+      Colour         : Boolean := False)
    is
       Index : constant Integer := Integer (Packet.Glyph_Count);
    begin
@@ -46,6 +47,7 @@ package body Editor.Render_Packet is
          Packet.Glyphs (Index).R  := C_Float (R);
          Packet.Glyphs (Index).G  := C_Float (G);
          Packet.Glyphs (Index).B  := C_Float (B);
+         Packet.Glyphs (Index).Colour := (if Colour then 1 else 0);
          Packet.Glyph_Count := Packet.Glyph_Count + 1;
       end if;
    end Push_Glyph;

@@ -1,4 +1,5 @@
 with Interfaces.C;
+with System;
 with Textrender;
 with Editor.Unicode;
 
@@ -34,6 +35,11 @@ package Editor.Fonts is
       --  Diagnostic / cell sizing only.
       --  Layout remains grid-based; glyph advance never drives cursor movement.
       Advance_X : Float := 0.0;
+
+      --  True when the UVs above are into the colour sheet rather than the
+      --  coverage atlas: this codepoint is a picture, an emoji, and the atlas
+      --  has one channel with nowhere to keep a colour.
+      Colour : Boolean := False;
    end record;
 
    function Ascent return Float;
@@ -57,5 +63,15 @@ package Editor.Fonts is
       Cell_Height : Positive);
 
    function Backend return access Textrender.Renderer;
+
+   --  The sheet the colour glyphs were packed into, in RGBA. Empty until a
+   --  colour glyph has been asked for.
+   function Colour_Sheet_Width return Natural;
+   function Colour_Sheet_Height return Natural;
+   function Colour_Sheet_Pixels return System.Address;
+
+   --  True when the sheet has changed since the renderer last took it.
+   function Colour_Sheet_Dirty return Boolean;
+   procedure Clear_Colour_Sheet_Dirty;
 
 end Editor.Fonts;

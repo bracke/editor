@@ -1,0 +1,4 @@
+project Dogfood_Project is
+   for Source_Dirs use ("src");
+end Dogfood_Project;
+

@@ -11,6 +11,13 @@ package Editor.Font_Config is
    --  directly rather than hoping one of these is installed.
    function Font_Path return String;
 
+   --  The colour emoji font for this host, or "" when it has none.
+   --
+   --  Only the layered kind (COLR/CPAL) is looked for: Textrender draws those
+   --  from outlines and a palette, needing nothing from the caller, while the
+   --  bitmap kinds hold PNGs and want a decoder the editor does not carry.
+   function Emoji_Font_Path return String;
+
    Font_Size_Px : constant Positive := 16;
 
    Cell_W : constant Positive := 10;

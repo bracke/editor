@@ -26,6 +26,20 @@ package body Editor.Fonts.Init is
         (Status = Textrender.Success,
          "Failed to load editor font");
 
+      --  Emoji last, and only if the host has one: the chain is resolved by
+      --  asking each font whether it maps a codepoint and taking the first that
+      --  says yes, and an emoji font maps far more than emoji.
+      if Editor.Font_Config.Emoji_Font_Path /= "" then
+         declare
+            Fallback : constant Textrender.Status_Code :=
+              Textrender.Add_Fallback_Font
+                (Editor.Fonts.Backend.all, Editor.Font_Config.Emoji_Font_Path);
+         begin
+            --  A font that will not load is not worth failing to start over.
+            pragma Unreferenced (Fallback);
+         end;
+      end if;
+
       Initialized := True;
    end Initialize;
 

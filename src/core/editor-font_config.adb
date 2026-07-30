@@ -16,6 +16,11 @@ package body Editor.Font_Config is
       new String'("C:\Windows\Fonts\consola.ttf"),
       new String'("C:\Windows\Fonts\cour.ttf")];
 
+   Emoji_Candidates : constant array (Positive range <>) of access constant String :=
+     [new String'("/usr/share/fonts/truetype/twemoji/TwemojiMozilla.ttf"),
+      new String'("/usr/share/fonts/TTF/TwemojiMozilla.ttf"),
+      new String'("C:\Windows\Fonts\seguiemj.ttf")];
+
    function Exists (Path : String) return Boolean is
    begin
       return Ada.Directories.Exists (Path);
@@ -24,6 +29,31 @@ package body Editor.Font_Config is
          --  A path this host cannot even represent does not exist; it does not raise.
          return False;
    end Exists;
+
+   function Emoji_Font_Path return String is
+   begin
+      for Candidate of Emoji_Candidates loop
+         if Exists (Candidate.all) then
+            return Candidate.all;
+         end if;
+      end loop;
+
+      --  A font the user installed for themselves, which is where one lands on
+      --  a machine without root.
+      if Ada.Environment_Variables.Exists ("HOME") then
+         declare
+            Own : constant String :=
+              Ada.Environment_Variables.Value ("HOME")
+              & "/.local/share/fonts/TwemojiMozilla.ttf";
+         begin
+            if Exists (Own) then
+               return Own;
+            end if;
+         end;
+      end if;
+
+      return "";
+   end Emoji_Font_Path;
 
    function Font_Path return String is
       Override : constant String :=

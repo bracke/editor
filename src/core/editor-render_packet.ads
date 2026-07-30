@@ -34,6 +34,11 @@ package Editor.Render_Packet is
       R  : C_Float := 0.0;
       G  : C_Float := 0.0;
       B  : C_Float := 0.0;
+
+      --  1 when the UVs are into the colour sheet rather than the coverage
+      --  atlas, which is what an emoji is: a picture, with its own colours, and
+      --  nothing for R, G and B above to say about it.
+      Colour : Interfaces.C.int := 0;
    end record;
    pragma Convention (C_Pass_By_Copy, Glyph_Command);
 
@@ -87,6 +92,7 @@ package Editor.Render_Packet is
       Layer          : Render_Layer;
       X, Y, W, H     : Float;
       U0, V0, U1, V1 : Float;
-      R, G, B        : Float);
+      R, G, B        : Float;
+      Colour         : Boolean := False);
 
 end Editor.Render_Packet;

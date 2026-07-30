@@ -13,6 +13,7 @@ with System;
 
 with Editor.C_API;
 with Editor.Font_Bridge;
+with Editor.Fonts;
 with Editor.Render_Layers;
 with Editor.Render_Packet;
 with Vk;
@@ -63,6 +64,11 @@ package body Render_Backend_Vulkan is
       R : C.C_float;
       G : C.C_float;
       B : C.C_float;
+
+      --  Which texture to read: 0.0 the coverage atlas, 1.0 the colour sheet.
+      --  A colour glyph is a picture and the atlas is one channel, so the two
+      --  cannot share a texture however much they share a pipeline.
+      Texture : C.C_float := 0.0;
    end record
      with Convention => C;
 
@@ -80,6 +86,11 @@ package body Render_Backend_Vulkan is
 
    type Rect_Vertex_Array is array (Natural range <>) of Rect_Vertex;
    pragma Convention (C, Rect_Vertex_Array);
+   --  The two values the vertex Texture field takes, named rather than spelled
+   --  as bare floats at each of its uses.
+   Atlas_Texture  : constant C.C_float := 0.0;
+   Colour_Texture : constant C.C_float := 1.0;
+
    type Glyph_Vertex_Array is array (Natural range <>) of Glyph_Vertex;
    pragma Convention (C, Glyph_Vertex_Array);
 
@@ -95,6 +106,14 @@ package body Render_Backend_Vulkan is
    pragma Convention (C, Buffer_Array);
    type Device_Size_Array is array (Positive range <>) of Interfaces.Unsigned_64;
    pragma Convention (C, Device_Size_Array);
+   --  Four bytes: one transparent pixel, for the sheet that is bound before any
+   --  colour glyph exists.
+   type Colour_Sheet_Bytes is array (1 .. 4) of Interfaces.Unsigned_8;
+   pragma Convention (C, Colour_Sheet_Bytes);
+
+   type Descriptor_Binding_Array is
+     array (Positive range <>) of Vk.Descriptor_Set_Layout_Binding_T;
+   pragma Convention (C, Descriptor_Binding_Array);
    type Descriptor_Set_Layout_Array is
      array (Positive range <>) of Vk.Descriptor_Set_Layout_T;
    pragma Convention (C, Descriptor_Set_Layout_Array);
@@ -198,6 +217,15 @@ package body Render_Backend_Vulkan is
       Font_Atlas_Image_View : Vk.Image_View_T := System.Null_Address;
       Font_Atlas_Sampler : Vk.Sampler_T := System.Null_Address;
       Font_Atlas_Width_Value : C.int := 0;
+
+      --  The colour glyph sheet: emoji, packed, in RGBA. A second image rather
+      --  than a corner of the atlas, because the atlas is R8 and a picture does
+      --  not fit in one channel.
+      Colour_Sheet_Image        : Vk.Image_T := System.Null_Address;
+      Colour_Sheet_Image_Memory : Vk.Device_Memory_T := System.Null_Address;
+      Colour_Sheet_Image_View   : Vk.Image_View_T := System.Null_Address;
+      Colour_Sheet_Width_Value  : C.int := 0;
+      Colour_Sheet_Height_Value : C.int := 0;
       Font_Atlas_Height_Value : C.int := 0;
       Image_Available_Semaphore : Vk.Semaphore_T := System.Null_Address;
       Render_Finished_Semaphore : Vk.Semaphore_T := System.Null_Address;
@@ -769,21 +797,29 @@ package body Render_Backend_Vulkan is
    function Create_Text_Descriptors
      (Backend : in out Backend_Record) return Boolean
    is
-      Binding : aliased Vk.Descriptor_Set_Layout_Binding_T :=
-        (binding            => 0,
-         descriptor_Type    => Vk.DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-         descriptor_Count   => 1,
-         stage_Flags        => Vk.SHADER_STAGE_FRAGMENT_BIT,
-         p_Immutable_Samplers => System.Null_Address);
+      --  Binding 0 is the coverage atlas, binding 1 the colour glyph sheet.
+      Bindings : aliased Descriptor_Binding_Array (1 .. 2) :=
+        (1 =>
+           (binding            => 0,
+            descriptor_Type    => Vk.DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            descriptor_Count   => 1,
+            stage_Flags        => Vk.SHADER_STAGE_FRAGMENT_BIT,
+            p_Immutable_Samplers => System.Null_Address),
+         2 =>
+           (binding            => 1,
+            descriptor_Type    => Vk.DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            descriptor_Count   => 1,
+            stage_Flags        => Vk.SHADER_STAGE_FRAGMENT_BIT,
+            p_Immutable_Samplers => System.Null_Address));
       Layout_Info : aliased Vk.Descriptor_Set_Layout_Create_Info_T :=
         (s_Type        => Vk.STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
          p_Next        => System.Null_Address,
          flags         => 0,
-         binding_Count => 1,
-         p_Bindings    => Binding'Address);
+         binding_Count => 2,
+         p_Bindings    => Bindings'Address);
       Pool_Size : aliased Vk.Descriptor_Pool_Size_T :=
         (type_F => Vk.DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-         descriptor_Count => 1);
+         descriptor_Count => 2);
       Pool_Info : aliased Vk.Descriptor_Pool_Create_Info_T :=
         (s_Type          => Vk.STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
          p_Next          => System.Null_Address,
@@ -953,6 +989,121 @@ package body Render_Backend_Vulkan is
         (Backend.Device, 1, Write'Address, 0, System.Null_Address);
    end Update_Font_Atlas_Descriptor;
 
+   procedure Destroy_Colour_Sheet_Image (Backend : in out Backend_Record);
+
+   procedure Destroy_Colour_Sheet_Image (Backend : in out Backend_Record) is
+   begin
+      if Backend.Colour_Sheet_Image_View /= System.Null_Address then
+         Vk.Destroy_Image_View
+           (Backend.Device, Backend.Colour_Sheet_Image_View, System.Null_Address);
+         Backend.Colour_Sheet_Image_View := System.Null_Address;
+      end if;
+
+      if Backend.Colour_Sheet_Image /= System.Null_Address then
+         Vk.Destroy_Image
+           (Backend.Device, Backend.Colour_Sheet_Image, System.Null_Address);
+         Backend.Colour_Sheet_Image := System.Null_Address;
+      end if;
+
+      if Backend.Colour_Sheet_Image_Memory /= System.Null_Address then
+         Vk.Free_Memory
+           (Backend.Device, Backend.Colour_Sheet_Image_Memory, System.Null_Address);
+         Backend.Colour_Sheet_Image_Memory := System.Null_Address;
+      end if;
+
+      Backend.Colour_Sheet_Width_Value := 0;
+      Backend.Colour_Sheet_Height_Value := 0;
+   end Destroy_Colour_Sheet_Image;
+
+   --  The same shape as the atlas image, in RGBA rather than one channel.
+   function Create_Colour_Sheet_Image
+     (Backend : in out Backend_Record;
+      Width   : C.int;
+      Height  : C.int) return Boolean;
+
+   function Create_Colour_Sheet_Image
+     (Backend : in out Backend_Record;
+      Width   : C.int;
+      Height  : C.int) return Boolean
+   is
+      Image : Vk.Image_T := System.Null_Address;
+      Memory : Vk.Device_Memory_T := System.Null_Address;
+      View_Info : aliased Vk.Image_View_Create_Info_T :=
+        (s_Type            => Vk.STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+         p_Next            => System.Null_Address,
+         flags             => 0,
+         image             => System.Null_Address,
+         view_Type         => Vk.IMAGE_VIEW_TYPE_2D,
+         format            => Vk.FORMAT_R8G8B8A8_UNORM,
+         components        =>
+           (r => Vk.COMPONENT_SWIZZLE_IDENTITY,
+            g => Vk.COMPONENT_SWIZZLE_IDENTITY,
+            b => Vk.COMPONENT_SWIZZLE_IDENTITY,
+            a => Vk.COMPONENT_SWIZZLE_IDENTITY),
+         subresource_Range =>
+           (aspect_Mask      => Vk.IMAGE_ASPECT_COLOR_BIT,
+            base_Mip_Level   => 0,
+            level_Count      => 1,
+            base_Array_Layer => 0,
+            layer_Count      => 1));
+      Res : Vk.Result_T;
+   begin
+      Destroy_Colour_Sheet_Image (Backend);
+
+      if not Create_Image
+        (Backend,
+         Interfaces.Unsigned_32 (Width),
+         Interfaces.Unsigned_32 (Height),
+         Vk.FORMAT_R8G8B8A8_UNORM,
+         Vk.IMAGE_USAGE_TRANSFER_DST_BIT or Vk.IMAGE_USAGE_SAMPLED_BIT,
+         Vk.MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+         Image,
+         Memory)
+      then
+         return False;
+      end if;
+
+      Backend.Colour_Sheet_Image := Image;
+      Backend.Colour_Sheet_Image_Memory := Memory;
+      View_Info.image := Backend.Colour_Sheet_Image;
+      Res := Vk.Create_Image_View
+        (Backend.Device,
+         View_Info'Address,
+         System.Null_Address,
+         Backend.Colour_Sheet_Image_View'Address);
+
+      if Failed ("vkCreateImageView(colour sheet)", Res) then
+         return False;
+      end if;
+
+      Backend.Colour_Sheet_Width_Value := Width;
+      Backend.Colour_Sheet_Height_Value := Height;
+      return True;
+   end Create_Colour_Sheet_Image;
+
+   procedure Update_Colour_Sheet_Descriptor (Backend : in out Backend_Record);
+
+   procedure Update_Colour_Sheet_Descriptor (Backend : in out Backend_Record) is
+      Image_Info : aliased Vk.Descriptor_Image_Info_T :=
+        (sampler      => Backend.Font_Atlas_Sampler,
+         image_View   => Backend.Colour_Sheet_Image_View,
+         image_Layout => Vk.IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+      Write : aliased Vk.Write_Descriptor_Set_T :=
+        (s_Type                 => Vk.STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+         p_Next                 => System.Null_Address,
+         dst_Set                => Backend.Text_Descriptor_Set,
+         dst_Binding            => 1,
+         dst_Array_Element      => 0,
+         descriptor_Count       => 1,
+         descriptor_Type        => Vk.DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+         p_Image_Info           => Image_Info'Address,
+         p_Buffer_Info          => System.Null_Address,
+         p_Texel_Buffer_View    => System.Null_Address);
+   begin
+      Vk.Update_Descriptor_Sets
+        (Backend.Device, 1, Write'Address, 0, System.Null_Address);
+   end Update_Colour_Sheet_Descriptor;
+
    function Upload_Font_Atlas (Backend : in out Backend_Record) return Boolean is
       Width  : constant C.int := Editor.Font_Bridge.Atlas_Width;
       Height : constant C.int := Editor.Font_Bridge.Atlas_Height;
@@ -1056,6 +1207,118 @@ package body Render_Backend_Vulkan is
       Vk.Free_Memory (Backend.Device, Staging_Memory, System.Null_Address);
       return True;
    end Upload_Font_Atlas;
+
+   --  Put a packed sheet of colour glyphs on the device.
+   function Upload_Colour_Sheet
+     (Backend : in out Backend_Record;
+      Width   : C.int;
+      Height  : C.int;
+      Pixels  : System.Address) return Boolean;
+
+   function Upload_Colour_Sheet
+     (Backend : in out Backend_Record;
+      Width   : C.int;
+      Height  : C.int;
+      Pixels  : System.Address) return Boolean is
+      Count  : constant Natural :=
+        Natural'Max (0, Integer (Width) * Integer (Height)) * 4;
+      Size   : constant Interfaces.Unsigned_64 := Interfaces.Unsigned_64 (Count);
+      Staging_Buffer : Vk.Buffer_T := System.Null_Address;
+      Staging_Memory : Vk.Device_Memory_T := System.Null_Address;
+      Mapped : aliased System.Address := System.Null_Address;
+      Cmd : aliased Vk.Command_Buffer_T := System.Null_Address;
+      Copy_Result : System.Address;
+      pragma Unreferenced (Copy_Result);
+      Res : Vk.Result_T;
+   begin
+      if Count = 0 or else Pixels = System.Null_Address then
+         return False;
+      end if;
+
+      if Backend.Colour_Sheet_Image = System.Null_Address
+        or else Backend.Colour_Sheet_Width_Value /= Width
+        or else Backend.Colour_Sheet_Height_Value /= Height
+      then
+         if not Create_Colour_Sheet_Image (Backend, Width, Height) then
+            return False;
+         end if;
+      end if;
+
+      if not Create_Buffer
+        (Backend,
+         Size,
+         Vk.BUFFER_USAGE_TRANSFER_SRC_BIT,
+         Vk.MEMORY_PROPERTY_HOST_VISIBLE_BIT
+           or Vk.MEMORY_PROPERTY_HOST_COHERENT_BIT,
+         Staging_Buffer,
+         Staging_Memory)
+      then
+         return False;
+      end if;
+
+      Res := Vk.Map_Memory
+        (Backend.Device, Staging_Memory, 0, Size, 0, Mapped'Address);
+      if Failed ("vkMapMemory(font atlas)", Res) then
+         return False;
+      end if;
+
+      Copy_Result :=
+        Memcpy
+          (Mapped,
+           Pixels,
+           Interfaces.C.size_t (Size));
+      Vk.Unmap_Memory (Backend.Device, Staging_Memory);
+
+      if not Begin_One_Time_Command (Backend, Cmd) then
+         return False;
+      end if;
+
+      Transition_Image
+        (Cmd,
+         Backend.Colour_Sheet_Image,
+         Vk.IMAGE_LAYOUT_UNDEFINED,
+         Vk.IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+      declare
+         Region : aliased Vk.Buffer_Image_Copy_T :=
+           (buffer_Offset       => 0,
+            buffer_Row_Length   => 0,
+            buffer_Image_Height => 0,
+            image_Subresource   =>
+              (aspect_Mask      => Vk.IMAGE_ASPECT_COLOR_BIT,
+               mip_Level        => 0,
+               base_Array_Layer => 0,
+               layer_Count      => 1),
+            image_Offset        => (x => 0, y => 0, z => 0),
+            image_Extent        =>
+              (width  => Interfaces.Unsigned_32 (Width),
+               height => Interfaces.Unsigned_32 (Height),
+               depth  => 1));
+      begin
+         Vk.Cmd_Copy_Buffer_To_Image
+           (Cmd,
+            Staging_Buffer,
+            Backend.Colour_Sheet_Image,
+            Vk.IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            1,
+            Region'Address);
+      end;
+
+      Transition_Image
+        (Cmd,
+         Backend.Colour_Sheet_Image,
+         Vk.IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+         Vk.IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+      if not End_One_Time_Command (Backend, Cmd) then
+         return False;
+      end if;
+
+      Update_Colour_Sheet_Descriptor (Backend);
+      Vk.Destroy_Buffer (Backend.Device, Staging_Buffer, System.Null_Address);
+      Vk.Free_Memory (Backend.Device, Staging_Memory, System.Null_Address);
+      return True;
+   end Upload_Colour_Sheet;
 
    function Create_Shader_Module
      (Backend : Backend_Record;
@@ -1315,7 +1578,7 @@ package body Render_Backend_Vulkan is
         (binding    => 0,
          stride     => Interfaces.Unsigned_32 (Glyph_Vertex_Size),
          input_Rate => Vk.VERTEX_INPUT_RATE_VERTEX);
-      Attrs : aliased Vertex_Attr_Array (1 .. 3) :=
+      Attrs : aliased Vertex_Attr_Array (1 .. 4) :=
         (1 => (location => 0,
                binding  => 0,
                format   => Vk.FORMAT_R32G32_SFLOAT,
@@ -1327,7 +1590,11 @@ package body Render_Backend_Vulkan is
          3 => (location => 2,
                binding  => 0,
                format   => Vk.FORMAT_R32G32B32_SFLOAT,
-               offset   => 16));
+               offset   => 16),
+         4 => (location => 3,
+               binding  => 0,
+               format   => Vk.FORMAT_R32_SFLOAT,
+               offset   => 28));
       Vertex_Input : aliased Vk.Pipeline_Vertex_Input_State_Create_Info_T :=
         (s_Type                             =>
            Vk.STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -1335,7 +1602,7 @@ package body Render_Backend_Vulkan is
          flags                              => 0,
          vertex_Binding_Description_Count   => 1,
          p_Vertex_Binding_Descriptions      => Binding'Address,
-         vertex_Attribute_Description_Count => 3,
+         vertex_Attribute_Description_Count => 4,
          p_Vertex_Attribute_Descriptions    => Attrs'Address);
       IA : aliased Vk.Pipeline_Input_Assembly_State_Create_Info_T :=
         (s_Type                   =>
@@ -2121,14 +2388,22 @@ package body Render_Backend_Vulkan is
       Y0 : constant C.C_float := G.Y;
       X1 : constant C.C_float := G.X + G.W;
       Y1 : constant C.C_float := G.Y + G.H;
+
+      --  A picture reads the colour sheet; an outline reads the atlas.
+      Texture_Choice : constant C.C_float :=
+        (if G.Colour /= 0 then Colour_Texture else Atlas_Texture);
       V0 : constant Glyph_Vertex :=
-        (X => X0, Y => Y0, U => G.U0, V => G.V0, R => G.R, G => G.G, B => G.B);
+        (X => X0, Y => Y0, U => G.U0, V => G.V0, R => G.R, G => G.G, B => G.B,
+         Texture => Texture_Choice);
       V1 : constant Glyph_Vertex :=
-        (X => X1, Y => Y0, U => G.U1, V => G.V0, R => G.R, G => G.G, B => G.B);
+        (X => X1, Y => Y0, U => G.U1, V => G.V0, R => G.R, G => G.G, B => G.B,
+         Texture => Texture_Choice);
       V2 : constant Glyph_Vertex :=
-        (X => X1, Y => Y1, U => G.U1, V => G.V1, R => G.R, G => G.G, B => G.B);
+        (X => X1, Y => Y1, U => G.U1, V => G.V1, R => G.R, G => G.G, B => G.B,
+         Texture => Texture_Choice);
       V3 : constant Glyph_Vertex :=
-        (X => X0, Y => Y1, U => G.U0, V => G.V1, R => G.R, G => G.G, B => G.B);
+        (X => X0, Y => Y1, U => G.U0, V => G.V1, R => G.R, G => G.G, B => G.B,
+         Texture => Texture_Choice);
    begin
       if Count + 6 > Verts'Length then
          raise Constraint_Error with "glyph vertex overflow";
@@ -2528,6 +2803,35 @@ package body Render_Backend_Vulkan is
             return 0;
          end if;
          Capture_Font_Atlas_Upload (B.all);
+      end if;
+
+      --  Binding 1 has to point at something before anything is drawn: a
+      --  descriptor the shader can reach but nobody wrote is undefined, and the
+      --  shader reaches both whichever branch a given pixel takes. A single
+      --  transparent pixel is enough until there is a colour glyph to show.
+      if Editor.Fonts.Colour_Sheet_Dirty then
+         if not Upload_Colour_Sheet
+           (B.all,
+            C.int (Editor.Fonts.Colour_Sheet_Width),
+            C.int (Editor.Fonts.Colour_Sheet_Height),
+            Editor.Fonts.Colour_Sheet_Pixels)
+         then
+            B.Frame_Active := False;
+            return 0;
+         end if;
+
+         Editor.Fonts.Clear_Colour_Sheet_Dirty;
+      end if;
+
+      if B.Colour_Sheet_Image = System.Null_Address then
+         declare
+            Blank : aliased constant Colour_Sheet_Bytes := [others => 0];
+         begin
+            if not Upload_Colour_Sheet (B.all, 1, 1, Blank'Address) then
+               B.Frame_Active := False;
+               return 0;
+            end if;
+         end;
       end if;
 
       if not Record_Command_Buffer (B.all, Packet) then
