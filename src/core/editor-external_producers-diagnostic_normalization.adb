@@ -7,7 +7,9 @@ with Editor.Buffers;
 with Editor.Feature_Diagnostics;
 with Editor.Feature_Panel;
 with Editor.Feature_Targets;
+with Editor.Path_Helpers;
 with Editor.Project;
+with Hostkit.Host;
 with Editor.State;
 with Editor.External_Producers.Diagnostics;
 use Editor.External_Producers.Diagnostics;
@@ -82,9 +84,21 @@ package body Editor.External_Producers.Diagnostic_Normalization is
      (S          : Editor.State.State_Type;
       File_Label : String) return Editor.External_Producers.Diagnostics.Buffer_Target_Resolution
    is
+      use type Hostkit.Host.Kind;
       Clean_Label : constant String := Ada.Strings.Fixed.Trim (File_Label, Both);
       Match_Count : Natural := 0;
       Match_Token : Natural := Editor.Feature_Diagnostics.No_Buffer;
+
+      --  A compiler emits the diagnostic's file with the host's own separators
+      --  (backslashes on Windows), while the candidate labels below are joined
+      --  with a literal '/', and a buffer's stored path is Full_Name. Compare
+      --  them in the editor's neutral form -- separators folded to '/' and case
+      --  folded on Windows -- so a diagnostic still resolves to its buffer there.
+      Fold : constant Boolean := Hostkit.Host.Current = Hostkit.Host.Windows;
+
+      function Same (A, B : String) return Boolean is
+        (Editor.Path_Helpers.Normalize_For_Compare (A, Strip_Trailing => True, Lowercase => Fold)
+         = Editor.Path_Helpers.Normalize_For_Compare (B, Strip_Trailing => True, Lowercase => Fold));
 
       procedure Consider
         (Token        : Natural;
@@ -110,10 +124,10 @@ package body Editor.External_Producers.Diagnostic_Normalization is
            and then Clean_Label'Length > 0
            and then Token /= Editor.Feature_Diagnostics.No_Buffer
            and then ((Has_Path and then Path'Length > 0 and then
-                        (Path = Clean_Label
-                         or else Path = Project_Label
+                        (Same (Path, Clean_Label)
+                         or else Same (Path, Project_Label)
                          or else (not Is_Diagnostic_Path_Absolute (Clean_Label)
-                           and then Ada.Directories.Simple_Name (Path) = Clean_Label)))
+                           and then Same (Ada.Directories.Simple_Name (Path), Clean_Label))))
                      or else Display_Name = Clean_Label);
       begin
          if Is_Match then
