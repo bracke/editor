@@ -216,63 +216,7 @@ jobs:
               echo "::error::the test binary has unresolved DLL imports (listed above)"
               exit 1
             fi
-            BIN=./bin/tests.exe
+            alr --non-interactive exec -- ./bin/tests.exe
           else
-            BIN=./bin/tests
+            alr --non-interactive exec -- ./bin/tests
           fi
-          # TEMP (Windows-hang bisection): run each sub-suite as its own process
-          # under a hard timeout so a hang is isolated and named in the log. The
-          # step runs under `set -e`, so guard each run with `|| rc=$?` -- a suite
-          # that fails or times out must be recorded, not abort the whole loop.
-          HUNG=""
-          FAILED=""
-          run_one () {   # $1 = marker label, remaining = env + argv for the run
-            local label="$1"; shift
-            echo "=== RUN START: $label ==="
-            local rc=0
-            timeout --signal=KILL 200 "$@" || rc=$?
-            echo "=== RUN END: $label (rc=$rc) ==="
-            if [ "$rc" = "124" ] || [ "$rc" = "137" ]; then HUNG="$HUNG $label"; fi
-            if [ "$rc" != "0" ]; then FAILED="$FAILED $label"; fi
-          }
-          # TEMP: print the host facts the real-process cancel guard reads, so we
-          # can see why Is_POSIX/Host.Current come out as they do on Windows.
-          run_one "DIAG" env EDITOR_DIAG_HOST=1 alr --non-interactive exec -- "$BIN"
-          # Pass the selection through `env` in the argv, not a prefix on the
-          # run_one call: a var set before a shell function is not exported to
-          # the tests.exe grandchild, so the selection would be ignored.
-          for s in core ui workspace build outline langservice lang rm text; do
-            if [ "$s" = "build" ]; then
-              # The build suite hangs and a SIGKILL loses its buffered stdout, so
-              # bisect it a level deeper: an empty selection (no test case) proves
-              # whether the hang is at process init/exit rather than in a test,
-              # then each case runs alone.
-              run_one "build:__none__" \
-                env EDITOR_TEST_SUITE=build EDITOR_BUILD_CASE=__none__ \
-                alr --non-interactive exec -- "$BIN"
-              for c in problems diagnostics diagux cmdext prodcontract extprod buildui \
-                       terminal candidates builddiag builddiagrev milestone resultsum \
-                       outputdetails execwf slice; do
-                if [ "$c" = "execwf" ]; then
-                  # execwf is the hanging case; a SIGKILL loses its buffered
-                  # stdout so bisect it per registration index (1..43) to name
-                  # the exact hanging routine.
-                  for i in $(seq 1 43); do
-                    run_one "execwf:$i" \
-                      env EDITOR_TEST_SUITE=build EDITOR_BUILD_CASE=execwf EDITOR_EXECWF_ONLY="$i" \
-                      alr --non-interactive exec -- "$BIN"
-                  done
-                else
-                  run_one "build:$c" \
-                    env EDITOR_TEST_SUITE=build EDITOR_BUILD_CASE="$c" \
-                    alr --non-interactive exec -- "$BIN"
-                fi
-              done
-            else
-              run_one "$s" \
-                env EDITOR_TEST_SUITE="$s" \
-                alr --non-interactive exec -- "$BIN"
-            fi
-          done
-          [ -n "$HUNG" ] && echo "::error::hung:$HUNG"
-          if [ -n "$FAILED" ]; then echo "::error::failed:$FAILED"; exit 1; fi
