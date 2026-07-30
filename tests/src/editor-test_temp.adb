@@ -3,8 +3,14 @@ with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with GNAT.OS_Lib;
 
 with Hostkit.Fs;
+with Hostkit.Host;
 
 package body Editor.Test_Temp is
+
+   use type Hostkit.Host.Kind;
+
+   Host_Separator : constant Character :=
+     (if Hostkit.Host.Current = Hostkit.Host.Windows then '\' else '/');
 
    function Base return String is
       --  Ask hostkit for the host's temp directory rather than reading
@@ -36,8 +42,20 @@ package body Editor.Test_Temp is
       begin
          --  Skip empty segments from a leading, trailing or doubled '/'.
          if Segment'Length > 0 then
-            Result := To_Unbounded_String
-              (Ada.Directories.Compose (To_String (Result), Segment));
+            begin
+               Result := To_Unbounded_String
+                 (Ada.Directories.Compose (To_String (Result), Segment));
+            exception
+               when others =>
+                  --  Ada.Directories.Compose rejects names it deems invalid
+                  --  simple names (a drive letter "C:...", or malformed data a
+                  --  test deliberately feeds as a path segment, e.g. containing
+                  --  '|' or '='). Join must not raise on those: fall back to a
+                  --  plain host-separator append, which yields the same native
+                  --  form for ordinary names.
+                  Append (Result, Host_Separator);
+                  Append (Result, Segment);
+            end;
          end if;
       end Add;
    begin

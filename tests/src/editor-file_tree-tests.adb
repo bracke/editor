@@ -809,8 +809,11 @@ package body Editor.File_Tree.Tests is
    is
       pragma Unreferenced (T);
       Root       : constant String := Temp_Path ("drive_relative_create");
-      File_Path  : constant String := Ada.Directories.Compose (Root, "C:tmp.txt");
-      Dir_Path   : constant String := Ada.Directories.Compose (Root, "D:generated");
+      --  Test_Temp.Join, not Ada.Directories.Compose: "C:tmp.txt" is not a valid
+      --  simple name on Windows (the drive letter this test is about), so Compose
+      --  raises there. Join falls back to a plain join for such names.
+      File_Path  : constant String := Editor.Test_Temp.Join (Root, "C:tmp.txt");
+      Dir_Path   : constant String := Editor.Test_Temp.Join (Root, "D:generated");
       S          : Editor.State.State_Type;
       Opened     : Editor.Project.Project_Open_Result;
       Msg_Found  : Boolean := False;
