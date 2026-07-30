@@ -1,3 +1,5 @@
+with Ada.Characters.Handling;
+with Hostkit.Host; use type Hostkit.Host.Kind;
 with Editor.Command_Ids; use Editor.Command_Ids;
 with Editor.Commands.Payloads;
 with Editor.Commands.Descriptors; use Editor.Commands.Descriptors;
@@ -282,6 +284,14 @@ package body Editor.Project.Tests is
               "Root itself must be under project");
       Assert (not Editor.Project.Is_Under_Project (State, Other),
               "Outside file must not be under project");
+      --  A path that differs from an in-project file only in case is the SAME
+      --  file on Windows (case-insensitive filesystem) and a DIFFERENT one on a
+      --  case-sensitive host -- so the boundary check must fold case on Windows
+      --  and only there.
+      Assert (Editor.Project.Is_Under_Project
+                (State, Ada.Characters.Handling.To_Upper (File_P)) =
+                (Hostkit.Host.Current = Hostkit.Host.Windows),
+              "case-variant in-project path is inside only on a case-insensitive host");
       Assert (Editor.Project.Relative_Path (State, Root) = ".",
               "Relative path for root itself must be dot");
       Assert (Editor.Project.Relative_Path (State, File_P) = "src/main.adb",

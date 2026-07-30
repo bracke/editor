@@ -1,4 +1,5 @@
 with Ada.Directories;
+with Hostkit.Host;
 with Ada.Containers; use type Ada.Containers.Count_Type;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -10,18 +11,24 @@ package body Editor.Project is
    use type Ada.Directories.File_Kind;
 
    function Comparable_Path (Path : String) return String is
+      use type Hostkit.Host.Kind;
+      --  Fold case on Windows, whose filesystem is case-insensitive, so paths
+      --  that differ only in case still compare as the same file/project.
+      Fold : constant Boolean := Hostkit.Host.Current = Hostkit.Host.Windows;
    begin
       if Path'Length = 0 then
          return Path;
       elsif Ada.Directories.Exists (Path) then
          return Editor.Path_Helpers.Normalize_For_Compare
-           (Ada.Directories.Full_Name (Path), True);
+           (Ada.Directories.Full_Name (Path), Strip_Trailing => True, Lowercase => Fold);
       else
-         return Editor.Path_Helpers.Normalize_For_Compare (Path, True);
+         return Editor.Path_Helpers.Normalize_For_Compare
+           (Path, Strip_Trailing => True, Lowercase => Fold);
       end if;
    exception
       when others =>
-         return Editor.Path_Helpers.Normalize_For_Compare (Path, True);
+         return Editor.Path_Helpers.Normalize_For_Compare
+           (Path, Strip_Trailing => True, Lowercase => Fold);
    end Comparable_Path;
 
    function Starts_With

@@ -234,12 +234,10 @@ package body Editor.External_Producers.Execution_Policy is
 
    function Native_Process_Control_Backend_Label return String is
    begin
-      case Current_Native_Process_Control_Backend is
-         when Native_Process_Control_POSIX =>
-            return "hostkit/" & Hostkit.Process.Native_Backend_Label;
-         when Native_Process_Control_Windows =>
-            return "hostkit/" & Hostkit.Process.Native_Backend_Label;
-      end case;
+      --  The backend is identified by Hostkit.Host.Current now, not by parsing
+      --  this label; the label is just hostkit's own description of the body it
+      --  linked, and it reads the same whichever host that is.
+      return "hostkit/" & Hostkit.Process.Native_Backend_Label;
    end Native_Process_Control_Backend_Label;
 
    function Native_Process_Control_Is_POSIX return Boolean is

@@ -69,6 +69,8 @@ jobs:
           sudo apt-get install -y libaunit-dev \
             || sudo apt-get install -y libaunit22-dev \
             || sudo apt-get install -y libaunit24-dev
+          # ripgrep is what check_repo_hygiene shells out to for its active-text scans.
+          sudo apt-get install -y ripgrep
 
       - name: Install system libraries (macOS)
         if: runner.os == 'macOS'
@@ -220,3 +222,18 @@ jobs:
           else
             alr --non-interactive exec -- ./bin/tests
           fi
+
+      - name: Repo gates -- docs and hygiene (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        working-directory: editor
+        # The project's own gates, which ci.yml did not run until now: check_docs asserts
+        # the documentation contract markers, check_repo_hygiene scans (via ripgrep) for
+        # stray build artifacts and obsolete phase/pass wording in active sources.
+        # editor_tools.gpr is standalone -- no editor-library dependency -- so this builds
+        # in seconds and needs no display.
+        run: |
+          alr --non-interactive exec -- gprbuild -q -P tools/editor_tools.gpr \
+            check_docs.adb check_repo_hygiene.adb
+          tools/bin/check_docs
+          tools/bin/check_repo_hygiene

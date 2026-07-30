@@ -1,5 +1,6 @@
 with Ada.Containers;
 with Ada.Directories;
+with Hostkit.Host;
 with Ada.Text_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
@@ -46,18 +47,24 @@ package body Editor.Build_Candidates is
    end Base_Name;
 
    function Canonical_Existing_Path (Path : String) return String is
+      use type Hostkit.Host.Kind;
+      --  Fold case on Windows (case-insensitive filesystem) so a build target
+      --  and the project root that differ only in case still compare equal.
+      Fold : constant Boolean := Hostkit.Host.Current = Hostkit.Host.Windows;
    begin
       if Editor.Text_Helpers.Trim (Path)'Length = 0 then
          return "";
       elsif Ada.Directories.Exists (Path) then
          return Editor.Path_Helpers.Normalize_For_Compare
-           (Ada.Directories.Full_Name (Path), True);
+           (Ada.Directories.Full_Name (Path), Strip_Trailing => True, Lowercase => Fold);
       else
-         return Editor.Path_Helpers.Normalize_For_Compare (Path, True);
+         return Editor.Path_Helpers.Normalize_For_Compare
+           (Path, Strip_Trailing => True, Lowercase => Fold);
       end if;
    exception
       when others =>
-         return Editor.Path_Helpers.Normalize_For_Compare (Path, True);
+         return Editor.Path_Helpers.Normalize_For_Compare
+           (Path, Strip_Trailing => True, Lowercase => Fold);
    end Canonical_Existing_Path;
 
    function Is_Path_Within_Project_Root (Path, Project_Root : String) return Boolean is
