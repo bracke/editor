@@ -2,6 +2,8 @@ with Ada.Directories;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Editor.Commands.Workflow_Messages;
+with Editor.Path_Helpers;
+with Hostkit.Host;
 
 package body Editor.Missing_Stale_Recovery.Target_Messages is
 
@@ -68,8 +70,20 @@ package body Editor.Missing_Stale_Recovery.Target_Messages is
    end Canonical;
 
    function Is_Inside_Project (Project_Root : String; Path : String) return Boolean is
-      Root : constant String := Canonical (Project_Root);
-      Item : constant String := Canonical (Path);
+      use type Hostkit.Host.Kind;
+      --  Compare in a host-appropriate form: separators folded to '/' (Canonical
+      --  returns Full_Name, which is all backslashes on Windows, and the
+      --  boundary test below is written for '/'), and case-folded on Windows,
+      --  whose filesystem is case-insensitive. Without this every in-project
+      --  file read as "outside the project" on Windows and the target
+      --  validation returned Outside_Project instead of missing/stale/available.
+      Fold : constant Boolean := Hostkit.Host.Current = Hostkit.Host.Windows;
+      Root : constant String :=
+        Editor.Path_Helpers.Normalize_For_Compare
+          (Canonical (Project_Root), Strip_Trailing => True, Lowercase => Fold);
+      Item : constant String :=
+        Editor.Path_Helpers.Normalize_For_Compare
+          (Canonical (Path), Strip_Trailing => True, Lowercase => Fold);
    begin
       if Trim (Project_Root)'Length = 0 then
          return True;
