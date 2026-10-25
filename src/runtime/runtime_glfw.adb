@@ -13,7 +13,7 @@ with Glfw.Input.Keys;
 with Glfw.Input.Mouse;
 with Glfw.Windows;
 with Glfw.Windows.Hints;
-with Glfw.Windows.Native;
+with Glfw.Windows.No_API;
 
 package body Runtime_GLFW is
    package C renames Interfaces.C;
@@ -629,13 +629,13 @@ package body Runtime_GLFW is
       end;
 
       Glfw.Windows.Hints.Reset_To_Defaults;
-      Glfw.Windows.Native.Set_Client_API_No_API;
+      Glfw.Windows.No_API.Set_Client_API_No_API;
       if Smoke_Mode then
          Glfw.Windows.Hints.Set_Visible (False);
       end if;
 
       begin
-         Glfw.Windows.Native.Init_No_API
+         Glfw.Windows.No_API.Init_No_API
            (Window'Access, 800, 600, "Editor");
       exception
          when Glfw.Windows.Creation_Error =>
@@ -665,7 +665,7 @@ package body Runtime_GLFW is
 
       Window.Backend :=
         Render_Backend_Create
-          (Glfw.Windows.Native.Raw_Handle (Window'Access));
+          (Glfw.Windows.No_API.Raw_Handle (Window'Access));
 
       if Window.Backend = System.Null_Address then
          return Fail

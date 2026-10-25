@@ -4,7 +4,7 @@ with System.Address_To_Access_Conversions;
 with Glfw.API;
 with Glfw.Enums;
 
-package body Glfw.Windows.Native is
+package body Glfw.Windows.No_API is
    use type System.Address;
 
    package Conv is new System.Address_To_Access_Conversions (Window'Class);
@@ -49,4 +49,4 @@ package body Glfw.Windows.Native is
    begin
       return Object.Handle;
    end Raw_Handle;
-end Glfw.Windows.Native;
+end Glfw.Windows.No_API;

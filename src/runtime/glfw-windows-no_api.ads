@@ -1,6 +1,6 @@
 with System;
 
-package Glfw.Windows.Native is
+package Glfw.Windows.No_API is
    procedure Set_Client_API_No_API;
 
    procedure Init_No_API
@@ -10,4 +10,4 @@ package Glfw.Windows.Native is
 
    function Raw_Handle
      (Object : not null access Window'Class) return System.Address;
-end Glfw.Windows.Native;
+end Glfw.Windows.No_API;

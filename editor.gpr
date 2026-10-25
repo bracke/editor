@@ -15,8 +15,8 @@ project Editor is
    for Source_Files use
      ("editor_main.adb",
       "main.c",
-      "glfw-windows-native.ads",
-      "glfw-windows-native.adb",
+      "glfw-windows-no_api.ads",
+      "glfw-windows-no_api.adb",
       "runtime_glfw.ads",
       "runtime_glfw.adb",
       "render_backend_vulkan.ads",
