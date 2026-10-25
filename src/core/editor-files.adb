@@ -265,7 +265,7 @@ package body Editor.Files is
       Result.Display_Name := To_Unbounded_String
         (Display_Name_For_Path (To_String (Result.Path)));
 
-      Stream_IO.Open (F, Stream_IO.In_File, To_String (Result.Path));
+      Stream_IO.Open (F, Stream_IO.In_File, To_String (Result.Path), Form => "shared=no");
 
       declare
          Size : constant Stream_IO.Count := Stream_IO.Size (F);
@@ -608,8 +608,8 @@ package body Editor.Files is
       Result.Source_Path := To_Unbounded_String
         (Canonical_Path_For_Existing_File (Source));
 
-      Stream_IO.Open (Source_File, Stream_IO.In_File, To_String (Result.Source_Path));
-      Stream_IO.Create (Target_File, Stream_IO.Out_File, Target);
+      Stream_IO.Open (Source_File, Stream_IO.In_File, To_String (Result.Source_Path), Form => "shared=no");
+      Stream_IO.Create (Target_File, Stream_IO.Out_File, Target, Form => "shared=no");
 
       declare
          Buffer : Ada.Streams.Stream_Element_Array (1 .. 8192);
@@ -893,7 +893,7 @@ package body Editor.Files is
 
       Temp := To_Unbounded_String (Temp_Path_For (Path));
       Remove_Temp_Best_Effort;
-      Stream_IO.Create (F, Stream_IO.Out_File, To_String (Temp));
+      Stream_IO.Create (F, Stream_IO.Out_File, To_String (Temp), Form => "shared=no");
 
       if Contents'Length > 0 then
          declare

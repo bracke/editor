@@ -149,7 +149,7 @@ package body Editor_Tool_Common is
          return "";
       end if;
 
-      Ada.Text_IO.Open (F, Ada.Text_IO.In_File, Path);
+      Ada.Text_IO.Open (F, Ada.Text_IO.In_File, Path, Form => "shared=no");
       if Ada.Text_IO.End_Of_File (F) then
          Ada.Text_IO.Close (F);
          return "";
@@ -211,7 +211,7 @@ package body Editor_Tool_Common is
          return "";
       end if;
 
-      Ada.Text_IO.Open (F, Ada.Text_IO.In_File, Path);
+      Ada.Text_IO.Open (F, Ada.Text_IO.In_File, Path, Form => "shared=no");
       while not Ada.Text_IO.End_Of_File (F) loop
          Ada.Text_IO.Get_Line (F, Line, Last);
          if Last > 0 then
@@ -281,7 +281,7 @@ package body Editor_Tool_Common is
       if not Ada.Directories.Exists (Path) then
          return False;
       end if;
-      Ada.Text_IO.Open (F, Ada.Text_IO.In_File, Path);
+      Ada.Text_IO.Open (F, Ada.Text_IO.In_File, Path, Form => "shared=no");
       while not Ada.Text_IO.End_Of_File (F) loop
          Ada.Text_IO.Get_Line (F, Line, Last);
          if Last > 0
@@ -311,8 +311,8 @@ package body Editor_Tool_Common is
       if Ada.Directories.Size (Left) /= Ada.Directories.Size (Right) then
          return False;
       end if;
-      SIO.Open (L, SIO.In_File, Left);
-      SIO.Open (R, SIO.In_File, Right);
+      SIO.Open (L, SIO.In_File, Left, Form => "shared=no");
+      SIO.Open (R, SIO.In_File, Right, Form => "shared=no");
       loop
          SIO.Read (L, LB, LL);
          SIO.Read (R, RB, RL);

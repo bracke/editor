@@ -737,7 +737,7 @@ package body Editor.Settings is
          Ada.Directories.Delete_File (Backup);
       end if;
 
-      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Temp);
+      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Temp, Form => "shared=no");
       Write_Settings (File, Settings);
       Ada.Text_IO.Close (File);
 
@@ -825,7 +825,7 @@ package body Editor.Settings is
          return;
       end if;
 
-      Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path);
+      Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path, Form => "shared=no");
       Status := Settings_Ok;
       while not Ada.Text_IO.End_Of_File (File) loop
          declare

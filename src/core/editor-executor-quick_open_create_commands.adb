@@ -154,7 +154,7 @@ package body Editor.Executor.Quick_Open_Create_Commands is
          Ada.Text_IO.Create
            (File => Created_File,
             Mode => Ada.Text_IO.Out_File,
-            Name => To_String (Abs_Path));
+            Name => To_String (Abs_Path), Form => "shared=no");
          Created_File_Open := True;
          Ada.Text_IO.Close (Created_File);
          Created_File_Open := False;
@@ -430,7 +430,7 @@ package body Editor.Executor.Quick_Open_Create_Commands is
          Ada.Text_IO.Create
            (File => Created_File,
             Mode => Ada.Text_IO.Out_File,
-            Name => To_String (Abs_Path));
+            Name => To_String (Abs_Path), Form => "shared=no");
          Created_File_Open := True;
          Ada.Text_IO.Close (Created_File);
          Created_File_Open := False;

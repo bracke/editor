@@ -26,7 +26,7 @@ procedure Release_Candidate_Check is
       Last   : Natural;
       Prefix : constant String := Key & "=";
    begin
-      Ada.Text_IO.Open (F, Ada.Text_IO.In_File, Path);
+      Ada.Text_IO.Open (F, Ada.Text_IO.In_File, Path, Form => "shared=no");
       while not Ada.Text_IO.End_Of_File (F) loop
          Ada.Text_IO.Get_Line (F, Line, Last);
          if Last >= Prefix'Length

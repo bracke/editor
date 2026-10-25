@@ -582,7 +582,7 @@ package body Editor.Keybinding_Config is
       if Ada.Directories.Exists (Backup) then
          Ada.Directories.Delete_File (Backup);
       end if;
-      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Temp);
+      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Temp, Form => "shared=no");
       Write_Config (File, Config);
       Ada.Text_IO.Close (File);
       Had_Previous := Ada.Directories.Exists (Path);
@@ -650,7 +650,7 @@ package body Editor.Keybinding_Config is
          return;
       end if;
 
-      Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path);
+      Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path, Form => "shared=no");
       Status := Keybinding_Config_Ok;
       while not Ada.Text_IO.End_Of_File (File) loop
          declare

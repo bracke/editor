@@ -19,7 +19,7 @@ procedure Shader_Toolchain_Manifest_Check is
       Last   : Natural;
       Prefix : constant String := Key & "=";
    begin
-      Ada.Text_IO.Open (F, Ada.Text_IO.In_File, Manifest);
+      Ada.Text_IO.Open (F, Ada.Text_IO.In_File, Manifest, Form => "shared=no");
       while not Ada.Text_IO.End_Of_File (F) loop
          Ada.Text_IO.Get_Line (F, Line, Last);
          if Last >= Prefix'Length

@@ -777,7 +777,7 @@ package body Editor.Settings_Management is
          Editor.Settings.Load_From_File (Path, Loaded, Result.Load_Status);
       end;
 
-      Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path);
+      Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path, Form => "shared=no");
       while not Ada.Text_IO.End_Of_File (File) loop
          declare
             Raw : constant String := Ada.Text_IO.Get_Line (File);
@@ -978,7 +978,7 @@ package body Editor.Settings_Management is
          File : Ada.Text_IO.File_Type;
          Text : Unbounded_String := Null_Unbounded_String;
       begin
-         Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path);
+         Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path, Form => "shared=no");
          while not Ada.Text_IO.End_Of_File (File) loop
             Append (Text, Ada.Text_IO.Get_Line (File));
             Append (Text, ASCII.LF);
@@ -1005,7 +1005,7 @@ package body Editor.Settings_Management is
       if Ada.Directories.Exists (Path) then
          Ada.Directories.Delete_File (Path);
       end if;
-      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Path);
+      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Path, Form => "shared=no");
       Ada.Text_IO.Put_Line (File, "editor-settings-version=1");
       Ada.Text_IO.Put_Line (File, "[command-palette]");
       Ada.Text_IO.Put_Line (File, "show-keybindings=false");

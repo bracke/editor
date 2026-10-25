@@ -285,9 +285,9 @@ begin
       Timing_File : Ada.Text_IO.File_Type;
    begin
       if Ada.Directories.Exists (Timing_Path) then
-         Ada.Text_IO.Open (Timing_File, Ada.Text_IO.Append_File, Timing_Path);
+         Ada.Text_IO.Open (Timing_File, Ada.Text_IO.Append_File, Timing_Path, Form => "shared=no");
       else
-         Ada.Text_IO.Create (Timing_File, Ada.Text_IO.Out_File, Timing_Path);
+         Ada.Text_IO.Create (Timing_File, Ada.Text_IO.Out_File, Timing_Path, Form => "shared=no");
       end if;
       Ada.Text_IO.Put_Line
         (Timing_File,

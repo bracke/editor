@@ -118,7 +118,7 @@ begin
       return;
    end if;
 
-   Ada.Text_IO.Open (F, Ada.Text_IO.In_File, Timing_Path);
+   Ada.Text_IO.Open (F, Ada.Text_IO.In_File, Timing_Path, Form => "shared=no");
    while not Ada.Text_IO.End_Of_File (F) loop
       declare
          Line : constant String := Ada.Text_IO.Get_Line (F);

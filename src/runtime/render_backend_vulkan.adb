@@ -1347,7 +1347,7 @@ package body Render_Backend_Vulkan is
             p_Code    => Data'Address);
          Res : Vk.Result_T;
       begin
-         SIO.Open (File, SIO.In_File, Path);
+         SIO.Open (File, SIO.In_File, Path, Form => "shared=no");
          SIO.Read (File, Data, Last);
          SIO.Close (File);
          if Natural (Last) /= Size then

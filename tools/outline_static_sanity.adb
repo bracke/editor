@@ -145,7 +145,7 @@ procedure Outline_Static_Sanity is
       end if;
 
       begin
-         Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path);
+         Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path, Form => "shared=no");
       exception
          when others =>
             Report ("missing outline sanity input: " & Path);

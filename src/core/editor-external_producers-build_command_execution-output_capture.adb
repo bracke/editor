@@ -133,7 +133,7 @@ package body Editor.External_Producers.Build_Command_Execution.Output_Capture is
          return Result;
       end if;
 
-      SIO.Open (File, SIO.In_File, Path);
+      SIO.Open (File, SIO.In_File, Path, Form => "shared=no");
       while not SIO.End_Of_File (File) loop
          SIO.Read (File, Buffer, Last);
          exit when Last < Buffer'First;

@@ -292,7 +292,7 @@ procedure Ada_Keyword_Identifier_Check is
       Last    : Natural;
       Line_No : Natural := 0;
    begin
-      Ada.Text_IO.Open (F, Ada.Text_IO.In_File, Path);
+      Ada.Text_IO.Open (F, Ada.Text_IO.In_File, Path, Form => "shared=no");
       while not Ada.Text_IO.End_Of_File (F) loop
          Ada.Text_IO.Get_Line (F, Buffer, Last);
          Line_No := Line_No + 1;

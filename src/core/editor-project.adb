@@ -520,7 +520,7 @@ package body Editor.Project is
       end if;
 
       Ada.Text_IO.Open
-        (File, Ada.Text_IO.In_File, Ignore_Path);
+        (File, Ada.Text_IO.In_File, Ignore_Path, Form => "shared=no");
 
       while not Ada.Text_IO.End_Of_File (File) loop
          declare

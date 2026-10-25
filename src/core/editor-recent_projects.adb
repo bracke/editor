@@ -422,7 +422,7 @@ package body Editor.Recent_Projects is
          return;
       end if;
 
-      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Path);
+      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Path, Form => "shared=no");
       Ada.Text_IO.Put_Line (File, "editor-recent-projects-version=1");
       Ada.Text_IO.Put_Line (File, "[projects]");
       for Item of Copy.Entries loop
@@ -528,7 +528,7 @@ package body Editor.Recent_Projects is
          return;
       end if;
 
-      Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path);
+      Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path, Form => "shared=no");
       while not Ada.Text_IO.End_Of_File (File) loop
          declare
             Line : constant String := Ada.Text_IO.Get_Line (File);

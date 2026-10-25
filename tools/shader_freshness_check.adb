@@ -29,7 +29,7 @@ procedure Shader_Freshness_Check is
       Line   : String (1 .. 4096);
       Last   : Natural;
    begin
-      Ada.Text_IO.Open (F, Ada.Text_IO.In_File, "docs/release/SHADER_TOOLCHAIN_VERSION.txt");
+      Ada.Text_IO.Open (F, Ada.Text_IO.In_File, "docs/release/SHADER_TOOLCHAIN_VERSION.txt", Form => "shared=no");
       while not Ada.Text_IO.End_Of_File (F) loop
          Ada.Text_IO.Get_Line (F, Line, Last);
          if Last >= Prefix'Length

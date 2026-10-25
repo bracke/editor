@@ -127,7 +127,7 @@ package body Editor.Executor.File_Tree_Create_Commands is
       end if;
 
       begin
-         Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, To_String (Target));
+         Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, To_String (Target), Form => "shared=no");
          Ada.Text_IO.Close (File);
          Editor.Executor.File_Tree_Mutation_Commands
            .Invalidate_Project_State_After_File_Tree_Mutation

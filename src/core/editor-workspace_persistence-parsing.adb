@@ -323,7 +323,7 @@ package body Editor.Workspace_Persistence.Parsing is
          return;
       end if;
 
-      Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path);
+      Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path, Form => "shared=no");
       while not Ada.Text_IO.End_Of_File (File) loop
          declare
             Raw_Line : constant String := Ada.Text_IO.Get_Line (File);

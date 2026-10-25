@@ -39,7 +39,7 @@ package body Editor.Workspace_Persistence.File_IO is
          return Session_File_Unreadable;
       end if;
 
-      Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path);
+      Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path, Form => "shared=no");
       Ada.Text_IO.Close (File);
       return Session_File_Present;
    exception
@@ -79,7 +79,7 @@ package body Editor.Workspace_Persistence.File_IO is
       Status := Workspace_Persistence_Ok;
       Normalize (Copy);
 
-      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Path);
+      Ada.Text_IO.Create (File, Ada.Text_IO.Out_File, Path, Form => "shared=no");
       Ada.Text_IO.Put (File, Serialized_Text (Copy));
       --  Settings-owned data, including the active theme, is intentionally
       --  excluded from the workspace session format.  Workspace persistence

@@ -125,7 +125,7 @@ package body Editor.Build_Candidates is
       --  by the editor process.  Discovery still does not parse TOML/GPR
       --  semantics; this is a bounded open/close readability check used only
       --  to mark stale or inaccessible candidates unavailable.
-      Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path);
+      Ada.Text_IO.Open (File, Ada.Text_IO.In_File, Path, Form => "shared=no");
       Ada.Text_IO.Close (File);
       return True;
    exception
