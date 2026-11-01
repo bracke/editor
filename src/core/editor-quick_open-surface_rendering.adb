@@ -288,7 +288,7 @@ package body Editor.Quick_Open.Surface_Rendering is
                               Has_Background   => Candidate.Is_Active and then not Candidate.Is_Selected,
                               Background_Color => Guikit.Draw.Hover_Color,
                               Accent_Color     =>
-                                (if Candidate.Is_Active then Guikit.Draw.Label_Orange_Color
+                                (if Candidate.Is_Active then Guikit.Draw.Accent_Orange_Color
                                  else Guikit.Draw.Border_Color),
                               Shortcut_Color   => Guikit.Draw.Muted_Text_Color));
                      end;

@@ -85,10 +85,10 @@ package body Editor.Messages.Surface_Rendering is
                      Foreground := Guikit.Draw.Text_Color;
                   when Editor.Messages.Success_Message =>
                      Background := Guikit.Draw.Pane_Color;
-                     Foreground := Guikit.Draw.Label_Green_Color;
+                     Foreground := Guikit.Draw.Accent_Green_Color;
                   when Editor.Messages.Warning_Message =>
                      Background := Guikit.Draw.Pane_Color;
-                     Foreground := Guikit.Draw.Label_Orange_Color;
+                     Foreground := Guikit.Draw.Accent_Orange_Color;
                   when Editor.Messages.Error_Message =>
                      Background := Guikit.Draw.Pane_Color;
                      Foreground := Guikit.Draw.Error_Text_Color;

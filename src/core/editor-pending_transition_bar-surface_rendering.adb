@@ -286,7 +286,7 @@ package body Editor.Pending_Transition_Bar.Surface_Rendering is
             Y      => Natural (Editor.Pending_Transition_Bar.Bar_Y (Bar_Layout)),
             Width  => 3,
             Height => Natural (Editor.Pending_Transition_Bar.Bar_H (Bar_Layout)),
-            Color  => Guikit.Draw.Label_Orange_Color));
+            Color  => Guikit.Draw.Accent_Orange_Color));
 
       declare
          Text_X : constant Float :=

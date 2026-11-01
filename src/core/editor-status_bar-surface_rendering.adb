@@ -141,7 +141,7 @@ package body Editor.Status_Bar.Surface_Rendering is
               (Text,
                Left_Display (Left_Display'Last .. Left_Display'Last),
                Left_X + Float ((Left_Display'Length - 1) * Cell_W),
-               Bar_Y, Guikit.Draw.Label_Orange_Color);
+               Bar_Y, Guikit.Draw.Accent_Orange_Color);
          else
             Push_Text
               (Text, Left_Display, Left_X, Bar_Y,

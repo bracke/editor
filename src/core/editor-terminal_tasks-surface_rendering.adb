@@ -54,17 +54,17 @@ package body Editor.Terminal_Tasks.Surface_Rendering is
    begin
       case Status is
          when Editor.Terminal_Tasks.Task_Running =>
-            return Guikit.Draw.Label_Blue_Color;
+            return Guikit.Draw.Accent_Blue_Color;
          when Editor.Terminal_Tasks.Task_Succeeded =>
-            return Guikit.Draw.Label_Green_Color;
+            return Guikit.Draw.Accent_Green_Color;
          when Editor.Terminal_Tasks.Task_Failed =>
             return Guikit.Draw.Error_Text_Color;
          when Editor.Terminal_Tasks.Task_Not_Available =>
             return Guikit.Draw.Disabled_Text_Color;
          when Editor.Terminal_Tasks.Task_Rejected =>
-            return Guikit.Draw.Label_Orange_Color;
+            return Guikit.Draw.Accent_Orange_Color;
          when Editor.Terminal_Tasks.Task_Timed_Out =>
-            return Guikit.Draw.Label_Orange_Color;
+            return Guikit.Draw.Accent_Orange_Color;
          when Editor.Terminal_Tasks.Task_Cancelled =>
             return Guikit.Draw.Muted_Text_Color;
          when Editor.Terminal_Tasks.Task_Not_Run =>

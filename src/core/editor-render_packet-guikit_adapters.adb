@@ -133,7 +133,7 @@ package body Editor.Render_Packet.Guikit_Adapters is
          Selection_Color => Guikit.Draw.Selection_Color,
          Hover_Color     => Guikit.Draw.Hover_Color,
          Border_Color    => Guikit.Draw.Border_Color,
-         Alternate_Color => Guikit.Draw.Detail_Alternate_Color);
+         Alternate_Color => Guikit.Draw.Alternate_Row_Color);
 
       for R of Rects loop
          Push_Guikit_Rectangle (Packet, Layer, R);

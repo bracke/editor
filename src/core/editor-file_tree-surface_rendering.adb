@@ -190,7 +190,7 @@ package body Editor.File_Tree.Surface_Rendering is
                               Enabled          => True,
                               Label_Color      =>
                                 (if Display_Node.Kind = Editor.File_Tree.Directory_Node then
-                                    Guikit.Draw.Icon_Directory_Color
+                                    Guikit.Draw.Icon_Folder_Color
                                  else
                                     Guikit.Draw.Text_Color),
                               Has_Background   => Is_Active and then not Is_Selected,

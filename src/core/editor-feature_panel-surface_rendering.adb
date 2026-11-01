@@ -71,7 +71,7 @@ package body Editor.Feature_Panel.Surface_Rendering is
                      Has_Background   => Is_Current_Symbol and then not Is_Selected,
                      Background_Color => Guikit.Draw.Hover_Color,
                      Accent_Color     =>
-                       (if Is_Current_Symbol then Guikit.Draw.Label_Orange_Color
+                       (if Is_Current_Symbol then Guikit.Draw.Accent_Orange_Color
                         else Guikit.Draw.Border_Color),
                      Shortcut_Color   => Guikit.Draw.Muted_Text_Color));
             end;

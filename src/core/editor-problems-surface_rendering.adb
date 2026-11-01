@@ -42,11 +42,11 @@ package body Editor.Problems.Surface_Rendering is
          when Editor.Problems.Problem_Error =>
             return Guikit.Draw.Error_Text_Color;
          when Editor.Problems.Problem_Warning =>
-            return Guikit.Draw.Label_Orange_Color;
+            return Guikit.Draw.Accent_Orange_Color;
          when Editor.Problems.Problem_Info =>
-            return Guikit.Draw.Label_Blue_Color;
+            return Guikit.Draw.Accent_Blue_Color;
          when Editor.Problems.Problem_Hint =>
-            return Guikit.Draw.Label_Gray_Color;
+            return Guikit.Draw.Accent_Gray_Color;
       end case;
    end Severity_Color;
 
